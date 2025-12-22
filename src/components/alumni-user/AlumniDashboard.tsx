@@ -1,4 +1,7 @@
+
 import { Card } from '../ui/card';
+import { Button } from '../ui/button';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 import type { User } from '../../App';
 import { 
   Heart, 
@@ -10,16 +13,85 @@ import {
   MessageSquare,
   TrendingUp,
   ChevronRight,
-  DollarSign
+  DollarSign,
+  Loader2,
+  UserCheck,
+  Mail,
+  Phone
 } from 'lucide-react';
-import { Button } from '../ui/button';
+
+import { useState, useEffect } from 'react';
+import { api, API_BASE } from '../../api';
+import { toast } from 'sonner';
 
 interface AlumniDashboardProps {
   user: User;
   onNavigate: (screen: any) => void;
 }
 
+
 export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
+  const [studentsInField, setStudentsInField] = useState<any[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const displayName = user.full_name || user.name || 'Alumni';
+  const displayCourse = user.course || user.meta?.course || user.meta?.field || 'Alumni';
+  const displayGradYear = user.graduationYear || user.meta?.graduationYear || user.meta?.graduation_year || 'N/A';
+
+  // Load students in the same field as the alumni
+  useEffect(() => {
+    const loadStudents = async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        // Get user's field from meta
+        const userField = user.meta?.field || 'General';
+        const students = await api.getStudentsByField(userField, token);
+        setStudentsInField(students);
+      } catch (error) {
+        console.error('Error loading students:', error);
+        setStudentsInField([]);
+      } finally {
+        setLoadingStudents(false);
+      }
+    };
+
+    loadStudents();
+
+    // Real-time notification polling every 5 seconds
+    const notificationInterval = setInterval(async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await fetch(`${API_BASE}/notifications/mine`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-cache' as RequestCache
+        });
+        if (response.ok) {
+          const notifications = await response.json();
+          if (Array.isArray(notifications)) {
+            const unreadNotifications = notifications.filter((n: any) => !n.read);
+            setUnreadCount(unreadNotifications.length);
+            // Show toast for new notifications (less than 10 seconds old)
+            unreadNotifications.forEach((notif: any) => {
+              const notifTime = new Date(notif.created_at).getTime();
+              const now = Date.now();
+              if (now - notifTime < 10000) {
+                toast.info(notif.title, {
+                  description: notif.message,
+                  duration: 5000,
+                });
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error polling notifications:', error);
+      }
+    }, 5000);
+
+    return () => clearInterval(notificationInterval);
+  }, [user.meta?.field]);
+
   const quickActions = [
     {
       id: 'donations',
@@ -72,9 +144,9 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   ];
 
   const donationStats = {
-    totalDonated: 5000000,
-    studentsHelped: 12,
-    currentYear: 3500000,
+    totalDonated: Number(user.meta?.totalDonated) || 0,
+    studentsHelped: Number(user.meta?.studentsHelped) || 0,
+    currentYear: Number(user.meta?.currentYearDonated) || 0,
   };
 
   const upcomingEvents = [
@@ -99,12 +171,25 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-primary to-[#1a4d7a] text-white p-6 md:p-8">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-6">
-            <p className="opacity-90 text-sm mb-1">Welcome back,</p>
-            <h1 className="text-2xl md:text-3xl">{user.name}</h1>
-            <p className="text-sm opacity-80 mt-1">
-              {user.course} • Class of {user.graduationYear}
-            </p>
+          <div className="mb-6 flex justify-between items-start">
+            <div>
+              <p className="opacity-90 text-sm mb-1">Welcome back,</p>
+              <h1 className="text-2xl md:text-3xl">{displayName}</h1>
+              <p className="text-sm opacity-80 mt-1">
+                {displayCourse} • Class of {displayGradYear}
+              </p>
+            </div>
+            <button 
+              onClick={() => onNavigate('notifications')} 
+              className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
+            >
+              <Mail className="w-6 h-6" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-semibold">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Donation Impact Card */}
@@ -118,9 +203,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-xs opacity-80">Total Donated</p>
-                <p className="text-xl mt-1">
-                  UGX {(donationStats.totalDonated / 1000000).toFixed(1)}M
-                </p>
+                <p className="text-xl mt-1">UGX {donationStats.totalDonated.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-xs opacity-80">Students Helped</p>
@@ -128,9 +211,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
               </div>
               <div>
                 <p className="text-xs opacity-80">This Year</p>
-                <p className="text-xl mt-1">
-                  UGX {(donationStats.currentYear / 1000000).toFixed(1)}M
-                </p>
+                <p className="text-xl mt-1">UGX {donationStats.currentYear.toLocaleString()}</p>
               </div>
             </div>
             <Button
@@ -210,8 +291,9 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
             </div>
           </div>
 
+
           {/* Mentorship Stats */}
-          <Card className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 border-0">
+          <Card className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 border-0 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg text-purple-900">Mentorship Program</h3>
@@ -244,6 +326,72 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
             >
               Open Mentorship Hub
             </Button>
+          </Card>
+
+          {/* Students in Field Section */}
+          <Card className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 border-0">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg text-blue-900">Students in Your Field</h3>
+                <p className="text-sm text-blue-700 mt-1">
+                  {user.meta?.field || 'General'} students looking for mentorship
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                <UserCheck className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            
+            {loadingStudents ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+              </div>
+            ) : studentsInField.length > 0 ? (
+              <>
+                <div className="text-center mb-4">
+                  <p className="text-2xl text-blue-900">{studentsInField.length}</p>
+                  <p className="text-xs text-blue-700">Students Available</p>
+                </div>
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {studentsInField.slice(0, 5).map((student) => (
+                    <div key={student.id} className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-blue-500 text-white text-xs">
+                          {student.name.split(' ').map((n: string) => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-blue-900 truncate">{student.name}</p>
+                        <p className="text-xs text-blue-700">{student.course} • Year {student.year}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" className="h-8 w-8 p-0 border-blue-300">
+                          <Mail className="w-3 h-3 text-blue-600" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {studentsInField.length > 5 && (
+                    <div className="text-center">
+                      <p className="text-xs text-blue-600">
+                        +{studentsInField.length - 5} more students
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  onClick={() => onNavigate('mentorship')}
+                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Start Mentoring
+                </Button>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-blue-700 mb-2">No students found in your field</p>
+                <p className="text-xs text-blue-600">Students from other fields might still benefit from your expertise!</p>
+              </div>
+            )}
           </Card>
         </div>
       </div>

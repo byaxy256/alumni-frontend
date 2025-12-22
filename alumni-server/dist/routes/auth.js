@@ -90,7 +90,16 @@ router.get('/me', async (req, res) => {
         if (!auth)
             return res.status(401).json({ error: 'No token' });
         const token = auth.replace('Bearer ', '');
-        const payload = jwt.verify(token, JWT_SECRET);
+        let payload;
+        try {
+            payload = jwt.verify(token, JWT_SECRET);
+        }
+        catch (err) {
+            if (err?.name === 'TokenExpiredError') {
+                return res.status(401).json({ error: 'Token expired' });
+            }
+            throw err;
+        }
         if (!payload?.id)
             return res.status(401).json({ error: 'Invalid token payload' });
         const [rows] = await db.execute('SELECT id, uid, full_name, email, phone, role, email_verified, meta FROM users WHERE id = ? LIMIT 1', [payload.id]);
@@ -120,6 +129,34 @@ router.get('/me', async (req, res) => {
     catch (err) {
         console.error('GET /me error:', err);
         res.status(401).json({ error: 'Invalid token' });
+    }
+});
+// --- GET ALL USERS (for testing) ---
+router.get('/users', async (req, res) => {
+    try {
+        const [rows] = await db.execute('SELECT uid, full_name, email, phone, role, meta FROM users ORDER BY created_at DESC LIMIT 20');
+        const users = rows.map(row => {
+            let userMeta = {};
+            try {
+                userMeta = typeof row.meta === 'string' ? JSON.parse(row.meta) : row.meta || {};
+            }
+            catch {
+                userMeta = {};
+            }
+            return {
+                uid: row.uid,
+                full_name: row.full_name,
+                email: row.email,
+                phone: row.phone,
+                role: row.role,
+                meta: userMeta
+            };
+        });
+        res.json(users);
+    }
+    catch (err) {
+        console.error('GET /users error:', err);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 router.get('/test', (req, res) => {

@@ -109,7 +109,15 @@ router.get('/me', async (req, res) => {
     const auth = req.headers.authorization;
     if (!auth) return res.status(401).json({ error: 'No token' });
     const token = auth.replace('Bearer ', '');
-    const payload: any = jwt.verify(token, JWT_SECRET);
+    let payload: any;
+    try {
+      payload = jwt.verify(token, JWT_SECRET);
+    } catch (err: any) {
+      if (err?.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token expired' });
+      }
+      throw err;
+    }
 
     if (!payload?.id) return res.status(401).json({ error: 'Invalid token payload' });
 
@@ -141,10 +149,40 @@ router.get('/me', async (req, res) => {
     res.status(401).json({ error: 'Invalid token' });
   }
 });
+
+// --- GET ALL USERS (for testing) ---
+router.get('/users', async (req, res) => {
+  try {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      'SELECT uid, full_name, email, phone, role, meta FROM users ORDER BY created_at DESC LIMIT 20'
+    );
+
+    const users = rows.map(row => {
+      let userMeta: any = {};
+      try { userMeta = typeof row.meta === 'string' ? JSON.parse(row.meta) : row.meta || {}; } catch { userMeta = {}; }
+      
+      return {
+        uid: row.uid,
+        full_name: row.full_name,
+        email: row.email,
+        phone: row.phone,
+        role: row.role,
+        meta: userMeta
+      };
+    });
+
+    res.json(users);
+  } catch (err) {
+    console.error('GET /users error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 router.get('/test', (req, res) => {
   console.log('🎉 /api/auth/test route was hit successfully!');
   res.send('Auth route test is working!');
 });
+
 // --- UPDATE CURRENT USER (profile save) ---
 router.put('/me', async (req, res) => {
   try {

@@ -1,16 +1,20 @@
 // src/App.tsx
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, ReactNode } from 'react';
 import LandingPage from './components/LandingPage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import { StudentApp } from './components/StudentApp';
 import { AlumniApp } from './components/AlumniApp';
+
 import { AlumniOfficeApp } from './components/AlumniOfficeApp';
 import { AdminApp } from './components/AdminApp';
 import { Toaster } from './components/ui/sonner';
 import { GraduationCap } from 'lucide-react';
+
 // This is the correct, complete User type definition
 export type User = {
+  field: string;
   graduationYear: ReactNode;
   id: number;
   uid: string;
@@ -34,24 +38,38 @@ export type User = {
   phoneNumber?: string;
 };
 
+
+
+
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [showLanding, setShowLanding] = useState(true);
   const [showSignUp, setShowSignUp] = useState(false);
+
+
+
   const [showLogin, setShowLogin] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const handleLogin = (userData: any, token: string) => {
-    // FIX: Changed String() to Number() to match the User type.
+    const meta = userData.meta ?? {};
+    const fullName = userData.full_name || userData.name || meta.full_name || '';
+    const course = userData.course || meta.course || meta.field || '';
+    const graduationYear = userData.graduationYear || userData.grad_year || meta.graduationYear || meta.graduation_year || '';
+
     const transformedUser: User = {
-      id: Number(userData.id || 0), // <-- THE FIX IS HERE
+      id: Number(userData.id || 0),
       uid: userData.uid || '',
-      full_name: userData.full_name || userData.name || '',
+      full_name: fullName,
+      name: fullName,
       email: userData.email || '',
       role: (userData.role || 'student') as User['role'],
-      // Add other relevant fields from userData to the user object
       phone: userData.phone || '',
-      meta: userData.meta ?? {}
+      meta,
+      course,
+      graduationYear,
+      field: ''
     };
 
     setUser(transformedUser);

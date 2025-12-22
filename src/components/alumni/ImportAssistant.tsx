@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import { ArrowLeft, Upload, Check, X, AlertTriangle, FileUp, Download, Users } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Progress } from '../ui/progress';
 import {
   Select,

@@ -31,8 +31,16 @@ router.get('/:otherUserId', authenticate, async (req, res) => {
             return res.status(400).json({ error: "No conversation partner specified." });
         }
         const conversationId = getConversationId(myUid, otherUserId);
-        const [messages] = await db.execute("SELECT id, sender_id, message_text, created_at FROM messages WHERE conversation_id = ? ORDER BY created_at ASC", [conversationId]);
-        res.json(messages || []); // Always return an array, even if it's empty
+        const [messages] = await db.execute("SELECT id, sender_uid, text, ts FROM messages WHERE chat_id = ? ORDER BY ts ASC", [conversationId]);
+        // Map database columns to frontend expected format
+        const formattedMessages = (messages || []).map((msg) => ({
+            id: msg.id,
+            sender_id: msg.sender_uid,
+            message_text: msg.text,
+            created_at: msg.ts,
+            status: 'delivered' // All fetched messages are delivered
+        }));
+        res.json(formattedMessages);
     }
     catch (err) {
         console.error("Fetch chat error:", err);
@@ -47,7 +55,19 @@ router.get('/:otherUserId', authenticate, async (req, res) => {
 router.post('/', authenticate, async (req, res) => {
     try {
         const myUid = req.user.uid;
-        const { recipientId, message } = req.body;
+        // Accept both field names for backward compatibility
+        const recipientId = req.body.recipientId || req.body.otherUserId;
+        const message = req.body.message || req.body.text;
+        // Debug: log payload basics (avoid logging full message content)
+        try {
+            console.log('Chat POST payload', {
+                myUid,
+                recipientId,
+                hasMessage: typeof message === 'string',
+                messageLength: typeof message === 'string' ? message.length : undefined,
+            });
+        }
+        catch { }
         // --- Stricter Validation ---
         if (!recipientId || typeof recipientId !== 'string') {
             return res.status(400).json({ error: "A valid recipient ID is required." });
@@ -61,15 +81,33 @@ router.post('/', authenticate, async (req, res) => {
         }
         const conversationId = getConversationId(myUid, recipientId);
         const trimmedMessage = message.trim();
-        const [result] = await db.execute("INSERT INTO messages (conversation_id, sender_id, recipient_id, message_text) VALUES (?, ?, ?, ?)", [conversationId, myUid, recipientId, trimmedMessage]);
-        // Return the ID of the newly created message, which is useful for the frontend UI.
+        // Debug conversation id
+        try {
+            console.log('Creating message for conversationId', conversationId);
+        }
+        catch { }
+        const [result] = await db.execute("INSERT INTO messages (chat_id, sender_uid, text) VALUES (?, ?, ?)", [conversationId, myUid, trimmedMessage]);
+        // Get sender's name for notification
+        const [senderRows] = await db.execute('SELECT full_name FROM users WHERE uid = ? LIMIT 1', [myUid]);
+        const senderName = senderRows[0]?.full_name || 'Someone';
+        // Create notification for recipient
+        await db.execute('INSERT INTO notifications (target_uid, title, message) VALUES (?, ?, ?)', [recipientId, 'New Message', `${senderName} sent you a message: ${trimmedMessage.substring(0, 50)}${trimmedMessage.length > 50 ? '...' : ''}`]);
+        // Return the formatted message for frontend
         res.status(201).json({
             id: result.insertId,
+            sender_id: myUid,
+            message_text: trimmedMessage,
+            created_at: new Date().toISOString(),
+            status: 'sent',
             message: "Message sent successfully"
         });
     }
     catch (err) {
-        console.error("Send message error:", err);
+        // Log more context for debugging purposes
+        try {
+            console.error('Send message error:', err, 'body:', req.body);
+        }
+        catch { }
         res.status(500).json({ error: "Server error while sending message." });
     }
 });

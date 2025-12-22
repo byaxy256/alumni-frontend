@@ -1,5 +1,6 @@
 // src/components/AlumniApp.tsx
 
+
 import { useState } from 'react';
 import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare, LogOut } from 'lucide-react';
 import type { User as UserType } from '../App';
@@ -12,13 +13,15 @@ import { AlumniBenefits } from './alumni-user/AlumniBenefits';
 import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
 import { MentorshipHub } from './alumni-user/MentorshipHub';
+import { AlumniNotifications } from './alumni-user/AlumniNotifications';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 interface AlumniAppProps {
   user: UserType;
   onLogout: () => void;
 }
 
-type AlumniScreen = 'dashboard' | 'donations' | 'events' | 'connect' | 'news' | 'benefits' | 'chapters' | 'profile' | 'mentorship';
+type AlumniScreen = 'dashboard' | 'donations' | 'events' | 'connect' | 'news' | 'benefits' | 'chapters' | 'profile' | 'mentorship' | 'notifications';
 
 // --- IMPROVEMENT 2: Single source of truth for all navigation items ---
 const navItems = [
@@ -67,6 +70,8 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
         return <AlumniProfile user={user} onBack={() => handleNavigate('dashboard')} onLogout={onLogout} />;
       case 'mentorship':
         return <MentorshipHub user={user} onBack={() => handleNavigate('dashboard')} />;
+      case 'notifications':
+        return <AlumniNotifications user={user} onBack={() => handleNavigate('dashboard')} />;
       default:
         return <AlumniDashboard user={user} onNavigate={handleNavigate} />;
     }
@@ -77,11 +82,13 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar Navigation */}
       <aside className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200 fixed h-screen">
+
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <div>
             <h1 className="text-primary">Alumni Connect</h1>
             <p className="text-sm text-gray-600 mt-1">Alumni Portal</p>
           </div>
+          <ThemeToggle />
         </div>
         
         <nav className="flex-1 p-4 overflow-y-auto">

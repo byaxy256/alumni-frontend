@@ -19,6 +19,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   const [loans, setLoans] = useState<Loan[]>([]);
   const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [mentors, setMentors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
 
@@ -29,18 +30,21 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
         const token = localStorage.getItem('token') || '';
         const fetchOptions = { headers: { Authorization: `Bearer ${token}` }, cache: 'no-cache' as RequestCache };
         
-        const [meRes, loansRes, supportRes, notifsRes] = await Promise.all([
+        const [meRes, loansRes, supportRes, notifsRes, mentorsRes] = await Promise.all([
           fetch(`${API_BASE}/auth/me`, fetchOptions),
           fetch(`${API_BASE}/loans/mine`, fetchOptions),
           fetch(`${API_BASE}/support/mine`, fetchOptions),
           fetch(`${API_BASE}/notifications/mine`, fetchOptions),
+          fetch(`${API_BASE}/mentors/my-mentors`, fetchOptions),
         ]);
 
         if (meRes.ok) { const meJson = await meRes.json(); if (meJson.user) setMe(meJson.user); }
         const loansJson = loansRes.ok ? await loansRes.json() : [];
         const supportJson = supportRes.ok ? await supportRes.json() : [];
+        const mentorsJson = mentorsRes.ok ? await mentorsRes.json() : [];
         setLoans(Array.isArray(loansJson) ? loansJson : []);
         setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
+        setMentors(Array.isArray(mentorsJson) ? mentorsJson : []);
         
         const notifsJson = notifsRes.ok ? await notifsRes.json() : [];
         setNotifications(Array.isArray(notifsJson) ? notifsJson.map((n: any) => ({
@@ -57,11 +61,73 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
     fetchAll();
     const onAppSubmitted = () => fetchAll();
     window.addEventListener('application:submitted', onAppSubmitted);
-    return () => window.removeEventListener('application:submitted', onAppSubmitted);
-  }, []);
 
-  const handleNotificationClick = async (notification: NotificationItem) => { /* ... */ };
-  const handleViewAllNotifications = async () => { /* ... */ };
+    // Real-time notification polling every 5 seconds
+    const notificationInterval = setInterval(async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await fetch(`${API_BASE}/notifications/mine`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-cache' as RequestCache
+        });
+        if (response.ok) {
+          const notifsJson = await response.json();
+          const newNotifications = Array.isArray(notifsJson) ? notifsJson.map((n: any) => ({
+            id: n.id, title: n.title, message: n.message, time: n.created_at, read: !!n.read
+          })) : [];
+          
+          // Check for new unread notifications
+          const oldUnreadIds = notifications.filter(n => !n.read).map(n => n.id);
+          const newUnreadNotifs = newNotifications.filter((n: NotificationItem) => 
+            !n.read && !oldUnreadIds.includes(n.id)
+          );
+          
+          // Show toast for new notifications
+          if (newUnreadNotifs.length > 0) {
+            newUnreadNotifs.forEach((notif: NotificationItem) => {
+              toast.info(notif.title, {
+                description: notif.message,
+                duration: 5000,
+              });
+            });
+          }
+          
+          setNotifications(newNotifications);
+        }
+      } catch (error) {
+        console.error('Error polling notifications:', error);
+      }
+    }, 5000);
+
+    return () => {
+      window.removeEventListener('application:submitted', onAppSubmitted);
+      clearInterval(notificationInterval);
+    };
+  }, [notifications]);
+
+  const handleNotificationClick = async (notification: NotificationItem) => {
+    setSelectedNotification(notification);
+    // Mark as read if not already read
+    if (!notification.read) {
+      try {
+        const token = localStorage.getItem('token') || '';
+        await fetch(`${API_BASE}/notifications/${notification.id}/read`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // Update local state
+        setNotifications(prev => prev.map(n => 
+          n.id === notification.id ? { ...n, read: true } : n
+        ));
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+  };
+
+  const handleViewAllNotifications = () => {
+    onNavigate('notifications');
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const activeLoan = loans.find(l => l.status === 'approved');
@@ -200,7 +266,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
               <p className="text-xs text-green-700 mt-1">Active Loans</p>
             </Card>
             <Card className="p-4 text-center border-0 bg-gradient-to-br from-purple-50 to-purple-100">
-              <p className="text-2xl font-bold text-purple-900">0</p>
+              <p className="text-2xl font-bold text-purple-900">{mentors.length}</p>
               <p className="text-xs text-purple-700 mt-1">Mentors</p>
             </Card>
           </div>
