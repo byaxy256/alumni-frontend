@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import AlumniDashboard from './alumni/AlumniDashboard';
 import ApplicationsQueue from './alumni/ApplicationsQueue';
@@ -17,13 +18,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 interface AlumniOfficeAppProps {
   user: User;
   onLogout: () => void;
 }
 
-type AlumniScreen = 'dashboard' | 'applications' | 'import' | 'broadcast' | 'projects' | 'merch' | 'footprints' | 'reports';
+
+type AlumniScreen = 'dashboard' | 'applications' | 'import' | 'broadcast' | 'projects' | 'merch' | 'footprints' | 'reports' | 'manage-content';
 
 export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<AlumniScreen>('dashboard');
@@ -36,7 +39,8 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
     { id: 'broadcast', label: 'Broadcast', icon: Mail },
     { id: 'projects', label: 'Projects', icon: FolderOpen },
     { id: 'merch', label: 'Merch & Events', icon: ShoppingBag },
-    {id: 'ManageContent', label: 'ManageContent', icon: Settings2Icon},
+
+    { id: 'manage-content', label: 'Manage Content', icon: Settings2Icon },
     { id: 'reports', label: 'Reports', icon: BarChart3 },
   ];
 
@@ -54,12 +58,14 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
         return <ProjectManagement />;
       case 'merch':
         return <MerchEvents />;
+
+
       case 'footprints':
         return <Footprints />;
-      case 'projects': 
-        return <ManageContent />;
       case 'reports':
         return <Reports />;
+      case 'manage-content':
+        return <ManageContent />;
       default:
         return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as AlumniScreen)} />;
     }
@@ -112,8 +118,10 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
             </DropdownMenu>
           </div>
 
+
           {/* Desktop Menu */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="ghost" onClick={onLogout}>
               <LogOut size={16} className="mr-2" />
               Logout

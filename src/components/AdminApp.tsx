@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Bell, Settings, Users, FileText, CreditCard, Shield, LogOut, Home, Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
@@ -7,6 +8,7 @@ import UserRoleManagement from './admin/UserRoleManagement';
 import DisbursementApproval from './admin/DisbursementApproval';
 import AuditLegal from './admin/AuditLegal';
 import { User } from '../App';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'config' | 'users' | 'disbursements' | 'audit'>('dashboard');
@@ -25,8 +27,10 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col bg-sidebar">
         <div className="flex flex-col flex-1 min-h-0">
-          <div className="flex items-center h-16 flex-shrink-0 px-6 bg-primary border-b border-sidebar-border">
+
+          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 bg-primary border-b border-sidebar-border">
             <h1 className="text-sidebar-foreground">Alumni connect Admin</h1>
+            <ThemeToggle />
           </div>
           <nav className="flex-1 px-4 py-6 space-y-2">
             {menuItems.map((item) => {

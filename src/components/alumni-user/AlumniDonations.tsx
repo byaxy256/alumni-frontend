@@ -15,6 +15,12 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
   const [amount, setAmount] = useState('');
   const [selectedCause, setSelectedCause] = useState('');
 
+  const donationStats = {
+    totalDonated: Number(user.meta?.totalDonated) || 0,
+    studentsHelped: Number(user.meta?.studentsHelped) || 0,
+    currentYear: Number(user.meta?.currentYearDonated) || 0,
+  };
+
   const causes = [
     { id: 'student-loans', name: 'Student Loan Fund', raised: 15000000, goal: 30000000 },
     { id: 'scholarships', name: 'Merit Scholarships', raised: 8000000, goal: 20000000 },
@@ -43,15 +49,15 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <p className="text-sm opacity-80">Total Donated</p>
-              <p className="text-2xl mt-1">UGX 5M</p>
+              <p className="text-2xl mt-1">UGX {donationStats.totalDonated.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-sm opacity-80">Students Helped</p>
-              <p className="text-2xl mt-1">12</p>
+              <p className="text-2xl mt-1">{donationStats.studentsHelped}</p>
             </div>
             <div>
               <p className="text-sm opacity-80">This Year</p>
-              <p className="text-2xl mt-1">UGX 3.5M</p>
+              <p className="text-2xl mt-1">UGX {donationStats.currentYear.toLocaleString()}</p>
             </div>
           </div>
         </Card>

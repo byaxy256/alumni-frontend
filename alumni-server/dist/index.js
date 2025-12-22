@@ -22,6 +22,7 @@ import chatRoutes from './routes/chats.js';
 import disburseRoutes from './routes/disburse.js';
 import uploadRoutes from './routes/upload.js';
 import paymentRoutes from './routes/payments.js';
+import mentorRoutes from './routes/mentors.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -33,7 +34,8 @@ app.use(cors({
         'http://localhost:3000',
         'http://localhost:300',
         'http://localhost:3002',
-        'http://localhost:3001'
+        'http://localhost:3001',
+        'http://localhost:5173', // Vite dev server
     ],
     credentials: true
 }));
@@ -54,6 +56,7 @@ app.use('/api/disburse', disburseRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/mentors', mentorRoutes);
 // root
 app.get('/', (req, res) => res.send('UCU Alumni Circle Server Running'));
 // 404

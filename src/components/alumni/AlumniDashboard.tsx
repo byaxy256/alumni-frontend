@@ -5,6 +5,7 @@ import { Badge } from '../ui/badge';
 import { DollarSign, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { User } from '../../App';
+import { API_BASE } from '../../api';
 
 interface AlumniDashboardProps {
   user: User;
@@ -45,29 +46,40 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   const [me, setMe] = useState<User | null>(null);
 
   // Derived metrics
-  const pendingApplications = supportRequests.filter(sr => (sr.status ?? '').toLowerCase() === 'pending').length;
-  const activeLoans = loans.filter(l => (l.status ?? '').toLowerCase() === 'active').length;
-  const totalDisbursed = loans.reduce((s, l) => s + (Number(l.disbursedAmount ?? l.amount ?? 0)), 0);
+  const pendingApplications =
+    supportRequests.filter(sr => (sr.status ?? '').toLowerCase() === 'pending').length +
+    loans.filter(l => (l.status ?? '').toLowerCase() === 'pending').length;
 
-  // monthly income derived from loan createdAt & amount (best-effort)
-  const monthlyIncome = (() => {
+  // Treat approved loans as active for dashboard purposes
+  const activeLoans = loans.filter(l => {
+    const status = (l.status ?? '').toLowerCase();
+    return status === 'active' || status === 'approved';
+  }).length;
+  const totalDisbursed = loans.reduce(
+    (s, l) => s + Number((l as any).disbursedAmount ?? (l as any).disbursed_amount ?? l.amount ?? 0),
+    0
+  );
+
+  // monthly applications received derived from supportRequests & loans createdAt
+  const monthlyApplications = (() => {
     // build last 5 months labels
-    const months: { month: string; amount: number }[] = [];
+    const months: { month: string; applications: number }[] = [];
     const now = new Date();
     for (let i = 4; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const label = d.toLocaleString(undefined, { month: 'short' });
-      months.push({ month: label, amount: 0 });
+      months.push({ month: label, applications: 0 });
     }
 
-    loans.forEach(l => {
-      const dateStr = l.createdAt || '';
-      const amt = Number(l.amount ?? l.disbursedAmount ?? 0);
-      if (!amt || !dateStr) return;
+    // Count applications (both loans and support requests)
+    const allApplications = [...loans, ...supportRequests];
+    allApplications.forEach(app => {
+      const dateStr = (app as any).createdAt || (app as any).created_at || '';
+      if (!dateStr) return;
       const d = new Date(dateStr);
       const label = d.toLocaleString(undefined, { month: 'short' });
       const idx = months.findIndex(m => m.month === label);
-      if (idx >= 0) months[idx].amount += amt;
+      if (idx >= 0) months[idx].applications += 1;
     });
 
     return months;
@@ -131,26 +143,41 @@ useEffect(() => {
   const token = localStorage.getItem('token') || '';
   const headers = { Authorization: `Bearer ${token}` };
 
+  console.log('AlumniDashboard loading with token:', token ? 'present' : 'missing');
+
   async function loadAll() {
     setLoading(true);
     try {
-      // FIX: Changed endpoints to fetch ALL pending applications, not just "mine"
       const [loansRes, supportRes, notifsRes, meRes] = await Promise.all([
-        fetch('/api/loans?status=pending', { headers, signal: ac.signal }),
-        fetch('/api/support_requests?status=pending', { headers, signal: ac.signal }), // Assuming a similar endpoint exists for support
-        fetch('/api/notifications/mine', { headers, signal: ac.signal }), // 'mine' is okay for notifications
-        fetch('/api/auth/me', { headers, signal: ac.signal }), // 'me' is correct here
+        fetch(`${API_BASE}/loans`, { headers, signal: ac.signal }),
+        fetch(`${API_BASE}/support`, { headers, signal: ac.signal }),
+        fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal }),
+        fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal }),
       ]);
+      console.log('API Responses:', {
+        loans: loansRes.status,
+        support: supportRes.status,
+        notifs: notifsRes.status,
+        me: meRes.status,
+      });
 
-      // ... (rest of the useEffect is fine) ...
       const loansJson = loansRes.ok ? await loansRes.json() : [];
       const supportJson = supportRes.ok ? await supportRes.json() : [];
-      // ...
+      const notifsJson = notifsRes.ok ? await notifsRes.json() : [];
+      const meJson = meRes.ok ? await meRes.json() : null;
+      console.log('Fetched data:', {
+        loans: Array.isArray(loansJson) ? loansJson.length : 0,
+        support: Array.isArray(supportJson) ? supportJson.length : 0,
+        notifs: Array.isArray(notifsJson) ? notifsJson.length : 0,
+      });
+
+      // Store all loans and support requests (don't filter - we need all data for charts and calculations)
       setLoans(Array.isArray(loansJson) ? loansJson : []);
       setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
-      // ...
+      setNotifications(Array.isArray(notifsJson) ? notifsJson : []);
+      setMe(meJson || null);
     } catch (err: any) {
-      // ...
+      console.error('Dashboard fetch error', err);
     } finally {
       setLoading(false);
     }
@@ -243,17 +270,17 @@ useEffect(() => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base lg:text-lg">Monthly Income Trend</CardTitle>
+            <CardTitle className="text-base lg:text-lg">Monthly Applications Received</CardTitle>
             <CardDescription>Last 5 months</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={monthlyIncome}>
+              <BarChart data={monthlyApplications}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Bar dataKey="amount" fill="#0b2a4a" />
+                <Bar dataKey="applications" fill="#0b2a4a" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

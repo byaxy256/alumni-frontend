@@ -133,6 +133,66 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Dark mode overrides for legacy light utility classes used in components */
+  .dark .bg-white,
+  .dark .bg-gray-50,
+  .dark .bg-gray-100,
+  .dark .bg-gray-200,
+  .dark .bg-gray-50\/50,
+  .dark .bg-white\/50,
+  .dark .bg-white\/60,
+  .dark .bg-white\/70,
+  .dark .bg-white\/80,
+  .dark .bg-white\/90 {
+    background-color: var(--card) !important;
+    color: var(--foreground) !important;
+  }
+
+  .dark .text-black,
+  .dark .text-gray-900,
+  .dark .text-gray-800,
+  .dark .text-gray-700,
+  .dark .text-gray-600,
+  .dark .text-gray-500,
+  .dark .text-gray-400,
+  .dark .text-gray-300,
+  .dark .text-gray-200 {
+    color: var(--foreground) !important;
+  }
+
+  .dark .border-gray-100,
+  .dark .border-gray-200,
+  .dark .border-gray-300,
+  .dark .border-gray-400,
+  .dark .border-gray-500 {
+    border-color: var(--border) !important;
+  }
+
+  /* Inputs & cards with fixed light backgrounds */
+  .dark input,
+  .dark textarea,
+  .dark select {
+    background-color: var(--input-background) !important;
+    color: var(--foreground) !important;
+  }
+
+  /* Sticky navs / sidebars that hardcode light backgrounds */
+  .dark .border,
+  .dark .border-t,
+  .dark .border-b,
+  .dark .border-l,
+  .dark .border-r {
+    border-color: var(--border) !important;
+  }
+
+  .dark .card,
+  .dark .bg-card,
+  .dark .card-content,
+  .dark .card-body {
+    background-color: var(--card) !important;
+    color: var(--foreground) !important;
+  }
 }
 
 /**

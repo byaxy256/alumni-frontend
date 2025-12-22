@@ -177,4 +177,74 @@ router.get('/:paymentId/receipt', authenticate, async (req, res) => {
         res.status(500).json({ error: 'Failed to generate PDF receipt.' });
     }
 });
+// POST /api/payments/initialize (For event registrations with MTN/Airtel)
+router.post('/initialize', authenticate, async (req, res) => {
+    try {
+        const { amount, phone, reference, type, description } = req.body;
+        const user = req.user || {};
+        const userUid = user.uid;
+        if (!amount || !reference || !userUid) {
+            return res.status(400).json({ message: 'Amount and reference are required.' });
+        }
+        // Ensure event_payments table exists
+        await db.execute(`CREATE TABLE IF NOT EXISTS event_payments (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              event_id INT NOT NULL,
+              user_uid VARCHAR(64) NOT NULL,
+              amount INT NOT NULL,
+              method VARCHAR(32) DEFAULT NULL,
+              status VARCHAR(16) NOT NULL,
+              reference VARCHAR(128) DEFAULT NULL,
+              transaction_id VARCHAR(64) DEFAULT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+        // parse event id from reference format 'event-<id>'
+        const match = String(reference).match(/^event-(\d+)$/);
+        const eventId = match ? Number(match[1]) : null;
+        if (!eventId) {
+            return res.status(400).json({ message: 'Invalid reference format' });
+        }
+        const transactionId = uuidv4();
+        // Insert as PENDING
+        await db.execute('INSERT INTO event_payments (event_id, user_uid, amount, method, status, reference, transaction_id) VALUES (?, ?, ?, ?, ?, ?, ?)', [eventId, userUid, Number(amount), type || null, 'PENDING', reference, transactionId]);
+        // In a real implementation, you would:
+        // 1. Call MTN/Airtel API to initiate payment
+        // 2. Get a payment URL or code
+        // 3. Return it to the client
+        // For now, return success (student will auto-register)
+        // In production, implement actual payment provider integration
+        res.status(200).json({
+            message: 'Payment initialized',
+            transactionId,
+            status: 'PENDING'
+        });
+    }
+    catch (err) {
+        console.error('POST /payments/initialize error:', err);
+        res.status(500).json({ message: 'Payment initialization failed' });
+    }
+});
+// POST /api/payments/confirm-event
+// Simulate provider callback: mark SUCCESS and auto-register the user for the event
+router.post('/confirm-event', authenticate, async (req, res) => {
+    try {
+        const { reference } = req.body;
+        const user = req.user || {};
+        const userUid = user.uid;
+        const match = String(reference).match(/^event-(\d+)$/);
+        const eventId = match ? Number(match[1]) : null;
+        if (!eventId || !userUid) {
+            return res.status(400).json({ message: 'Invalid request' });
+        }
+        // Mark last pending payment as SUCCESS
+        await db.execute('UPDATE event_payments SET status = ? WHERE event_id = ? AND user_uid = ? AND status = ? ORDER BY id DESC LIMIT 1', ['SUCCESS', eventId, userUid, 'PENDING']);
+        // Create registration if not already registered
+        await db.execute('INSERT IGNORE INTO event_registrations (event_id, student_uid, registered_at) VALUES (?, ?, NOW())', [eventId, userUid]);
+        res.json({ message: 'Payment confirmed and registration completed' });
+    }
+    catch (err) {
+        console.error('POST /payments/confirm-event error:', err);
+        res.status(500).json({ message: 'Failed to confirm payment' });
+    }
+});
 export default router;

@@ -1,114 +1,91 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ArrowLeft, AlertCircle, CheckCircle2, Info, AlertTriangle, FileText, DollarSign } from 'lucide-react';
+import { ArrowLeft, AlertCircle, CheckCircle2, Info, AlertTriangle, FileText, DollarSign, Loader2 } from 'lucide-react';
 import type { User } from '../../App';
 import { toast } from 'sonner';
+import { API_BASE } from '../../api';
 
 interface NotificationsProps {
   user: User;
   onBack: () => void;
 }
 
-export function Notifications({ user, onBack }: NotificationsProps) {
-  const notifications = [
-    {
-      id: 1,
-      type: 'success',
-      category: 'loan',
-      title: 'Loan Disbursement Approved',
-      message: 'Your loan application #LOAN-2024-001 has been approved. UGX 5,000,000 will be disbursed within 3 business days.',
-      date: '2025-10-28T10:30:00',
-      read: false,
-      actionLabel: 'View Loan',
-    },
-    {
-      id: 2,
-      type: 'info',
-      category: 'payment',
-      title: 'Upcoming Chop Deduction Notice',
-      message: 'A chop deduction of UGX 400,000 is scheduled for November 15, 2025. Ensure you have sufficient balance in your university account.',
-      date: '2025-10-25T14:15:00',
-      read: false,
-      actionLabel: 'View Details',
-    },
-    {
-      id: 3,
-      type: 'warning',
-      category: 'document',
-      title: 'Receipt Upload Required',
-      message: 'Please upload your tuition receipt for Semester 2, 2024/2025 to continue receiving support.',
-      date: '2025-10-20T09:00:00',
-      read: true,
-      actionLabel: 'Upload Now',
-    },
-    {
-      id: 4,
-      type: 'success',
-      category: 'payment',
-      title: 'Payment Received',
-      message: 'We have received your payment of UGX 400,000. Your outstanding balance is now UGX 3,200,000.',
-      date: '2025-10-15T16:45:00',
-      read: true,
-    },
-    {
-      id: 5,
-      type: 'info',
-      category: 'mentorship',
-      title: 'Mentor Request Accepted',
-      message: 'Dr. Sarah Nakabugo has accepted your mentorship request. You can now schedule your first session.',
-      date: '2025-10-10T11:20:00',
-      read: true,
-      actionLabel: 'Schedule Session',
-    },
-    {
-      id: 6,
-      type: 'info',
-      category: 'loan',
-      title: 'Application Under Review',
-      message: 'Your loan application is being reviewed by the Alumni Office. You will be notified within 5 business days.',
-      date: '2025-10-05T13:00:00',
-      read: true,
-    },
-    {
-      id: 7,
-      type: 'success',
-      category: 'document',
-      title: 'Document Verified',
-      message: 'Your student ID card has been verified successfully.',
-      date: '2025-10-01T10:10:00',
-      read: true,
-    },
-  ];
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  created_at: string;
+  read?: boolean;
+}
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle2 size={20} className="text-green-600" />;
-      case 'warning':
-        return <AlertTriangle size={20} className="text-yellow-600" />;
-      case 'info':
-        return <Info size={20} className="text-blue-600" />;
-      case 'error':
-        return <AlertCircle size={20} className="text-red-600" />;
-      default:
-        return <Info size={20} className="text-gray-600" />;
+export function Notifications({ user, onBack }: NotificationsProps) {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await fetch(`${API_BASE}/notifications/mine`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-cache' as RequestCache
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      toast.error('Failed to load notifications');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getBgColor = (type: string) => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-100';
-      case 'warning':
-        return 'bg-yellow-100';
-      case 'info':
-        return 'bg-blue-100';
-      case 'error':
-        return 'bg-red-100';
-      default:
-        return 'bg-gray-100';
+  useEffect(() => {
+    fetchNotifications();
+    
+    // Poll for new notifications every 5 seconds
+    const interval = setInterval(fetchNotifications, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const getIcon = (title: string | undefined) => {
+    // Determine icon based on notification title
+    const titleLower = (title || '').toLowerCase();
+    if (titleLower.includes('approved') || titleLower.includes('accepted') || titleLower.includes('success')) {
+      return <CheckCircle2 size={20} className="text-green-600" />;
+    } else if (titleLower.includes('declined') || titleLower.includes('rejected')) {
+      return <AlertCircle size={20} className="text-red-600" />;
+    } else if (titleLower.includes('message')) {
+      return <Info size={20} className="text-blue-600" />;
+    } else {
+      return <Info size={20} className="text-gray-600" />;
     }
+  };
+
+  const getBgColor = (title: string | undefined) => {
+    const titleLower = (title || '').toLowerCase();
+    if (titleLower.includes('approved') || titleLower.includes('accepted')) {
+      return 'bg-green-100';
+    } else if (titleLower.includes('declined') || titleLower.includes('rejected')) {
+      return 'bg-red-100';
+    } else if (titleLower.includes('message')) {
+      return 'bg-blue-100';
+    } else {
+      return 'bg-gray-100';
+    }
+  };
+
+  const getCategory = (title: string | undefined) => {
+    const titleLower = (title || '').toLowerCase();
+    if (titleLower.includes('mentor')) return 'mentorship';
+    if (titleLower.includes('message')) return 'message';
+    if (titleLower.includes('loan')) return 'loan';
+    if (titleLower.includes('payment')) return 'payment';
+    return 'general';
   };
 
   const getCategoryIcon = (category: string) => {
@@ -117,15 +94,47 @@ export function Notifications({ user, onBack }: NotificationsProps) {
         return <DollarSign size={14} />;
       case 'payment':
         return <DollarSign size={14} />;
-      case 'document':
-        return <FileText size={14} />;
+      case 'message':
+        return <Info size={14} />;
+      case 'mentorship':
+        return <Info size={14} />;
       default:
-        return null;
+        return <FileText size={14} />;
     }
   };
 
-  const handleMarkAllRead = () => {
-    toast.success('All notifications marked as read');
+  const handleMarkAllRead = async () => {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const response = await fetch(`${API_BASE}/notifications/read-all`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        toast.success('All notifications marked as read');
+      }
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      toast.error('Failed to mark notifications as read');
+    }
+  };
+
+  const handleNotificationClick = async (notification: NotificationItem) => {
+    if (!notification.read) {
+      try {
+        const token = localStorage.getItem('token') || '';
+        await fetch(`${API_BASE}/notifications/${notification.id}/read`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotifications(prev => prev.map(n => 
+          n.id === notification.id ? { ...n, read: true } : n
+        ));
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -151,6 +160,14 @@ export function Notifications({ user, onBack }: NotificationsProps) {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b sticky top-0 z-10">
@@ -166,56 +183,55 @@ export function Notifications({ user, onBack }: NotificationsProps) {
                 {notifications.filter((n) => !n.read).length} unread
               </p>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleMarkAllRead}>
-              Mark all read
-            </Button>
+            {notifications.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={handleMarkAllRead}>
+                Mark all read
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
       <div className="p-4 space-y-3">
-        {notifications.map((notification) => (
-          <Card key={notification.id} className={!notification.read ? 'border-l-4' : ''} style={!notification.read ? { borderLeftColor: '#0b2a4a' } : {}}>
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-full ${getBgColor(notification.type)} flex items-center justify-center flex-shrink-0`}>
-                  {getIcon(notification.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <p className={`text-sm ${!notification.read ? 'font-medium' : ''}`}>
-                      {notification.title}
-                    </p>
-                    {!notification.read && (
-                      <div className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0 mt-1"></div>
-                    )}
+        {notifications.map((notification) => {
+          const category = getCategory(notification.title);
+          return (
+            <Card 
+              key={notification.id} 
+              className={`${!notification.read ? 'border-l-4' : ''} cursor-pointer hover:shadow-md transition-shadow`} 
+              style={!notification.read ? { borderLeftColor: '#0b2a4a' } : {}}
+              onClick={() => handleNotificationClick(notification)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-full ${getBgColor(notification.title)} flex items-center justify-center flex-shrink-0`}>
+                    {getIcon(notification.title)}
                   </div>
-                  <p className="text-xs text-gray-600 leading-relaxed">{notification.message}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="outline" className="text-xs">
-                      <span className="flex items-center gap-1">
-                        {getCategoryIcon(notification.category)}
-                        {notification.category}
-                      </span>
-                    </Badge>
-                    <span className="text-xs text-gray-500">{formatDate(notification.date)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className={`text-sm ${!notification.read ? 'font-medium' : ''}`}>
+                        {notification.title}
+                      </p>
+                      {!notification.read && (
+                        <div className="w-2 h-2 rounded-full bg-blue-600 flex-shrink-0 mt-1"></div>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed">{notification.message}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="outline" className="text-xs">
+                        <span className="flex items-center gap-1">
+                          {getCategoryIcon(category)}
+                          {category}
+                        </span>
+                      </Badge>
+                      <span className="text-xs text-gray-500">{formatDate(notification.created_at)}</span>
+                    </div>
                   </div>
-                  {notification.actionLabel && (
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="p-0 h-auto mt-2"
-                      style={{ color: '#0b2a4a' }}
-                      onClick={() => toast.info('Opening...')}
-                    >
-                      {notification.actionLabel} →
-                    </Button>
-                  )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
 
         {notifications.length === 0 && (
           <Card>

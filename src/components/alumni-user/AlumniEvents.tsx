@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import type { User } from '../../App';
-import { ArrowLeft, Calendar, MapPin, Users } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Loader2 } from 'lucide-react';
+import { API_BASE } from '../../api';
+import { ImageWithFallback } from '../figma_image/ImageWithFallback';
 
 interface AlumniEventsProps {
   user: User;
@@ -9,11 +12,34 @@ interface AlumniEventsProps {
 }
 
 export function AlumniEvents({ user, onBack }: AlumniEventsProps) {
-  const events = [
-    { id: '1', title: 'Class of 2020 Reunion', date: 'Dec 15, 2025', location: 'UCU Main Campus', attendees: 45, image: 'reunion' },
-    { id: '2', title: 'Alumni Networking Dinner', date: 'Jan 10, 2026', location: 'Serena Hotel', attendees: 120, image: 'networking' },
-    { id: '3', title: 'Career Development Workshop', date: 'Jan 25, 2026', location: 'Virtual', attendees: 200, image: 'workshop' },
-  ];
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/content/events?audience=alumni`);
+        if (!res.ok) throw new Error('Failed to fetch events');
+        const raw = await res.json();
+        const items = Array.isArray(raw) ? raw : raw?.content || [];
+        const mapped = items.map((it: any) => ({
+          id: it.id,
+          title: it.title,
+          date: it.date ? new Date(it.date).toLocaleDateString() : '',
+          time: it.time || '',
+          location: it.location || '',
+          attendees: it.attendees || 0,
+          hasImage: !!it.hasImage,
+        }));
+        setEvents(mapped);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
@@ -27,34 +53,49 @@ export function AlumniEvents({ user, onBack }: AlumniEventsProps) {
       </div>
 
       <div className="max-w-4xl mx-auto p-6 space-y-4">
-        {events.map((event) => (
-          <Card key={event.id} className="p-6">
-            <div className="flex gap-4">
-              <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center text-white flex-shrink-0">
-                <span>{event.date.split(' ')[1]}</span>
-                <span className="text-xs">{event.date.split(' ')[0]}</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg mb-2">{event.title}</h3>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{event.date}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span>{event.attendees} attending</span>
-                  </div>
+        {loading ? (
+          <div className="text-center py-10"><Loader2 className="mx-auto h-8 w-8 animate-spin" /></div>
+        ) : events.length === 0 ? (
+          <Card className="p-6 text-center text-gray-600">No upcoming events</Card>
+        ) : (
+          events.map((event) => (
+            <Card key={event.id} className="p-6">
+              <div className="flex gap-4">
+                <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  {event.hasImage ? (
+                    <ImageWithFallback
+                      src={`${API_BASE}/content/events/${event.id}/image`}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary to-accent text-white flex flex-col items-center justify-center">
+                      <span className="text-sm">{event.date}</span>
+                    </div>
+                  )}
                 </div>
-                <Button className="mt-4">RSVP</Button>
+                <div className="flex-1">
+                  <h3 className="text-lg mb-2">{event.title}</h3>
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>{event.date}{event.time ? ` • ${event.time}` : ''}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      <span>{event.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      <span>{event.attendees} attending</span>
+                    </div>
+                  </div>
+                  <Button className="mt-4">RSVP</Button>
+                </div>
               </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          ))
+        )}
       </div>
     </div>
   );

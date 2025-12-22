@@ -1,5 +1,38 @@
+
 // src/api.ts
-export const API_BASE = 'http://localhost:4000/api';
+// Dynamically resolve API base so it works across hosts/ports without hardcoding localhost.
+const DEFAULT_API_BASE = (() => {
+  if (typeof window !== 'undefined') {
+    const { protocol, hostname } = window.location;
+    // Backend runs on port 4000; keep host in sync with current page host.
+    return `${protocol}//${hostname}:4000/api`;
+  }
+  return 'http://localhost:4000/api';
+})();
+
+export const API_BASE = (import.meta as any)?.env?.VITE_API_BASE || DEFAULT_API_BASE;
+
+// Generic API call helper with automatic token injection
+export const apiCall = async (endpoint: string, method: string = 'GET', data?: any, token?: string) => {
+  // Get token from prop OR from localStorage
+  const finalToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(finalToken && { Authorization: `Bearer ${finalToken}` }),
+    },
+    ...(data && { body: JSON.stringify(data) }),
+  });
+  
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Request failed' }));
+    throw new Error(error.message || error.error || 'Request failed');
+  }
+  
+  return res.json();
+};
 
 export const api = {
   async register(data: any) {
@@ -30,5 +63,65 @@ export const api = {
     return res.json();
   },
 
-  // Add more methods later if needed (e.g., getChats, uploadFile)
+  async updateProfile(data: any, token?: string) {
+    return apiCall('/auth/me', 'PUT', data, token);
+  },
+
+  // Content management methods
+    async getContent(type: 'news' | 'events', token?: string) {
+      return apiCall(`/content/${type}`, 'GET', undefined, token);
+    },
+
+    async createContent(type: 'news' | 'events', data: any, token?: string) {
+      return apiCall(`/content/${type}`, 'POST', data, token);
+    },
+
+    async updateContent(type: 'news' | 'events', id: string, data: any, token?: string) {
+      return apiCall(`/content/${type}/${id}`, 'PUT', data, token);
+    },
+
+
+    async deleteContent(type: 'news' | 'events', id: string, token?: string) {
+      return apiCall(`/content/${type}/${id}`, 'DELETE', undefined, token);
+    },
+
+    // Mentorship methods
+    async getMentors(filters?: { field?: string; search?: string }, token?: string) {
+      const params = new URLSearchParams();
+      if (filters?.field) params.append('field', filters.field);
+      if (filters?.search) params.append('search', filters.search);
+      
+      const queryString = params.toString();
+      const endpoint = `/mentors${queryString ? `?${queryString}` : ''}`;
+      return apiCall(endpoint, 'GET', undefined, token);
+    },
+
+    async getMyMentors(token?: string) {
+      return apiCall('/mentors/my-mentors', 'GET', undefined, token);
+    },
+
+
+    async requestMentor(mentorId: string, token?: string) {
+      return apiCall('/mentors/request', 'POST', { mentorId }, token);
+    },
+
+    async getStudentsByField(field: string, token?: string) {
+      return apiCall(`/mentors/students-by-field?field=${encodeURIComponent(field)}`, 'GET', undefined, token);
+    },
+
+    async approveMentorRequest(studentId: string, token?: string) {
+      return apiCall('/mentors/approve', 'POST', { studentId }, token);
+    },
+
+    async rejectMentorRequest(studentId: string, token?: string) {
+      return apiCall('/mentors/reject', 'POST', { studentId }, token);
+    },
+
+    async getApprovedMentees(token?: string) {
+      return apiCall('/mentors/my-approved-mentees', 'GET', undefined, token);
+    },
+
+    async removeApprovedMentee(studentId: string, token?: string) {
+      return apiCall('/mentors/remove-approved', 'POST', { studentId }, token);
+    },
 };

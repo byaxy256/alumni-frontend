@@ -1,5 +1,3 @@
-// src/components/StudentApp.tsx
-
 import { useState } from 'react';
 import { StudentDashboard } from './student/StudentDashboard';
 import { ApplyLoanSupport } from './student/ApplyLoanSupport';
@@ -10,10 +8,12 @@ import { Notifications } from './student/Notifications';
 import { StudentProfile } from './student/StudentProfile';
 import { StudentFund } from './student/StudentFund';
 import { News } from './student/News';
+import { Events } from './student/Events';
 import type { User } from '../App';
-import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet } from 'lucide-react';
+import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
+import { ThemeToggle } from './ui/ThemeToggle';
 
-type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news';
+type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news' | 'events';
 
 export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<StudentScreen>('dashboard');
@@ -50,6 +50,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         return <StudentFund user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'news':
         return <News onBack={() => handleNavigate('dashboard')} />;
+      case 'events':
+        return <Events onBack={() => handleNavigate('dashboard')} />;
       default:
         return <StudentDashboard user={user} onNavigate={handleNavigate} />;
     }
@@ -60,8 +62,13 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     <div className="min-h-screen bg-gray-50 flex">
       <aside className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200 fixed h-screen">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-primary">Alumni Aid</h1>
-          <p className="text-sm text-gray-600 mt-1">Student Portal</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-primary">Alumni Aid</h1>
+              <p className="text-sm text-gray-600 mt-1">Student Portal</p>
+            </div>
+            <ThemeToggle />
+          </div>
         </div>
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-1">
@@ -73,6 +80,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
               { id: 'fund', label: 'Student Fund', icon: Wallet },
               { id: 'mentorship', label: 'Mentorship', icon: Users },
               { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'events', label: 'Events', icon: Calendar },
+              { id: 'news', label: 'News', icon: FileText },
             ].map((item) => {
               const Icon = item.icon;
               return (
