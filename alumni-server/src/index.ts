@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import express from 'express';
 import fs from 'fs-extra';
+import { connectMongoDB } from './mongodb.js';
 
 import authRoutes from './routes/auth.js';
 import loanRoutes from './routes/loans.js';
@@ -83,6 +84,11 @@ app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', err);
   res.status(err.status || 500).json({ message: err.message || 'Internal Server Error' });
+});
+
+// Initialize MongoDB connection (non-blocking)
+connectMongoDB().catch(err => {
+  console.warn('MongoDB initialization failed, continuing with MySQL only:', err);
 });
 
 app.listen(PORT, () => {
