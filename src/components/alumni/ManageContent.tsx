@@ -578,7 +578,7 @@ export default function ContentManagement() {
         </div>
       )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'news' | 'event')}>
         <TabsList>
           <TabsTrigger value="news">News ({news.length})</TabsTrigger>
           <TabsTrigger value="event">Events ({events.length})</TabsTrigger>
