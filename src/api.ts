@@ -2,17 +2,12 @@
 // src/api.ts
 import axios from 'axios';
 
-// Dynamically resolve API base so it works across hosts/ports without hardcoding localhost.
-const DEFAULT_API_BASE = (() => {
-  if (typeof window !== 'undefined') {
-    const { protocol, hostname } = window.location;
-    // Backend runs on port 4000; keep host in sync with current page host.
-    return `${protocol}//${hostname}:4000/api`;
-  }
-  return 'http://localhost:4000/api';
-})();
+// Use environment variable for API URL, fallback to localhost for development
+const DEFAULT_API_BASE = 'http://localhost:4000/api';
 
-export const API_BASE = (import.meta as any)?.env?.VITE_API_BASE || DEFAULT_API_BASE;
+export const API_BASE = (import.meta as any)?.env?.VITE_API_URL 
+  ? `${(import.meta as any).env.VITE_API_URL}/api`
+  : DEFAULT_API_BASE;
 
 // Simple axios helper for ad-hoc calls
 export const fetchUsers = () => axios.get(`${(import.meta as any)?.env?.VITE_API_URL || API_BASE.replace(/\/api$/, '')}/api/users`);
