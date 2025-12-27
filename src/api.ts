@@ -3,14 +3,12 @@
 import axios from 'axios';
 
 // Use environment variable for API URL, fallback to localhost for development
+const API_URL: string | undefined = import.meta.env.VITE_API_URL;
 const DEFAULT_API_BASE = 'http://localhost:4000/api';
-
-export const API_BASE = (import.meta as any)?.env?.VITE_API_URL 
-  ? `${(import.meta as any).env.VITE_API_URL}/api`
-  : DEFAULT_API_BASE;
+export const API_BASE = API_URL ? `${API_URL}/api` : DEFAULT_API_BASE;
 
 // Simple axios helper for ad-hoc calls
-export const fetchUsers = () => axios.get(`${(import.meta as any)?.env?.VITE_API_URL || API_BASE.replace(/\/api$/, '')}/api/users`);
+export const fetchUsers = () => axios.get(`${API_BASE}/users`);
 
 // Generic API call helper with automatic token injection
 export const apiCall = async (endpoint: string, method: string = 'GET', data?: any, token?: string) => {
