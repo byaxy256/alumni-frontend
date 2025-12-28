@@ -176,14 +176,27 @@ export default function App() {
   }
 
   if (user) {
+    console.log('User logged in with role:', user.role, 'Full user:', user);
+    
+    if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (user.role === 'alumni_office') return <><AlumniOfficeApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (user.role === 'admin') return <><AdminApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    
+    // Fallback if role is invalid
     return (
-      <>
-        {user.role === 'student' && <StudentApp user={user} onLogout={handleLogout} />}
-        {user.role === 'alumni' && <AlumniApp user={user} onLogout={handleLogout} />}
-        {user.role === 'alumni_office' && <AlumniOfficeApp user={user} onLogout={handleLogout} />}
-        {user.role === 'admin' && <AdminApp user={user} onLogout={handleLogout} />}
-        <Toaster />
-      </>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a]">
+        <div className="text-white text-center">
+          <h2 className="text-xl font-bold mb-4">Invalid user role</h2>
+          <p className="mb-4">Your account role "{user.role}" is not recognized</p>
+          <button 
+            onClick={handleLogout}
+            className="px-4 py-2 bg-white text-blue-600 rounded font-semibold hover:bg-gray-100"
+          >
+            Log Out
+          </button>
+        </div>
+      </div>
     );
   }
 

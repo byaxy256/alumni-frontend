@@ -46,6 +46,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
       const res = await axios.post(`${apiUrl}/api/auth/login`, payload);
       
       const data = res.data;
+      console.log('Login response:', data);
       
       toast.success('Login successful');
       onLoginSuccess(data.user, data.token);
