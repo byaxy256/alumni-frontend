@@ -1,5 +1,6 @@
 // src/components/Login.tsx
 import { useState } from 'react';
+import axios from 'axios';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -41,31 +42,18 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
         password
       };
 
-      const res = await fetch('http://localhost:4000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const res = await axios.post(`${apiUrl}/api/auth/login`, payload);
       
-      const data = await res.json();
+      const data = res.data;
       
-      if (!res.ok) {
-        toast.error(data?.error || 'Login failed');
-        return; // Stop execution on failure
-      }
-
-      // --- THE FIX IS HERE ---
-      // We no longer set localStorage in this component.
-      // Instead, we pass the raw data up to the parent component (App.tsx).
-      // App.tsx will use its 'safe' handleAuthSuccess function to correctly 
-      // set the state and localStorage, ensuring the user 'id' is a number.
-
       toast.success('Login successful');
       onLoginSuccess(data.user, data.token);
 
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error', err);
-      toast.error('Network error. Could not connect to the server.');
+      const errorMsg = err?.response?.data?.error || 'Network error. Could not connect to the server.';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
