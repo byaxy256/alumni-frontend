@@ -64,7 +64,8 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
 
     // FIX: Corrected the try...catch...finally block structure
     try {
-      const res = await fetch('http://localhost:4000/api/auth/me', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${API_URL}/api/auth/me`, {
         method: 'PUT', // Solution 1: Using 'PUT' to match the backend route
         headers: {
           'Content-Type': 'application/json',
