@@ -28,6 +28,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       // setLoading(true); // Can be commented out for smoother refetches
       try {
         const token = localStorage.getItem('token') || '';
+        console.log('Token from localStorage:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
         const fetchOptions = { headers: { Authorization: `Bearer ${token}` }, cache: 'no-cache' as RequestCache };
         
         const [meRes, loansRes, supportRes, notifsRes, mentorsRes] = await Promise.all([
