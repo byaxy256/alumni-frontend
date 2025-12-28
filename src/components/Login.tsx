@@ -1,6 +1,6 @@
 // src/components/Login.tsx
 import { useState } from 'react';
-import axios from 'axios';
+import { api } from '../api';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -36,16 +36,8 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
     setLoading(true);
 
     try {
-      const payload = {
-        email: emailOrPhone.includes('@') ? emailOrPhone : undefined,
-        phone: !emailOrPhone.includes('@') ? emailOrPhone : undefined,
-        password
-      };
-
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const res = await axios.post(`${apiUrl}/api/auth/login`, payload);
-      
-      const data = res.data;
+      const credential = emailOrPhone.trim();
+      const data = await api.login(credential, password);
       console.log('Login response:', data);
       
       toast.success('Login successful');
@@ -53,7 +45,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
     } catch (err: any) {
       console.error('Login error', err);
-      const errorMsg = err?.response?.data?.error || 'Network error. Could not connect to the server.';
+      const errorMsg = err?.message || err?.response?.data?.error || 'Login failed';
       toast.error(errorMsg);
     } finally {
       setLoading(false);
