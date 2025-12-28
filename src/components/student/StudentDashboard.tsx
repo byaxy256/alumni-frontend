@@ -33,9 +33,9 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
         const [meRes, loansRes, supportRes, notifsRes, mentorsRes] = await Promise.all([
           fetch(`${API_BASE}/auth/me`, fetchOptions),
           fetch(`${API_BASE}/loans/mine`, fetchOptions),
-          fetch(`${API_BASE}/support/mine`, fetchOptions),
-          fetch(`${API_BASE}/notifications/mine`, fetchOptions),
-          fetch(`${API_BASE}/mentors/my-mentors`, fetchOptions),
+          fetch(`${API_BASE}/support/mine`, fetchOptions).catch(() => ({ ok: false })),
+          fetch(`${API_BASE}/notifications/mine`, fetchOptions).catch(() => ({ ok: false })),
+          fetch(`${API_BASE}/mentors/my-mentors`, fetchOptions).catch(() => ({ ok: false })),
         ]);
 
         if (meRes.ok) { const meJson = await meRes.json(); if (meJson.user) setMe(meJson.user); }
@@ -212,11 +212,11 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-semibold text-gray-800">{app.type} Application</p>
-                        <p className="text-sm text-gray-600">Amount: UGX {app.amount_requested.toLocaleString()}</p>
-                        <p className="text-xs text-gray-400">Submitted: {new Date(app.created_at).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-600">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
+                        <p className="text-xs text-gray-400">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
                       </div>
                       <Badge className={`capitalize ${app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''} ${app.status === 'approved' ? 'bg-green-100 text-green-800' : ''} ${app.status === 'rejected' ? 'bg-red-100 text-red-800' : ''}`}>
-                        {app.status}
+                        {app.status || 'pending'}
                       </Badge>
                     </div>
                   </Card>
