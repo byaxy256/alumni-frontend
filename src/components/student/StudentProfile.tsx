@@ -20,6 +20,8 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
     email: '',
     phone: '',
     course: '',
+    semester: '',
+    universityId: '',
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -33,6 +35,8 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         email: savedUser?.email ?? user.email ?? '',
         phone: savedUser?.phone ?? user.phoneNumber ?? '',
         course: savedUser?.meta?.course ?? user.course ?? '',
+        semester: savedUser?.meta?.semester ?? '',
+        universityId: savedUser?.meta?.university_id ?? '',
       });
     } catch {
       setProfile({
@@ -40,6 +44,8 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         email: user.email ?? '',
         phone: user.phoneNumber ?? '',
         course: user.course ?? '',
+        semester: '',
+        universityId: '',
       });
     }
   }, [user]);
@@ -56,9 +62,14 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         full_name: profile.fullName,
         email: profile.email,
         phone: profile.phone,
+        semester: profile.semester ? parseInt(profile.semester) : undefined,
+        program: profile.course,
+        university_id: profile.universityId,
         meta: { 
           ...savedUserMeta, 
-          course: profile.course 
+          course: profile.course,
+          semester: profile.semester ? parseInt(profile.semester) : undefined,
+          university_id: profile.universityId,
         },
     };
 
@@ -178,6 +189,33 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
                 disabled={!isEditing} 
                 onChange={handleInputChange} 
                 className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="semester" className="text-slate-600">Current Semester</Label>
+              <Input 
+                id="semester"
+                name="semester"
+                type="number"
+                min="1"
+                max="10"
+                value={profile.semester} 
+                disabled={!isEditing} 
+                onChange={handleInputChange} 
+                className="mt-1"
+                placeholder="e.g., 5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="universityId" className="text-slate-600">Student ID / Registration Number</Label>
+              <Input 
+                id="universityId"
+                name="universityId"
+                value={profile.universityId} 
+                disabled={!isEditing} 
+                onChange={handleInputChange} 
+                className="mt-1"
+                placeholder="e.g., 2021/BIT/001"
               />
             </div>
 
