@@ -179,9 +179,9 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   };
 
   // Approve request
-  const handleApprove = async (studentId: string) => {
+  const handleApprove = async (assignmentId: string) => {
     try {
-      console.log('Approving student:', studentId);
+      console.log('Approving assignment:', assignmentId);
       const token = localStorage.getItem('token') || '';
       console.log('Token exists:', !!token);
       
@@ -191,7 +191,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ studentId }),
+        body: JSON.stringify({ assignmentId }),
       });
 
       console.log('Response status:', response.status);
@@ -324,49 +324,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   useEffect(() => {
     loadPendingRequests();
     loadMentees();
-    loadFieldStudents();
-
-    // Real-time notification polling every 5 seconds
-    const notificationInterval = setInterval(async () => {
-      try {
-        const token = localStorage.getItem('token') || '';
-        const response = await fetch(`${API_BASE}/notifications/mine`, {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: 'no-cache' as RequestCache
-        });
-        if (response.ok) {
-          const notifications = await response.json();
-          if (Array.isArray(notifications)) {
-            const unreadNotifications = notifications.filter((n: any) => !n.read);
-            // Show toast for new notifications
-            unreadNotifications.slice(0, 1).forEach((notif: any) => {
-              // Only show if it's a new notification (less than 10 seconds old)
-              const notifTime = new Date(notif.created_at).getTime();
-              const now = Date.now();
-              if (now - notifTime < 10000) {
-                toast.info(notif.title, {
-                  description: notif.message,
-                  duration: 5000,
-                });
-              }
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error polling notifications:', error);
-      }
-    }, 5000);
-
-    // Real-time pending requests polling every 30 seconds (mentees don't change frequently)
-    const requestsInterval = setInterval(() => {
-      loadPendingRequests();
-      loadMentees();
-    }, 30000);
-
-    return () => {
-      clearInterval(notificationInterval);
-      clearInterval(requestsInterval);
-    };
+    // Removed auto-refresh - user can manually refresh when needed
   }, []);
 
   // Load messages when a student is selected
@@ -409,14 +367,11 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       mentee.id === studentId ? { ...mentee, unread: 0 } : mentee
     ));
 
-    // Set up auto-refresh for new messages
+    // Clear any existing message polling interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-
-    intervalRef.current = setInterval(() => {
-      loadMessages(studentId);
-    }, 3000);
+    // Removed auto-refresh of messages - user can manually send/receive
   };
 
   // Send message function
@@ -588,51 +543,6 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
           )}
         </div>
       </div>
-
-      {(user as any)?.meta?.field && (
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="text-sm text-gray-500">Students in your field</p>
-                <p className="text-base font-semibold text-gray-900">{(user as any)?.meta?.field}</p>
-              </div>
-              <Badge variant="secondary" className="bg-primary/10 text-primary">{fieldStudents.length}</Badge>
-            </div>
-            {fieldStudentsLoading ? (
-              <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Loading students...
-              </div>
-            ) : fieldStudents.length === 0 ? (
-              <p className="text-sm text-gray-500">No students found in your field yet.</p>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {fieldStudents.slice(0, 6).map(student => (
-                  <button
-                    key={student.id}
-                    onClick={() => { setViewingProfile(student); setViewingMode('browse'); }}
-                    className="border border-gray-200 rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary/10 text-primary">{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{student.name}</p>
-                        <p className="text-xs text-gray-600 truncate">{student.field}</p>
-                        {student.year && (
-                          <p className="text-xs text-gray-400">Year {student.year}</p>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       <div className="max-w-6xl mx-auto h-[calc(100vh-80px)] md:h-[calc(100vh-100px)]">
         <div className="grid md:grid-cols-3 h-full">

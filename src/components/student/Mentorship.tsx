@@ -146,11 +146,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     };
 
     loadMyMentors();
-
-    // Real-time polling for mentor updates every 10 seconds
-    const mentorInterval = setInterval(loadMyMentors, 10000);
-
-    return () => clearInterval(mentorInterval);
+    // Removed auto-refresh - user can manually refresh when needed
   }, []);
 
   const scrollToBottom = () => {
@@ -208,8 +204,9 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
       }
     };
     
-    const intervalId = setInterval(fetchLatestMessages, 5000);
-    return () => clearInterval(intervalId);
+    // Removed auto-refresh - user can manually send/receive messages
+    // const intervalId = setInterval(fetchLatestMessages, 5000);
+    // return () => clearInterval(intervalId);
   }, [activeChatMentor, messages.length]);
 
   const handleSendMessage = async () => {
