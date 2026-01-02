@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from '../ui/card';
 import type { User } from '../../App';
-import { DollarSign, Gift, Users, Newspaper, Bell, ChevronRight, Loader2, FileText } from 'lucide-react';
+import { DollarSign, Gift, Users, Newspaper, Bell, ChevronRight, Loader2, FileText, History } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Badge } from '../ui/badge';
 import { API_BASE } from '../../api';
@@ -145,6 +145,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   const quickActions = [
     { id: 'apply', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, color: 'from-blue-500 to-blue-700' },
     { id: 'benefits', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, color: 'from-green-500 to-green-700' },
+    { id: 'loan-details', title: 'My Loans', subtitle: 'View loans & payments', icon: History, color: 'from-red-500 to-red-700' },
     { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'Connect with alumni', icon: Users, color: 'from-purple-500 to-purple-700' },
     { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, color: 'from-orange-500 to-orange-700' },
   ];
