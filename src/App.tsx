@@ -1,7 +1,6 @@
 // src/App.tsx
 
 import { useState, useEffect, ReactNode } from 'react';
-import { Analytics } from '@vercel/analytics/react';
 import LandingPage from './components/LandingPage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
@@ -154,7 +153,6 @@ export default function App() {
       <>
         <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />
         <Toaster />
-        <Analytics />
       </>
     );
   }
@@ -164,7 +162,6 @@ export default function App() {
       <>
         <SignUp onBack={handleBackToLanding} onSignUpComplete={handleSignUpComplete} switchToLogin={handleGoToLogin} />
         <Toaster />
-        <Analytics />
       </>
     );
   }
@@ -174,7 +171,6 @@ export default function App() {
       <>
         <Login onLoginSuccess={handleLogin} onBack={handleBackToLanding} switchToSignup={handleGetStarted} />
         <Toaster />
-        <Analytics />
       </>
     );
   }
@@ -182,10 +178,10 @@ export default function App() {
   if (user) {
     console.log('User logged in with role:', user.role, 'Full user:', user);
     
-    if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /><Analytics /></>;
-    if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /><Analytics /></>;
-    if (user.role === 'alumni_office') return <><AlumniOfficeApp user={user} onLogout={handleLogout} /><Toaster /><Analytics /></>;
-    if (user.role === 'admin') return <><AdminApp user={user} onLogout={handleLogout} /><Toaster /><Analytics /></>;
+    if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (user.role === 'alumni_office') return <><AlumniOfficeApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (user.role === 'admin') return <><AdminApp user={user} onLogout={handleLogout} /><Toaster /></>;
     
     // Fallback if role is invalid
     return (
@@ -209,7 +205,6 @@ export default function App() {
     <>
       <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />
       <Toaster />
-      <Analytics />
     </>
   );
 }
