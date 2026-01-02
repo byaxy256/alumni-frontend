@@ -16,7 +16,7 @@ interface Loan {
   id: number;
   amount_requested: number;
   outstanding_balance: number;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'active' | 'paid';
   created_at: string;
   repaymentPeriod?: number;
   chopConsented?: boolean;
@@ -63,7 +63,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
         const loanRes = await fetch(`${API_BASE}/loans/mine`, { headers, cache: 'no-cache' });
         if (!loanRes.ok) throw new Error(`Failed to fetch your loans: ${loanRes.statusText}`);
         const allLoans: Loan[] = await loanRes.json();
-        const firstActiveLoan = allLoans.find(l => l.status === 'approved');
+        const firstActiveLoan = allLoans.find(l => l.status === 'approved' || l.status === 'active');
         if (!firstActiveLoan) {
           setActiveLoan(null);
           setPaymentHistory([]);
@@ -455,7 +455,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
               });
               if (loanRes.ok) {
                 const allLoans: Loan[] = await loanRes.json();
-                const firstActiveLoan = allLoans.find(l => l.status === 'approved');
+                const firstActiveLoan = allLoans.find(l => l.status === 'approved' || l.status === 'active');
                 if (firstActiveLoan) {
                   setActiveLoan(firstActiveLoan);
                   const historyRes = await fetch(`${API_BASE}/payments/loan/${firstActiveLoan.id}`, {

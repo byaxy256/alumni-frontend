@@ -68,7 +68,7 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
       const loanRes = await fetch(`${API_BASE}/loans/mine`, { headers, cache: 'no-cache', signal });
       if (!loanRes.ok) throw new Error("Could not fetch active loan.");
       const allLoans: any[] = await loanRes.json();
-      const firstActiveLoan = allLoans.find(l => l.status === 'approved');
+      const firstActiveLoan = allLoans.find(l => l.status === 'approved' || l.status === 'active');
       
       if (firstActiveLoan) {
         setActiveLoan(firstActiveLoan);

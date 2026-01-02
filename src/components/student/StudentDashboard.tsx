@@ -131,9 +131,9 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
-  const activeLoan = loans.find(l => l.status === 'approved');
+  const activeLoan = loans.find(l => l.status === 'approved' || l.status === 'active');
   const totalApplications = loans.length + supportRequests.length;
-  const activeLoansCount = loans.filter(l => l.status === 'approved').length;
+  const activeLoansCount = loans.filter(l => l.status === 'approved' || l.status === 'active').length;
   const allApplications = useMemo(() => {
     const combined = [
       ...loans.map(l => ({ ...l, type: 'Loan' })),
