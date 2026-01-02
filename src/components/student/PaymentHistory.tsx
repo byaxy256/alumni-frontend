@@ -16,7 +16,8 @@ import { PaymentPINPrompt } from './PaymentPINPrompt';
 
 // --- Type Definitions ---
 interface PaymentItem {
-  id: string;
+  _id?: string;
+  id?: string;
   created_at: string;
   amount: number;
   status: 'SUCCESSFUL' | 'PENDING' | 'FAILED';
@@ -280,8 +281,10 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
           <h3 className="text-lg mb-4">Transaction History</h3>
           <div className="space-y-3">
             {paymentHistory.length > 0 ? (
-              paymentHistory.map((payment) => (
-                <Card key={payment.id} className="p-5">
+              paymentHistory.map((payment) => {
+                const paymentId = payment._id || payment.id;
+                return (
+                <Card key={paymentId} className="p-5">
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="flex gap-4 flex-1">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-100">
@@ -311,7 +314,6 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
                         try {
                           const token = localStorage.getItem('token') || '';
                           if (!token) throw new Error('Missing auth token');
-                          const paymentId = String(payment.id);
                           if (!paymentId || paymentId === 'undefined') {
                             throw new Error('Invalid payment ID');
                           }
@@ -321,10 +323,10 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
                         }
                       }}
                       className="flex-1"
-                      disabled={previewingId === String(payment.id) || isFetchingReceipt}
+                      disabled={previewingId === String(paymentId) || isFetchingReceipt}
                       title="Preview receipt"
                     >
-                      {previewingId === String(payment.id) ? (
+                      {previewingId === String(paymentId) ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
                         <Eye className="w-4 h-4 mr-2" />
@@ -334,11 +336,11 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDownloadReceipt(payment.id)}
+                      onClick={() => handleDownloadReceipt(paymentId)}
                       className="flex-1"
-                      disabled={payment.status !== 'SUCCESSFUL' || downloadingId === String(payment.id)}
+                      disabled={payment.status !== 'SUCCESSFUL' || downloadingId === String(paymentId)}
                     >
-                      {downloadingId === String(payment.id) ? (
+                      {downloadingId === String(paymentId) ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
                         <Download className="w-4 h-4 mr-2" />
@@ -347,7 +349,8 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
                     </Button>
                   </div>
                 </Card>
-              ))
+                );
+              })
             ) : (
               <div className="text-center py-6 border-2 border-dashed rounded-lg">
                 <p className="text-sm text-gray-500">No successful payments found.</p>
