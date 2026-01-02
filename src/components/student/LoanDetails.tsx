@@ -10,6 +10,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useState, useEffect } from 'react';
 import { API_BASE } from '../../api';
+import { PaymentPINPrompt } from './PaymentPINPrompt';
 
 interface Loan {
   id: number;
@@ -39,7 +40,10 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [mobileMoneyNumber, setMobileMoneyNumber] = useState('');
+  const [accessNumber, setAccessNumber] = useState('');
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [showPINPrompt, setShowPINPrompt] = useState(false);
+  const [pendingTransactionId, setPendingTransactionId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [activeLoan, setActiveLoan] = useState<Loan | null>(null);
@@ -126,13 +130,19 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
       return;
     }
 
+    if (!accessNumber) {
+      toast.error('Please enter your access number.');
+      return;
+    }
+
     const accessPattern = /^[AB]\d{5}$/;
-    if (!accessPattern.test(mobileMoneyNumber)) {
+    if (!accessPattern.test(accessNumber)) {
       toast.error('Access number must be A12345 or B12345 format.');
       return;
     }
 
     try {
+      setIsSubmittingPayment(true);
       const token = localStorage.getItem('token') || '';
       const payload = {
         amount: Number(paymentAmount),
@@ -155,18 +165,16 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
 
       if (res.status === 202) {
         setShowPaymentDialog(false);
-        toast.success('Payment request sent! Check your phone to approve.');
-        // Reset the form
-        setPaymentAmount('');
-        setMobileMoneyNumber('');
+        setPendingTransactionId(data.transactionId);
+        setShowPINPrompt(true);
+        toast.success('Enter your PIN to complete payment');
       } else {
-        toast.success('Request sent! Check your phone to approve the payment.');
-        setShowPaymentDialog(false);
-        setPaymentAmount('');
-        setMobileMoneyNumber('');
+        toast.error('Payment initiation failed');
       }
     } catch (err: any) {
       toast.error(err.message || 'Payment failed');
+    } finally {
+      setIsSubmittingPayment(false);
     }
   };
 
@@ -306,11 +314,24 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
                     <Label htmlFor="mobileNumber">Mobile Money Number</Label>
                     <Input id="mobileNumber" type="tel" placeholder="+256 XXX XXX XXX" value={mobileMoneyNumber} onChange={(e) => setMobileMoneyNumber(e.target.value)} />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="accessNumber">Access Number</Label>
+                    <Input id="accessNumber" type="text" placeholder="A12345 or B12345" value={accessNumber} onChange={(e) => setAccessNumber(e.target.value.toUpperCase())} maxLength={6} />
+                    <p className="text-xs text-gray-500">Format: A or B followed by 5 digits</p>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>Cancel</Button>
-                  <Button onClick={handleMakePayment} style={{ backgroundColor: '#c79b2d' }}>
-                    <CreditCard size={16} className="mr-2" /> Pay Now
+                  <Button onClick={handleMakePayment} style={{ backgroundColor: '#c79b2d' }} disabled={isSubmittingPayment}>
+                    {isSubmittingPayment ? (
+                      <>
+                        <Loader2 size={16} className="mr-2 animate-spin" /> Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard size={16} className="mr-2" /> Pay Now
+                      </>
+                    )}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -386,6 +407,62 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
             <Button onClick={onBack} className="mt-6">Back to Dashboard</Button>
           </Card>
         </div>
+      )}
+      
+      {showPINPrompt && pendingTransactionId && (
+        <PaymentPINPrompt
+          phoneNumber={mobileMoneyNumber}
+          amount={Number(paymentAmount)}
+          provider="mtn"
+          onCancel={() => {
+            setShowPINPrompt(false);
+            setPendingTransactionId(null);
+            setPaymentAmount('');
+            setMobileMoneyNumber('');
+            setAccessNumber('');
+          }}
+          onSuccess={async () => {
+            if (!pendingTransactionId) {
+              toast.error('No transaction ID found');
+              return;
+            }
+            try {
+              const token = localStorage.getItem('token') || '';
+              const res = await fetch(`${API_BASE}/payments/confirm`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ transactionId: pendingTransactionId }),
+              });
+              if (!res.ok) throw new Error('Failed to confirm payment');
+              setShowPINPrompt(false);
+              setPendingTransactionId(null);
+              setPaymentAmount('');
+              setMobileMoneyNumber('');
+              setAccessNumber('');
+              toast.success('Payment confirmed successfully!');
+              // Refresh payment history
+              const loanRes = await fetch(`${API_BASE}/loans/mine`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (loanRes.ok) {
+                const allLoans: Loan[] = await loanRes.json();
+                const firstActiveLoan = allLoans.find(l => l.status === 'approved');
+                if (firstActiveLoan) {
+                  setActiveLoan(firstActiveLoan);
+                  const historyRes = await fetch(`${API_BASE}/payments/loan/${firstActiveLoan.id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                  });
+                  if (historyRes.ok) {
+                    const history: Payment[] = await historyRes.json();
+                    setPaymentHistory(history || []);
+                  }
+                }
+              }
+            } catch (err: any) {
+              toast.error(err.message || 'Failed to confirm payment');
+            }
+          }}
+        />
       )}
     </div>
   );
