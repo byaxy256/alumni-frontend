@@ -434,10 +434,7 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
                 throw new Error(confirmData.error || 'Failed to record payment.');
               }
               
-              // Show success message
-              toast.success('Payment completed successfully!');
-              
-              // Reset form and close modals
+              // Reset form and close modals first
               setShowPINPrompt(false);
               setShowPaymentDialog(false);
               setAmount('');
@@ -450,11 +447,8 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
               // Refresh all data immediately
               await fetchHistory();
               
-              // If receipt available, show it
-              if (confirmData?.paymentId) {
-                const url = await fetchAndShowReceipt(String(confirmData.paymentId), token);
-                printFromUrl(url);
-              }
+              // Show success message after refresh
+              toast.success('Payment completed successfully!');
             } catch (err: any) {
               toast.error(err.message || 'Failed to record payment.');
               setShowPINPrompt(false);
