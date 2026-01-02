@@ -40,6 +40,7 @@ interface MentorshipHubProps {
 
 interface Mentee {
   id: string;
+  uid?: string; // User UID for messaging
   name: string;
   course: string;
   lastMessage?: string;
@@ -159,6 +160,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       const menteesData: any[] = await response.json();
       const transformedMentees: Mentee[] = menteesData.map(mentee => ({
         id: mentee.id,
+        uid: mentee.uid || mentee.id, // Prefer uid, fallback to id
         name: mentee.name,
         course: mentee.field || 'General',
         lastMessage: mentee.lastMessage || 'No messages yet',
@@ -433,7 +435,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          recipientId: selectedStudent,
+          recipientUid: selectedStudent,  // Changed from recipientId to recipientUid
           message: messageText,
         }),
       });

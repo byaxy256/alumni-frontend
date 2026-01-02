@@ -19,6 +19,7 @@ import { EmojiPicker } from '../ui/emoji-picker';
 // --- Type Definitions ---
 interface Mentor {
   id: string;
+  uid: string; // User UID for chat/messaging
   name: string;
   title: string;
   company: string;
@@ -165,8 +166,8 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     setMessages([]); // Start with a blank slate
     try {
       const token = localStorage.getItem('token') || '';
-      // Use mentor's UID instead of ID for API call
-      const res = await fetch(`${API_BASE}/chat/${mentor.id}`, { 
+      // Use mentor's UID for API call
+      const res = await fetch(`${API_BASE}/chat/${mentor.uid}`, { 
         headers: { Authorization: `Bearer ${token}` },
         cache: 'no-cache'
       });
@@ -190,7 +191,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     const fetchLatestMessages = async () => {
       try {
         const token = localStorage.getItem('token') || '';
-        const res = await fetch(`${API_BASE}/chat/${activeChatMentor.id}`, {
+        const res = await fetch(`${API_BASE}/chat/${activeChatMentor.uid}`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: 'no-cache' as RequestCache
         });
@@ -217,7 +218,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     setIsSending(true);
     try {
       const token = localStorage.getItem('token') || '';
-      console.log('Sending message to mentor UID:', activeChatMentor.id);
+      console.log('Sending message to mentor UID:', activeChatMentor.uid);
       const res = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 
@@ -225,7 +226,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
           Authorization: `Bearer ${token}` 
         },
         body: JSON.stringify({ 
-          recipientUid: activeChatMentor.id,  // Using mentor UID
+          recipientUid: activeChatMentor.uid,  // Using mentor UID
           message: newMessage 
         })
       });
