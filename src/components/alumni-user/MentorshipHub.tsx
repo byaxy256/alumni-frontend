@@ -215,9 +215,9 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   };
 
   // Reject request
-  const handleReject = async (studentId: string) => {
+  const handleReject = async (assignmentId: string) => {
     try {
-      console.log('Rejecting student:', studentId);
+      console.log('Rejecting assignment:', assignmentId);
       const token = localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE}/mentors/reject`, {
         method: 'POST',
@@ -225,7 +225,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ studentId }),
+        body: JSON.stringify({ assignmentId }),
       });
 
       if (!response.ok) {
@@ -245,9 +245,9 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   };
 
   // Remove approved mentee
-  const handleRemoveMentee = async (studentId: string) => {
+  const handleRemoveMentee = async (studentUid: string) => {
     try {
-      setRemovingId(studentId);
+      setRemovingId(studentUid);
       const token = localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE}/mentors/remove-approved`, {
         method: 'POST',
@@ -255,7 +255,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ studentId }),
+        body: JSON.stringify({ studentId: studentUid }),
       });
 
       if (!response.ok) {
@@ -327,11 +327,11 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
     // Removed auto-refresh - user can manually refresh when needed
   }, []);
 
-  // Load messages when a student is selected
-  const loadMessages = async (studentId: string) => {
+  // Load messages when a student is selected (use UID)
+  const loadMessages = async (studentUid: string) => {
     try {
       const token = localStorage.getItem('token') || '';
-      const response = await fetch(`${API_BASE}/chat/${studentId}`, {
+      const response = await fetch(`${API_BASE}/chat/${studentUid}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -349,22 +349,22 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       toast.error('Failed to load messages');
       // Set mock messages as fallback
       const mockMessages: Message[] = [
-        { id: 1, sender_id: studentId, message_text: 'Hello! Thank you for being my mentor.', created_at: new Date(Date.now() - 3600000).toISOString() },
+        { id: 1, sender_id: studentUid, message_text: 'Hello! Thank you for being my mentor.', created_at: new Date(Date.now() - 3600000).toISOString() },
         { id: 2, sender_id: user.uid, message_text: 'Happy to help! How can I assist you today?', created_at: new Date(Date.now() - 3500000).toISOString() },
-        { id: 3, sender_id: studentId, message_text: 'I\'m struggling with my final year project. Can you give me some advice?', created_at: new Date(Date.now() - 3400000).toISOString() },
+        { id: 3, sender_id: studentUid, message_text: 'I\'m struggling with my final year project. Can you give me some advice?', created_at: new Date(Date.now() - 3400000).toISOString() },
       ];
       setMessages(mockMessages);
     }
   };
 
   // Handle student selection
-  const handleStudentSelect = async (studentId: string) => {
-    setSelectedStudent(studentId);
-    await loadMessages(studentId);
+  const handleStudentSelect = async (studentUid: string) => {
+    setSelectedStudent(studentUid);
+    await loadMessages(studentUid);
 
     // Clear unread count
     setMentees(prev => prev.map(mentee => 
-      mentee.id === studentId ? { ...mentee, unread: 0 } : mentee
+      (mentee.uid || mentee.id) === studentUid ? { ...mentee, unread: 0 } : mentee
     ));
 
     // Clear any existing message polling interval
@@ -662,9 +662,9 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                   .map((mentee) => (
                     <div key={mentee.id} className="border-b border-gray-200">
                       <button
-                        onClick={() => handleStudentSelect(mentee.id)}
+                        onClick={() => handleStudentSelect(mentee.uid || mentee.id)}
                         className={`w-full p-4 text-left hover:bg-gray-50 transition ${
-                          selectedStudent === mentee.id ? 'bg-blue-50' : ''
+                          selectedStudent === (mentee.uid || mentee.id) ? 'bg-blue-50' : ''
                         }`}
                       >
                         <div className="flex items-start gap-3">
@@ -718,11 +718,11 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                           variant="destructive"
                           onClick={(e: { stopPropagation: () => void; }) => {
                             e.stopPropagation();
-                            handleRemoveMentee(mentee.id);
+                            handleRemoveMentee(mentee.uid || mentee.id);
                           }}
-                          disabled={removingId === mentee.id}
+                          disabled={removingId === (mentee.uid || mentee.id)}
                         >
-                          {removingId === mentee.id ? 'Removing…' : 'Remove'}
+                          {removingId === (mentee.uid || mentee.id) ? 'Removing…' : 'Remove'}
                         </Button>
                       </div>
                     </div>
@@ -740,23 +740,23 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className="bg-primary/10 text-primary">
-                        {mentees.find(m => m.id === selectedStudent)?.name.split(' ').map(n => n[0]).join('')}
+                        {mentees.find(m => (m.uid || m.id) === selectedStudent)?.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">{mentees.find(m => m.id === selectedStudent)?.name}</p>
+                      <p className="font-medium">{mentees.find(m => (m.uid || m.id) === selectedStudent)?.name}</p>
                       <p className="text-xs text-gray-600">
-                        {mentees.find(m => m.id === selectedStudent)?.course}
+                        {mentees.find(m => (m.uid || m.id) === selectedStudent)?.course}
                       </p>
                       <div className="flex items-center gap-1 mt-1">
-                        {mentees.find(m => m.id === selectedStudent)?.isOnline ? (
+                        {mentees.find(m => (m.uid || m.id) === selectedStudent)?.isOnline ? (
                           <>
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                             <p className="text-xs text-green-600">Online</p>
                           </>
                         ) : (
                           <p className="text-xs text-gray-400">
-                            {mentees.find(m => m.id === selectedStudent)?.lastSeen || 'Offline'}
+                            {mentees.find(m => (m.uid || m.id) === selectedStudent)?.lastSeen || 'Offline'}
                           </p>
                         )}
                       </div>
@@ -1056,14 +1056,14 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                   <Button
                     variant="destructive"
                     onClick={() => {
-                      handleRemoveMentee(viewingProfile.id);
+                      handleRemoveMentee(viewingProfile.uid || viewingProfile.id);
                       setViewingProfile(null);
                       setViewingMode(null);
                     }}
-                    disabled={removingId === viewingProfile.id}
+                    disabled={removingId === (viewingProfile.uid || viewingProfile.id)}
                     className="flex-1"
                   >
-                    {removingId === viewingProfile.id ? 'Removing…' : 'Remove Mentee'}
+                    {removingId === (viewingProfile.uid || viewingProfile.id) ? 'Removing…' : 'Remove Mentee'}
                   </Button>
                 </div>
               )}
