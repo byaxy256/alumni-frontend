@@ -220,8 +220,12 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
       if (res.status === 202) {
         setShowPaymentDialog(false);
         setShowPINPrompt(true);
-        if (data?.transactionId) {
-          setPendingTransactionId(data.transactionId);
+        // transaction_id comes from backend (snake_case)
+        if (data?.transaction_id) {
+          setPendingTransactionId(data.transaction_id);
+        } else {
+          toast.error('Failed to get transaction ID');
+          setShowPINPrompt(false);
         }
       } else {
         toast.success('Request sent! Check your phone to approve the payment.');

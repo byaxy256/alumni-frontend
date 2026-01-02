@@ -165,9 +165,14 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
 
       if (res.status === 202) {
         setShowPaymentDialog(false);
-        setPendingTransactionId(data.transactionId);
-        setShowPINPrompt(true);
-        toast.success('Enter your PIN to complete payment');
+        // transaction_id comes from backend (snake_case)
+        if (data?.transaction_id) {
+          setPendingTransactionId(data.transaction_id);
+          setShowPINPrompt(true);
+          toast.success('Enter your PIN to complete payment');
+        } else {
+          toast.error('Failed to get transaction ID');
+        }
       } else {
         toast.error('Payment initiation failed');
       }
