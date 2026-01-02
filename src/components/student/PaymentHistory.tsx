@@ -411,34 +411,47 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
           amount={Number(amount)}
           provider={paymentMethod as 'mtn' | 'airtel'}
           onSuccess={async () => {
-            setShowPINPrompt(false);
-            setShowPaymentDialog(false);
-            setAmount('');
-            setPhoneNumber('');
             try {
               if (!pendingTransactionId) {
                 toast.error('Missing transaction ID; cannot record payment.');
-              } else {
-                const token = localStorage.getItem('token') || '';
-                const confirmRes = await fetch(`${API_BASE}/payments/confirm`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                  body: JSON.stringify({ transactionId: pendingTransactionId }),
-                });
-                const confirmData = await confirmRes.json().catch(() => ({}));
-                if (!confirmRes.ok) {
-                  throw new Error(confirmData.error || 'Failed to record payment.');
-                }
-                if (confirmData?.paymentId) {
-                  const url = await fetchAndShowReceipt(String(confirmData.paymentId), token);
-                  printFromUrl(url);
-                }
+                setShowPINPrompt(false);
+                return;
+              }
+              
+              const token = localStorage.getItem('token') || '';
+              const confirmRes = await fetch(`${API_BASE}/payments/confirm`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ transactionId: pendingTransactionId }),
+              });
+              
+              const confirmData = await confirmRes.json().catch(() => ({}));
+              if (!confirmRes.ok) {
+                throw new Error(confirmData.error || 'Failed to record payment.');
+              }
+              
+              // Show success message
+              toast.success('Payment completed successfully!');
+              
+              // Reset form and close modals
+              setShowPINPrompt(false);
+              setShowPaymentDialog(false);
+              setAmount('');
+              setPhoneNumber('');
+              setPendingTransactionId(null);
+              
+              // Refresh all data immediately
+              await fetchHistory();
+              
+              // If receipt available, show it
+              if (confirmData?.paymentId) {
+                const url = await fetchAndShowReceipt(String(confirmData.paymentId), token);
+                printFromUrl(url);
               }
             } catch (err: any) {
               toast.error(err.message || 'Failed to record payment.');
+              setShowPINPrompt(false);
             }
-            fetchHistory();
-            toast.success('Payment completed successfully!');
           }}
           onCancel={() => {
             setShowPINPrompt(false);
