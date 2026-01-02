@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StudentDashboard } from './student/StudentDashboard';
 import { ApplyLoanSupport } from './student/ApplyLoanSupport';
 import { LoanDetails } from './student/LoanDetails';
+import { PaymentHistory } from './student/PaymentHistory';
 import { Mentorship } from './student/Mentorship';
 import { Notifications } from './student/Notifications';
 import { StudentProfile } from './student/StudentProfile';
@@ -9,10 +10,10 @@ import { StudentFund } from './student/StudentFund';
 import { News } from './student/News';
 import { Events } from './student/Events';
 import type { User } from '../App';
-import { Home, FileText, DollarSign, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
+import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
 
-type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news' | 'events';
+type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news' | 'events';
 
 export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<StudentScreen>('dashboard');
@@ -37,6 +38,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         return <ApplyLoanSupport user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'loans':
         return <LoanDetails user={user} onBack={() => handleNavigate('dashboard')} />;
+      case 'payment-history':
+        return <PaymentHistory user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'mentorship':
         return <Mentorship user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'notifications':
@@ -73,6 +76,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
               { id: 'dashboard', label: 'Dashboard', icon: Home },
               { id: 'apply', label: 'Apply', icon: FileText },
               { id: 'loan-details', label: 'Loans', icon: DollarSign },
+              { id: 'payment-history', label: 'Payments', icon: History },
               { id: 'fund', label: 'Student Fund', icon: Wallet },
               { id: 'mentorship', label: 'Mentorship', icon: Users },
               { id: 'notifications', label: 'Notifications', icon: Bell },
