@@ -110,8 +110,64 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
     fetchAll();
   }, [user]);
 
-  const handleMakePayment = () => {
-    toast.info('Payment feature is not yet connected to the backend.');
+  const handleMakePayment = async () => {
+    if (!activeLoan) {
+      toast.error('No active loan found to make a payment for.');
+      return;
+    }
+    
+    if (!paymentAmount || Number(paymentAmount) <= 0) {
+      toast.error('Please enter a valid amount.');
+      return;
+    }
+
+    if (!mobileMoneyNumber) {
+      toast.error('Please enter a mobile money number.');
+      return;
+    }
+
+    const accessPattern = /^[AB]\d{5}$/;
+    if (!accessPattern.test(mobileMoneyNumber)) {
+      toast.error('Access number must be A12345 or B12345 format.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token') || '';
+      const payload = {
+        amount: Number(paymentAmount),
+        provider: 'mtn',
+        phone: mobileMoneyNumber,
+        loanId: activeLoan.id,
+      };
+
+      const res = await fetch(`${API_BASE}/payments/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Payment initiation failed.');
+
+      if (res.status === 202) {
+        setShowPaymentDialog(false);
+        toast.success('Payment request sent! Check your phone to approve.');
+        // Reset the form
+        setPaymentAmount('');
+        setMobileMoneyNumber('');
+      } else {
+        toast.success('Request sent! Check your phone to approve the payment.');
+        setShowPaymentDialog(false);
+        setPaymentAmount('');
+        setMobileMoneyNumber('');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Payment failed');
+    }
   };
 
   const handleDownloadReceipt = (paymentId: number) => {
