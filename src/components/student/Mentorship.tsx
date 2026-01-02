@@ -165,10 +165,14 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     setMessages([]); // Start with a blank slate
     try {
       const token = localStorage.getItem('token') || '';
-      const res = await fetch(`${API_BASE}/chat/${mentor.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      // Use mentor's UID instead of ID for API call
+      const res = await fetch(`${API_BASE}/chat/${mentor.id}`, { 
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-cache'
+      });
       if (res.status === 500 || res.status === 404) {
-        // Mock mentor doesn't exist in DB yet - show placeholder message
-        toast.info('Chat with this mentor is not available yet. This is a demo mentor.');
+        // Chat doesn't exist yet - show empty state
+        toast.info('Start a conversation with this mentor!');
         return;
       }
       if (!res.ok) throw new Error('Failed to load chat history.');
@@ -176,7 +180,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
       setMessages(chatHistory);
     } catch (err: any) {
       console.error('Chat error:', err);
-      toast.error('Could not load chat. Mentor may not be linked to an account yet.');
+      toast.error('Could not load chat. Please try again.');
     }
   };
 
@@ -213,7 +217,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     setIsSending(true);
     try {
       const token = localStorage.getItem('token') || '';
-      console.log('Sending message to:', activeChatMentor.id);
+      console.log('Sending message to mentor UID:', activeChatMentor.id);
       const res = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 
@@ -221,7 +225,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
           Authorization: `Bearer ${token}` 
         },
         body: JSON.stringify({ 
-          recipientId: activeChatMentor.id, 
+          recipientUid: activeChatMentor.id,  // Using mentor UID
           message: newMessage 
         })
       });
