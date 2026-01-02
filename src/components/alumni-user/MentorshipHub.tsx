@@ -108,6 +108,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const lastMessageCountRef = useRef<number>(0);
 
 
   // Load pending requests from API
@@ -328,7 +329,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   }, []);
 
   // Load messages when a student is selected (use UID)
-  const loadMessages = async (studentUid: string) => {
+  const loadMessages = async (studentUid: string, isPoll: boolean = false) => {
     try {
       const token = localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE}/chat/${studentUid}`, {
@@ -343,6 +344,16 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
       const chatHistory: Message[] = await response.json();
       console.log('Loaded messages:', chatHistory);
+
+      const prevCount = lastMessageCountRef.current;
+      const newCount = chatHistory.length;
+
+      if (isPoll && newCount > prevCount && prevCount > 0) {
+        const menteeName = mentees.find(m => (m.uid || m.id) === studentUid)?.name || 'Your mentee';
+        toast.info('New message', { description: `New message from ${menteeName}` });
+      }
+
+      lastMessageCountRef.current = newCount;
       setMessages(chatHistory);
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -354,13 +365,17 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
         { id: 3, sender_id: studentUid, message_text: 'I\'m struggling with my final year project. Can you give me some advice?', created_at: new Date(Date.now() - 3400000).toISOString() },
       ];
       setMessages(mockMessages);
+      lastMessageCountRef.current = mockMessages.length;
     }
   };
 
   // Handle student selection
   const handleStudentSelect = async (studentUid: string) => {
     setSelectedStudent(studentUid);
-    await loadMessages(studentUid);
+    await loadMessages(studentUid, false);
+
+    // Reset baseline for new chat
+    lastMessageCountRef.current = messages.length;
 
     // Clear unread count
     setMentees(prev => prev.map(mentee => 
@@ -371,7 +386,10 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    // Removed auto-refresh of messages - user can manually send/receive
+    // Lightweight polling for new messages every 3s while a chat is open
+    intervalRef.current = setInterval(() => {
+      loadMessages(studentUid, true);
+    }, 3000);
   };
 
   // Send message function
@@ -411,7 +429,11 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
         status: 'delivered',
       };
 
-      setMessages(prev => [...prev, newMessage]);
+      setMessages(prev => {
+        const updated = [...prev, newMessage];
+        lastMessageCountRef.current = updated.length;
+        return updated;
+      });
       setMessage('');
 
       // Update last message in mentees list

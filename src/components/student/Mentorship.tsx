@@ -59,6 +59,7 @@ interface Message {
   reply_to?: string;
   is_edited?: boolean;
 }
+    const lastMessageCountRef = useRef<number>(0);
 
 // --- Main Component ---
 
@@ -146,7 +147,10 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     };
 
     loadMyMentors();
-    // Removed auto-refresh - user can manually refresh when needed
+
+    // Refresh mentors every 15s to pick up approvals
+    const mentorInterval = setInterval(loadMyMentors, 15000);
+    return () => clearInterval(mentorInterval);
   }, []);
 
   const scrollToBottom = () => {
@@ -193,20 +197,25 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
         });
         if (res.ok) {
           const chatHistory: Message[] = await res.json();
-          // Only update if there are new messages
-          if (chatHistory.length > messages.length) {
-            setMessages(chatHistory);
-            scrollToBottom();
+          const prevCount = lastMessageCountRef.current;
+          const newCount = chatHistory.length;
+
+          if (newCount > prevCount && prevCount > 0) {
+            const mentorName = activeChatMentor?.name || 'Your mentor';
+            toast.info('New message', { description: `New message from ${mentorName}` });
           }
+
+          lastMessageCountRef.current = newCount;
+          setMessages(chatHistory);
+          scrollToBottom();
         }
       } catch (err) {
         console.error('Error fetching latest messages:', err);
       }
     };
     
-    // Removed auto-refresh - user can manually send/receive messages
-    // const intervalId = setInterval(fetchLatestMessages, 5000);
-    // return () => clearInterval(intervalId);
+      const intervalId = setInterval(fetchLatestMessages, 4000);
+      return () => clearInterval(intervalId);
   }, [activeChatMentor, messages.length]);
 
   const handleSendMessage = async () => {
