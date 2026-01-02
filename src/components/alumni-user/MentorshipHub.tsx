@@ -115,19 +115,19 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
     try {
       setRequestsLoading(true);
       const token = localStorage.getItem('token') || '';
-      const response = await fetch(`${API_BASE}/mentors/my-mentors`, {
+      const response = await fetch(`${API_BASE}/mentors/pending-requests`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to load requests');
+        throw new Error('Failed to load pending requests');
       }
 
       const requestsData: any[] = await response.json();
       const mappedRequests: MentorRequest[] = requestsData.map((req: any) => ({
-        id: req.id,
+        id: req.assignmentId || req.id,
         name: req.name,
         course: req.field || req.course || 'General',
         field: req.field || 'General',
@@ -135,7 +135,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       }));
       setPendingRequests(mappedRequests);
     } catch (error) {
-      console.error('Error loading requests:', error);
+      console.error('Error loading pending requests:', error);
       setPendingRequests([]);
     } finally {
       setRequestsLoading(false);
@@ -357,11 +357,11 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       }
     }, 5000);
 
-    // Real-time pending requests and mentees polling every 8 seconds
+    // Real-time pending requests polling every 30 seconds (mentees don't change frequently)
     const requestsInterval = setInterval(() => {
       loadPendingRequests();
       loadMentees();
-    }, 8000);
+    }, 30000);
 
     return () => {
       clearInterval(notificationInterval);
