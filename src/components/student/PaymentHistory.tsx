@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { ArrowLeft, CheckCircle2, Calendar, CreditCard, Smartphone, Building2, Download, Loader2, FileWarning } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Calendar, CreditCard, Smartphone, Building2, Download, Loader2, FileWarning, Eye } from 'lucide-react';
 import type { User } from '../../App';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
@@ -311,18 +311,23 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
                         try {
                           const token = localStorage.getItem('token') || '';
                           if (!token) throw new Error('Missing auth token');
-                          await fetchAndShowReceipt(String(payment.id), token);
+                          const paymentId = String(payment.id);
+                          if (!paymentId || paymentId === 'undefined') {
+                            throw new Error('Invalid payment ID');
+                          }
+                          await fetchAndShowReceipt(paymentId, token);
                         } catch (err: any) {
                           toast.error(err?.message || 'Failed to load receipt preview');
                         }
                       }}
                       className="flex-1"
                       disabled={previewingId === String(payment.id) || isFetchingReceipt}
+                      title="Preview receipt"
                     >
                       {previewingId === String(payment.id) ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
-                        <Download className="w-4 h-4 mr-2 rotate-90" />
+                        <Eye className="w-4 h-4 mr-2" />
                       )}
                       Preview Receipt
                     </Button>
