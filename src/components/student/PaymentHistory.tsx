@@ -440,6 +440,9 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
               setPhoneNumber('');
               setPendingTransactionId(null);
               
+              // Wait a moment for backend to process
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
               // Refresh all data immediately
               await fetchHistory();
               

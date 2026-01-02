@@ -440,6 +440,10 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
               setMobileMoneyNumber('');
               setAccessNumber('');
               toast.success('Payment confirmed successfully!');
+              
+              // Wait a moment for backend to process
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
               // Refresh payment history
               const loanRes = await fetch(`${API_BASE}/loans/mine`, {
                 headers: { Authorization: `Bearer ${token}` },
