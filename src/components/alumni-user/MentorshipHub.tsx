@@ -374,9 +374,6 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
     setSelectedStudent(studentUid);
     await loadMessages(studentUid, false);
 
-    // Reset baseline for new chat
-    lastMessageCountRef.current = messages.length;
-
     // Clear unread count
     setMentees(prev => prev.map(mentee => 
       (mentee.uid || mentee.id) === studentUid ? { ...mentee, unread: 0 } : mentee
@@ -391,6 +388,13 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       loadMessages(studentUid, true);
     }, 3000);
   };
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   // Send message function
   const sendMessage = async () => {
@@ -1078,14 +1082,15 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                   <Button
                     variant="destructive"
                     onClick={() => {
-                      handleRemoveMentee(viewingProfile.uid || viewingProfile.id);
+                      const menteeId = 'uid' in viewingProfile ? (viewingProfile.uid || viewingProfile.id) : viewingProfile.id;
+                      handleRemoveMentee(menteeId);
                       setViewingProfile(null);
                       setViewingMode(null);
                     }}
-                    disabled={removingId === (viewingProfile.uid || viewingProfile.id)}
+                    disabled={removingId === ('uid' in viewingProfile ? (viewingProfile.uid || viewingProfile.id) : viewingProfile.id)}
                     className="flex-1"
                   >
-                    {removingId === (viewingProfile.uid || viewingProfile.id) ? 'Removing…' : 'Remove Mentee'}
+                    {removingId === ('uid' in viewingProfile ? (viewingProfile.uid || viewingProfile.id) : viewingProfile.id) ? 'Removing…' : 'Remove Mentee'}
                   </Button>
                 </div>
               )}
