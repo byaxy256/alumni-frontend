@@ -12,6 +12,9 @@ export default defineConfig({
   build: {
     target: 'esnext',
     outDir: 'build',
+    rollupOptions: {
+      external: ['@vercel/analytics/react'],
+    },
   },
   server: {
     port: 3000,
