@@ -59,7 +59,6 @@ interface Message {
   reply_to?: string;
   is_edited?: boolean;
 }
-    const lastMessageCountRef = useRef<number>(0);
 
 // --- Main Component ---
 
@@ -99,6 +98,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
   const [showAttachments, setShowAttachments] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lastMessageCountRef = useRef<number>(0);
 
 
   // Load available mentors from API
