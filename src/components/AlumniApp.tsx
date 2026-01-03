@@ -41,7 +41,7 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
   // --- IMPROVEMENT 1: Centralized navigation handler ---
   const handleNavigate = (targetScreen: string) => {
     // This function ensures that only valid screen names can be set, preventing errors.
-    const validScreens = [...navItems.map(item => item.id), 'profile'];
+    const validScreens = [...navItems.map(item => item.id), 'profile', 'notifications'];
     if (validScreens.includes(targetScreen)) {
         setCurrentScreen(targetScreen as AlumniScreen);
     } else {
