@@ -82,3 +82,4 @@ export async function initPushNotifications(user: User | null) {
     console.error('Failed to init push notifications:', err);
   }
 }
+
