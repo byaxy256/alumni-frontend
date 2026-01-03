@@ -180,8 +180,12 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
               </p>
             </div>
             <button 
-              onClick={() => onNavigate('notifications')} 
-              className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
+              onClick={() => {
+                console.log('Notification icon clicked, navigating to notifications');
+                onNavigate('notifications');
+              }} 
+              className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition cursor-pointer z-10"
+              aria-label="View notifications"
             >
               <Mail className="w-6 h-6" />
               {unreadCount > 0 && (
