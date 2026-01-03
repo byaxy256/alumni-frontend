@@ -100,8 +100,9 @@ export const api = {
     },
 
 
-    async requestMentor(mentorId: string, token?: string) {
-      return apiCall('/mentors/request', 'POST', { mentorId }, token);
+    async requestMentor(mentorUid: string, token?: string, field?: string) {
+      // Backend expects mentorUid (not mentorId) in the payload
+      return apiCall('/mentors/request', 'POST', { mentorUid, field }, token);
     },
 
     async getStudentsByField(field: string, token?: string) {

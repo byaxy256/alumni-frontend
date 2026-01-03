@@ -388,7 +388,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     onClick={async () => {
                       try {
                         const token = localStorage.getItem('token') || '';
-                        await api.requestMentor(mentor.id, token);
+                        await api.requestMentor(mentor.uid || mentor.id, token, mentor.field);
                         toast.success(`Request sent to ${mentor.name}!`);
                       } catch (error) {
                         toast.error(error instanceof Error ? error.message : 'Failed to send request.');
@@ -485,7 +485,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     onClick={async () => {
                       try {
                         const token = localStorage.getItem('token') || '';
-                        await api.requestMentor(mentor.id, token);
+                        await api.requestMentor(mentor.uid || mentor.id, token, mentor.field);
                         toast.success(`Request sent to ${mentor.name}!`);
                       } catch (error) {
                         toast.error(error instanceof Error ? error.message : 'Failed to send request.');
