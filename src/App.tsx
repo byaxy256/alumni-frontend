@@ -11,6 +11,7 @@ import { AlumniOfficeApp } from './components/AlumniOfficeApp';
 import { AdminApp } from './components/AdminApp';
 import { Toaster } from './components/ui/sonner';
 import { GraduationCap } from 'lucide-react';
+import { initPushNotifications } from './firebaseMessaging';
 
 // This is the correct, complete User type definition
 export type User = {
@@ -75,6 +76,7 @@ export default function App() {
     setUser(transformedUser);
     localStorage.setItem('user', JSON.stringify(transformedUser));
     localStorage.setItem('token', token);
+  initPushNotifications(transformedUser);
     
     setShowLogin(false);
     setShowLanding(false);
@@ -133,6 +135,12 @@ export default function App() {
     // This is crucial to stop the loading screen from showing forever
     setIsCheckingAuth(false);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      initPushNotifications(user);
+    }
+  }, [user]);
 
   if (isCheckingAuth) {
     return (

@@ -124,4 +124,8 @@ export const api = {
     async removeApprovedMentee(studentId: string, token?: string) {
       return apiCall('/mentors/remove-approved', 'POST', { studentId }, token);
     },
+
+    async registerPushToken(pushToken: string, platform: 'web' | 'ios' | 'android' = 'web', token?: string) {
+      return apiCall('/notifications/register-token', 'POST', { token: pushToken, platform }, token);
+    },
 };
