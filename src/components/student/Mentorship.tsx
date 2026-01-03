@@ -388,7 +388,13 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     onClick={async () => {
                       try {
                         const token = localStorage.getItem('token') || '';
-                        await api.requestMentor(mentor.uid || mentor.id, token, mentor.field);
+                        const mentorUid = mentor.uid || (mentor as any).mentor_uid || mentor.id;
+                        if (!mentorUid) {
+                          toast.error('Mentor UID missing. Please refresh and try again.');
+                          return;
+                        }
+                        console.log('Requesting mentor with UID:', mentorUid, mentor);
+                        await api.requestMentor(mentorUid, token, mentor.field);
                         toast.success(`Request sent to ${mentor.name}!`);
                       } catch (error) {
                         toast.error(error instanceof Error ? error.message : 'Failed to send request.');
@@ -485,7 +491,13 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     onClick={async () => {
                       try {
                         const token = localStorage.getItem('token') || '';
-                        await api.requestMentor(mentor.uid || mentor.id, token, mentor.field);
+                        const mentorUid = mentor.uid || (mentor as any).mentor_uid || mentor.id;
+                        if (!mentorUid) {
+                          toast.error('Mentor UID missing. Please refresh and try again.');
+                          return;
+                        }
+                        console.log('Requesting mentor with UID:', mentorUid, mentor);
+                        await api.requestMentor(mentorUid, token, mentor.field);
                         toast.success(`Request sent to ${mentor.name}!`);
                       } catch (error) {
                         toast.error(error instanceof Error ? error.message : 'Failed to send request.');
