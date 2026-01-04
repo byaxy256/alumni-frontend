@@ -47,16 +47,22 @@ if (!firebaseConfig || !firebaseConfig.apiKey) {
     console.log('Notification clicked:', event.notification.title);
     const targetPath = event.notification?.data?.targetPath || '/';
     event.notification.close();
+    
     event.waitUntil(
       clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
         console.log('Found', clientList.length, 'clients');
+        
+        // Try to find existing client and navigate it
         for (const client of clientList) {
-          const url = new URL(client.url);
-          if (url.pathname === targetPath) {
-            console.log('Focusing existing client with path:', targetPath);
-            return client.focus();
+          if ('navigate' in client) {
+            // For an app that uses client-side routing, we navigate to the path
+            // The app will handle routing via React Router or similar
+            console.log('Navigating existing client to:', targetPath);
+            return client.navigate(targetPath).then(client => client.focus());
           }
         }
+        
+        // If no existing client, open new window with the target path
         console.log('Opening new window with path:', targetPath);
         return clients.openWindow(targetPath);
       })

@@ -1,7 +1,7 @@
 // src/components/AlumniApp.tsx
 
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare, LogOut } from 'lucide-react';
 import type { User as UserType } from '../App';
 import { AlumniDashboard } from './alumni-user/AlumniDashboard';
@@ -38,6 +38,16 @@ const navItems = [
 export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
   const [currentScreen, setCurrentScreen] = useState<AlumniScreen>('dashboard');
 
+  // Handle deep linking from push notifications
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.split('/').pop() || 'dashboard';
+      handleNavigate(path);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // --- IMPROVEMENT 1: Centralized navigation handler ---
   const handleNavigate = (targetScreen: string) => {
     // This function ensures that only valid screen names can be set, preventing errors.
@@ -48,6 +58,8 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
         console.warn(`Attempted to navigate to an unknown screen: ${targetScreen}`);
         setCurrentScreen('dashboard'); // Fallback to dashboard
     }
+    // Update browser history for deep linking
+    window.history.pushState({}, '', `/${targetScreen}`);
   };
 
   const renderScreen = () => {

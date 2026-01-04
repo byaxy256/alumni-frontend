@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StudentDashboard } from './student/StudentDashboard';
 import { ApplyLoanSupport } from './student/ApplyLoanSupport';
 import { LoanDetails } from './student/LoanDetails';
@@ -18,6 +18,16 @@ type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'ment
 export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<StudentScreen>('dashboard');
 
+  // Handle deep linking from push notifications
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.split('/').pop() || 'dashboard';
+      handleNavigate(path);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // --- THE FIX: A robust navigation handler ---
   const handleNavigate = (targetScreen: string) => {
     // This maps different button IDs to the correct screen components
@@ -28,6 +38,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     } else {
       setCurrentScreen(targetScreen as StudentScreen);
     }
+    // Update browser history for deep linking
+    window.history.pushState({}, '', `/${targetScreen}`);
   };
 
   const renderScreen = () => {
