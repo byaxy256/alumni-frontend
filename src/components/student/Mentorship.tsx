@@ -99,6 +99,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastMessageCountRef = useRef<number>(0);
+  const peerParamRef = useRef<string | null>(new URLSearchParams(window.location.search).get('peer'));
 
 
   // Load available mentors from API
@@ -152,6 +153,17 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     const mentorInterval = setInterval(loadMyMentors, 15000);
     return () => clearInterval(mentorInterval);
   }, []);
+
+  // Auto-open chat when ?peer=<uid> is present after mentors load
+  useEffect(() => {
+    if (!peerParamRef.current) return;
+    if (!myMentors || myMentors.length === 0) return;
+    const match = myMentors.find(m => m.uid === peerParamRef.current);
+    if (match) {
+      handleOpenChat(match);
+      peerParamRef.current = null; // prevent re-open
+    }
+  }, [myMentors]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -18,6 +18,7 @@ interface NotificationItem {
   message: string;
   created_at: string;
   read?: boolean;
+  target_path?: string;
 }
 
 export function UnifiedNotifications({ user, onBack }: UnifiedNotificationsProps) {
@@ -141,7 +142,7 @@ export function UnifiedNotifications({ user, onBack }: UnifiedNotificationsProps
 
     // Navigate based on category so clicks open the right page (e.g., mentorship chat)
     const category = getCategory(notification.title);
-    const targetPath = (() => {
+    const targetPath = notification.target_path || (() => {
       if (category === 'mentorship' || category === 'message') return '/mentorship';
       if (category === 'payment') return '/payment-history';
       if (category === 'loan') return '/loans';

@@ -109,6 +109,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const lastMessageCountRef = useRef<number>(0);
+  const peerParamRef = useRef<string | null>(new URLSearchParams(window.location.search).get('peer'));
 
 
   // Load pending requests from API
@@ -178,6 +179,17 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       setLoading(false);
     }
   };
+
+  // Auto-open chat when ?peer=<uid> exists and mentees are loaded
+  useEffect(() => {
+    if (!peerParamRef.current) return;
+    if (!mentees || mentees.length === 0) return;
+    const match = mentees.find(m => (m.uid || m.id) === peerParamRef.current);
+    if (match) {
+      handleStudentSelect(match.uid || match.id);
+      peerParamRef.current = null;
+    }
+  }, [mentees]);
 
   // Approve request
   const handleApprove = async (assignmentId: string) => {
