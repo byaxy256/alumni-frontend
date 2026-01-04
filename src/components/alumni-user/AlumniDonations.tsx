@@ -16,9 +16,9 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
   const [selectedCause, setSelectedCause] = useState('');
 
   const donationStats = {
-    totalDonated: Number(user.meta?.totalDonated) || 0,
-    studentsHelped: Number(user.meta?.studentsHelped) || 0,
-    currentYear: Number(user.meta?.currentYearDonated) || 0,
+    totalDonated: 0,
+    studentsHelped: 0,
+    currentYear: 0,
   };
 
   const causes = [
@@ -125,7 +125,19 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
                 />
               </div>
 
-              <Button className="w-full" size="lg" disabled={!amount}>
+              <Button 
+                className="w-full" 
+                size="lg" 
+                disabled={!amount}
+                onClick={() => {
+                  if (!amount) return;
+                  const donationAmount = parseInt(amount);
+                  const causeName = causes.find(c => c.id === selectedCause)?.name || 'General Fund';
+                  // Redirect to Flutterwave payment page with donation details
+                  const paymentUrl = `https://checkout.flutterwave.com/v3/hosted/pay?amount=${donationAmount}&currency=UGX&customer_email=${encodeURIComponent(user.email)}&customer_name=${encodeURIComponent(user.full_name || user.email)}&tx_ref=DON-${Date.now()}&redirect_url=${encodeURIComponent(window.location.origin + '/donations')}&meta[cause]=${encodeURIComponent(causeName)}&meta[donor_uid]=${user.uid}&public_key=FLWPUBK_TEST-SANDBOXDEMOKEY-X`;
+                  window.location.href = paymentUrl;
+                }}
+              >
                 <Heart className="w-4 h-4 mr-2" />
                 Donate UGX {amount ? parseInt(amount).toLocaleString() : '0'}
               </Button>

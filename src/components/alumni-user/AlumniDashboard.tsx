@@ -144,9 +144,9 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   ];
 
   const donationStats = {
-    totalDonated: Number(user.meta?.totalDonated) || 0,
-    studentsHelped: Number(user.meta?.studentsHelped) || 0,
-    currentYear: Number(user.meta?.currentYearDonated) || 0,
+    totalDonated: 0,
+    studentsHelped: 0,
+    currentYear: 0,
   };
 
   const upcomingEvents = [
