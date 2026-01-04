@@ -138,6 +138,21 @@ export function UnifiedNotifications({ user, onBack }: UnifiedNotificationsProps
         console.error('Error marking notification as read:', error);
       }
     }
+
+    // Navigate based on category so clicks open the right page (e.g., mentorship chat)
+    const category = getCategory(notification.title);
+    const targetPath = (() => {
+      if (category === 'mentorship' || category === 'message') return '/mentorship';
+      if (category === 'payment') return '/payment-history';
+      if (category === 'loan') return '/loans';
+      if (category === 'donation') return '/fund';
+      if (category === 'event') return '/events';
+      return '/dashboard';
+    })();
+
+    // Push state + dispatch popstate so the app router picks it up
+    window.history.pushState({}, '', targetPath);
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   const formatDate = (dateString: string) => {

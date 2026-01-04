@@ -293,7 +293,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
 
   if (activeChatMentor) {
     return (
-      <div className="flex flex-col h-screen bg-gray-50">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <header className="bg-white border-b p-4 sticky top-0 z-10">
           <div className="max-w-4xl mx-auto flex items-center gap-4">
             <Button onClick={() => setActiveChatMentor(null)} variant="ghost" size="icon"><ArrowLeft className="w-5 h-5" /></Button>
