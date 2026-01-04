@@ -5,7 +5,7 @@ import { Label } from '../ui/label';
 import type { User } from '../../App';
 import { ArrowLeft, Heart, TrendingUp, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../../api';
+import { API_BASE } from '../../api';
 
 interface AlumniDonationsProps {
   user: User;
@@ -40,7 +40,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
     const fetchDonationStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/donations/stats`, {
+        const response = await fetch(`${API_BASE}/donations/stats`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -58,7 +58,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
 
     const fetchCauses = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/donations/causes`);
+        const response = await fetch(`${API_BASE}/donations/causes`);
         if (response.ok) {
           const data = await response.json();
           setCauses(data);
@@ -182,7 +182,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
                   try {
                     // Save donation record first
                     const token = localStorage.getItem('token');
-                    const saveResponse = await fetch(`${API_BASE_URL}/donations`, {
+                    const saveResponse = await fetch(`${API_BASE}/donations`, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
