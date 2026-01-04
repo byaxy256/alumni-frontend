@@ -14,7 +14,9 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID as string,
 };
 
-const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY as string;
+// Ensure VAPID key is present and trimmed (common cause of InvalidAccessError)
+const rawVapidKey = (import.meta.env.VITE_FIREBASE_VAPID_KEY as string | undefined)?.trim();
+const vapidKey = rawVapidKey && rawVapidKey.replace(/^"|"$/g, '');
 
 let messaging: Messaging | null = null;
 
@@ -35,6 +37,10 @@ export async function initPushNotifications(user: User | null) {
     const supported = await isSupported();
     if (!supported) {
       console.warn('Push messaging not supported in this browser.');
+      return;
+    }
+    if (!vapidKey || vapidKey.length < 20) {
+      console.error('VAPID key missing/invalid. Set VITE_FIREBASE_VAPID_KEY to your Web Push certificate public key.');
       return;
     }
     const app = ensureFirebaseApp();
