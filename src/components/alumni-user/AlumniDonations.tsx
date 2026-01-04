@@ -72,13 +72,6 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
     fetchCauses();
   }, []);
 
-  const causes = [
-    { id: 'student-loans', name: 'Student Loan Fund', raised: 15000000, goal: 30000000 },
-    { id: 'scholarships', name: 'Merit Scholarships', raised: 8000000, goal: 20000000 },
-    { id: 'infrastructure', name: 'Campus Development', raised: 25000000, goal: 50000000 },
-    { id: 'emergency', name: 'Emergency Relief', raised: 5000000, goal: 10000000 },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
