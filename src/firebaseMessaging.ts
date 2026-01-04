@@ -42,30 +42,68 @@ export async function initPushNotifications(user: User | null) {
 
     messaging = getMessaging(app);
 
+    // Register service worker FIRST
+    console.log('Registering service worker...');
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+    console.log('Service worker registered:', registration);
 
-    // Request permission
-    const permission = await Notification.requestPermission();
+    // Check current permission state
+    let permission = Notification.permission;
+    console.log('Current notification permission:', permission);
+
+    // Only ask for permission if not already denied
+    if (permission === 'default') {
+      console.log('Requesting notification permission...');
+      permission = await Notification.requestPermission();
+      console.log('User responded to permission prompt:', permission);
+    }
+
     if (permission !== 'granted') {
-      console.warn('Notification permission not granted');
-      return;
+      console.warn('Notification permission:', permission);
+      if (permission === 'denied') {
+        console.warn('User blocked notifications. They can re-enable in browser settings.');
+      }
+      // Still continue - token can be obtained even without permission on some browsers
     }
 
     // Obtain token
+    console.log('Requesting FCM token...');
     const pushToken = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
     if (!pushToken) {
       console.warn('Failed to obtain push token');
       return;
     }
 
-    const authToken = localStorage.getItem('token') || '';
-    await api.registerPushToken(pushToken, 'web', authToken);
+    console.log('FCM token obtained:', pushToken.substring(0, 20) + '...');
 
-    // Foreground handler to surface incoming notifications
+    // Register token on backend
+    const authToken = localStorage.getItem('token') || '';
+    console.log('Registering token on backend...');
+    await api.registerPushToken(pushToken, 'web', authToken);
+    console.log('Token registered successfully');
+
+    // Foreground handler to surface incoming notifications as native notifications
     onMessage(messaging, (payload) => {
+      console.log('Foreground message received:', payload);
       const title = payload.notification?.title || payload.data?.title || 'New notification';
       const body = payload.notification?.body || payload.data?.body || payload.data?.message || '';
       const targetPath = payload.data?.targetPath;
+
+      // Show native notification if permission is granted
+      if (permission === 'granted' && registration.active) {
+        registration.active.postMessage({
+          type: 'FOREGROUND_NOTIFICATION',
+          payload: {
+            title,
+            body,
+            targetPath,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png'
+          }
+        });
+      }
+
+      // Also show toast as fallback
       toast.info(title, {
         description: body,
         action: targetPath
