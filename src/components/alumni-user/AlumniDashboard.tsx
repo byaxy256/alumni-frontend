@@ -34,6 +34,11 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   const [studentsInField, setStudentsInField] = useState<any[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [donationStats, setDonationStats] = useState({
+    totalDonated: 0,
+    studentsHelped: 0,
+    currentYear: 0,
+  });
 
   const displayName = user.full_name || user.name || 'Alumni';
   const displayCourse = user.course || user.meta?.course || user.meta?.field || 'Alumni';
@@ -56,7 +61,23 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       }
     };
 
+    const fetchDonationStats = async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await fetch(`${API_BASE}/donations/stats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setDonationStats(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch donation stats:', error);
+      }
+    };
+
     loadStudents();
+    fetchDonationStats();
 
     // Real-time notification polling every 5 seconds
     const notificationInterval = setInterval(async () => {
@@ -142,12 +163,6 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       action: () => onNavigate('benefits')
     },
   ];
-
-  const donationStats = {
-    totalDonated: 0,
-    studentsHelped: 0,
-    currentYear: 0,
-  };
 
   const upcomingEvents = [
     {

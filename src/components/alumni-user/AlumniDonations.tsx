@@ -4,22 +4,73 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import type { User } from '../../App';
 import { ArrowLeft, Heart, TrendingUp, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../api';
 
 interface AlumniDonationsProps {
   user: User;
   onBack: () => void;
 }
 
+interface DonationStats {
+  totalDonated: number;
+  studentsHelped: number;
+  currentYear: number;
+}
+
+interface Cause {
+  id: string;
+  name: string;
+  raised: number;
+  goal: number;
+}
+
 export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
   const [amount, setAmount] = useState('');
   const [selectedCause, setSelectedCause] = useState('');
-
-  const donationStats = {
+  const [donationStats, setDonationStats] = useState<DonationStats>({
     totalDonated: 0,
     studentsHelped: 0,
     currentYear: 0,
-  };
+  });
+  const [causes, setCauses] = useState<Cause[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDonationStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/donations/stats`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setDonationStats(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch donation stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchCauses = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/donations/causes`);
+        if (response.ok) {
+          const data = await response.json();
+          setCauses(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch causes:', error);
+      }
+    };
+
+    fetchDonationStats();
+    fetchCauses();
+  }, []);
 
   const causes = [
     { id: 'student-loans', name: 'Student Loan Fund', raised: 15000000, goal: 30000000 },
@@ -129,13 +180,71 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
                 className="w-full" 
                 size="lg" 
                 disabled={!amount}
-                onClick={() => {
+                onClick={async () => {
                   if (!amount) return;
                   const donationAmount = parseInt(amount);
                   const causeName = causes.find(c => c.id === selectedCause)?.name || 'General Fund';
-                  // Redirect to Flutterwave payment page with donation details
-                  const paymentUrl = `https://checkout.flutterwave.com/v3/hosted/pay?amount=${donationAmount}&currency=UGX&customer_email=${encodeURIComponent(user.email)}&customer_name=${encodeURIComponent(user.full_name || user.email)}&tx_ref=DON-${Date.now()}&redirect_url=${encodeURIComponent(window.location.origin + '/donations')}&meta[cause]=${encodeURIComponent(causeName)}&meta[donor_uid]=${user.uid}&public_key=FLWPUBK_TEST-SANDBOXDEMOKEY-X`;
-                  window.location.href = paymentUrl;
+                  const txRef = `DON-${user.uid}-${Date.now()}`;
+                  
+                  try {
+                    // Save donation record first
+                    const token = localStorage.getItem('token');
+                    const saveResponse = await fetch(`${API_BASE_URL}/donations`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({
+                        amount: donationAmount,
+                        cause: causeName,
+                        transaction_ref: txRef,
+                        payment_method: 'flutterwave',
+                      }),
+                    });
+
+                    if (!saveResponse.ok) {
+                      throw new Error('Failed to save donation record');
+                    }
+
+                    // Use FlutterWave Inline (better than hosted checkout)
+                    // @ts-ignore
+                    if (window.FlutterwaveCheckout) {
+                      // @ts-ignore
+                      window.FlutterwaveCheckout({
+                        public_key: "FLWPUBK-xxxxx", // Replace with your actual public key
+                        tx_ref: txRef,
+                        amount: donationAmount,
+                        currency: "UGX",
+                        payment_options: "mobilemoneyuganda,card,ussd",
+                        customer: {
+                          email: user.email,
+                          name: user.full_name || user.email,
+                        },
+                        customizations: {
+                          title: "UCU Alumni Circle",
+                          description: `Donation for ${causeName}`,
+                          logo: "https://alumni-frontend-seven.vercel.app/logo.png",
+                        },
+                        callback: function (data: any) {
+                          console.log('Payment callback:', data);
+                          if (data.status === 'successful') {
+                            alert('Thank you for your donation! Your payment was successful.');
+                            window.location.reload();
+                          }
+                        },
+                        onclose: function () {
+                          console.log('Payment modal closed');
+                        }
+                      });
+                    } else {
+                      // Fallback to simple payment page
+                      alert(`Donation Amount: UGX ${donationAmount.toLocaleString()}\nCause: ${causeName}\n\nFlutterwave integration requires the Flutterwave script. Please contact support.`);
+                    }
+                  } catch (error) {
+                    console.error('Failed to create donation record:', error);
+                    alert('Failed to process donation. Please try again.');
+                  }
                 }}
               >
                 <Heart className="w-4 h-4 mr-2" />
