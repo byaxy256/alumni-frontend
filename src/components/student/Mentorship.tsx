@@ -254,6 +254,43 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !activeChatMentor) return;
+
+    // Mock file upload - in real implementation, upload to server
+    const attachment = {
+      url: URL.createObjectURL(file),
+      name: file.name,
+      type: file.type,
+      size: file.size
+    };
+
+    const newMsg: Message = {
+      id: Date.now(),
+      sender_id: user.uid,
+      message_text: file.type.startsWith('image/') ? '📷 Image' : '📎 File',
+      created_at: new Date().toISOString(),
+      status: 'sent',
+      type: file.type.startsWith('image/') ? 'image' : 'file',
+      attachment
+    };
+
+    setMessages(prev => [...prev, newMsg]);
+    toast.success('File attached successfully!');
+    setShowAttachments(false);
+  };
+
+  const handleVoiceRecord = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      toast.success('Voice message recorded!');
+    } else {
+      setIsRecording(true);
+      toast.info('Recording voice message...');
+    }
+  };
+
   if (activeChatMentor) {
     return (
       <div className="flex flex-col h-screen bg-gray-50">
@@ -285,11 +322,87 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
             <div ref={messagesEndRef} />
         </main>
         <footer className="bg-white border-t p-4 sticky bottom-0">
-          <div className="max-w-4xl mx-auto flex items-center gap-2">
-            <Input placeholder="Type a message..." value={newMessage} onChange={e => setNewMessage(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSendMessage()} />
-            <Button onClick={handleSendMessage} disabled={isSending}>
-              {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </Button>
+          <div className="max-w-4xl mx-auto">
+            {/* Attachment preview */}
+            {showAttachments && (
+              <div className="mb-3 p-3 border-2 border-dashed border-gray-300 rounded-lg">
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2"
+                  >
+                    <Image className="w-4 h-4" />
+                    Image
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Document
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2"
+                  >
+                    <Video className="w-4 h-4" />
+                    Video
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2">
+              <div className="flex-1 relative">
+                <Input 
+                  placeholder="Type a message..." 
+                  value={newMessage} 
+                  onChange={e => setNewMessage(e.target.value)} 
+                  onKeyPress={e => e.key === 'Enter' && !isSending && handleSendMessage()} 
+                  className="pr-20"
+                />
+                
+                {/* Input actions */}
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setShowAttachments(!showAttachments)}
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              {newMessage.trim() ? (
+                <Button onClick={handleSendMessage} disabled={isSending}>
+                  {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                </Button>
+              ) : (
+                <Button
+                  variant={isRecording ? "destructive" : "outline"}
+                  onClick={handleVoiceRecord}
+                >
+                  <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
+                </Button>
+              )}
+            </div>
+            
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileUpload}
+              accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+              className="hidden"
+            />
           </div>
         </footer>
       </div>

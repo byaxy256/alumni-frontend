@@ -1,11 +1,15 @@
 // Replace these values with your Firebase web config and VAPID key
-self.__FIREBASE_CONFIG__ = {
-  apiKey: 'YOUR_FIREBASE_API_KEY',
-  authDomain: 'YOUR_FIREBASE_AUTH_DOMAIN',
-  projectId: 'YOUR_FIREBASE_PROJECT_ID',
-  storageBucket: 'YOUR_FIREBASE_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_FIREBASE_MESSAGING_SENDER_ID',
-  appId: 'YOUR_FIREBASE_APP_ID',
+import { initializeApp } from "firebase/app";
+import { getMessaging } from "firebase/messaging";
+
+export const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-self.__FIREBASE_VAPID_KEY__ = 'YOUR_FIREBASE_VAPID_KEY';
+const app = initializeApp(firebaseConfig);
+export const messaging = getMessaging(app);

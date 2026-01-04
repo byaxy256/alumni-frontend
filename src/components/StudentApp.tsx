@@ -4,7 +4,7 @@ import { ApplyLoanSupport } from './student/ApplyLoanSupport';
 import { LoanDetails } from './student/LoanDetails';
 import { PaymentHistory } from './student/PaymentHistory';
 import { Mentorship } from './student/Mentorship';
-import { Notifications } from './student/Notifications';
+import { UnifiedNotifications } from './shared/UnifiedNotifications';
 import { StudentProfile } from './student/StudentProfile';
 import { StudentFund } from './student/StudentFund';
 import { News } from './student/News';
@@ -55,7 +55,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
       case 'mentorship':
         return <Mentorship user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'notifications':
-        return <Notifications user={user} onBack={() => handleNavigate('dashboard')} />;
+        return <UnifiedNotifications user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'profile':
         return <StudentProfile user={user} onBack={() => handleNavigate('dashboard')} onLogout={onLogout} />;
       case 'fund':

@@ -13,7 +13,7 @@ import { AlumniBenefits } from './alumni-user/AlumniBenefits';
 import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
 import { MentorshipHub } from './alumni-user/MentorshipHub';
-import { AlumniNotifications } from './alumni-user/AlumniNotifications';
+import { UnifiedNotifications } from './shared/UnifiedNotifications';
 import { ThemeToggle } from './ui/ThemeToggle';
 
 interface AlumniAppProps {
@@ -83,7 +83,7 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
       case 'mentorship':
         return <MentorshipHub user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'notifications':
-        return <AlumniNotifications user={user} onBack={() => handleNavigate('dashboard')} />;
+        return <UnifiedNotifications user={user} onBack={() => handleNavigate('dashboard')} />;
       default:
         return <AlumniDashboard user={user} onNavigate={handleNavigate} />;
     }
