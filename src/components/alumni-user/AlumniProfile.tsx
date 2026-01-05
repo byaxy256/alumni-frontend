@@ -31,11 +31,15 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   const [experienceYears, setExperienceYears] = useState(user.meta?.experienceYears || user.meta?.experience_years || '');
   const [workplace, setWorkplace] = useState(user.meta?.company || user.meta?.workplace || user.meta?.currentWorkplace || '');
   const [saving, setSaving] = useState(false);
-  const [privacy, setPrivacy] = useState<{ profileVisibility: 'public' | 'alumni-only' | 'private'; showEmail: boolean; showPhone: boolean }>({
-    profileVisibility: 'alumni-only',
-    showEmail: false,
-    showPhone: false,
-  });
+  const localUserRaw = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+  const localPrivacy = localUserRaw ? JSON.parse(localUserRaw)?.meta?.privacy : undefined;
+  const [privacy, setPrivacy] = useState<{ profileVisibility: 'public' | 'alumni-only' | 'private'; showEmail: boolean; showPhone: boolean }>(
+    localPrivacy || {
+      profileVisibility: 'alumni-only',
+      showEmail: false,
+      showPhone: false,
+    }
+  );
 
   const isProfilePrivate = privacy.profileVisibility === 'private';
 

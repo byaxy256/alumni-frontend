@@ -12,7 +12,26 @@ interface AccountSettingsProps {
 
 type ViewMode = 'main' | 'change-password' | 'notifications' | 'privacy';
 
+function getLocalPrefs() {
+  const userRaw = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+  const meta = userRaw ? JSON.parse(userRaw)?.meta || {} : {};
+  return {
+    notifications: meta.notifications || {
+      email: true,
+      push: true,
+      donationUpdates: true,
+      mentorshipAlerts: true,
+    },
+    privacy: meta.privacy || {
+      profileVisibility: 'alumni-only',
+      showEmail: false,
+      showPhone: false,
+    },
+  };
+}
+
 export function AccountSettings({ onClose }: AccountSettingsProps) {
+  const initial = getLocalPrefs();
   const [viewMode, setViewMode] = useState<ViewMode>('main');
   const [loading, setLoading] = useState(false);
   const [loadingPreferences, setLoadingPreferences] = useState(true);
@@ -23,15 +42,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   
   // Notification preferences state
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [donationUpdates, setDonationUpdates] = useState(true);
-  const [mentorshipAlerts, setMentorshipAlerts] = useState(true);
+  const [emailNotifications, setEmailNotifications] = useState(initial.notifications.email ?? true);
+  const [pushNotifications, setPushNotifications] = useState(initial.notifications.push ?? true);
+  const [donationUpdates, setDonationUpdates] = useState(initial.notifications.donationUpdates ?? true);
+  const [mentorshipAlerts, setMentorshipAlerts] = useState(initial.notifications.mentorshipAlerts ?? true);
   
   // Privacy settings state
-  const [profileVisibility, setProfileVisibility] = useState<'public' | 'alumni-only' | 'private'>('alumni-only');
-  const [showEmail, setShowEmail] = useState(false);
-  const [showPhone, setShowPhone] = useState(false);
+  const [profileVisibility, setProfileVisibility] = useState<'public' | 'alumni-only' | 'private'>(initial.privacy.profileVisibility ?? 'alumni-only');
+  const [showEmail, setShowEmail] = useState(initial.privacy.showEmail ?? false);
+  const [showPhone, setShowPhone] = useState(initial.privacy.showPhone ?? false);
 
   // Load user preferences on mount
   useEffect(() => {
@@ -40,6 +59,20 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
 
   const loadPreferences = async () => {
     try {
+      // Apply local snapshot first to avoid flicker/reset on refresh
+      const local = getLocalPrefs();
+      if (local.notifications) {
+        setEmailNotifications(local.notifications.email ?? true);
+        setPushNotifications(local.notifications.push ?? true);
+        setDonationUpdates(local.notifications.donationUpdates ?? true);
+        setMentorshipAlerts(local.notifications.mentorshipAlerts ?? true);
+      }
+      if (local.privacy) {
+        setProfileVisibility(local.privacy.profileVisibility ?? 'alumni-only');
+        setShowEmail(local.privacy.showEmail ?? false);
+        setShowPhone(local.privacy.showPhone ?? false);
+      }
+
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API_BASE}/auth/preferences`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -58,6 +91,14 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         setProfileVisibility(privacy.profileVisibility ?? 'alumni-only');
         setShowEmail(privacy.showEmail ?? false);
         setShowPhone(privacy.showPhone ?? false);
+
+        const userRaw = localStorage.getItem('user');
+        if (userRaw) {
+          const user = JSON.parse(userRaw);
+          user.meta = user.meta || {};
+          user.meta.privacy = privacy;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
       }
       
       setLoadingPreferences(false);
@@ -283,7 +324,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
           )}
         </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Email Notifications</p>
@@ -402,7 +443,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             </select>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div>
                 <p className="font-medium">Show Email Address</p>
