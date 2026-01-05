@@ -55,6 +55,8 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [showPINPrompt, setShowPINPrompt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingTransactionRef, setPendingTransactionRef] = useState<string | null>(null);
+  const [showPinSetupPrompt, setShowPinSetupPrompt] = useState(false);
 
   const fetchDonationStats = async () => {
     try {
@@ -95,7 +97,12 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
       });
       if (response.ok) {
         const data = await response.json();
-        setMyDonations(data);
+        // Filter out Flutterwave donations, keep only mobile money/bank donations
+        const filteredDonations = (data || []).filter((donation: MyDonation) => {
+          const method = donation.payment_method?.toLowerCase() || '';
+          return method === 'mtn' || method === 'airtel' || method === 'bank';
+        });
+        setMyDonations(filteredDonations);
       }
     } catch (error) {
       console.error('Failed to fetch my donations:', error);
@@ -193,6 +200,8 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
         }),
       });
 
+      // Store the transaction ref for confirmation later
+      setPendingTransactionRef(txRef);
       setIsSubmitting(false);
       setShowPINPrompt(true);
     } catch (error) {
@@ -304,16 +313,73 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
           </div>
         </div>
 
+        {/* PIN Setup Required Modal */}
+        {showPinSetupPrompt && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-xl font-semibold mb-4">Payment PIN Required</h3>
+              <p className="text-gray-600 mb-6">
+                You need to set up a payment PIN before making donations. Please go to your profile to set up your PIN.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowPinSetupPrompt(false);
+                    setShowPaymentPage(false);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPinSetupPrompt(false);
+                    setShowPaymentPage(false);
+                    onBack();
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Go to Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* PIN Prompt Modal */}
         {showPINPrompt && (
           <PaymentPINPrompt
             phoneNumber={phoneNumber}
             amount={parseInt(amount)}
             provider={paymentMethod as 'mtn' | 'airtel'}
+            onNoPinSet={() => {
+              setShowPINPrompt(false);
+              setShowPinSetupPrompt(true);
+            }}
             onSuccess={async () => {
+              try {
+                // Confirm the donation payment
+                if (pendingTransactionRef) {
+                  const token = localStorage.getItem('token');
+                  await fetch(`${API_BASE}/donations/confirm`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                      transaction_ref: pendingTransactionRef,
+                    }),
+                  });
+                }
+              } catch (error) {
+                console.error('Failed to confirm donation:', error);
+              }
+
               setShowPINPrompt(false);
               setShowPaymentPage(false);
               setPhoneNumber('');
+              setPendingTransactionRef(null);
               
               // Refresh the donation stats and causes
               await fetchDonationStats();
@@ -454,33 +520,43 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
             <h3 className="text-lg mb-4">My Donations</h3>
             <Card className="p-6">
               <div className="space-y-3">
-                {myDonations.map((donation) => (
-                  <div key={donation._id} className="flex justify-between items-start py-3 border-b last:border-b-0">
-                    <div className="flex-1">
-                      <p className="font-medium">{donation.cause}</p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(donation.created_at).toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">Ref: {donation.transaction_ref}</p>
+                {myDonations.map((donation) => {
+                  // Get payment method display name
+                  const paymentMethodMap: Record<string, string> = {
+                    'mtn': 'MTN Mobile Money',
+                    'airtel': 'Airtel Money',
+                    'bank': 'Bank Transfer',
+                  };
+                  const paymentMethodDisplay = paymentMethodMap[donation.payment_method?.toLowerCase() || ''] || 'Mobile Money';
+
+                  return (
+                    <div key={donation._id} className="flex justify-between items-start py-3 border-b last:border-b-0">
+                      <div className="flex-1">
+                        <p className="font-medium">{donation.cause}</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(donation.created_at).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">{paymentMethodDisplay}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">UGX {donation.amount.toLocaleString()}</p>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          donation.payment_status === 'completed' 
+                            ? 'bg-green-100 text-green-700' 
+                            : donation.payment_status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}>
+                          {donation.payment_status}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg">UGX {donation.amount.toLocaleString()}</p>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        donation.payment_status === 'completed' 
-                          ? 'bg-green-100 text-green-700' 
-                          : donation.payment_status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-red-100 text-red-700'
-                      }`}>
-                        {donation.payment_status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Card>
           </div>

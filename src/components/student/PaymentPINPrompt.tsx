@@ -2,6 +2,7 @@ import { useState, useEffect, createElement } from 'react';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import axios from 'axios';
 
 interface PaymentPINPromptProps {
   phoneNumber: string;
@@ -9,14 +10,46 @@ interface PaymentPINPromptProps {
   provider: 'mtn' | 'airtel';
   onSuccess: () => void;
   onCancel: () => void;
+  onNoPinSet?: () => void; // Callback when user hasn't set a PIN
 }
 
-export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onCancel }: PaymentPINPromptProps) {
+export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onCancel, onNoPinSet }: PaymentPINPromptProps) {
   const [pin, setPin] = useState<string>('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes countdown
+  const [checkingPin, setCheckingPin] = useState(true);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
+  // Check if user has PIN set up on mount
+  useEffect(() => {
+    checkPinStatus();
+  }, []);
+
+  const checkPinStatus = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/api/pin/status`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.data.hasPin) {
+        // User hasn't set a PIN yet
+        if (onNoPinSet) {
+          onNoPinSet();
+        } else {
+          setError('Please set up your payment PIN in your profile first');
+        }
+      }
+      setCheckingPin(false);
+    } catch (err: any) {
+      console.error('Error checking PIN status:', err);
+      setError('Failed to verify PIN setup. Please try again.');
+      setCheckingPin(false);
+    }
+  };
 
   // Countdown timer
   useEffect(() => {
@@ -38,25 +71,35 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
     setError('');
 
     try {
-      // Simulate PIN verification (in real scenario, this would be a backend call)
-      // For demo, accept any 4-digit PIN
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+      const token = localStorage.getItem('token');
+      
+      // Verify PIN with backend
+      const response = await axios.post(`${API_BASE_URL}/api/pin/verify`, {
+        pin
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-      // Validation: just check if it's 4 digits
-      if (!/^\d{4}$/.test(pin)) {
-        setError('Invalid PIN format');
+      if (!response.data.valid) {
+        setError('Incorrect PIN. Please try again.');
         setIsVerifying(false);
+        setPin(''); // Clear PIN input
         return;
       }
+
+      // PIN is valid - simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Success
       setIsSuccess(true);
       setTimeout(() => {
         onSuccess();
       }, 2000);
-    } catch (err) {
-      setError('Failed to verify PIN. Please try again.');
+    } catch (err: any) {
+      console.error('PIN verification error:', err);
+      setError(err.response?.data?.error || 'Failed to verify PIN. Please try again.');
       setIsVerifying(false);
+      setPin(''); // Clear PIN input
     }
   };
 
@@ -74,6 +117,19 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  if (checkingPin) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <Card className="max-w-md w-full mx-4 bg-white">
+          <CardContent className="pt-6 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-sm text-gray-600">Checking PIN setup...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isSuccess) {
     return (
@@ -123,12 +179,12 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
 
           {/* PIN Input */}
           <div>
-            <label className="block text-sm font-medium mb-3">Enter your {getProviderName()} PIN</label>
+            <label className="block text-sm font-medium mb-3">Enter your payment PIN</label>
             <div className="flex gap-2 justify-center mb-2">
               {[0, 1, 2, 3].map((i) =>
                 createElement('input' as any, {
                   key: `pin-${i}`,
-                  type: 'text',
+                  type: 'password',
                   inputMode: 'numeric',
                   value: (pin[i] || '') as any,
                   onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,6 +192,19 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
                     const digits = pin.split('');
                     digits[i] = digit;
                     handlePINInput(digits.join(''));
+                    
+                    // Auto-focus next input
+                    if (digit && i < 3) {
+                      const nextInput = e.currentTarget.nextElementSibling as HTMLInputElement;
+                      if (nextInput) nextInput.focus();
+                    }
+                  },
+                  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+                    // Auto-focus previous input on backspace
+                    if (e.key === 'Backspace' && !pin[i] && i > 0) {
+                      const prevInput = (e.currentTarget as HTMLInputElement).previousElementSibling as HTMLInputElement;
+                      if (prevInput) prevInput.focus();
+                    }
                   },
                   disabled: isVerifying,
                   className: 'w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-gray-100',
@@ -143,7 +212,7 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
                 } as any)
               )}
             </div>
-            <p className="text-xs text-gray-500 text-center">4-digit PIN</p>
+            <p className="text-xs text-gray-500 text-center">4-digit payment PIN (set in your profile)</p>
           </div>
 
           {/* Error Message */}

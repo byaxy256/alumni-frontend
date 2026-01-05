@@ -4,9 +4,10 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import type { User } from '../../App';
-import { ArrowLeft, LogOut, Edit, User as UserIcon } from 'lucide-react';
+import { ArrowLeft, LogOut, Edit, User as UserIcon, Lock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import PINManagement from '../shared/PINManagement';
 
 interface StudentProfileProps {
   user: User;
@@ -26,6 +27,7 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPinManagement, setShowPinManagement] = useState(false);
 
   useEffect(() => {
     try {
@@ -228,6 +230,32 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
               </div>
             )}
           </div>
+        </Card>
+
+        {/* Payment PIN Management */}
+        <Card className="p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+              <Lock className="w-5 h-5 text-primary" />
+              Payment PIN
+            </h3>
+          </div>
+          {showPinManagement ? (
+            <PINManagement onClose={() => setShowPinManagement(false)} />
+          ) : (
+            <div>
+              <p className="text-sm text-slate-600 mb-4">
+                Manage your payment PIN for secure loan payments and transactions.
+              </p>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setShowPinManagement(true)}
+              >
+                Manage Payment PIN
+              </Button>
+            </div>
+          )}
         </Card>
       </main>
     </div>

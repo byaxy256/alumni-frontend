@@ -3,11 +3,12 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import type { User } from '../../App';
-import { ArrowLeft, User as UserIcon, Mail, Phone, Briefcase, Calendar, LogOut, Edit } from 'lucide-react';
+import { ArrowLeft, User as UserIcon, Mail, Phone, Briefcase, Calendar, LogOut, Edit, Lock } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { api } from '../../api';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import PINManagement from '../shared/PINManagement';
 
 interface AlumniProfileProps {
   user: User;
@@ -17,6 +18,7 @@ interface AlumniProfileProps {
 
 export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [showPinManagement, setShowPinManagement] = useState(false);
   const [about, setAbout] = useState(user.meta?.bio || user.meta?.about || '');
   const [fullName, setFullName] = useState(user.full_name || user.name || '');
   const [email, setEmail] = useState(user.email || '');
@@ -229,6 +231,32 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
               Privacy Settings
             </Button>
           </div>
+        </Card>
+
+        {/* Payment PIN Management */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg text-gray-900 flex items-center gap-2">
+              <Lock className="w-5 h-5 text-primary" />
+              Payment PIN
+            </h3>
+          </div>
+          {showPinManagement ? (
+            <PINManagement onClose={() => setShowPinManagement(false)} />
+          ) : (
+            <div>
+              <p className="text-sm text-gray-600 mb-4">
+                Manage your payment PIN for secure donations and transactions.
+              </p>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setShowPinManagement(true)}
+              >
+                Manage Payment PIN
+              </Button>
+            </div>
+          )}
         </Card>
 
         {/* Logout */}
