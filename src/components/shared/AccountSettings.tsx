@@ -178,6 +178,39 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
     }
   };
 
+  const persistPrivacy = async (updates: Partial<{ profileVisibility: 'public' | 'alumni-only' | 'private'; showEmail: boolean; showPhone: boolean }>) => {
+    const next = {
+      profileVisibility,
+      showEmail,
+      showPhone,
+      ...updates,
+    };
+
+    setProfileVisibility(next.profileVisibility as any);
+    setShowEmail(next.showEmail);
+    setShowPhone(next.showPhone);
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${API_BASE}/auth/preferences`, {
+        privacy: next
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const userRaw = localStorage.getItem('user');
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        user.meta = user.meta || {};
+        user.meta.privacy = next;
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+    } catch (err: any) {
+      console.error('Auto-save privacy failed', err);
+      toast.error(err.response?.data?.error || 'Failed to save privacy');
+    }
+  };
+
   if (viewMode === 'change-password') {
     return (
       <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-sm">
@@ -259,11 +292,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <button
                 type="button"
                 onClick={() => setEmailNotifications(!emailNotifications)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  emailNotifications ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  emailNotifications ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >
-                {emailNotifications ? 'On' : 'Off'}
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    emailNotifications ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
               </button>
           </div>
 
@@ -275,11 +312,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <button
                 type="button"
                 onClick={() => setPushNotifications(!pushNotifications)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  pushNotifications ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  pushNotifications ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >
-                {pushNotifications ? 'On' : 'Off'}
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    pushNotifications ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
               </button>
           </div>
 
@@ -291,11 +332,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <button
                 type="button"
                 onClick={() => setDonationUpdates(!donationUpdates)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  donationUpdates ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  donationUpdates ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >
-                {donationUpdates ? 'On' : 'Off'}
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    donationUpdates ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
               </button>
           </div>
 
@@ -307,11 +352,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <button
                 type="button"
                 onClick={() => setMentorshipAlerts(!mentorshipAlerts)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  mentorshipAlerts ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  mentorshipAlerts ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >
-                {mentorshipAlerts ? 'On' : 'Off'}
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    mentorshipAlerts ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
               </button>
           </div>
 
@@ -344,7 +393,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             <select
               id="profileVisibility"
               value={profileVisibility}
-              onChange={(e) => setProfileVisibility(e.target.value as any)}
+              onChange={(e) => persistPrivacy({ profileVisibility: e.target.value as any })}
               className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="public">Public - Anyone can view</option>
@@ -359,15 +408,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                 <p className="font-medium">Show Email Address</p>
                 <p className="text-sm text-gray-600">Display your email on profile</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowEmail(!showEmail)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  showEmail ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
-                }`}
-              >
-                {showEmail ? 'Visible' : 'Hidden'}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => persistPrivacy({ showEmail: !showEmail })}
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    showEmail ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                      showEmail ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
             </div>
 
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -375,15 +428,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                 <p className="font-medium">Show Phone Number</p>
                 <p className="text-sm text-gray-600">Display your phone on profile</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowPhone(!showPhone)}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                  showPhone ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
-                }`}
-              >
-                {showPhone ? 'Visible' : 'Hidden'}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => persistPrivacy({ showPhone: !showPhone })}
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    showPhone ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                      showPhone ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
             </div>
           </div>
 
