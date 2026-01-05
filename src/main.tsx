@@ -4,15 +4,6 @@ import { BrowserRouter } from "react-router-dom";
 // @ts-ignore: module declaration for CSS imports is missing in this project
 import "./index.css";
 
-// Unregister old service workers to prevent caching issues
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    registrations.forEach((registration) => {
-      registration.unregister();
-    });
-  });
-}
-
 const mount = () => {
   const rootElement = document.getElementById("root");
   if (!rootElement) return false;
