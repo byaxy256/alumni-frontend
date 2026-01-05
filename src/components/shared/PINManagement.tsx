@@ -38,7 +38,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
   const checkPinStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE}/api/pin/status`, {
+      const response = await axios.get(`${API_BASE}/pin/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setHasPin(response.data.hasPin);
@@ -91,7 +91,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE}/api/pin/set`, {
+      await axios.post(`${API_BASE}/pin/set`, {
         pin: newPin,
         security_question: securityQuestion,
         security_answer: securityAnswer
@@ -162,14 +162,14 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       const token = localStorage.getItem('token');
       
       // First verify old PIN
-      await axios.post(`${API_BASE}/api/pin/verify`, {
+      await axios.post(`${API_BASE}/pin/verify`, {
         pin: oldPin
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       // Then set new PIN (security question remains the same)
-      await axios.post(`${API_BASE}/api/pin/set`, {
+      await axios.post(`${API_BASE}/pin/set`, {
         pin: newPin,
         security_question: securityQuestion,
         security_answer: securityAnswer
@@ -222,7 +222,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE}/api/pin/reset`, {
+      await axios.post(`${API_BASE}/pin/reset`, {
         security_answer: resetAnswer,
         new_pin: resetNewPin
       }, {

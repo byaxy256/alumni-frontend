@@ -221,8 +221,8 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
           )}
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Email Notifications</p>
               <p className="text-sm text-gray-600">Receive updates via email</p>
@@ -242,7 +242,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-3 border-b">
+          <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Push Notifications</p>
               <p className="text-sm text-gray-600">Receive in-app notifications</p>
@@ -262,7 +262,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-3 border-b">
+          <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Donation Updates</p>
               <p className="text-sm text-gray-600">Get notified about donation impacts</p>
@@ -282,7 +282,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-3">
+          <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Mentorship Alerts</p>
               <p className="text-sm text-gray-600">Updates from mentors/mentees</p>
@@ -340,44 +340,46 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             </select>
           </div>
 
-          <div className="flex items-center justify-between py-3 border-b">
-            <div>
-              <p className="font-medium">Show Email Address</p>
-              <p className="text-sm text-gray-600">Display your email on profile</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowEmail(!showEmail)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                showEmail ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  showEmail ? 'translate-x-6' : 'translate-x-1'
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <div>
+                <p className="font-medium">Show Email Address</p>
+                <p className="text-sm text-gray-600">Display your email on profile</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmail(!showEmail)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  showEmail ? 'bg-blue-600' : 'bg-gray-200'
                 }`}
-              />
-            </button>
-          </div>
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    showEmail ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
 
-          <div className="flex items-center justify-between py-3">
-            <div>
-              <p className="font-medium">Show Phone Number</p>
-              <p className="text-sm text-gray-600">Display your phone on profile</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowPhone(!showPhone)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                showPhone ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  showPhone ? 'translate-x-6' : 'translate-x-1'
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <div>
+                <p className="font-medium">Show Phone Number</p>
+                <p className="text-sm text-gray-600">Display your phone on profile</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPhone(!showPhone)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  showPhone ? 'bg-blue-600' : 'bg-gray-200'
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    showPhone ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">

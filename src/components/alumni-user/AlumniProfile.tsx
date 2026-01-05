@@ -5,9 +5,10 @@ import { Label } from '../ui/label';
 import type { User } from '../../App';
 import { ArrowLeft, User as UserIcon, Mail, Phone, Briefcase, Calendar, LogOut, Edit, Lock } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
-import { api } from '../../api';
+import { api, API_BASE } from '../../api';
+import axios from 'axios';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PINManagement from '../shared/PINManagement';
 import { AccountSettings } from '../shared/AccountSettings';
 
@@ -30,6 +31,34 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   const [experienceYears, setExperienceYears] = useState(user.meta?.experienceYears || user.meta?.experience_years || '');
   const [workplace, setWorkplace] = useState(user.meta?.company || user.meta?.workplace || user.meta?.currentWorkplace || '');
   const [saving, setSaving] = useState(false);
+  const [privacy, setPrivacy] = useState<{ profileVisibility: 'public' | 'alumni-only' | 'private'; showEmail: boolean; showPhone: boolean }>({
+    profileVisibility: 'alumni-only',
+    showEmail: false,
+    showPhone: false,
+  });
+
+  useEffect(() => {
+    const loadPrivacy = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await axios.get(`${API_BASE}/auth/preferences`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data?.privacy) {
+          setPrivacy({
+            profileVisibility: res.data.privacy.profileVisibility ?? 'alumni-only',
+            showEmail: res.data.privacy.showEmail ?? false,
+            showPhone: res.data.privacy.showPhone ?? false,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load privacy preferences', err);
+      }
+    };
+
+    loadPrivacy();
+  }, []);
 
   const handleSave = async () => {
     try {
@@ -116,28 +145,40 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
                 <Label htmlFor="email">Email Address</Label>
                 <div className="flex items-center gap-2 mt-1">
                   <Mail className="w-4 h-4 text-gray-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={!isEditing}
-                    className="flex-1"
-                  />
+                  {privacy.showEmail || isEditing ? (
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={!isEditing}
+                      className="flex-1"
+                    />
+                  ) : (
+                    <div className="flex-1 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border border-dashed border-gray-200">
+                      Hidden (privacy settings)
+                    </div>
+                  )}
                 </div>
               </div>
               <div>
                 <Label htmlFor="phone">Phone Number</Label>
                 <div className="flex items-center gap-2 mt-1">
                   <Phone className="w-4 h-4 text-gray-400" />
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    disabled={!isEditing}
-                    className="flex-1"
-                  />
+                  {privacy.showPhone || isEditing ? (
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      disabled={!isEditing}
+                      className="flex-1"
+                    />
+                  ) : (
+                    <div className="flex-1 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border border-dashed border-gray-200">
+                      Hidden (privacy settings)
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
