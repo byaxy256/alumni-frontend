@@ -4,6 +4,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { API_BASE } from '../../api';
 
 interface AccountSettingsProps {
   onClose?: () => void;
@@ -32,8 +33,6 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
   const [showEmail, setShowEmail] = useState(false);
   const [showPhone, setShowPhone] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-
   // Load user preferences on mount
   useEffect(() => {
     loadPreferences();
@@ -42,7 +41,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
   const loadPreferences = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/auth/preferences`, {
+      const response = await axios.get(`${API_BASE}/auth/preferences`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -84,7 +83,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/auth/change-password`, {
+      await axios.post(`${API_BASE}/auth/change-password`, {
         currentPassword,
         newPassword
       }, {
@@ -107,7 +106,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${API_BASE_URL}/api/auth/preferences`, {
+      await axios.put(`${API_BASE}/auth/preferences`, {
         notifications: {
           email: emailNotifications,
           push: pushNotifications,
@@ -131,7 +130,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${API_BASE_URL}/api/auth/preferences`, {
+      await axios.put(`${API_BASE}/auth/preferences`, {
         privacy: {
           profileVisibility,
           showEmail,

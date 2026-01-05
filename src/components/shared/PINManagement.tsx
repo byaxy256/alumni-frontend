@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../../api';
 
 interface PINManagementProps {
   onClose?: () => void;
@@ -30,8 +31,6 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
   const [success, setSuccess] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-
   useEffect(() => {
     checkPinStatus();
   }, []);
@@ -39,10 +38,13 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
   const checkPinStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/pin/status`, {
+      const response = await axios.get(`${API_BASE}/api/pin/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setHasPin(response.data.hasPin);
+      if (response.data.security_question) {
+        setSecurityQuestion(response.data.security_question);
+      }
       setLoading(false);
     } catch (err: any) {
       console.error('Error checking PIN status:', err);
@@ -89,7 +91,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/pin/set`, {
+      await axios.post(`${API_BASE}/api/pin/set`, {
         pin: newPin,
         security_question: securityQuestion,
         security_answer: securityAnswer
@@ -144,27 +146,33 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       return;
     }
 
+    if (!securityQuestion) {
+      setError('Security question not found. Please set your PIN again.');
+      return;
+    }
+
+    if (!securityAnswer.trim()) {
+      setError('Please provide your security answer to change your PIN');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const token = localStorage.getItem('token');
       
       // First verify old PIN
-      const verifyResponse = await axios.post(`${API_BASE_URL}/api/pin/verify`, {
+      await axios.post(`${API_BASE}/api/pin/verify`, {
         pin: oldPin
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (!verifyResponse.data.valid) {
-        setError('Current PIN is incorrect');
-        setSubmitting(false);
-        return;
-      }
-
       // Then set new PIN (security question remains the same)
-      await axios.post(`${API_BASE_URL}/api/pin/set`, {
-        pin: newPin
+      await axios.post(`${API_BASE}/api/pin/set`, {
+        pin: newPin,
+        security_question: securityQuestion,
+        security_answer: securityAnswer
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -175,6 +183,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       setOldPin('');
       setNewPin('');
       setConfirmPin('');
+      setSecurityAnswer('');
       
       setTimeout(() => {
         setViewMode('main');
@@ -213,7 +222,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/pin/reset`, {
+      await axios.post(`${API_BASE}/api/pin/reset`, {
         security_answer: resetAnswer,
         new_pin: resetNewPin
       }, {
@@ -445,6 +454,23 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Security Answer
+            </label>
+            <input
+              type="text"
+              value={securityAnswer}
+              onChange={(e) => setSecurityAnswer(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter your security answer"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Needed to confirm your identity before changing the PIN.
+            </p>
+          </div>
+
           <div className="flex gap-3 pt-4">
             <button
               type="button"
@@ -472,6 +498,13 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
               Answer your security question to reset your PIN
             </p>
           </div>
+
+          {securityQuestion && (
+            <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-sm text-gray-700 font-medium">Security Question</p>
+              <p className="text-sm text-gray-900 mt-1">{securityQuestion}</p>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
