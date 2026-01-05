@@ -67,12 +67,12 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       return;
     }
 
-    if (!securityQuestion.trim()) {
-      setError('Please provide a security question');
+    if (!securityQuestion || securityQuestion.trim() === '') {
+      setError('Please select a security question');
       return;
     }
 
-    if (!securityAnswer.trim()) {
+    if (!securityAnswer || securityAnswer.trim() === '') {
       setError('Please provide a security answer');
       return;
     }

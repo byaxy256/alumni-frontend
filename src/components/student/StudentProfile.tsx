@@ -8,6 +8,7 @@ import { ArrowLeft, LogOut, Edit, User as UserIcon, Lock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import PINManagement from '../shared/PINManagement';
+import { AccountSettings } from '../shared/AccountSettings';
 
 interface StudentProfileProps {
   user: User;
@@ -28,6 +29,7 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPinManagement, setShowPinManagement] = useState(false);
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
 
   useEffect(() => {
     try {
@@ -230,6 +232,22 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
               </div>
             )}
           </div>
+        </Card>
+
+        {/* Account Settings */}
+        <Card className="p-6 shadow-sm">
+          <h3 className="text-xl font-semibold text-slate-900 mb-4">Account Settings</h3>
+          {showAccountSettings ? (
+            <AccountSettings onClose={() => setShowAccountSettings(false)} />
+          ) : (
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => setShowAccountSettings(true)}
+            >
+              Manage Account Settings
+            </Button>
+          )}
         </Card>
 
         {/* Payment PIN Management */}

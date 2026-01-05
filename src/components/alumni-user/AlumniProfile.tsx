@@ -9,6 +9,7 @@ import { api } from '../../api';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import PINManagement from '../shared/PINManagement';
+import { AccountSettings } from '../shared/AccountSettings';
 
 interface AlumniProfileProps {
   user: User;
@@ -19,6 +20,7 @@ interface AlumniProfileProps {
 export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showPinManagement, setShowPinManagement] = useState(false);
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [about, setAbout] = useState(user.meta?.bio || user.meta?.about || '');
   const [fullName, setFullName] = useState(user.full_name || user.name || '');
   const [email, setEmail] = useState(user.email || '');
@@ -220,17 +222,17 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
         {/* Account Settings */}
         <Card className="p-6">
           <h3 className="text-lg text-gray-900 mb-4">Account Settings</h3>
-          <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              Change Password
+          {showAccountSettings ? (
+            <AccountSettings onClose={() => setShowAccountSettings(false)} />
+          ) : (
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => setShowAccountSettings(true)}
+            >
+              Manage Account Settings
             </Button>
-            <Button variant="outline" className="w-full justify-start">
-              Notification Preferences
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              Privacy Settings
-            </Button>
-          </div>
+          )}
         </Card>
 
         {/* Payment PIN Management */}
