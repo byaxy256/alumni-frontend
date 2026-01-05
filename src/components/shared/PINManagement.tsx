@@ -56,8 +56,16 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
     setError('');
     setSuccess('');
 
+    console.log('PIN Validation:', {
+      newPin,
+      newPinLength: newPin.length,
+      confirmPin,
+      securityQuestion,
+      securityAnswer
+    });
+
     // Validation
-    if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+    if (!newPin || newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
       setError('PIN must be exactly 4 digits');
       return;
     }
@@ -67,13 +75,13 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       return;
     }
 
-    if (!securityQuestion || securityQuestion === '' || securityQuestion === 'Select a security question') {
-      setError('Please select a security question');
+    if (!securityQuestion || securityQuestion === '') {
+      setError('Please select a security question from the dropdown');
       return;
     }
 
     if (!securityAnswer || securityAnswer.trim() === '') {
-      setError('Please provide a security answer');
+      setError('Please provide an answer to your security question');
       return;
     }
 
@@ -83,8 +91,8 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       const token = localStorage.getItem('token');
       await axios.post(`${API_BASE_URL}/api/pin/set`, {
         pin: newPin,
-        securityQuestion,
-        securityAnswer
+        security_question: securityQuestion,
+        security_answer: securityAnswer
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -206,8 +214,8 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${API_BASE_URL}/api/pin/reset`, {
-        securityAnswer: resetAnswer,
-        newPin: resetNewPin
+        security_answer: resetAnswer,
+        new_pin: resetNewPin
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });

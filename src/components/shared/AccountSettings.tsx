@@ -228,15 +228,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Email Notifications</p>
               <p className="text-sm text-gray-600">Receive updates via email</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={emailNotifications}
-                onChange={(e) => setEmailNotifications(e.target.checked)}
-                className="sr-only peer"
+            <button
+              type="button"
+              onClick={() => setEmailNotifications(!emailNotifications)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                emailNotifications ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  emailNotifications ? 'translate-x-6' : 'translate-x-1'
+                }`}
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            </button>
           </div>
 
           <div className="flex items-center justify-between py-3 border-b">
@@ -244,15 +248,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Push Notifications</p>
               <p className="text-sm text-gray-600">Receive in-app notifications</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={pushNotifications}
-                onChange={(e) => setPushNotifications(e.target.checked)}
-                className="sr-only peer"
+            <button
+              type="button"
+              onClick={() => setPushNotifications(!pushNotifications)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                pushNotifications ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  pushNotifications ? 'translate-x-6' : 'translate-x-1'
+                }`}
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            </button>
           </div>
 
           <div className="flex items-center justify-between py-3 border-b">
@@ -260,15 +268,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Donation Updates</p>
               <p className="text-sm text-gray-600">Get notified about donation impacts</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={donationUpdates}
-                onChange={(e) => setDonationUpdates(e.target.checked)}
-                className="sr-only peer"
+            <button
+              type="button"
+              onClick={() => setDonationUpdates(!donationUpdates)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                donationUpdates ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  donationUpdates ? 'translate-x-6' : 'translate-x-1'
+                }`}
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            </button>
           </div>
 
           <div className="flex items-center justify-between py-3">
@@ -276,15 +288,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Mentorship Alerts</p>
               <p className="text-sm text-gray-600">Updates from mentors/mentees</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={mentorshipAlerts}
-                onChange={(e) => setMentorshipAlerts(e.target.checked)}
-                className="sr-only peer"
+            <button
+              type="button"
+              onClick={() => setMentorshipAlerts(!mentorshipAlerts)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                mentorshipAlerts ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  mentorshipAlerts ? 'translate-x-6' : 'translate-x-1'
+                }`}
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            </button>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -330,15 +346,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Show Email Address</p>
               <p className="text-sm text-gray-600">Display your email on profile</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showEmail}
-                onChange={(e) => setShowEmail(e.target.checked)}
-                className="sr-only peer"
+            <button
+              type="button"
+              onClick={() => setShowEmail(!showEmail)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                showEmail ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  showEmail ? 'translate-x-6' : 'translate-x-1'
+                }`}
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            </button>
           </div>
 
           <div className="flex items-center justify-between py-3">
@@ -346,15 +366,19 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Show Phone Number</p>
               <p className="text-sm text-gray-600">Display your phone on profile</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showPhone}
-                onChange={(e) => setShowPhone(e.target.checked)}
-                className="sr-only peer"
+            <button
+              type="button"
+              onClick={() => setShowPhone(!showPhone)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                showPhone ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  showPhone ? 'translate-x-6' : 'translate-x-1'
+                }`}
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            </button>
           </div>
 
           <div className="flex gap-3 pt-4">
