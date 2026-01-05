@@ -27,6 +27,16 @@ interface Cause {
   goal: number;
 }
 
+interface MyDonation {
+  _id: string;
+  amount: number;
+  cause: string;
+  transaction_ref: string;
+  payment_status: string;
+  payment_method: string;
+  created_at: string;
+}
+
 export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
   const [amount, setAmount] = useState('');
   const [selectedCause, setSelectedCause] = useState('');
@@ -36,6 +46,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
     currentYear: 0,
   });
   const [causes, setCauses] = useState<Cause[]>([]);
+  const [myDonations, setMyDonations] = useState<MyDonation[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Payment flow states
@@ -74,9 +85,27 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
     }
   };
 
+  const fetchMyDonations = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE}/donations/my-donations`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMyDonations(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch my donations:', error);
+    }
+  };
+
   useEffect(() => {
     fetchDonationStats();
     fetchCauses();
+    fetchMyDonations();
     setLoading(false);
   }, []);
 
@@ -124,6 +153,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
         // Refresh data
         await fetchDonationStats();
         await fetchCauses();
+        await fetchMyDonations();
         
         setShowPaymentPage(false);
         setAmount('');
@@ -288,6 +318,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
               // Refresh the donation stats and causes
               await fetchDonationStats();
               await fetchCauses();
+              await fetchMyDonations();
               
               // Reset form
               setAmount('');
@@ -415,6 +446,44 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
               </Button>
             </div>
           </Card>
+        )}
+
+        {/* My Donations History */}
+        {myDonations.length > 0 && (
+          <div>
+            <h3 className="text-lg mb-4">My Donations</h3>
+            <Card className="p-6">
+              <div className="space-y-3">
+                {myDonations.map((donation) => (
+                  <div key={donation._id} className="flex justify-between items-start py-3 border-b last:border-b-0">
+                    <div className="flex-1">
+                      <p className="font-medium">{donation.cause}</p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(donation.created_at).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">Ref: {donation.transaction_ref}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-lg">UGX {donation.amount.toLocaleString()}</p>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        donation.payment_status === 'completed' 
+                          ? 'bg-green-100 text-green-700' 
+                          : donation.payment_status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {donation.payment_status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
         )}
       </div>
     </div>
