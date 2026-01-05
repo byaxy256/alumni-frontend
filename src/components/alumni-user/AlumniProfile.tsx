@@ -37,6 +37,8 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
     showPhone: false,
   });
 
+  const isProfilePrivate = privacy.profileVisibility === 'private';
+
   useEffect(() => {
     const loadPrivacy = async () => {
       try {
@@ -119,10 +121,10 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
             </div>
             <div className="flex-1">
               <h2 className="text-2xl text-gray-900 mb-1">{user.name}</h2>
-              <p className="text-gray-600 mb-2">{workRole || 'Work role not set'}</p>
-              <p className="text-sm text-gray-500">Class of {user.graduationYear}</p>
-              <p className="text-sm text-gray-500">Experience: {experienceYears || 0} yrs</p>
-              <p className="text-sm text-gray-500">Workplace: {workplace || 'Not set'}</p>
+              <p className="text-gray-600 mb-2">{isProfilePrivate && !isEditing ? 'Hidden (profile set to private)' : workRole || 'Work role not set'}</p>
+              <p className="text-sm text-gray-500">Class of {isProfilePrivate && !isEditing ? 'Hidden' : user.graduationYear}</p>
+              <p className="text-sm text-gray-500">Experience: {isProfilePrivate && !isEditing ? 'Hidden' : (experienceYears || 0)} yrs</p>
+              <p className="text-sm text-gray-500">Workplace: {isProfilePrivate && !isEditing ? 'Hidden' : (workplace || 'Not set')}</p>
               <Button
                 onClick={() => setIsEditing(!isEditing)}
                 variant="outline"
@@ -187,14 +189,20 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
               <Label htmlFor="workRole">Work Role</Label>
               <div className="flex items-center gap-2 mt-1">
                 <Briefcase className="w-4 h-4 text-gray-400" />
-                <Input
-                  id="workRole"
-                  value={workRole}
-                  onChange={(e) => setWorkRole(e.target.value)}
-                  disabled={!isEditing}
-                  placeholder="e.g., Data Analyst, Software Engineer"
-                  className="flex-1"
-                />
+                  {isProfilePrivate && !isEditing ? (
+                    <div className="flex-1 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border border-dashed border-gray-200">
+                      Hidden (profile private)
+                    </div>
+                  ) : (
+                    <Input
+                      id="workRole"
+                      value={workRole}
+                      onChange={(e) => setWorkRole(e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="e.g., Data Analyst, Software Engineer"
+                      className="flex-1"
+                    />
+                  )}
               </div>
             </div>
 
@@ -202,54 +210,78 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
               <Label htmlFor="graduation">Graduation Year</Label>
               <div className="flex items-center gap-2 mt-1">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                <Input
-                  id="graduation"
-                  value={graduationYear}
-                  onChange={(e) => setGraduationYear(e.target.value)}
-                  disabled={!isEditing}
-                  className="flex-1"
-                />
+                  {isProfilePrivate && !isEditing ? (
+                    <div className="flex-1 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border border-dashed border-gray-200">
+                      Hidden (profile private)
+                    </div>
+                  ) : (
+                    <Input
+                      id="graduation"
+                      value={graduationYear}
+                      onChange={(e) => setGraduationYear(e.target.value)}
+                      disabled={!isEditing}
+                      className="flex-1"
+                    />
+                  )}
               </div>
             </div>
 
             <div>
               <Label htmlFor="experience">Years of Experience</Label>
               <div className="flex items-center gap-2 mt-1">
-                <Input
-                  id="experience"
-                  type="number"
-                  value={experienceYears}
-                  onChange={(e) => setExperienceYears(e.target.value)}
-                  disabled={!isEditing}
-                  className="flex-1"
-                />
+                  {isProfilePrivate && !isEditing ? (
+                    <div className="flex-1 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border border-dashed border-gray-200">
+                      Hidden (profile private)
+                    </div>
+                  ) : (
+                    <Input
+                      id="experience"
+                      type="number"
+                      value={experienceYears}
+                      onChange={(e) => setExperienceYears(e.target.value)}
+                      disabled={!isEditing}
+                      className="flex-1"
+                    />
+                  )}
               </div>
             </div>
 
             <div>
               <Label htmlFor="workplace">Current Workplace</Label>
               <div className="flex items-center gap-2 mt-1">
-                <Input
-                  id="workplace"
-                  value={workplace}
-                  onChange={(e) => setWorkplace(e.target.value)}
-                  disabled={!isEditing}
-                  className="flex-1"
-                />
+                  {isProfilePrivate && !isEditing ? (
+                    <div className="flex-1 px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border border-dashed border-gray-200">
+                      Hidden (profile private)
+                    </div>
+                  ) : (
+                    <Input
+                      id="workplace"
+                      value={workplace}
+                      onChange={(e) => setWorkplace(e.target.value)}
+                      disabled={!isEditing}
+                      className="flex-1"
+                    />
+                  )}
               </div>
             </div>
 
             <div>
               <Label htmlFor="about">About</Label>
-              <Textarea
-                id="about"
-                value={about}
-                onChange={(e) => setAbout(e.target.value)}
-                disabled={!isEditing}
-                placeholder="Share a short bio to help students know you."
-                className="mt-1"
-                rows={4}
-              />
+                {isProfilePrivate && !isEditing ? (
+                  <div className="px-3 py-2 rounded-lg bg-gray-50 text-sm text-gray-600 border border-dashed border-gray-200">
+                    Hidden (profile private)
+                  </div>
+                ) : (
+                  <Textarea
+                    id="about"
+                    value={about}
+                    onChange={(e) => setAbout(e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="Share a short bio to help students know you."
+                    className="mt-1"
+                    rows={4}
+                  />
+                )}
             </div>
 
             {isEditing && (

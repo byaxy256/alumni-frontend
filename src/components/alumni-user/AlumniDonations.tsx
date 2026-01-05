@@ -97,8 +97,12 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
       });
       if (response.ok) {
         const data = await response.json();
-        // Filter out Flutterwave donations, keep only mobile money/bank donations
-        const filteredDonations = (data || []).filter((donation: MyDonation) => {
+        // Normalize and keep only our supported payment methods
+        const filteredDonations = (data || []).map((donation: MyDonation) => {
+          const method = donation.payment_method?.toLowerCase() || '';
+          const normalizedMethod = method === 'mtn_momo' ? 'mtn' : method === 'airtel_money' ? 'airtel' : method === 'bank_transfer' ? 'bank' : method;
+          return { ...donation, payment_method: normalizedMethod } as MyDonation;
+        }).filter((donation: MyDonation) => {
           const method = donation.payment_method?.toLowerCase() || '';
           return method === 'mtn' || method === 'airtel' || method === 'bank';
         });
@@ -143,7 +147,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
             amount: donationAmount,
             cause: causeName,
             transaction_ref: txRef,
-            payment_method: 'bank_transfer',
+            payment_method: 'bank',
           }),
         });
 
@@ -196,7 +200,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
           amount: donationAmount,
           cause: causeName,
           transaction_ref: txRef,
-          payment_method: paymentMethod === 'mtn' ? 'mtn_momo' : 'airtel_money',
+          payment_method: paymentMethod === 'mtn' ? 'mtn' : 'airtel',
         }),
       });
 
