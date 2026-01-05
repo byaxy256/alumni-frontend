@@ -45,40 +45,39 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
   const [showPINPrompt, setShowPINPrompt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const fetchDonationStats = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE}/donations/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setDonationStats(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch donation stats:', error);
+    }
+  };
+
+  const fetchCauses = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/donations/causes`);
+      if (response.ok) {
+        const data = await response.json();
+        setCauses(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch causes:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchDonationStats = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE}/donations/stats`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setDonationStats(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch donation stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchCauses = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/donations/causes`);
-        if (response.ok) {
-          const data = await response.json();
-          setCauses(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch causes:', error);
-      }
-    };
-
     fetchDonationStats();
     fetchCauses();
+    setLoading(false);
   }, []);
 
   const sanitizePhoneNumber = (value: string) => {
@@ -122,10 +121,13 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
           `Please use the reference number in your transfer.`
         );
         
+        // Refresh data
+        await fetchDonationStats();
+        await fetchCauses();
+        
         setShowPaymentPage(false);
         setAmount('');
         setSelectedCause('');
-        window.location.reload();
       } catch (error) {
         console.error('Failed to process donation:', error);
         alert('Failed to process donation. Please try again.');
@@ -278,14 +280,20 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
             phoneNumber={phoneNumber}
             amount={parseInt(amount)}
             provider={paymentMethod as 'mtn' | 'airtel'}
-            onSuccess={() => {
+            onSuccess={async () => {
               setShowPINPrompt(false);
               setShowPaymentPage(false);
+              setPhoneNumber('');
+              
+              // Refresh the donation stats and causes
+              await fetchDonationStats();
+              await fetchCauses();
+              
+              // Reset form
               setAmount('');
               setSelectedCause('');
-              setPhoneNumber('');
+              
               alert('Thank you for your donation! Your payment was successful.');
-              window.location.reload();
             }}
             onCancel={() => {
               setShowPINPrompt(false);
