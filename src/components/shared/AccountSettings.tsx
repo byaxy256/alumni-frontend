@@ -117,7 +117,22 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      // Persist to local storage user meta for immediate reuse
+      const userRaw = localStorage.getItem('user');
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        user.meta = user.meta || {};
+        user.meta.notifications = {
+          email: emailNotifications,
+          push: pushNotifications,
+          donationUpdates,
+          mentorshipAlerts
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
       toast.success('Notification preferences saved');
+      await loadPreferences();
       setViewMode('main');
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save preferences');
@@ -140,7 +155,21 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      // Persist to local storage user meta for immediate reuse
+      const userRaw = localStorage.getItem('user');
+      if (userRaw) {
+        const user = JSON.parse(userRaw);
+        user.meta = user.meta || {};
+        user.meta.privacy = {
+          profileVisibility,
+          showEmail,
+          showPhone
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
       toast.success('Privacy settings saved');
+      await loadPreferences();
       setViewMode('main');
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to save privacy settings');
@@ -221,45 +250,37 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
           )}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="flex items-center justify-between p-3 border rounded-lg">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Email Notifications</p>
               <p className="text-sm text-gray-600">Receive updates via email</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setEmailNotifications(!emailNotifications)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                emailNotifications ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  emailNotifications ? 'translate-x-6' : 'translate-x-1'
+              <button
+                type="button"
+                onClick={() => setEmailNotifications(!emailNotifications)}
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  emailNotifications ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
                 }`}
-              />
-            </button>
+              >
+                {emailNotifications ? 'On' : 'Off'}
+              </button>
           </div>
 
-          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Push Notifications</p>
               <p className="text-sm text-gray-600">Receive in-app notifications</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setPushNotifications(!pushNotifications)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                pushNotifications ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  pushNotifications ? 'translate-x-6' : 'translate-x-1'
+              <button
+                type="button"
+                onClick={() => setPushNotifications(!pushNotifications)}
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  pushNotifications ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
                 }`}
-              />
-            </button>
+              >
+                {pushNotifications ? 'On' : 'Off'}
+              </button>
           </div>
 
           <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -267,19 +288,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Donation Updates</p>
               <p className="text-sm text-gray-600">Get notified about donation impacts</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setDonationUpdates(!donationUpdates)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                donationUpdates ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  donationUpdates ? 'translate-x-6' : 'translate-x-1'
+              <button
+                type="button"
+                onClick={() => setDonationUpdates(!donationUpdates)}
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  donationUpdates ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
                 }`}
-              />
-            </button>
+              >
+                {donationUpdates ? 'On' : 'Off'}
+              </button>
           </div>
 
           <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -287,19 +304,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Mentorship Alerts</p>
               <p className="text-sm text-gray-600">Updates from mentors/mentees</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setMentorshipAlerts(!mentorshipAlerts)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                mentorshipAlerts ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  mentorshipAlerts ? 'translate-x-6' : 'translate-x-1'
+              <button
+                type="button"
+                onClick={() => setMentorshipAlerts(!mentorshipAlerts)}
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  mentorshipAlerts ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
                 }`}
-              />
-            </button>
+              >
+                {mentorshipAlerts ? 'On' : 'Off'}
+              </button>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -349,15 +362,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <button
                 type="button"
                 onClick={() => setShowEmail(!showEmail)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  showEmail ? 'bg-blue-600' : 'bg-gray-200'
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  showEmail ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
                 }`}
               >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    showEmail ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
+                {showEmail ? 'Visible' : 'Hidden'}
               </button>
             </div>
 
@@ -369,15 +378,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <button
                 type="button"
                 onClick={() => setShowPhone(!showPhone)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  showPhone ? 'bg-blue-600' : 'bg-gray-200'
+                className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
+                  showPhone ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
                 }`}
               >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    showPhone ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
+                {showPhone ? 'Visible' : 'Hidden'}
               </button>
             </div>
           </div>

@@ -42,17 +42,32 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   useEffect(() => {
     const loadPrivacy = async () => {
       try {
+        // Prefer API for latest, fallback to localStorage snapshot
         const token = localStorage.getItem('token');
-        if (!token) return;
-        const res = await axios.get(`${API_BASE}/auth/preferences`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.data?.privacy) {
-          setPrivacy({
-            profileVisibility: res.data.privacy.profileVisibility ?? 'alumni-only',
-            showEmail: res.data.privacy.showEmail ?? false,
-            showPhone: res.data.privacy.showPhone ?? false,
+        if (token) {
+          const res = await axios.get(`${API_BASE}/auth/preferences`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
+          if (res.data?.privacy) {
+            setPrivacy({
+              profileVisibility: res.data.privacy.profileVisibility ?? 'alumni-only',
+              showEmail: res.data.privacy.showEmail ?? false,
+              showPhone: res.data.privacy.showPhone ?? false,
+            });
+            return;
+          }
+        }
+
+        const userRaw = localStorage.getItem('user');
+        if (userRaw) {
+          const user = JSON.parse(userRaw);
+          if (user.meta?.privacy) {
+            setPrivacy({
+              profileVisibility: user.meta.privacy.profileVisibility ?? 'alumni-only',
+              showEmail: user.meta.privacy.showEmail ?? false,
+              showPhone: user.meta.privacy.showPhone ?? false,
+            });
+          }
         }
       } catch (err) {
         console.error('Failed to load privacy preferences', err);
