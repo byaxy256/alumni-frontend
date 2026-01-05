@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -14,6 +14,7 @@ type ViewMode = 'main' | 'change-password' | 'notifications' | 'privacy';
 export function AccountSettings({ onClose }: AccountSettingsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('main');
   const [loading, setLoading] = useState(false);
+  const [loadingPreferences, setLoadingPreferences] = useState(true);
   
   // Change password state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -32,6 +33,40 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
   const [showPhone, setShowPhone] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
+  // Load user preferences on mount
+  useEffect(() => {
+    loadPreferences();
+  }, []);
+
+  const loadPreferences = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/api/auth/preferences`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const { notifications, privacy } = response.data;
+      
+      if (notifications) {
+        setEmailNotifications(notifications.email ?? true);
+        setPushNotifications(notifications.push ?? true);
+        setDonationUpdates(notifications.donationUpdates ?? true);
+        setMentorshipAlerts(notifications.mentorshipAlerts ?? true);
+      }
+      
+      if (privacy) {
+        setProfileVisibility(privacy.profileVisibility ?? 'alumni-only');
+        setShowEmail(privacy.showEmail ?? false);
+        setShowPhone(privacy.showPhone ?? false);
+      }
+      
+      setLoadingPreferences(false);
+    } catch (err: any) {
+      console.error('Error loading preferences:', err);
+      setLoadingPreferences(false);
+    }
+  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
