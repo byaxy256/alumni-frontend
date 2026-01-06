@@ -21,7 +21,7 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes countdown
   const [checkingPin, setCheckingPin] = useState(true);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+  const API_BASE_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:4000/api';
 
   // Check if user has PIN set up on mount
   useEffect(() => {
@@ -31,7 +31,7 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
   const checkPinStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/pin/status`, {
+      const response = await axios.get(`${API_BASE_URL}/pin/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -74,18 +74,11 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
       const token = localStorage.getItem('token');
       
       // Verify PIN with backend
-      const response = await axios.post(`${API_BASE_URL}/api/pin/verify`, {
+      await axios.post(`${API_BASE_URL}/pin/verify`, {
         pin
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (!response.data.valid) {
-        setError('Incorrect PIN. Please try again.');
-        setIsVerifying(false);
-        setPin(''); // Clear PIN input
-        return;
-      }
 
       // PIN is valid - simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 1500));

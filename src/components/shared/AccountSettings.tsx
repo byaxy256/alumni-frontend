@@ -246,6 +246,9 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         user.meta.privacy = next;
         localStorage.setItem('user', JSON.stringify(user));
       }
+
+      // Trigger profile reload
+      window.dispatchEvent(new CustomEvent('privacyChanged', { detail: next }));
     } catch (err: any) {
       console.error('Auto-save privacy failed', err);
       toast.error(err.response?.data?.error || 'Failed to save privacy');

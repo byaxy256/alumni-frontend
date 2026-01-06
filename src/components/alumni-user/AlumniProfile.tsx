@@ -79,6 +79,16 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
     };
 
     loadPrivacy();
+
+    // Listen for privacy changes from settings
+    const handlePrivacyChange = (e: CustomEvent) => {
+      setPrivacy(e.detail);
+    };
+
+    window.addEventListener('privacyChanged', handlePrivacyChange as any);
+    return () => {
+      window.removeEventListener('privacyChanged', handlePrivacyChange as any);
+    };
   }, []);
 
   const handleSave = async () => {
