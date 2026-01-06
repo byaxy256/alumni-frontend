@@ -367,7 +367,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
           )}
         </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Email Notifications</p>
@@ -486,7 +486,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div>
                 <p className="font-medium">Show Email Address</p>

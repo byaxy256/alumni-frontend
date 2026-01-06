@@ -120,12 +120,28 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
     setLoading(false);
   }, []);
 
+  // Keep cause totals fresh while this screen is open
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      fetchCauses();
+    }, 15000);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, []);
+
   const sanitizePhoneNumber = (value: string) => {
     return value.replace(/\D/g, '').slice(0, 10);
   };
 
   const handleProceedToPayment = async () => {
     if (!amount) return;
+
+    if (!selectedCause) {
+      alert('Please select a cause');
+      return;
+    }
     
     const donationAmount = parseInt(amount);
     const causeName = causes.find(c => c.id === selectedCause)?.name || 'General Fund';
@@ -136,8 +152,8 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
         setIsSubmitting(true);
         const token = localStorage.getItem('token');
         const txRef = `DON-${user.uid}-${Date.now()}`;
-        
-        await fetch(`${API_BASE}/donations`, {
+
+        const createRes = await fetch(`${API_BASE}/donations`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -150,6 +166,11 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
             payment_method: 'bank',
           }),
         });
+
+        if (!createRes.ok) {
+          const msg = await createRes.text();
+          throw new Error(msg || 'Failed to create donation record');
+        }
 
         alert(
           `Bank Transfer Details:\n\n` +
@@ -190,7 +211,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
       const txRef = `DON-${user.uid}-${Date.now()}`;
       
       // Save donation record
-      await fetch(`${API_BASE}/donations`, {
+      const createRes = await fetch(`${API_BASE}/donations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -203,6 +224,11 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
           payment_method: paymentMethod === 'mtn' ? 'mtn' : 'airtel',
         }),
       });
+
+      if (!createRes.ok) {
+        const msg = await createRes.text();
+        throw new Error(msg || 'Failed to create donation record');
+      }
 
       // Store the transaction ref for confirmation later
       setPendingTransactionRef(txRef);
@@ -365,7 +391,7 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
                 // Confirm the donation payment
                 if (pendingTransactionRef) {
                   const token = localStorage.getItem('token');
-                  await fetch(`${API_BASE}/donations/confirm`, {
+                  const confirmRes = await fetch(`${API_BASE}/donations/confirm`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -375,9 +401,25 @@ export function AlumniDonations({ user, onBack }: AlumniDonationsProps) {
                       transaction_ref: pendingTransactionRef,
                     }),
                   });
+
+                  if (!confirmRes.ok) {
+                    const msg = await confirmRes.text();
+                    throw new Error(msg || 'Failed to confirm donation');
+                  }
+
+                  // Optimistically update the selected cause raised amount immediately
+                  const donationAmount = parseInt(amount);
+                  const causeName = causes.find(c => c.id === selectedCause)?.name;
+                  if (causeName && Number.isFinite(donationAmount)) {
+                    setCauses(prev =>
+                      prev.map(c => (c.name === causeName ? { ...c, raised: (c.raised || 0) + donationAmount } : c))
+                    );
+                  }
                 }
               } catch (error) {
                 console.error('Failed to confirm donation:', error);
+                alert('Payment succeeded, but we could not confirm the donation on the server. Please try again or check your connection.');
+                return;
               }
 
               setShowPINPrompt(false);
