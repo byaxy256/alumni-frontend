@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Users, DollarSign, FileText, TrendingUp, BookOpen, UserCheck } from 'lucide-react';
+import { Users, DollarSign, FileText, TrendingUp, BookOpen, UserCheck, RefreshCw } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { apiCall } from '../../api';
 
@@ -59,28 +59,52 @@ export default function AdminDashboard() {
   const [trends, setTrends] = useState<TrendData[]>([]);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadDashboardData(true);
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      
       const token = localStorage.getItem('token');
+      
+      console.log('Loading dashboard data with token:', token ? 'present' : 'missing');
+      
       const [statsRes, trendsRes, activityRes] = await Promise.all([
         apiCall('/admin/dashboard-stats', 'GET', undefined, token || undefined),
         apiCall('/admin/trends', 'GET', undefined, token || undefined),
         apiCall('/admin/recent-activity?limit=15', 'GET', undefined, token || undefined)
       ]);
       
+      console.log('Dashboard stats:', statsRes);
+      console.log('Trends:', trendsRes);
+      console.log('Activity:', activityRes);
+      
       setStats(statsRes);
       setTrends(trendsRes);
       setActivity(activityRes);
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
+      if (!isRefresh) {
+        alert('Failed to load dashboard data. Check console for details.');
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -168,6 +192,14 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">System overview and key metrics</p>
         </div>
+        <button
+          onClick={() => loadDashboardData(true)}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-all"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
       </div>
 
       {/* Stats Grid */}
@@ -261,10 +293,17 @@ export default function AdminDashboard() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
-              <Tooltip />
+              <Tooltip 
+                formatter={(value: any, name: string) => {
+                  if (name === 'Disbursements (UGX)' && typeof value === 'number') {
+                    return `UGX ${(value / 1000000).toFixed(2)}M`;
+                  }
+                  return value.toLocaleString();
+                }}
+              />
               <Legend />
               <Bar dataKey="applications" fill="#8b5cf6" name="Applications" />
-              <Bar dataKey="disbursements" fill="#3b82f6" name="Disbursements (UGX M)" />
+              <Bar dataKey="disbursements" fill="#3b82f6" name="Disbursements (UGX)" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
