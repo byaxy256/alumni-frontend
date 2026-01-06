@@ -50,7 +50,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ credential, password }),
     });
-    if (!res.ok) throw new Error('Login failed');
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({} as any));
+      throw new Error(error.error || error.message || 'Login failed');
+    }
     return res.json();
   },
 
