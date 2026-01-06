@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { GraduationCap, ArrowLeft } from 'lucide-react';
+import { GraduationCap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 // The props interface remains the same. It correctly expects a function from the parent.
@@ -26,6 +26,7 @@ interface LoginProps {
 export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginProps) {
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -79,7 +80,23 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
           <div>
             <Label>Password</Label>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" />
+            <div className="relative">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your password"
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           <Button onClick={handleLogin} className="w-full" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</Button>
