@@ -377,11 +377,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                 type="button"
                 onClick={() => setEmailNotifications(!emailNotifications)}
                 className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  emailNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                  emailNotifications ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
                     emailNotifications ? 'translate-x-7' : 'translate-x-1'
                   }`}
                 />
@@ -397,11 +397,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                 type="button"
                 onClick={() => setPushNotifications(!pushNotifications)}
                 className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  pushNotifications ? 'bg-blue-600' : 'bg-gray-300'
+                  pushNotifications ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
                     pushNotifications ? 'translate-x-7' : 'translate-x-1'
                   }`}
                 />
@@ -417,11 +417,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                 type="button"
                 onClick={() => setDonationUpdates(!donationUpdates)}
                 className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  donationUpdates ? 'bg-blue-600' : 'bg-gray-300'
+                  donationUpdates ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
                     donationUpdates ? 'translate-x-7' : 'translate-x-1'
                   }`}
                 />
@@ -437,11 +437,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                 type="button"
                 onClick={() => setMentorshipAlerts(!mentorshipAlerts)}
                 className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  mentorshipAlerts ? 'bg-blue-600' : 'bg-gray-300'
+                  mentorshipAlerts ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
                     mentorshipAlerts ? 'translate-x-7' : 'translate-x-1'
                   }`}
                 />
@@ -496,11 +496,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                   type="button"
                   onClick={() => persistPrivacy({ showEmail: !showEmail })}
                   className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    showEmail ? 'bg-blue-600' : 'bg-gray-300'
+                    showEmail ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
                   }`}
                 >
                   <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
                       showEmail ? 'translate-x-7' : 'translate-x-1'
                     }`}
                   />
@@ -516,11 +516,11 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                   type="button"
                   onClick={() => persistPrivacy({ showPhone: !showPhone })}
                   className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    showPhone ? 'bg-blue-600' : 'bg-gray-300'
+                    showPhone ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
                   }`}
                 >
                   <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
                       showPhone ? 'translate-x-7' : 'translate-x-1'
                     }`}
                   />
