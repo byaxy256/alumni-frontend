@@ -38,7 +38,8 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
     try {
       const credential = emailOrPhone.trim();
-      const data = await api.login(credential, password);
+      const normalizedCredential = credential.includes('@') ? credential.toLowerCase() : credential;
+      const data = await api.login(normalizedCredential, password);
       console.log('Login response:', data);
       
       toast.success('Login successful');
