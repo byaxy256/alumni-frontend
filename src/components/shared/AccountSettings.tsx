@@ -13,21 +13,30 @@ interface AccountSettingsProps {
 type ViewMode = 'main' | 'change-password' | 'notifications' | 'privacy';
 
 function getLocalPrefs() {
+  const storedPrefsRaw = typeof window !== 'undefined' ? localStorage.getItem('preferences') : null;
+  const storedPrefs = storedPrefsRaw ? JSON.parse(storedPrefsRaw) : {};
   const userRaw = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
   const meta = userRaw ? JSON.parse(userRaw)?.meta || {} : {};
   return {
-    notifications: meta.notifications || {
+    notifications: storedPrefs.notifications || meta.notifications || {
       email: true,
       push: true,
       donationUpdates: true,
       mentorshipAlerts: true,
     },
-    privacy: meta.privacy || {
+    privacy: storedPrefs.privacy || meta.privacy || {
       profileVisibility: 'alumni-only',
       showEmail: false,
       showPhone: false,
     },
   };
+}
+
+function writePrefs(prefs: { notifications?: any; privacy?: any }) {
+  const existingRaw = typeof window !== 'undefined' ? localStorage.getItem('preferences') : null;
+  const existing = existingRaw ? JSON.parse(existingRaw) : {};
+  const next = { ...existing, ...prefs };
+  localStorage.setItem('preferences', JSON.stringify(next));
 }
 
 export function AccountSettings({ onClose }: AccountSettingsProps) {
@@ -85,12 +94,24 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         setPushNotifications(notifications.push ?? true);
         setDonationUpdates(notifications.donationUpdates ?? true);
         setMentorshipAlerts(notifications.mentorshipAlerts ?? true);
+
+        writePrefs({ notifications });
+
+        const userRaw = localStorage.getItem('user');
+        if (userRaw) {
+          const user = JSON.parse(userRaw);
+          user.meta = user.meta || {};
+          user.meta.notifications = notifications;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
       }
       
       if (privacy) {
         setProfileVisibility(privacy.profileVisibility ?? 'alumni-only');
         setShowEmail(privacy.showEmail ?? false);
         setShowPhone(privacy.showPhone ?? false);
+
+        writePrefs({ privacy });
 
         const userRaw = localStorage.getItem('user');
         if (userRaw) {
@@ -172,6 +193,15 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         localStorage.setItem('user', JSON.stringify(user));
       }
 
+      writePrefs({
+        notifications: {
+          email: emailNotifications,
+          push: pushNotifications,
+          donationUpdates,
+          mentorshipAlerts,
+        },
+      });
+
       toast.success('Notification preferences saved');
       await loadPreferences();
       setViewMode('main');
@@ -208,6 +238,14 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         };
         localStorage.setItem('user', JSON.stringify(user));
       }
+
+      writePrefs({
+        privacy: {
+          profileVisibility,
+          showEmail,
+          showPhone,
+        },
+      });
 
       toast.success('Privacy settings saved');
       await loadPreferences();
@@ -246,6 +284,8 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
         user.meta.privacy = next;
         localStorage.setItem('user', JSON.stringify(user));
       }
+
+      writePrefs({ privacy: next });
 
       // Trigger profile reload
       window.dispatchEvent(new CustomEvent('privacyChanged', { detail: next }));
@@ -327,7 +367,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
           )}
         </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Email Notifications</p>
@@ -446,7 +486,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             </select>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div>
                 <p className="font-medium">Show Email Address</p>

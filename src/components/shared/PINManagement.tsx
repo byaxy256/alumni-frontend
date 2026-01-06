@@ -17,6 +17,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
   const [newPin, setNewPin] = useState<string>('');
   const [confirmPin, setConfirmPin] = useState<string>('');
   const [securityQuestion, setSecurityQuestion] = useState<string>('');
+  const [storedSecurityQuestion, setStoredSecurityQuestion] = useState<string>('');
   const [securityAnswer, setSecurityAnswer] = useState<string>('');
   
   // Change PIN state
@@ -43,7 +44,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       });
       setHasPin(response.data.hasPin);
       if (response.data.security_question) {
-        setSecurityQuestion(response.data.security_question);
+        setStoredSecurityQuestion(response.data.security_question);
       }
       setLoading(false);
     } catch (err: any) {
@@ -101,12 +102,15 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
 
       setSuccess('PIN set successfully!');
       setHasPin(true);
+      setStoredSecurityQuestion(securityQuestion);
       
       // Reset form
       setNewPin('');
       setConfirmPin('');
       setSecurityQuestion('');
       setSecurityAnswer('');
+
+      await checkPinStatus();
       
       setTimeout(() => {
         setViewMode('main');
@@ -146,7 +150,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       return;
     }
 
-    if (!securityQuestion) {
+    if (!storedSecurityQuestion) {
       setError('Security question not found. Please set your PIN again.');
       return;
     }
@@ -171,7 +175,7 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       // Then set new PIN (security question remains the same)
       await axios.post(`${API_BASE}/pin/set`, {
         pin: newPin,
-        security_question: securityQuestion,
+        security_question: storedSecurityQuestion,
         security_answer: securityAnswer
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -184,6 +188,8 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       setNewPin('');
       setConfirmPin('');
       setSecurityAnswer('');
+
+      await checkPinStatus();
       
       setTimeout(() => {
         setViewMode('main');
@@ -230,6 +236,9 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
       });
 
       setSuccess('PIN reset successfully!');
+
+      // Refresh status so future verifications use the new PIN
+      await checkPinStatus();
       
       // Reset form
       setResetAnswer('');
@@ -499,10 +508,10 @@ const PINManagement: React.FC<PINManagementProps> = ({ onClose }) => {
             </p>
           </div>
 
-          {securityQuestion && (
+          {storedSecurityQuestion && (
             <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
               <p className="text-sm text-gray-700 font-medium">Security Question</p>
-              <p className="text-sm text-gray-900 mt-1">{securityQuestion}</p>
+              <p className="text-sm text-gray-900 mt-1">{storedSecurityQuestion}</p>
             </div>
           )}
 

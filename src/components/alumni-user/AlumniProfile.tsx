@@ -31,8 +31,10 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   const [experienceYears, setExperienceYears] = useState(user.meta?.experienceYears || user.meta?.experience_years || '');
   const [workplace, setWorkplace] = useState(user.meta?.company || user.meta?.workplace || user.meta?.currentWorkplace || '');
   const [saving, setSaving] = useState(false);
+  const localPrefsRaw = typeof window !== 'undefined' ? localStorage.getItem('preferences') : null;
+  const localPrefs = localPrefsRaw ? JSON.parse(localPrefsRaw) : {};
   const localUserRaw = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const localPrivacy = localUserRaw ? JSON.parse(localUserRaw)?.meta?.privacy : undefined;
+  const localPrivacy = (localUserRaw ? JSON.parse(localUserRaw)?.meta?.privacy : undefined) || localPrefs.privacy;
   const [privacy, setPrivacy] = useState<{ profileVisibility: 'public' | 'alumni-only' | 'private'; showEmail: boolean; showPhone: boolean }>(
     localPrivacy || {
       profileVisibility: 'alumni-only',
@@ -118,7 +120,26 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
 
       const res = await api.updateProfile(payload, token);
       const updatedUser = res.user;
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+      // Preserve locally-stored preferences which may not be returned by the profile update API
+      const existingUserRaw = localStorage.getItem('user');
+      const existingUser = existingUserRaw ? JSON.parse(existingUserRaw) : null;
+      const prefsRaw = localStorage.getItem('preferences');
+      const prefs = prefsRaw ? JSON.parse(prefsRaw) : {};
+
+      const preservedPrivacy = prefs.privacy || existingUser?.meta?.privacy;
+      const preservedNotifications = prefs.notifications || existingUser?.meta?.notifications;
+
+      const mergedUser = {
+        ...updatedUser,
+        meta: {
+          ...(updatedUser?.meta || {}),
+          ...(preservedPrivacy ? { privacy: preservedPrivacy } : {}),
+          ...(preservedNotifications ? { notifications: preservedNotifications } : {}),
+        },
+      };
+
+      localStorage.setItem('user', JSON.stringify(mergedUser));
       toast.success('Profile updated');
       setIsEditing(false);
       window.location.reload();

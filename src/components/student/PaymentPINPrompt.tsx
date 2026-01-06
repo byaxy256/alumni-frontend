@@ -3,6 +3,7 @@ import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import axios from 'axios';
+import { API_BASE } from '../../api';
 
 interface PaymentPINPromptProps {
   phoneNumber: string;
@@ -21,8 +22,6 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes countdown
   const [checkingPin, setCheckingPin] = useState(true);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:4000/api';
-
   // Check if user has PIN set up on mount
   useEffect(() => {
     checkPinStatus();
@@ -31,7 +30,7 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
   const checkPinStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/pin/status`, {
+      const response = await axios.get(`${API_BASE}/pin/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -74,7 +73,7 @@ export function PaymentPINPrompt({ phoneNumber, amount, provider, onSuccess, onC
       const token = localStorage.getItem('token');
       
       // Verify PIN with backend
-      await axios.post(`${API_BASE_URL}/pin/verify`, {
+      await axios.post(`${API_BASE}/pin/verify`, {
         pin
       }, {
         headers: { Authorization: `Bearer ${token}` }
