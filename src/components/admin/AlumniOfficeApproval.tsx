@@ -156,7 +156,7 @@ export default function AlumniOfficeApproval() {
                       setSelectedUser(user);
                       setShowApproveDialog(true);
                     }}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    className="flex-1 bg-green-600 hover:bg-amber-500 text-white transition-colors"
                     size="sm"
                   >
                     <Check className="w-4 h-4 mr-1" />
@@ -197,7 +197,7 @@ export default function AlumniOfficeApproval() {
             <AlertDialogAction
               onClick={() => selectedUser && handleApproval(selectedUser.uid, true)}
               disabled={processing}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-amber-500 text-white transition-colors"
             >
               {processing ? 'Approving...' : 'Approve Account'}
             </AlertDialogAction>

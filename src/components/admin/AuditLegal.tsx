@@ -21,23 +21,30 @@ interface AuditLog {
   metadata?: Record<string, any>;
 }
 
-const consentForms = [
-  { id: 1, studentName: 'Sarah Nakato', studentId: 'UCU/2021/0456', formType: 'Chop Consent', signedDate: '2024-10-28', status: 'signed' },
-  { id: 2, studentName: 'Mary Achieng', studentId: 'UCU/2020/0789', formType: 'Loan Agreement', signedDate: '2024-11-01', status: 'signed' },
-  { id: 3, studentName: 'David Musoke', studentId: 'UCU/2022/0234', formType: 'Chop Consent', signedDate: '2024-10-30', status: 'pending' },
-  { id: 4, studentName: 'Moses Oketch', studentId: 'UCU/2021/0567', formType: 'Loan Agreement', signedDate: '2024-10-25', status: 'signed' },
-];
+interface ConsentForm {
+  _id: string;
+  student_uid: string;
+  student_name: string;
+  student_id?: string;
+  form_type: 'chop_consent' | 'loan_agreement' | 'data_privacy' | 'terms_conditions';
+  signed: boolean;
+  signed_at?: string;
+}
 
 export default function AuditLegal() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [consentForms, setConsentForms] = useState<ConsentForm[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [consentLoading, setConsentLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
+  const [formTypeFilter, setFormTypeFilter] = useState<string>('all');
 
   useEffect(() => {
     loadAuditLogs();
-  }, [actionFilter]);
+    loadConsentForms();
+  }, [actionFilter, formTypeFilter]);
 
   const loadAuditLogs = async (isRefresh = false) => {
     try {
@@ -61,6 +68,24 @@ export default function AuditLegal() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const loadConsentForms = async () => {
+    try {
+      setConsentLoading(true);
+      const token = localStorage.getItem('token');
+      const params = new URLSearchParams();
+      if (formTypeFilter !== 'all') {
+        params.append('form_type', formTypeFilter);
+      }
+      const forms = await apiCall(`/admin/consent-forms?${params.toString()}`, 'GET', undefined, token || undefined);
+      setConsentForms(forms);
+    } catch (err) {
+      console.error('Failed to load consent forms:', err);
+      toast.error('Failed to load consent forms');
+    } finally {
+      setConsentLoading(false);
     }
   };
 
@@ -243,48 +268,70 @@ export default function AuditLegal() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <Select value={formTypeFilter} onValueChange={setFormTypeFilter}>
+            <SelectTrigger className="w-full md:w-[250px]">
+              <SelectValue placeholder="Filter by form type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Form Types</SelectItem>
+              <SelectItem value="chop_consent">CHOP Consent</SelectItem>
+              <SelectItem value="loan_agreement">Loan Agreement</SelectItem>
+              <SelectItem value="data_privacy">Data Privacy</SelectItem>
+              <SelectItem value="terms_conditions">Terms & Conditions</SelectItem>
+            </SelectContent>
+          </Select>
+
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Form Type</TableHead>
-                  <TableHead>Signed Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {consentForms.map((form) => (
-                  <TableRow key={form.id}>
-                    <TableCell>
-                      <div>
-                        <p>{form.studentName}</p>
-                        <p className="text-sm text-muted-foreground">{form.studentId}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>{form.formType}</TableCell>
-                    <TableCell className="text-muted-foreground">{form.signedDate}</TableCell>
-                    <TableCell>
-                      <Badge variant={form.status === 'signed' ? 'default' : 'secondary'}>
-                        {form.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleExportConsent(form.studentName)}
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
-                      </Button>
-                    </TableCell>
+            {consentLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-muted-foreground">Loading consent forms...</span>
+              </div>
+            ) : consentForms.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No consent forms found</p>
+                <p className="text-sm">Forms will appear here when students apply for loans</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student</TableHead>
+                    <TableHead>Form Type</TableHead>
+                    <TableHead>Signed Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {consentForms.map((form) => (
+                    <TableRow key={form._id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{form.student_name}</p>
+                          <p className="text-sm text-muted-foreground">{form.student_id || form.student_uid}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="capitalize">{form.form_type.replace(/_/g, ' ')}</TableCell>
+                      <TableCell className="text-muted-foreground">{form.signed_at ? formatTimestamp(form.signed_at) : 'Not signed'}</TableCell>
+                      <TableCell>
+                        <Badge variant={form.signed ? 'default' : 'secondary'} className={form.signed ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : ''}>
+                          {form.signed ? 'Signed' : 'Pending'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="outline" onClick={() => handleExportConsent(form.student_name)}>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
 
           <div className="mt-6 p-4 bg-muted rounded-lg space-y-2">
