@@ -27,6 +27,7 @@ interface ConsentForm {
   student_name: string;
   student_id?: string;
   form_type: 'chop_consent' | 'loan_agreement' | 'data_privacy' | 'terms_conditions';
+  content?: string;
   signed: boolean;
   signed_at?: string;
 }
@@ -122,15 +123,81 @@ export default function AuditLegal() {
   };
 
   const handleExportLogs = () => {
-    toast.success('Audit logs exported to CSV');
+    if (!auditLogs.length) {
+      toast.info('No logs to export');
+      return;
+    }
+
+    const csvHeader = ['timestamp','user_email','user_role','action','details','ip_address'];
+    const rows = auditLogs.map(l => [
+      formatTimestamp(l.timestamp).replace(/,/g,' '),
+      l.user_email || '',
+      l.user_role || '',
+      l.action,
+      (l.details || '').replace(/\n/g,' '),
+      l.ip_address || ''
+    ]);
+
+    const csv = [csvHeader.join(','), ...rows.map(r => r.map(val => `"${String(val).replace(/"/g,'""')}"`).join(','))].join('\n');
+    downloadBlob(csv, 'audit-logs.csv', 'text/csv');
+    toast.success('Audit logs exported');
   };
 
   const handleExportConsent = (studentName: string) => {
+    const form = consentForms.find(f => f.student_name === studentName);
+    if (!form) {
+      toast.error('Consent form not found');
+      return;
+    }
+    const payload = {
+      student: form.student_name,
+      student_id: form.student_id || form.student_uid,
+      form_type: form.form_type,
+      signed: form.signed,
+      signed_at: form.signed_at,
+      content: form.content || ''
+    };
+    downloadBlob(JSON.stringify(payload, null, 2), `consent-${form.student_uid}.json`, 'application/json');
     toast.success(`Consent form for ${studentName} downloaded`);
   };
 
   const handleExportAllConsent = () => {
-    toast.success('All consent forms exported as ZIP');
+    if (!consentForms.length) {
+      toast.info('No consent forms to export');
+      return;
+    }
+    const csvHeader = ['student_name','student_id','form_type','signed','signed_at'];
+    const rows = consentForms.map(f => [
+      f.student_name,
+      f.student_id || f.student_uid,
+      f.form_type,
+      f.signed,
+      f.signed_at ? formatTimestamp(f.signed_at) : ''
+    ]);
+    const csv = [csvHeader.join(','), ...rows.map(r => r.map(val => `"${String(val).replace(/"/g,'""')}"`).join(','))].join('\n');
+    downloadBlob(csv, 'consent-forms.csv', 'text/csv');
+    toast.success('Consent forms exported');
+  };
+
+  const handlePreviewConsent = (form: ConsentForm) => {
+    const content = form.content || 'No stored content for this consent form yet.';
+    const previewWindow = window.open('', '_blank');
+    if (previewWindow) {
+      previewWindow.document.write(`<pre style="font-family: monospace; white-space: pre-wrap; padding: 16px;">${content}</pre>`);
+      previewWindow.document.close();
+    }
+  };
+
+  const downloadBlob = (data: string, filename: string, type: string) => {
+    const blob = new Blob([data], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -321,10 +388,13 @@ export default function AuditLegal() {
                           {form.signed ? 'Signed' : 'Pending'}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="space-x-2 whitespace-nowrap">
                         <Button size="sm" variant="outline" onClick={() => handleExportConsent(form.student_name)}>
                           <Download className="w-4 h-4 mr-2" />
                           Download
+                        </Button>
+                        <Button size="sm" variant="secondary" onClick={() => handlePreviewConsent(form)}>
+                          Preview
                         </Button>
                       </TableCell>
                     </TableRow>

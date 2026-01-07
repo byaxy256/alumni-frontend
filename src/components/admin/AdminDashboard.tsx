@@ -9,6 +9,7 @@ interface DashboardStats {
     total: number;
     students: number;
     alumni: number;
+    alumni_office: number;
     admins: number;
     newLast30Days: number;
   };
@@ -52,7 +53,7 @@ interface TrendData {
   newUsers: number;
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6'];
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -122,6 +123,7 @@ export default function AdminDashboard() {
   const userDistribution = [
     { name: 'Students', value: stats.users.students },
     { name: 'Alumni', value: stats.users.alumni },
+    { name: 'Alumni Office', value: stats.users.alumni_office },
     { name: 'Admins', value: stats.users.admins }
   ];
 
