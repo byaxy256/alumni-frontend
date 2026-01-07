@@ -1,23 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Download, FileText, Shield, Search, Calendar, Filter } from 'lucide-react';
+import { Download, FileText, Shield, Search, Calendar, Filter, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiCall } from '../../api';
 
-const auditLogs = [
-  { id: 1, timestamp: '2024-11-03 14:23:45', user: 'admin@ucu.ac.ug', action: 'Loan Disbursement Approved', details: 'Sarah Nakato - UGX 5,000,000', ipAddress: '196.43.128.45' },
-  { id: 2, timestamp: '2024-11-03 13:15:22', user: 'alumni.office@ucu.ac.ug', action: 'User Verified', details: 'Grace Namugga - Alumni Office', ipAddress: '196.43.128.46' },
-  { id: 3, timestamp: '2024-11-03 12:45:10', user: 'admin@ucu.ac.ug', action: 'System Config Updated', details: 'MTN API Keys - Payment Gateway', ipAddress: '196.43.128.45' },
-  { id: 4, timestamp: '2024-11-03 11:30:55', user: 'alumni.office@ucu.ac.ug', action: 'CSV Import Completed', details: '234 alumni records imported', ipAddress: '196.43.128.47' },
-  { id: 5, timestamp: '2024-11-03 10:22:33', user: 'admin@ucu.ac.ug', action: 'User Suspended', details: 'Peter Obua - Loan default', ipAddress: '196.43.128.45' },
-  { id: 6, timestamp: '2024-11-03 09:15:18', user: 'alumni.office@ucu.ac.ug', action: 'Broadcast Email Sent', details: 'Scholarship announcement - 1,234 recipients', ipAddress: '196.43.128.46' },
-  { id: 7, timestamp: '2024-11-02 16:45:22', user: 'admin@ucu.ac.ug', action: 'Chop Deduction Processed', details: 'Mary Achieng - UGX 850,000', ipAddress: '196.43.128.45' },
-  { id: 8, timestamp: '2024-11-02 15:30:12', user: 'alumni.office@ucu.ac.ug', action: 'Application Approved', details: 'David Musoke - Support Request', ipAddress: '196.43.128.47' },
-];
+interface AuditLog {
+  _id: string;
+  timestamp: string;
+  user_uid: string;
+  user_email?: string;
+  user_role?: string;
+  action: string;
+  details: string;
+  ip_address?: string;
+  metadata?: Record<string, any>;
+}
 
 const consentForms = [
   { id: 1, studentName: 'Sarah Nakato', studentId: 'UCU/2021/0456', formType: 'Chop Consent', signedDate: '2024-10-28', status: 'signed' },
@@ -27,16 +29,72 @@ const consentForms = [
 ];
 
 export default function AuditLegal() {
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
 
+  useEffect(() => {
+    loadAuditLogs();
+  }, [actionFilter]);
+
+  const loadAuditLogs = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      
+      const token = localStorage.getItem('token');
+      const params = new URLSearchParams({ limit: '100' });
+      if (actionFilter !== 'all') {
+        params.append('action', actionFilter);
+      }
+      
+      const logs = await apiCall(`/admin/audit-logs?${params.toString()}`, 'GET', undefined, token || undefined);
+      setAuditLogs(logs);
+    } catch (err) {
+      console.error('Failed to load audit logs:', err);
+      toast.error('Failed to load audit logs');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
   const filteredLogs = auditLogs.filter(log => {
-    const matchesSearch = log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         log.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         log.details.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesAction = actionFilter === 'all' || log.action === actionFilter;
-    return matchesSearch && matchesAction;
+    const matchesSearch = !searchQuery ||
+      log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (log.user_email?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      log.details.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
   });
+
+  const formatTimestamp = (timestamp: string) => {
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch {
+      return timestamp;
+    }
+  };
+
+  const getActionBadgeColor = (action: string) => {
+    if (action.includes('APPROVED') || action.includes('LOGIN')) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+    if (action.includes('REJECTED') || action.includes('SUSPENDED') || action.includes('LOGOUT')) return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+    if (action.includes('UPDATED') || action.includes('MODIFIED')) return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+    if (action.includes('DISBURSED') || action.includes('DONATION')) return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+    return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+  };
 
   const handleExportLogs = () => {
     toast.success('Audit logs exported to CSV');
@@ -65,10 +123,21 @@ export default function AuditLegal() {
               <Shield className="w-5 h-5" />
               Digital Audit Log (Footprints)
             </CardTitle>
-            <Button onClick={handleExportLogs} variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Export Logs
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => loadAuditLogs(true)} 
+                variant="outline" 
+                size="sm"
+                disabled={refreshing}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button onClick={handleExportLogs} variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Export Logs
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -89,41 +158,69 @@ export default function AuditLegal() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Actions</SelectItem>
-                <SelectItem value="Loan Disbursement Approved">Loan Disbursements</SelectItem>
-                <SelectItem value="System Config Updated">Config Changes</SelectItem>
-                <SelectItem value="User Verified">User Verifications</SelectItem>
-                <SelectItem value="CSV Import Completed">Data Imports</SelectItem>
-                <SelectItem value="Broadcast Email Sent">Broadcasts</SelectItem>
+                <SelectItem value="USER_LOGIN">Login</SelectItem>
+                <SelectItem value="USER_LOGOUT">Logout</SelectItem>
+                <SelectItem value="APPLICATION_APPROVED">Applications Approved</SelectItem>
+                <SelectItem value="APPLICATION_REJECTED">Applications Rejected</SelectItem>
+                <SelectItem value="LOAN_DISBURSED">Loan Disbursements</SelectItem>
+                <SelectItem value="DONATION_RECEIVED">Donations</SelectItem>
+                <SelectItem value="USER_CREATED">User Registration</SelectItem>
+                <SelectItem value="USER_UPDATED">User Updates</SelectItem>
+                <SelectItem value="ALUMNI_OFFICE_APPROVED">Alumni Office Approvals</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Logs Table */}
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Details</TableHead>
-                  <TableHead>IP Address</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLogs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{log.timestamp}</TableCell>
-                    <TableCell>{log.user}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{log.action}</Badge>
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate">{log.details}</TableCell>
-                    <TableCell className="text-muted-foreground">{log.ipAddress}</TableCell>
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-muted-foreground">Loading audit logs...</span>
+              </div>
+            ) : filteredLogs.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Shield className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No audit logs found</p>
+                <p className="text-sm">Activity will appear here as system actions occur</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead>IP Address</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredLogs.map((log) => (
+                    <TableRow key={log._id}>
+                      <TableCell className="whitespace-nowrap text-muted-foreground">
+                        {formatTimestamp(log.timestamp)}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{log.user_email || 'Unknown'}</div>
+                          {log.user_role && (
+                            <div className="text-xs text-muted-foreground capitalize">{log.user_role}</div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getActionBadgeColor(log.action)}>{log.action}</Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <div className="truncate" title={log.details}>{log.details}</div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{log.ip_address || 'N/A'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
 
           <div className="text-sm text-muted-foreground">
