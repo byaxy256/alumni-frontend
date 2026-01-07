@@ -135,7 +135,9 @@ export default function AdminDashboard() {
     },
     {
       label: 'Total Donations',
-      value: `UGX ${(stats.donations.totalAmount / 1000000).toFixed(1)}M`,
+      value: stats.donations.totalAmount >= 1000000 
+        ? `UGX ${(stats.donations.totalAmount / 1000000).toFixed(1)}M`
+        : `UGX ${stats.donations.totalAmount.toLocaleString()}`,
       change: `${stats.donations.totalCount} donations`,
       icon: DollarSign,
       color: 'text-green-600'
@@ -149,7 +151,9 @@ export default function AdminDashboard() {
     },
     {
       label: 'Disbursements',
-      value: `UGX ${(stats.disbursements.totalAmount / 1000000).toFixed(1)}M`,
+      value: stats.disbursements.totalAmount >= 1000000
+        ? `UGX ${(stats.disbursements.totalAmount / 1000000).toFixed(1)}M`
+        : `UGX ${stats.disbursements.totalAmount.toLocaleString()}`,
       change: `${stats.disbursements.totalCount} total`,
       icon: TrendingUp,
       color: 'text-purple-600'

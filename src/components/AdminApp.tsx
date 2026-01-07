@@ -1,23 +1,25 @@
 
 import React, { useState } from 'react';
-import { Bell, Settings, Users, FileText, CreditCard, Shield, LogOut, Home, Menu, X } from 'lucide-react';
+import { Bell, Settings, Users, FileText, CreditCard, Shield, LogOut, Home, Menu, X, UserCheck } from 'lucide-react';
 import { Button } from './ui/button';
 import AdminDashboard from './admin/AdminDashboard';
 import SystemConfig from './admin/SystemConfig';
 import UserRoleManagement from './admin/UserRoleManagement';
 import DisbursementApproval from './admin/DisbursementApproval';
 import AuditLegal from './admin/AuditLegal';
+import AlumniOfficeApproval from './admin/AlumniOfficeApproval';
 import { User } from '../App';
 import { ThemeToggle } from './ui/ThemeToggle';
 
 export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'config' | 'users' | 'disbursements' | 'audit'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'config' | 'users' | 'disbursements' | 'audit' | 'alumni-approval'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home },
     { id: 'config' as const, label: 'System Config', icon: Settings },
     { id: 'users' as const, label: 'User Management', icon: Users },
+    { id: 'alumni-approval' as const, label: 'Alumni Office Approval', icon: UserCheck },
     { id: 'disbursements' as const, label: 'Disbursements', icon: CreditCard },
     { id: 'audit' as const, label: 'Audit & Legal', icon: Shield },
   ];
@@ -120,6 +122,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
         {currentView === 'dashboard' && <AdminDashboard />}
         {currentView === 'config' && <SystemConfig />}
         {currentView === 'users' && <UserRoleManagement />}
+        {currentView === 'alumni-approval' && <AlumniOfficeApproval />}
         {currentView === 'disbursements' && <DisbursementApproval />}
         {currentView === 'audit' && <AuditLegal />}
       </main>
