@@ -7,7 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
-import { Search, UserPlus, Shield, Eye, Mail, Copy, Filter } from 'lucide-react';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from '../ui/alert-dialog';
+import { Search, UserPlus, Shield, Eye, Mail, Copy, Filter, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiCall } from '../../api';
 
@@ -23,6 +24,17 @@ interface BackendUser {
   updated_at?: string;
 }
 
+interface AuditLog {
+  _id: string;
+  timestamp: string;
+  user_uid: string;
+  user_email?: string;
+  user_role?: string;
+  action: string;
+  details: string;
+  ip_address?: string;
+}
+
 export default function UserRoleManagement() {
   const [users, setUsers] = useState<BackendUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +42,10 @@ export default function UserRoleManagement() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedUser, setSelectedUser] = useState<BackendUser | null>(null);
+  const [showFootprints, setShowFootprints] = useState(false);
+  const [footprintsUser, setFootprintsUser] = useState<BackendUser | null>(null);
+  const [footprints, setFootprints] = useState<AuditLog[]>([]);
+  const [footprintsLoading, setFootprintsLoading] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -70,6 +86,45 @@ export default function UserRoleManagement() {
 
   const handleGrantRole = (role: string) => {
     toast.success(`Role updated to ${role}`);
+  };
+
+  const loadFootprints = async (user: BackendUser) => {
+    try {
+      setFootprintsLoading(true);
+      setFootprintsUser(user);
+      setShowFootprints(true);
+      const token = localStorage.getItem('token');
+      const logs = await apiCall(`/admin/audit-logs?user=${user.uid}&limit=100`, 'GET', undefined, token || undefined);
+      setFootprints(logs || []);
+    } catch (err) {
+      console.error('Failed to load footprints:', err);
+      toast.error('Failed to load user footprints');
+    } finally {
+      setFootprintsLoading(false);
+    }
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch {
+      return timestamp;
+    }
+  };
+
+  const getActionBadgeColor = (action: string) => {
+    if (action.includes('APPROVED') || action.includes('LOGIN')) return 'bg-green-100 text-green-800';
+    if (action.includes('REJECTED') || action.includes('SUSPENDED') || action.includes('LOGOUT')) return 'bg-red-100 text-red-800';
+    if (action.includes('UPDATED') || action.includes('MODIFIED')) return 'bg-blue-100 text-blue-800';
+    return 'bg-gray-100 text-gray-800';
   };
 
   const formatLastLogin = (value?: string, fallback?: string, fallback2?: string) => {
@@ -281,7 +336,7 @@ export default function UserRoleManagement() {
                                   <p className="text-xs text-muted-foreground">Role updates require backend endpoint to apply.</p>
                                 </div>
 
-                                <Button variant="outline" className="w-full">
+                                <Button variant="outline" className="w-full" onClick={() => loadFootprints(user)}>
                                   <Shield className="w-4 h-4 mr-2" /> View Footprints
                                 </Button>
                               </div>
@@ -297,6 +352,62 @@ export default function UserRoleManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Footprints Dialog */}
+      <AlertDialog open={showFootprints} onOpenChange={setShowFootprints}>
+        <AlertDialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              User Footprints: {footprintsUser?.full_name}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Digital audit trail of all actions performed by {footprintsUser?.email}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4">
+            {footprintsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-muted-foreground">Loading footprints...</span>
+              </div>
+            ) : footprints.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Shield className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No footprints found</p>
+                <p className="text-sm">This user has no recorded activity yet</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Timestamp</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Details</TableHead>
+                      <TableHead>IP Address</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {footprints.map((log) => (
+                      <TableRow key={log._id}>
+                        <TableCell className="text-sm whitespace-nowrap">{formatTimestamp(log.timestamp)}</TableCell>
+                        <TableCell>
+                          <Badge className={getActionBadgeColor(log.action)}>
+                            {log.action}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm max-w-md truncate" title={log.details}>{log.details}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{log.ip_address || '—'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

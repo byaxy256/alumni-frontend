@@ -161,7 +161,10 @@ export default function AuditLegal() {
   };
 
   const handleViewStatement = (url: string) => {
-    if (!url) return toast.error('No file available');
+    if (!url) {
+      toast.error('No file URL available');
+      return;
+    }
     window.open(url, '_blank');
   };
 
@@ -355,16 +358,22 @@ export default function AuditLegal() {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{statement.uploaded_at ? formatTimestamp(statement.uploaded_at) : '—'}</TableCell>
                       <TableCell className="space-x-2 whitespace-nowrap">
-                        <Button size="sm" variant="secondary" onClick={() => handleViewStatement(statement.url)}>
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          View
-                        </Button>
-                        <Button size="sm" variant="outline" asChild>
-                          <a href={statement.url} target="_blank" rel="noreferrer" download>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </a>
-                        </Button>
+                        {statement.url ? (
+                          <>
+                            <Button size="sm" variant="secondary" onClick={() => handleViewStatement(statement.url)}>
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              View
+                            </Button>
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={statement.url} target="_blank" rel="noreferrer" download>
+                                <Download className="w-4 h-4 mr-2" />
+                                Download
+                              </a>
+                            </Button>
+                          </>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">No file available</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
