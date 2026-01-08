@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Download, FileText, Shield, Search, Calendar, Filter, RefreshCw } from 'lucide-react';
+import { Download, FileText, Shield, Search, RefreshCw, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiCall } from '../../api';
 
@@ -21,31 +21,31 @@ interface AuditLog {
   metadata?: Record<string, any>;
 }
 
-interface ConsentForm {
-  _id: string;
+interface FinancialStatement {
+  loan_id: string;
   student_uid: string;
   student_name: string;
-  student_id?: string;
-  form_type: 'chop_consent' | 'loan_agreement' | 'data_privacy' | 'terms_conditions';
-  content?: string;
-  signed: boolean;
-  signed_at?: string;
+  email?: string;
+  amount?: number;
+  status?: string;
+  url: string;
+  filename?: string;
+  uploaded_at?: string;
 }
 
 export default function AuditLegal() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [consentForms, setConsentForms] = useState<ConsentForm[]>([]);
+  const [financialStatements, setFinancialStatements] = useState<FinancialStatement[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [consentLoading, setConsentLoading] = useState(true);
+  const [statementsLoading, setStatementsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
-  const [formTypeFilter, setFormTypeFilter] = useState<string>('all');
 
   useEffect(() => {
     loadAuditLogs();
-    loadConsentForms();
-  }, [actionFilter, formTypeFilter]);
+    loadFinancialStatements();
+  }, [actionFilter]);
 
   const loadAuditLogs = async (isRefresh = false) => {
     try {
@@ -72,21 +72,17 @@ export default function AuditLegal() {
     }
   };
 
-  const loadConsentForms = async () => {
+  const loadFinancialStatements = async () => {
     try {
-      setConsentLoading(true);
+      setStatementsLoading(true);
       const token = localStorage.getItem('token');
-      const params = new URLSearchParams();
-      if (formTypeFilter !== 'all') {
-        params.append('form_type', formTypeFilter);
-      }
-      const forms = await apiCall(`/admin/consent-forms?${params.toString()}`, 'GET', undefined, token || undefined);
-      setConsentForms(forms);
+      const statements = await apiCall('/admin/financial-statements', 'GET', undefined, token || undefined);
+      setFinancialStatements(statements || []);
     } catch (err) {
-      console.error('Failed to load consent forms:', err);
-      toast.error('Failed to load consent forms');
+      console.error('Failed to load financial statements:', err);
+      toast.error('Failed to load financial statements');
     } finally {
-      setConsentLoading(false);
+      setStatementsLoading(false);
     }
   };
 
@@ -143,49 +139,30 @@ export default function AuditLegal() {
     toast.success('Audit logs exported');
   };
 
-  const handleExportConsent = (studentName: string) => {
-    const form = consentForms.find(f => f.student_name === studentName);
-    if (!form) {
-      toast.error('Consent form not found');
+  const handleExportStatements = () => {
+    if (!financialStatements.length) {
+      toast.info('No financial statements to export');
       return;
     }
-    const payload = {
-      student: form.student_name,
-      student_id: form.student_id || form.student_uid,
-      form_type: form.form_type,
-      signed: form.signed,
-      signed_at: form.signed_at,
-      content: form.content || ''
-    };
-    downloadBlob(JSON.stringify(payload, null, 2), `consent-${form.student_uid}.json`, 'application/json');
-    toast.success(`Consent form for ${studentName} downloaded`);
-  };
 
-  const handleExportAllConsent = () => {
-    if (!consentForms.length) {
-      toast.info('No consent forms to export');
-      return;
-    }
-    const csvHeader = ['student_name','student_id','form_type','signed','signed_at'];
-    const rows = consentForms.map(f => [
-      f.student_name,
-      f.student_id || f.student_uid,
-      f.form_type,
-      f.signed,
-      f.signed_at ? formatTimestamp(f.signed_at) : ''
+    const csvHeader = ['student_name','email','amount','status','uploaded_at','filename','url'];
+    const rows = financialStatements.map(s => [
+      s.student_name,
+      s.email || '',
+      s.amount ? s.amount : '',
+      s.status || '',
+      s.uploaded_at ? formatTimestamp(s.uploaded_at) : '',
+      s.filename || '',
+      s.url
     ]);
     const csv = [csvHeader.join(','), ...rows.map(r => r.map(val => `"${String(val).replace(/"/g,'""')}"`).join(','))].join('\n');
-    downloadBlob(csv, 'consent-forms.csv', 'text/csv');
-    toast.success('Consent forms exported');
+    downloadBlob(csv, 'financial-statements.csv', 'text/csv');
+    toast.success('Financial statements exported');
   };
 
-  const handlePreviewConsent = (form: ConsentForm) => {
-    const content = form.content || 'No stored content for this consent form yet.';
-    const previewWindow = window.open('', '_blank');
-    if (previewWindow) {
-      previewWindow.document.write(`<pre style="font-family: monospace; white-space: pre-wrap; padding: 16px;">${content}</pre>`);
-      previewWindow.document.close();
-    }
+  const handleViewStatement = (url: string) => {
+    if (!url) return toast.error('No file available');
+    window.open(url, '_blank');
   };
 
   const downloadBlob = (data: string, filename: string, type: string) => {
@@ -204,7 +181,7 @@ export default function AuditLegal() {
     <div className="p-4 lg:p-8 space-y-6">
       <div>
         <h1>Audit & Legal Documents</h1>
-        <p className="text-muted-foreground">Immutable activity logs and student consent forms</p>
+        <p className="text-muted-foreground">Immutable activity logs and financial statements from loan applications</p>
       </div>
 
       {/* Audit Logs Section */}
@@ -321,80 +298,72 @@ export default function AuditLegal() {
         </CardContent>
       </Card>
 
-      {/* Consent Forms Section */}
+      {/* Financial Statements Section */}
       <Card>
         <CardHeader>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <CardTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5" />
-              Student Consent Forms
+              Financial Statements
             </CardTitle>
-            <Button onClick={handleExportAllConsent} variant="outline">
+            <Button onClick={handleExportStatements} variant="outline">
               <Download className="w-4 h-4 mr-2" />
-              Export All Forms
+              Export All
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Select value={formTypeFilter} onValueChange={setFormTypeFilter}>
-            <SelectTrigger className="w-full md:w-[250px]">
-              <SelectValue placeholder="Filter by form type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Form Types</SelectItem>
-              <SelectItem value="chop_consent">CHOP Consent</SelectItem>
-              <SelectItem value="loan_agreement">Loan Agreement</SelectItem>
-              <SelectItem value="data_privacy">Data Privacy</SelectItem>
-              <SelectItem value="terms_conditions">Terms & Conditions</SelectItem>
-            </SelectContent>
-          </Select>
-
           <div className="overflow-x-auto">
-            {consentLoading ? (
+            {statementsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-muted-foreground">Loading consent forms...</span>
+                <span className="ml-2 text-muted-foreground">Loading financial statements...</span>
               </div>
-            ) : consentForms.length === 0 ? (
+            ) : financialStatements.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No consent forms found</p>
-                <p className="text-sm">Forms will appear here when students apply for loans</p>
+                <p>No financial statements found</p>
+                <p className="text-sm">Uploaded statements from loan applications will appear here</p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Student</TableHead>
-                    <TableHead>Form Type</TableHead>
-                    <TableHead>Signed Date</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Amount</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>Uploaded</TableHead>
+                    <TableHead>File</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {consentForms.map((form) => (
-                    <TableRow key={form._id}>
+                  {financialStatements.map((statement) => (
+                    <TableRow key={`${statement.loan_id}-${statement.filename || statement.url}`}>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{form.student_name}</p>
-                          <p className="text-sm text-muted-foreground">{form.student_id || form.student_uid}</p>
+                          <p className="font-medium">{statement.student_name}</p>
+                          <p className="text-sm text-muted-foreground">{statement.student_uid}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="capitalize">{form.form_type.replace(/_/g, ' ')}</TableCell>
-                      <TableCell className="text-muted-foreground">{form.signed_at ? formatTimestamp(form.signed_at) : 'Not signed'}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{statement.email || '—'}</TableCell>
+                      <TableCell className="text-sm">{statement.amount ? `UGX ${statement.amount.toLocaleString()}` : '—'}</TableCell>
                       <TableCell>
-                        <Badge variant={form.signed ? 'default' : 'secondary'} className={form.signed ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : ''}>
-                          {form.signed ? 'Signed' : 'Pending'}
+                        <Badge variant={statement.status === 'approved' ? 'default' : 'secondary'} className="capitalize">
+                          {statement.status || 'pending'}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{statement.uploaded_at ? formatTimestamp(statement.uploaded_at) : '—'}</TableCell>
                       <TableCell className="space-x-2 whitespace-nowrap">
-                        <Button size="sm" variant="outline" onClick={() => handleExportConsent(form.student_name)}>
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
+                        <Button size="sm" variant="secondary" onClick={() => handleViewStatement(statement.url)}>
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          View
                         </Button>
-                        <Button size="sm" variant="secondary" onClick={() => handlePreviewConsent(form)}>
-                          Preview
+                        <Button size="sm" variant="outline" asChild>
+                          <a href={statement.url} target="_blank" rel="noreferrer" download>
+                            <Download className="w-4 h-4 mr-2" />
+                            Download
+                          </a>
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -405,13 +374,12 @@ export default function AuditLegal() {
           </div>
 
           <div className="mt-6 p-4 bg-muted rounded-lg space-y-2">
-            <h4>Legal Compliance Notes</h4>
+            <h4>Document Review Notes</h4>
             <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li>All consent forms are digitally signed with timestamp verification</li>
-              <li>Forms include student acknowledgment of chop deduction terms</li>
-              <li>Privacy policy acceptance is recorded with each application</li>
-              <li>Documents are stored with 256-bit AES encryption</li>
-              <li>Audit logs are retained for 7 years per Uganda data protection regulations</li>
+              <li>Verify uploads match student identity and requested amounts</li>
+              <li>Download files for offline review or attach to case notes</li>
+              <li>All files are stored in secured uploads and surfaced here for auditability</li>
+              <li>Use the audit log above to track who accessed or approved each case</li>
             </ul>
           </div>
         </CardContent>

@@ -18,6 +18,7 @@ interface BackendUser {
   phone?: string;
   role: 'student' | 'alumni' | 'admin' | 'alumni_office';
   meta?: { approved?: boolean; [key: string]: any };
+  last_login?: string;
 }
 
 export default function UserRoleManagement() {
@@ -67,6 +68,15 @@ export default function UserRoleManagement() {
 
   const handleGrantRole = (role: string) => {
     toast.success(`Role updated to ${role}`);
+  };
+
+  const formatLastLogin = (value?: string) => {
+    if (!value) return '—';
+    try {
+      return new Date(value).toLocaleString();
+    } catch {
+      return value;
+    }
   };
 
   return (
@@ -171,6 +181,7 @@ export default function UserRoleManagement() {
                     <TableHead>User</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Last Login</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -194,6 +205,9 @@ export default function UserRoleManagement() {
                           <Badge variant={derivedStatus === 'active' ? 'default' : 'secondary'} className="capitalize">
                             {derivedStatus}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                          {formatLastLogin(user.last_login)}
                         </TableCell>
                         <TableCell className="space-x-2">
                           <Dialog>
@@ -232,6 +246,10 @@ export default function UserRoleManagement() {
                                   <div>
                                     <Label>UID</Label>
                                     <p>{user.uid}</p>
+                                  </div>
+                                  <div>
+                                    <Label>Last Login</Label>
+                                    <p>{formatLastLogin(user.last_login)}</p>
                                   </div>
                                 </div>
 
