@@ -19,6 +19,8 @@ interface BackendUser {
   role: 'student' | 'alumni' | 'admin' | 'alumni_office';
   meta?: { approved?: boolean; [key: string]: any };
   last_login?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export default function UserRoleManagement() {
@@ -70,12 +72,13 @@ export default function UserRoleManagement() {
     toast.success(`Role updated to ${role}`);
   };
 
-  const formatLastLogin = (value?: string) => {
-    if (!value) return '—';
+  const formatLastLogin = (value?: string, fallback?: string, fallback2?: string) => {
+    const chosen = value || fallback || fallback2;
+    if (!chosen) return '—';
     try {
-      return new Date(value).toLocaleString();
+      return new Date(chosen).toLocaleString();
     } catch {
-      return value;
+      return chosen;
     }
   };
 
@@ -207,7 +210,7 @@ export default function UserRoleManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                          {formatLastLogin(user.last_login)}
+                          {formatLastLogin(user.last_login, user.updated_at, user.created_at)}
                         </TableCell>
                         <TableCell className="space-x-2">
                           <Dialog>
@@ -249,7 +252,7 @@ export default function UserRoleManagement() {
                                   </div>
                                   <div>
                                     <Label>Last Login</Label>
-                                    <p>{formatLastLogin(user.last_login)}</p>
+                                    <p>{formatLastLogin(user.last_login, user.updated_at, user.created_at)}</p>
                                   </div>
                                 </div>
 
