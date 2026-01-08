@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -7,44 +7,62 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
-import { Search, UserPlus, Shield, Eye, Ban, CheckCircle, XCircle, Filter } from 'lucide-react';
+import { Search, UserPlus, Shield, Eye, Mail, Copy, Filter } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiCall } from '../../api';
 
-const users = [
-  { id: 1, name: 'Sarah Nakato', email: 'sarah.nakato@ucu.ac.ug', role: 'Alumni Office', status: 'active', lastLogin: '2 hours ago', verified: true },
-  { id: 2, name: 'John Okello', email: 'john.okello@student.ucu.ac.ug', role: 'Student', status: 'active', lastLogin: '1 day ago', verified: true },
-  { id: 3, name: 'Mary Achieng', email: 'mary.achieng@ucu.ac.ug', role: 'Alumni Office', status: 'active', lastLogin: '3 hours ago', verified: true },
-  { id: 4, name: 'David Musoke', email: 'david.musoke@student.ucu.ac.ug', role: 'Student', status: 'active', lastLogin: '5 mins ago', verified: true },
-  { id: 5, name: 'Grace Namugga', email: 'grace.namugga@ucu.ac.ug', role: 'Alumni Office', status: 'pending', lastLogin: 'Never', verified: false },
-  { id: 6, name: 'Peter Obua', email: 'peter.obua@student.ucu.ac.ug', role: 'Student', status: 'suspended', lastLogin: '2 weeks ago', verified: true },
-  { id: 7, name: 'Jane Atim', email: 'jane.atim@ucu.ac.ug', role: 'Alumni Office', status: 'pending', lastLogin: 'Never', verified: false },
-  { id: 8, name: 'Moses Oketch', email: 'moses.oketch@student.ucu.ac.ug', role: 'Student', status: 'active', lastLogin: '3 days ago', verified: true },
-];
+interface BackendUser {
+  uid: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  role: 'student' | 'alumni' | 'admin' | 'alumni_office';
+  meta?: { approved?: boolean; [key: string]: any };
+}
 
 export default function UserRoleManagement() {
+  const [users, setUsers] = useState<BackendUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedUser, setSelectedUser] = useState<typeof users[0] | null>(null);
+  const [selectedUser, setSelectedUser] = useState<BackendUser | null>(null);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-    return matchesSearch && matchesRole && matchesStatus;
-  });
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const data = await apiCall('/auth/users', 'GET', undefined, token || undefined);
+        setUsers(data || []);
+      } catch (err) {
+        console.error('Failed to load users', err);
+        toast.error('Failed to load users');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
-  const handleVerifyUser = (userId: number) => {
-    toast.success('User verified successfully');
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const name = user.full_name?.toLowerCase() || '';
+      const email = user.email?.toLowerCase() || '';
+      const matchesSearch = name.includes(searchQuery.toLowerCase()) || email.includes(searchQuery.toLowerCase());
+      const matchesRole = roleFilter === 'all' || user.role === roleFilter.toLowerCase();
+      const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'active';
+      const matchesStatus = statusFilter === 'all' || derivedStatus === statusFilter;
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [users, searchQuery, roleFilter, statusFilter]);
+
+  const handleCopyEmail = (email: string) => {
+    navigator.clipboard.writeText(email).then(() => toast.success('Email copied'));
   };
 
-  const handleSuspendUser = (userId: number) => {
-    toast.warning('User suspended');
-  };
-
-  const handleActivateUser = (userId: number) => {
-    toast.success('User activated');
+  const handleContact = (email: string) => {
+    window.location.href = `mailto:${email}`;
   };
 
   const handleGrantRole = (role: string) => {
@@ -117,9 +135,10 @@ export default function UserRoleManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="Student">Students</SelectItem>
-                <SelectItem value="Alumni Office">Alumni Office</SelectItem>
-                <SelectItem value="Admin">Admins</SelectItem>
+                <SelectItem value="student">Students</SelectItem>
+                <SelectItem value="alumni">Alumni</SelectItem>
+                <SelectItem value="alumni_office">Alumni Office</SelectItem>
+                <SelectItem value="admin">Admins</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -130,7 +149,6 @@ export default function UserRoleManagement() {
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="suspended">Suspended</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -144,125 +162,117 @@ export default function UserRoleManagement() {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p>{user.name}</p>
-                          {user.verified && <CheckCircle className="w-4 h-4 text-green-600" />}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
-                        {user.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          user.status === 'active' ? 'default' :
-                          user.status === 'pending' ? 'secondary' : 'destructive'
-                        }
-                      >
-                        {user.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{user.lastLogin}</TableCell>
-                    <TableCell>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedUser(user)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>User Details: {user.name}</DialogTitle>
-                            <DialogDescription>View and manage user account</DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label>Email</Label>
-                                <p className="text-sm">{user.email}</p>
-                              </div>
-                              <div>
-                                <Label>Role</Label>
-                                <p className="text-sm">{user.role}</p>
-                              </div>
-                              <div>
-                                <Label>Status</Label>
-                                <p className="text-sm">{user.status}</p>
-                              </div>
-                              <div>
-                                <Label>Last Login</Label>
-                                <p className="text-sm">{user.lastLogin}</p>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label>Change Role</Label>
-                              <Select onValueChange={handleGrantRole}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder={user.role} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Student">Student</SelectItem>
-                                  <SelectItem value="Alumni Office">Alumni Office</SelectItem>
-                                  <SelectItem value="Admin">Admin</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="flex flex-col gap-2 pt-4">
-                              {!user.verified && (
-                                <Button onClick={() => handleVerifyUser(user.id)} className="w-full">
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Verify User
-                                </Button>
-                              )}
-                              {user.status === 'suspended' ? (
-                                <Button onClick={() => handleActivateUser(user.id)} variant="outline" className="w-full">
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Activate User
-                                </Button>
-                              ) : (
-                                <Button onClick={() => handleSuspendUser(user.id)} variant="destructive" className="w-full">
-                                  <Ban className="w-4 h-4 mr-2" />
-                                  Suspend User
-                                </Button>
-                              )}
-                              <Button variant="outline" className="w-full">
-                                <Shield className="w-4 h-4 mr-2" />
-                                View Footprints
-                              </Button>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading users...</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user) => {
+                    const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'active';
+                    return (
+                      <TableRow key={user.uid}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{user.full_name}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="capitalize">
+                            {user.role.replace('_', ' ')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={derivedStatus === 'active' ? 'default' : 'secondary'} className="capitalize">
+                            {derivedStatus}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="space-x-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedUser(user)}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>User Details: {user.full_name}</DialogTitle>
+                                <DialogDescription>View user account details</DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-3 text-sm">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label>Email</Label>
+                                    <p>{user.email}</p>
+                                  </div>
+                                  <div>
+                                    <Label>Phone</Label>
+                                    <p>{user.phone || '—'}</p>
+                                  </div>
+                                  <div>
+                                    <Label>Role</Label>
+                                    <p className="capitalize">{user.role.replace('_', ' ')}</p>
+                                  </div>
+                                  <div>
+                                    <Label>Status</Label>
+                                    <p className="capitalize">{derivedStatus}</p>
+                                  </div>
+                                  <div>
+                                    <Label>UID</Label>
+                                    <p>{user.uid}</p>
+                                  </div>
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button size="sm" variant="outline" onClick={() => handleCopyEmail(user.email)}>
+                                    <Copy className="w-4 h-4 mr-1" /> Copy Email
+                                  </Button>
+                                  <Button size="sm" variant="secondary" onClick={() => handleContact(user.email)}>
+                                    <Mail className="w-4 h-4 mr-1" /> Contact
+                                  </Button>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label>Change Role (not yet wired)</Label>
+                                  <Select onValueChange={handleGrantRole}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder={user.role.replace('_', ' ')} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="student">Student</SelectItem>
+                                      <SelectItem value="alumni">Alumni</SelectItem>
+                                      <SelectItem value="alumni_office">Alumni Office</SelectItem>
+                                      <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <p className="text-xs text-muted-foreground">Role updates require backend endpoint to apply.</p>
+                                </div>
+
+                                <Button variant="outline" className="w-full">
+                                  <Shield className="w-4 h-4 mr-2" /> View Footprints
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </CardContent>
       </Card>
