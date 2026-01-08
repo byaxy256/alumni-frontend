@@ -12,15 +12,18 @@ interface PendingUser {
   full_name: string;
   email: string;
   phone?: string;
+  role?: string;
   meta?: {
     staff_id?: string;
     approved?: boolean;
+    suspended?: boolean;
   };
   created_at: string;
 }
 
 export default function AlumniOfficeApproval() {
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
+  const [allUsers, setAllUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<PendingUser | null>(null);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
@@ -28,15 +31,17 @@ export default function AlumniOfficeApproval() {
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    loadPendingUsers();
+    loadAllAlumniOffice();
   }, []);
 
-  const loadPendingUsers = async () => {
+  const loadAllAlumniOffice = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const users = await apiCall('/admin/pending-alumni-office', 'GET', undefined, token || undefined);
-      setPendingUsers(users);
+      const users = await apiCall('/auth/users', 'GET', undefined, token || undefined);
+      const alumniOffice = (users || []).filter((u: PendingUser) => u.role === 'alumni_office');
+      setAllUsers(alumniOffice);
+      setPendingUsers(alumniOffice.filter(u => u.meta?.approved !== true));
     } catch (err) {
       console.error('Failed to load pending alumni office accounts:', err);
       toast.error('Failed to load pending accounts');
@@ -54,7 +59,7 @@ export default function AlumniOfficeApproval() {
       toast.success(approved ? 'Alumni office account approved' : 'Alumni office account rejected');
       
       // Reload the list
-      await loadPendingUsers();
+      await loadAllAlumniOffice();
       
       setShowApproveDialog(false);
       setShowRejectDialog(false);
@@ -62,6 +67,36 @@ export default function AlumniOfficeApproval() {
     } catch (err: any) {
       console.error('Failed to update approval status:', err);
       toast.error(err.message || 'Failed to update approval status');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleSuspend = async (uid: string, suspended: boolean) => {
+    try {
+      setProcessing(true);
+      const token = localStorage.getItem('token');
+      await apiCall('/admin/alumni-office/suspend', 'POST', { uid, suspended }, token || undefined);
+      toast.success(suspended ? 'User suspended' : 'User unsuspended');
+      await loadAllAlumniOffice();
+    } catch (err: any) {
+      console.error('Failed to update suspension:', err);
+      toast.error(err.message || 'Failed to update suspension');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleDelete = async (uid: string) => {
+    try {
+      setProcessing(true);
+      const token = localStorage.getItem('token');
+      await apiCall(`/admin/alumni-office/${uid}`, 'DELETE', undefined, token || undefined);
+      toast.success('User deleted');
+      await loadAllAlumniOffice();
+    } catch (err: any) {
+      console.error('Failed to delete user:', err);
+      toast.error(err.message || 'Failed to delete user');
     } finally {
       setProcessing(false);
     }
@@ -96,19 +131,25 @@ export default function AlumniOfficeApproval() {
       <div>
         <h1 className="text-3xl font-bold">Alumni Office Account Approval</h1>
         <p className="text-muted-foreground">Review and approve alumni office staff registrations</p>
+        <div className="text-sm text-muted-foreground mt-1">
+          Pending: {pendingUsers.length} • Total Alumni Office: {allUsers.length}
+        </div>
       </div>
 
-      {pendingUsers.length === 0 ? (
+      {allUsers.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
             <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">No Pending Requests</h3>
-            <p className="text-muted-foreground">All alumni office account requests have been reviewed.</p>
+            <h3 className="text-xl font-semibold mb-2">No Alumni Office Users</h3>
+            <p className="text-muted-foreground">There are no alumni office accounts yet.</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {pendingUsers.map((user) => (
+          {allUsers.map((user) => {
+            const isPending = user.meta?.approved !== true;
+            const isSuspended = user.meta?.suspended === true;
+            return (
             <Card key={user.uid} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -118,10 +159,20 @@ export default function AlumniOfficeApproval() {
                       {user.full_name}
                     </CardTitle>
                     <CardDescription className="mt-2">
-                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Pending Review
-                      </Badge>
+                      {isPending ? (
+                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Pending Review
+                        </Badge>
+                      ) : isSuspended ? (
+                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                          Suspended
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Approved
+                        </Badge>
+                      )}
                     </CardDescription>
                   </div>
                 </div>
@@ -151,33 +202,59 @@ export default function AlumniOfficeApproval() {
                 </div>
 
                 <div className="flex gap-2 pt-3 border-t">
-                  <Button
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setShowApproveDialog(true);
-                    }}
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-black border border-green-600 transition-colors"
-                    size="sm"
-                  >
-                    <Check className="w-4 h-4 mr-1" />
-                    Approve
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setShowRejectDialog(true);
-                    }}
-                    variant="destructive"
-                    className="flex-1"
-                    size="sm"
-                  >
-                    <X className="w-4 h-4 mr-1" />
-                    Reject
-                  </Button>
+                  {isPending ? (
+                    <>
+                      <Button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setShowApproveDialog(true);
+                        }}
+                        className="flex-1 bg-green-500 hover:bg-green-600 text-black border border-green-600 transition-colors"
+                        size="sm"
+                      >
+                        <Check className="w-4 h-4 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setShowRejectDialog(true);
+                        }}
+                        variant="destructive"
+                        className="flex-1"
+                        size="sm"
+                      >
+                        <X className="w-4 h-4 mr-1" />
+                        Reject
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={() => handleSuspend(user.uid, !isSuspended)}
+                        className="flex-1"
+                        variant={isSuspended ? 'secondary' : 'outline'}
+                        size="sm"
+                        disabled={processing}
+                      >
+                        {isSuspended ? 'Unsuspend User' : 'Suspend User'}
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(user.uid)}
+                        variant="destructive"
+                        className="flex-1"
+                        size="sm"
+                        disabled={processing}
+                      >
+                        Delete User
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
