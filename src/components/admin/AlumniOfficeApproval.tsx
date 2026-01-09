@@ -41,7 +41,7 @@ export default function AlumniOfficeApproval() {
       const users = await apiCall('/auth/users', 'GET', undefined, token || undefined);
       const alumniOffice = (users || []).filter((u: PendingUser) => u.role === 'alumni_office');
       setAllUsers(alumniOffice);
-      setPendingUsers(alumniOffice.filter(u => u.meta?.approved !== true));
+      setPendingUsers(alumniOffice.filter((u: { meta: { approved: boolean; }; }) => u.meta?.approved !== true));
     } catch (err) {
       console.error('Failed to load pending alumni office accounts:', err);
       toast.error('Failed to load pending accounts');

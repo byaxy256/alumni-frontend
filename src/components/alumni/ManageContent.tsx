@@ -274,13 +274,12 @@ export default function ContentManagement() {
   const { data: newsData, refetch: refetchNews, error: newsError } = useRealtime<{ content: any[] }>('/content/news', 5000, token);
   const { data: eventsData, refetch: refetchEvents, error: eventsError } = useRealtime<{ content: any[] }>('/content/events', 5000, token);
 
-  // Determine if we're using real data or mock data
-  const isUsingRealData = newsData !== undefined && eventsData !== undefined;
-  const news = isUsingRealData
-    ? (newsData?.content || []).map((item: any) => ({ ...item, type: 'news' as const }))
+  // Use real data when available; fall back per feed independently
+  const news = newsData?.content
+    ? (newsData.content || []).map((item: any) => ({ ...item, type: 'news' as const }))
     : mockNews;
-  const events = isUsingRealData
-    ? (eventsData?.content || []).map((item: any) => ({ ...item, type: 'event' as const }))
+  const events = eventsData?.content
+    ? (eventsData.content || []).map((item: any) => ({ ...item, type: 'event' as const }))
     : mockEvents;
 
   // Show backend server warning only if there's an actual error (not empty data)
@@ -629,7 +628,7 @@ export default function ContentManagement() {
 
       {/* Create Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
@@ -639,7 +638,7 @@ export default function ContentManagement() {
           
           <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 bg-white pt-4">
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
               Cancel
             </Button>
@@ -652,7 +651,7 @@ export default function ContentManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
@@ -662,7 +661,7 @@ export default function ContentManagement() {
           
           <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 bg-white pt-4">
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
