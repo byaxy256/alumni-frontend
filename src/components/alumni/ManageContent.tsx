@@ -275,11 +275,14 @@ export default function ContentManagement() {
   const { data: eventsData, refetch: refetchEvents, error: eventsError } = useRealtime<{ content: any[] }>('/content/events', 5000, token);
 
   // Use real data when available; fall back per feed independently
-  const news = newsData?.content
-    ? (newsData.content || []).map((item: any) => ({ ...item, type: 'news' as const }))
+  const rawNews: any[] = Array.isArray(newsData) ? (newsData as any[]) : ((newsData as any)?.content || []);
+  const rawEvents: any[] = Array.isArray(eventsData) ? (eventsData as any[]) : ((eventsData as any)?.content || []);
+
+  const news = rawNews.length
+    ? rawNews.map((item: any) => ({ ...item, type: 'news' as const }))
     : mockNews;
-  const events = eventsData?.content
-    ? (eventsData.content || []).map((item: any) => ({ ...item, type: 'event' as const }))
+  const events = rawEvents.length
+    ? rawEvents.map((item: any) => ({ ...item, type: 'event' as const }))
     : mockEvents;
 
   // Show backend server warning only if there's an actual error (not empty data)

@@ -7,7 +7,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from '../ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from '../ui/alert-dialog';
 import { Search, UserPlus, Shield, Eye, Mail, Copy, Filter, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiCall } from '../../api';
@@ -397,7 +405,7 @@ export default function UserRoleManagement() {
                             {log.action}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm max-w-md truncate" title={log.details}>{log.details}</TableCell>
+                        <TableCell className="text-sm max-w-md whitespace-pre-wrap break-words">{log.details}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{log.ip_address || '—'}</TableCell>
                       </TableRow>
                     ))}
@@ -406,6 +414,9 @@ export default function UserRoleManagement() {
               </div>
             )}
           </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowFootprints(false)}>Close</AlertDialogCancel>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
