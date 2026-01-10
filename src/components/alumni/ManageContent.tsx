@@ -631,17 +631,19 @@ export default function ContentManagement() {
 
       {/* Create Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Create {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
               Fill in the details below. Published items will be visible to all users immediately.
             </DialogDescription>
           </DialogHeader>
-          
-          <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
-          
-          <DialogFooter className="sticky bottom-0 bg-white pt-4">
+
+          <div className="flex-1 overflow-y-auto pr-1">
+            <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
+          </div>
+
+          <DialogFooter className="shrink-0 border-t pt-4 bg-background">
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
               Cancel
             </Button>
@@ -654,17 +656,19 @@ export default function ContentManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Edit {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
               Update the content details below.
             </DialogDescription>
           </DialogHeader>
-          
-          <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
-          
-          <DialogFooter className="sticky bottom-0 bg-white pt-4">
+
+          <div className="flex-1 overflow-y-auto pr-1">
+            <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
+          </div>
+
+          <DialogFooter className="shrink-0 border-t pt-4 bg-background">
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
