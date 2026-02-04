@@ -24,7 +24,6 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
     course: '',
     semester: '',
     universityId: '',
-    accessNumber: '',
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +41,6 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         course: savedUser?.meta?.course ?? user.course ?? '',
         semester: savedUser?.meta?.semester ?? '',
         universityId: savedUser?.meta?.university_id ?? '',
-        accessNumber: savedUser?.meta?.accessNumber ?? user?.meta?.accessNumber ?? '',
       });
     } catch {
       setProfile({
@@ -52,7 +50,6 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         course: user.course ?? '',
         semester: '',
         universityId: '',
-        accessNumber: user?.meta?.accessNumber ?? '',
       });
     }
   }, [user]);

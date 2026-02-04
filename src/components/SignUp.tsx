@@ -12,23 +12,6 @@ import { useNavigate } from 'react-router-dom';
 
 type UserType = 'student' | 'alumni' | 'alumni_office' | '';
 
-type SignUpForm = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  accessNumber: string;
-  studentId: string;
-  program: string;
-  yearOfStudy: string;
-  graduationYear: string;
-  course: string;
-  department: string;
-  staffId: string;
-  password: string;
-  confirmPassword: string;
-};
-
 interface SignUpProps {
   onBack: () => void;
   onSignUpComplete: () => void;
@@ -41,13 +24,12 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
   const [userType, setUserType] = useState<UserType>('');
   const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState<SignUpForm>({
+  const [form, setForm] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
     accessNumber: '',
-    studentId: '', // <-- Added studentId
     program: '',
     yearOfStudy: '',
     graduationYear: '',
@@ -106,6 +88,7 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
 
     setLoading(true);
     try {
+      // Build payload aligned with backend `meta`
       const payload = {
         full_name: `${form.firstName} ${form.lastName}`,
         email: form.email,
@@ -114,7 +97,6 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
         role: userType,
         meta: {
           accessNumber: form.accessNumber || null,
-          studentId: form.studentId || null,
           program: form.program || null,
           yearOfStudy: form.yearOfStudy || null,
           graduationYear: form.graduationYear || null,
@@ -156,7 +138,7 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a] p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center relative">
-          <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg transition" title="Go back">
+          <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg transition">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
@@ -211,6 +193,7 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
                 <Label>Phone</Label>
                 <Input value={form.phone} onChange={(e) => update('phone', e.target.value)} />
               </div>
+
               {userType === 'student' && (
                 <>
                   <div className="mt-3">
@@ -222,14 +205,6 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
                       maxLength={6}
                     />
                     <p className="text-xs text-gray-500 mt-1">Format: Letter (A/B) + 5 digits</p>
-                  </div>
-                  <div className="mt-3">
-                    <Label>Student ID *</Label>
-                    <Input
-                      value={form.studentId}
-                      onChange={(e) => update('studentId', e.target.value)}
-                      placeholder="Enter your Student ID"
-                    />
                   </div>
                 </>
               )}

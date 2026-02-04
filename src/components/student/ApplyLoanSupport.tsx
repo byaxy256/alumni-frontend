@@ -7,7 +7,7 @@ import { Textarea } from '../ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Progress } from '../ui/progress';
-import { ArrowLeft, Upload, CheckCircle2, AlertCircle, Download } from 'lucide-react';
+import { ArrowLeft, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { User } from '../../App';
 import {
@@ -260,12 +260,9 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
       form.append('currentSemester', formData.currentSemester || '');
       form.append('faculty', formData.faculty || '');
       form.append('amountRequested', String(numericAmount));
-      form.append('amount_requested', String(numericAmount));
       form.append('purpose', formData.purpose || '');
-      form.append('reason', formData.purpose || '');
       form.append('type', applicationType);
       form.append('studentUid', studentUid);
-      form.append('student_uid', studentUid);
       if (applicationType === 'loan') form.append('chopConsented', String(chopConsented));
       // Include guarantor details for loans
       if (applicationType === 'loan') {
@@ -624,7 +621,6 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
               onChange={(e) => handleFileUpload('studentId', e)}
               className="hidden"
               title="Upload student ID card"
-              aria-label="Upload student ID card"
             />
             <Button
               type="button"
@@ -653,18 +649,17 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
               <p className="text-sm">Financial Statement / Proof of Need</p>
               <p className="text-xs text-gray-500">Bank statement, fee statement, or letter explaining financial situation</p>
             </div>
-              {uploadedFiles.financialStatement && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="file"
-                id="financialStatement"
-                accept="image/*,.pdf"
-                onChange={(e) => handleFileUpload('financialStatement', e)}
-                className="hidden"
-                title="Upload financial statement or proof of need"
-                aria-label="Upload financial statement or proof of need"
-              />
+            {uploadedFiles.financialStatement && <CheckCircle2 className="w-5 h-5 text-green-600" />}
+          </div>
+          <div>
+            <input
+              type="file"
+              id="financialStatement"
+              accept="image/*,.pdf"
+              onChange={(e) => handleFileUpload('financialStatement', e)}
+              className="hidden"
+              title="Upload financial statement or proof of need"
+            />
             <Button
               type="button"
               variant="outline"
@@ -708,12 +703,7 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-            title="Go back"
-            aria-label="Go back"
-          >
+          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1">

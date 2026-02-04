@@ -13,7 +13,7 @@ export function useRealtime<T>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isServerAvailable, setIsServerAvailable] = useState(true);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchData = async () => {
     try {

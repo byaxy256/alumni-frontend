@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import type { User } from '../../App';
-import { ArrowLeft, User as UserIcon, Mail, Phone, Briefcase, Calendar, LogOut, Edit } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Briefcase, Calendar, LogOut, Edit } from 'lucide-react';
 import { useState } from 'react';
 
 interface AlumniProfileProps {
@@ -14,16 +14,17 @@ interface AlumniProfileProps {
 
 export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const graduationYearText =
-    typeof user.graduationYear === 'string' || typeof user.graduationYear === 'number'
-      ? String(user.graduationYear)
-      : '';
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="md:hidden p-2 hover:bg-gray-100 rounded-lg" title="Go back" aria-label="Go back">
+          <button
+            onClick={onBack}
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+            title="Go back"
+            aria-label="Go back"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-primary">Profile</h1>
@@ -106,7 +107,7 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
                 <Calendar className="w-4 h-4 text-gray-400" />
                 <Input
                   id="graduation"
-                  value={graduationYearText}
+                  value={user.graduationYear ? String(user.graduationYear) : ''}
                   disabled={!isEditing}
                   className="flex-1"
                 />

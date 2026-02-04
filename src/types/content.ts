@@ -6,7 +6,6 @@ export interface ContentItem {
   description: string;
   content?: string;
   hasImage?: boolean;
-  imageUrl?: string;
   audience?: 'students' | 'alumni' | 'both';
   published: boolean;
   type: 'news' | 'event';
@@ -40,7 +39,6 @@ export interface ContentFormData {
   registrationFee: number;
   published: boolean;
   audience: 'students' | 'alumni' | 'both';
-  imageUrl?: string;
 }
 
 export interface ApiResponse<T> {

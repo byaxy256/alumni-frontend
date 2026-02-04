@@ -367,45 +367,47 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
           )}
         </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Email Notifications</p>
               <p className="text-sm text-gray-600">Receive updates via email</p>
             </div>
-              <button
-                type="button"
-                onClick={() => setEmailNotifications(!emailNotifications)}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  emailNotifications ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+            <button
+              type="button"
+              title="Toggle email notifications"
+              onClick={() => setEmailNotifications(!emailNotifications)}
+              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                emailNotifications ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
+                  emailNotifications ? 'translate-x-7' : 'translate-x-1'
                 }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
-                    emailNotifications ? 'translate-x-7' : 'translate-x-1'
-                  }`}
-                />
-              </button>
+              />
+            </button>
           </div>
 
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+          <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
               <p className="font-medium">Push Notifications</p>
               <p className="text-sm text-gray-600">Receive in-app notifications</p>
             </div>
-              <button
-                type="button"
-                onClick={() => setPushNotifications(!pushNotifications)}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  pushNotifications ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+            <button
+              type="button"
+              title="Toggle push notifications"
+              onClick={() => setPushNotifications(!pushNotifications)}
+              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                pushNotifications ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
+                  pushNotifications ? 'translate-x-7' : 'translate-x-1'
                 }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
-                    pushNotifications ? 'translate-x-7' : 'translate-x-1'
-                  }`}
-                />
-              </button>
+              />
+            </button>
           </div>
 
           <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -413,19 +415,20 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Donation Updates</p>
               <p className="text-sm text-gray-600">Get notified about donation impacts</p>
             </div>
-              <button
-                type="button"
-                onClick={() => setDonationUpdates(!donationUpdates)}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  donationUpdates ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+            <button
+              type="button"
+              title="Toggle donation updates"
+              onClick={() => setDonationUpdates(!donationUpdates)}
+              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                donationUpdates ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
+                  donationUpdates ? 'translate-x-7' : 'translate-x-1'
                 }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
-                    donationUpdates ? 'translate-x-7' : 'translate-x-1'
-                  }`}
-                />
-              </button>
+              />
+            </button>
           </div>
 
           <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -433,19 +436,20 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               <p className="font-medium">Mentorship Alerts</p>
               <p className="text-sm text-gray-600">Updates from mentors/mentees</p>
             </div>
-              <button
-                type="button"
-                onClick={() => setMentorshipAlerts(!mentorshipAlerts)}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  mentorshipAlerts ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+            <button
+              type="button"
+              title="Toggle mentorship alerts"
+              onClick={() => setMentorshipAlerts(!mentorshipAlerts)}
+              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                mentorshipAlerts ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
+                  mentorshipAlerts ? 'translate-x-7' : 'translate-x-1'
                 }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-1 ring-gray-300 transition-transform duration-200 ${
-                    mentorshipAlerts ? 'translate-x-7' : 'translate-x-1'
-                  }`}
-                />
-              </button>
+              />
+            </button>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -476,6 +480,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
             <Label htmlFor="profileVisibility">Profile Visibility</Label>
             <select
               id="profileVisibility"
+              aria-label="Profile Visibility"
               value={profileVisibility}
               onChange={(e) => persistPrivacy({ profileVisibility: e.target.value as any })}
               className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -494,6 +499,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               </div>
                 <button
                   type="button"
+                  title="Toggle show email address"
                   onClick={() => persistPrivacy({ showEmail: !showEmail })}
                   className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                     showEmail ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'
@@ -506,7 +512,6 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
                   />
                 </button>
             </div>
-
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div>
                 <p className="font-medium">Show Phone Number</p>
@@ -514,6 +519,7 @@ export function AccountSettings({ onClose }: AccountSettingsProps) {
               </div>
                 <button
                   type="button"
+                  title="Toggle show phone number"
                   onClick={() => persistPrivacy({ showPhone: !showPhone })}
                   className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                     showPhone ? 'bg-blue-600' : 'bg-gray-200 ring-1 ring-gray-300'

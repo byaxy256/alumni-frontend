@@ -14,21 +14,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID as string,
 };
 
-// Ensure VAPID key is present and normalized (common cause of InvalidAccessError)
+// Ensure VAPID key is present and trimmed (common cause of InvalidAccessError)
 const rawVapidKey = (import.meta.env.VITE_FIREBASE_VAPID_KEY as string | undefined)?.trim();
-const normalizeVapidKey = (key?: string) => {
-  if (!key) return undefined;
-  const trimmed = key.replace(/^"|"$/g, '').trim();
-  const noWhitespace = trimmed.replace(/\s+/g, '');
-  return noWhitespace
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/g, '');
-};
-const vapidKey = normalizeVapidKey(rawVapidKey);
+const vapidKey = rawVapidKey && rawVapidKey.replace(/^"|"$/g, '');
 
 let messaging: Messaging | null = null;
-let vapidToastShown = false;
 
 function ensureFirebaseApp() {
   if (!firebaseConfig.apiKey) {
@@ -51,10 +41,6 @@ export async function initPushNotifications(user: User | null) {
     }
     if (!vapidKey || vapidKey.length < 20) {
       console.error('VAPID key missing/invalid. Set VITE_FIREBASE_VAPID_KEY to your Web Push certificate public key.');
-      if (!vapidToastShown) {
-        vapidToastShown = true;
-        toast.error('Push notifications disabled: missing/invalid VAPID key.');
-      }
       return;
     }
     const app = ensureFirebaseApp();

@@ -63,7 +63,12 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a] p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center relative">
-          <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg">
+          <button
+            onClick={onBack}
+            className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg"
+            title="Go back"
+            aria-label="Go back"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
