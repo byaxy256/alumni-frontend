@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build": "cd 'Alumni frontend' && npm install && npm run build",
+    "install:frontend": "cd 'Alumni frontend' && npm install"
+  },
   "dependencies": {
     "axios": "^1.13.2",
     "sonner": "^2.0.7"
