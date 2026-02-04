@@ -34,7 +34,7 @@ router.get('/fund-summary/:format', authenticate, async (req, res) => {
     const donations = await Donation.find({ payment_status: 'completed' });
     const totalDonations = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
 
-    const payments = await Payment.find({ status: 'completed' });
+    const payments = await Payment.find({ status: { $in: ['completed', 'SUCCESSFUL'] } });
     const totalPayments = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
     const totalIncome = totalDonations + totalPayments;
@@ -43,7 +43,7 @@ router.get('/fund-summary/:format', authenticate, async (req, res) => {
     const disbursements = await Disbursement.find();
     const totalDisbursements = disbursements.reduce((sum, d) => sum + (d.net_amount || 0), 0);
 
-    const supportRequests = await SupportRequest.find({ status: 'disbursed' });
+    const supportRequests = await SupportRequest.find({ status: { $in: ['disbursed', 'paid', 'approved', 'active'] } });
     const totalSupport = supportRequests.reduce((sum, s) => sum + (s.amount_requested || 0), 0);
 
     const totalExpenses = totalDisbursements + totalSupport;
@@ -66,7 +66,7 @@ router.get('/fund-summary/:format', authenticate, async (req, res) => {
       netBalance,
       activeLoanCount: await Loan.countDocuments({ status: 'active' }),
       pendingApplications: await Loan.countDocuments({ status: 'pending' }),
-      totalDonors: await Donation.distinct('donor_id').then(arr => arr.length),
+      totalDonors: await Donation.distinct('donor_uid').then(arr => arr.length),
     };
 
     if (format === 'json') {
@@ -167,7 +167,7 @@ router.get('/income-expense/:format', authenticate, async (req, res) => {
     });
 
     const payments = await Payment.find({ 
-      status: 'completed',
+      status: { $in: ['completed', 'SUCCESSFUL'] },
       created_at: { $gte: sixMonthsAgo }
     });
 
@@ -347,10 +347,16 @@ router.get('/defaulters/:format', authenticate, async (req, res) => {
     const defaulters = [];
     
     for (const loan of loans) {
-      const payments = await Payment.find({ 
-        loan_id: loan._id,
-        status: 'completed'
-      });
+      const paymentQuery: any = {
+        status: { $in: ['completed', 'SUCCESSFUL'] }
+      };
+      const loanId = loan._id?.toString();
+      if (loanId || loan.sqlId) {
+        paymentQuery.$or = [];
+        if (loanId) paymentQuery.$or.push({ loan_id: loanId });
+        if (loan.sqlId) paymentQuery.$or.push({ loan_sql_id: loan.sqlId });
+      }
+      const payments = await Payment.find(paymentQuery);
 
       const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
       const outstanding = (loan.amount || 0) - totalPaid;
@@ -552,19 +558,19 @@ router.get('/project-performance/:format', authenticate, async (req, res) => {
     const loans = await Loan.find({ status: 'active' });
     loanMetrics.totalDisbursed = loans.reduce((sum, l) => sum + (l.amount || 0), 0);
 
-    const loanPayments = await Payment.find({ status: 'completed' });
+    const loanPayments = await Payment.find({ status: { $in: ['completed', 'SUCCESSFUL'] } });
     loanMetrics.totalRepaid = loanPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
     const supportMetrics = {
       name: 'Support Grants Program',
       totalApplications: await SupportRequest.countDocuments(),
-      approved: await SupportRequest.countDocuments({ status: 'disbursed' }),
+      approved: await SupportRequest.countDocuments({ status: { $in: ['disbursed', 'paid', 'approved', 'active'] } }),
       pending: await SupportRequest.countDocuments({ status: 'pending' }),
       rejected: await SupportRequest.countDocuments({ status: 'rejected' }),
       totalDisbursed: 0,
     };
 
-    const supports = await SupportRequest.find({ status: 'disbursed' });
+    const supports = await SupportRequest.find({ status: { $in: ['disbursed', 'paid', 'approved', 'active'] } });
     supportMetrics.totalDisbursed = supports.reduce((sum, s) => sum + (s.amount_requested || 0), 0);
 
     const reportData = [loanMetrics, supportMetrics];
