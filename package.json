@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "cd 'Alumni frontend' && npm install && npm run build",
+    "build": "cd 'Alumni frontend' && npm run build",
     "install:frontend": "cd 'Alumni frontend' && npm install"
   },
   "dependencies": {
