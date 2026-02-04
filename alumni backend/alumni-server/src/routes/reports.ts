@@ -28,6 +28,7 @@ const formatDate = (date: Date | string) => {
 ======================= */
 router.get('/fund-summary/:format', authenticate, async (req, res) => {
   try {
+    console.log('Fund Summary Report - Received format param:', req.params.format);
     const format = req.params.format?.toLowerCase();
 
     // Calculate total income
@@ -155,6 +156,7 @@ router.get('/fund-summary/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/income-expense/:format', authenticate, async (req, res) => {
   try {
+    console.log('Income Expense Report - Received format param:', req.params.format);
     const format = req.params.format?.toLowerCase();
 
     // Get last 6 months of data
@@ -250,6 +252,7 @@ router.get('/income-expense/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/donors/:format', authenticate, async (req, res) => {
   try {
+    console.log('Donors Report - Received format param:', req.params.format);
     const format = req.params.format?.toLowerCase();
 
     const donations = await Donation.find({ payment_status: 'completed' }).populate('donor_uid');
@@ -339,6 +342,7 @@ router.get('/donors/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/defaulters/:format', authenticate, async (req, res) => {
   try {
+    console.log('Defaulters Report - Received format param:', req.params.format);
     const format = req.params.format?.toLowerCase();
 
     // Get all active loans
@@ -446,6 +450,7 @@ router.get('/defaulters/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/disbursements/:format', authenticate, async (req, res) => {
   try {
+    console.log('Disbursements Report - Received format param:', req.params.format);
     const format = req.params.format?.toLowerCase();
 
     const disbursements = await Disbursement.find()
@@ -542,6 +547,7 @@ router.get('/disbursements/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/project-performance/:format', authenticate, async (req, res) => {
   try {
+    console.log('Project Performance Report - Received format param:', req.params.format);
     const format = req.params.format?.toLowerCase();
 
     // Calculate metrics by project type
