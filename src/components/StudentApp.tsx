@@ -76,7 +76,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-primary">Alumni Aid</h1>
+              <h1 className="text-primary">Alumni Circle</h1>
               <p className="text-sm text-gray-600 mt-1">Student Portal</p>
             </div>
             <ThemeToggle />

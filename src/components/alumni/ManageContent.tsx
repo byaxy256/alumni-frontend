@@ -11,7 +11,7 @@ import { Textarea } from '../ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
-import { Plus, Edit2, Trash2, Calendar, MapPin, Clock, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, MapPin, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -32,16 +32,11 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog';
 import { useRealtime } from '../../hooks/useRealtime';
-import { api, apiCall, API_BASE } from '../../api';
+import { apiCall, API_BASE } from '../../api';
 
-import { ContentItem, ContentFormData, ContentApiResponse, LoadingState, ContentError, ValidationError } from '../../types/content';
+import { ContentItem, ContentFormData } from '../../types/content';
 import { 
-  validateFormData, 
-  createContentError, 
-  getErrorMessage, 
-  getCurrentDateString, 
-  getFutureDateString,
-  sanitizeContent 
+  getFutureDateString
 } from '../../utils/validation';
 
 // Extracted FormContent OUTSIDE the main component to prevent re-rendering issues
@@ -161,6 +156,7 @@ function FormContent({ activeTab, formData, setFormData, imageFile, setImageFile
         <Label htmlFor="audience">Audience</Label>
         <select
           id="audience"
+          title="Select audience for content"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
           value={formData.audience}
           onChange={(e) => setFormData({ ...formData, audience: e.target.value as any })}
@@ -177,6 +173,7 @@ function FormContent({ activeTab, formData, setFormData, imageFile, setImageFile
           id="imageFile"
           type="file"
           accept="image/*"
+          title="Upload an image file"
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           onChange={(e) => {
             const file = e.target.files?.[0] || null;
@@ -205,7 +202,6 @@ export default function ContentManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [refreshStamp, setRefreshStamp] = useState(0);
   

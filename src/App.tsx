@@ -144,12 +144,12 @@ export default function App() {
 
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a]">
-        <div className="text-white text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center">
-            <GraduationCap className="w-8 h-8 text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-foreground text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-card border border-border flex items-center justify-center">
+            <GraduationCap className="w-8 h-8 text-accent" />
           </div>
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -168,7 +168,7 @@ export default function App() {
   if (showSignUp && !user) {
     return (
       <>
-        <SignUp onBack={handleBackToLanding} onSignUpComplete={handleSignUpComplete} switchToLogin={handleGoToLogin} />
+        <SignUp onBack={handleBackToLanding} onSignUpComplete={handleSignUpComplete} />
         <Toaster />
       </>
     );
@@ -193,13 +193,13 @@ export default function App() {
     
     // Fallback if role is invalid
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a]">
-        <div className="text-white text-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-foreground text-center">
           <h2 className="text-xl font-bold mb-4">Invalid user role</h2>
-          <p className="mb-4">Your account role "{user.role}" is not recognized</p>
-          <button 
+          <p className="mb-6 text-muted-foreground">Your account role "{user.role}" is not recognized</p>
+          <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-white text-blue-600 rounded font-semibold hover:bg-gray-100"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-semibold hover:bg-primary/90"
           >
             Log Out
           </button>
