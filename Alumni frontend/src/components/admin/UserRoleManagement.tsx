@@ -78,11 +78,20 @@ export default function UserRoleManagement() {
       const email = user.email?.toLowerCase() || '';
       const matchesSearch = name.includes(searchQuery.toLowerCase()) || email.includes(searchQuery.toLowerCase());
       const matchesRole = roleFilter === 'all' || user.role === roleFilter.toLowerCase();
-      const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'active';
+      const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'verified';
       const matchesStatus = statusFilter === 'all' || derivedStatus === statusFilter;
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [users, searchQuery, roleFilter, statusFilter]);
+
+  const statusCounts = useMemo(() => {
+    const counts = { all: users.length, pending: 0, verified: 0 };
+    users.forEach(user => {
+      const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'verified';
+      counts[derivedStatus] += 1;
+    });
+    return counts;
+  }, [users]);
 
   const handleCopyEmail = (email: string) => {
     navigator.clipboard.writeText(email).then(() => toast.success('Email copied'));
@@ -194,8 +203,31 @@ export default function UserRoleManagement() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="p-4 space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={statusFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('all')}
+            >
+              All Users ({statusCounts.all})
+            </Button>
+            <Button
+              variant={statusFilter === 'pending' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('pending')}
+            >
+              Pending ({statusCounts.pending})
+            </Button>
+            <Button
+              variant={statusFilter === 'verified' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('verified')}
+            >
+              Verified ({statusCounts.verified})
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -215,16 +247,6 @@ export default function UserRoleManagement() {
                 <SelectItem value="alumni">Alumni</SelectItem>
                 <SelectItem value="alumni_office">Alumni Office</SelectItem>
                 <SelectItem value="admin">Admins</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -253,7 +275,7 @@ export default function UserRoleManagement() {
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.map((user) => {
-                    const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'active';
+                    const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'verified';
                     return (
                       <TableRow key={user.uid}>
                         <TableCell>
@@ -268,7 +290,7 @@ export default function UserRoleManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={derivedStatus === 'active' ? 'default' : 'secondary'} className="capitalize">
+                          <Badge variant={derivedStatus === 'verified' ? 'default' : 'secondary'} className="capitalize">
                             {derivedStatus}
                           </Badge>
                         </TableCell>
