@@ -28,7 +28,7 @@ const formatDate = (date: Date | string) => {
 ======================= */
 router.get('/fund-summary/:format', authenticate, async (req, res) => {
   try {
-    const { format } = req.params;
+    const format = req.params.format?.toLowerCase();
 
     // Calculate total income
     const donations = await Donation.find({ payment_status: 'completed' });
@@ -155,7 +155,7 @@ router.get('/fund-summary/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/income-expense/:format', authenticate, async (req, res) => {
   try {
-    const { format } = req.params;
+    const format = req.params.format?.toLowerCase();
 
     // Get last 6 months of data
     const sixMonthsAgo = new Date();
@@ -250,7 +250,7 @@ router.get('/income-expense/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/donors/:format', authenticate, async (req, res) => {
   try {
-    const { format } = req.params;
+    const format = req.params.format?.toLowerCase();
 
     const donations = await Donation.find({ payment_status: 'completed' }).populate('donor_uid');
 
@@ -339,7 +339,7 @@ router.get('/donors/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/defaulters/:format', authenticate, async (req, res) => {
   try {
-    const { format } = req.params;
+    const format = req.params.format?.toLowerCase();
 
     // Get all active loans
     const loans = await Loan.find({ status: 'active' }).populate('student_uid');
@@ -446,7 +446,7 @@ router.get('/defaulters/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/disbursements/:format', authenticate, async (req, res) => {
   try {
-    const { format } = req.params;
+    const format = req.params.format?.toLowerCase();
 
     const disbursements = await Disbursement.find()
       .populate('student_uid')
@@ -542,7 +542,7 @@ router.get('/disbursements/:format', authenticate, async (req, res) => {
 ======================= */
 router.get('/project-performance/:format', authenticate, async (req, res) => {
   try {
-    const { format } = req.params;
+    const format = req.params.format?.toLowerCase();
 
     // Calculate metrics by project type
     const loanMetrics = {
