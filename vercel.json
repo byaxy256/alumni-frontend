@@ -1,8 +1,7 @@
 {
-  "root": "Alumni frontend",
-  "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "outputDirectory": "build",
+  "installCommand": "npm --prefix 'Alumni frontend' install",
+  "buildCommand": "npm --prefix 'Alumni frontend' run build",
+  "outputDirectory": "Alumni frontend/build",
   "framework": "vite",
   "rewrites": [
     {
