@@ -1,6 +1,5 @@
 {
   "scripts": {
-    "build": "npm --prefix 'Alumni frontend' run build",
     "install:frontend": "npm --prefix 'Alumni frontend' install"
   },
   "dependencies": {
