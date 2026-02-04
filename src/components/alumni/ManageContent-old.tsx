@@ -136,7 +136,6 @@ export default function ContentManagement() {
 
   // Show backend server warning only if there's an actual error (not empty data)
   const hasServerError = newsError || eventsError;
-
   const resetForm = useCallback(() => {
     setFormData({
       title: '',
@@ -166,7 +165,7 @@ export default function ContentManagement() {
       date: item.date || '',
       time: item.time || '',
       location: item.location || '',
-      registrationFee: Number(item.registrationFee ?? 0),
+      registrationFee: typeof item.registrationFee === 'number' ? item.registrationFee : 0,
       published: item.published ?? true,
       audience: (item.audience as any) || 'both',
     });
@@ -479,8 +478,6 @@ export default function ContentManagement() {
         <Label htmlFor="audience">Audience</Label>
         <select
           id="audience"
-          title="Audience"
-          aria-label="Audience"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
           value={formData.audience}
           onChange={(e) => setFormData({ ...formData, audience: e.target.value as any })}
@@ -497,8 +494,6 @@ export default function ContentManagement() {
           id="imageFile"
           type="file"
           accept="image/*"
-          title="Upload image"
-          aria-label="Upload image"
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           onChange={(e) => {
             const file = e.target.files?.[0] || null;

@@ -2,18 +2,15 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { ArrowLeft, MessageSquare, Send, Star, UserPlus, Loader2, Search, Paperclip, Mic, MoreVertical, Check, CheckCheck, Download, Image, FileText, Video } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ArrowLeft, MessageSquare, Send, Star, UserPlus, Loader2, Paperclip, Mic, Image, FileText, Video } from 'lucide-react';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Input } from '../ui/input';
-
 import { toast } from 'sonner';
 import type { User } from '../../App';
 import { API_BASE, api } from '../../api';
-import { EmojiPicker } from '../ui/emoji-picker';
 
 
 // --- Type Definitions ---
@@ -63,22 +60,6 @@ interface Message {
 // --- Main Component ---
 
 export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }) {
-  // Get student's field from user profile (fallback to Computer Science for demo)
-  const studentField = user.field || 'Computer Science';
-  
-
-  // Filter mentors by field for better matching
-  const getFilteredMentors = (mentors: Mentor[]) => {
-    return mentors.filter(mentor => 
-      mentor.field === studentField || 
-      mentor.field === 'Business Administration' && studentField === 'Business Administration' ||
-      mentor.field === 'Computer Science' && studentField === 'Computer Science' ||
-      mentor.field === 'Engineering' && studentField === 'Engineering' ||
-      mentor.field === 'Marketing' && studentField === 'Marketing'
-    );
-  };
-  
-
   const [myMentors, setMyMentors] = useState<MyMentor[]>([]);
   const [availableMentors, setAvailableMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,9 +73,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [showAttachments, setShowAttachments] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -558,11 +537,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
             />
           </div>
           <div className="sm:w-48">
-            <label htmlFor="mentor-field-select" className="sr-only">
-              Filter mentors by field
-            </label>
             <select
-              id="mentor-field-select"
               aria-label="Filter mentors by field"
               value={filterField}
               onChange={(e) => setFilterField(e.target.value)}

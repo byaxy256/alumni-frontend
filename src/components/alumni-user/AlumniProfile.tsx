@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import type { User } from '../../App';
-import { ArrowLeft, User as UserIcon, Mail, Phone, Briefcase, Calendar, LogOut, Edit, Lock } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Briefcase, Calendar, LogOut, Edit, Lock } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { api, API_BASE } from '../../api';
 import axios from 'axios';
@@ -23,7 +23,6 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
   const [showPinManagement, setShowPinManagement] = useState(false);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [about, setAbout] = useState(user.meta?.bio || user.meta?.about || '');
-  const [fullName, setFullName] = useState(user.full_name || user.name || '');
   const [email, setEmail] = useState(user.email || '');
   const [phone, setPhone] = useState(user.phone || user.phoneNumber || '');
   const [workRole, setWorkRole] = useState(user.meta?.field || user.course || '');
@@ -112,12 +111,11 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
       };
 
       const payload = {
-        full_name: fullName,
+        full_name: user.full_name || user.name || '',
         email,
         phone,
         meta: newMeta,
       };
-
       const res = await api.updateProfile(payload, token);
       const updatedUser = res.user;
 
@@ -155,7 +153,7 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+          <button onClick={onBack} className="md:hidden p-2 hover:bg-gray-100 rounded-lg" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-primary">Profile</h1>

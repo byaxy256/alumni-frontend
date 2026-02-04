@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
-import type { User } from '../../App';
 import { ArrowLeft, Calendar, MapPin, Users, Loader2 } from 'lucide-react';
 import { API_BASE } from '../../api';
 import { ImageWithFallback } from '../figma_image/ImageWithFallback';
 
 interface AlumniEventsProps {
-  user: User;
   onBack: () => void;
 }
 
-export function AlumniEvents({ user, onBack }: AlumniEventsProps) {
+export function AlumniEvents({ onBack }: AlumniEventsProps) {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -45,7 +42,7 @@ export function AlumniEvents({ user, onBack }: AlumniEventsProps) {
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg">
+          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-primary">Upcoming Events</h1>
