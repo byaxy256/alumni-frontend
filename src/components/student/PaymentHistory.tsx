@@ -1,7 +1,7 @@
 // src/components/student/PaymentHistory.tsx
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { ArrowLeft, CheckCircle2, Calendar, CreditCard, Smartphone, Building2, Download, Loader2, FileWarning, Eye } from 'lucide-react';
@@ -41,7 +41,6 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
 
   const [paymentHistory, setPaymentHistory] = useState<PaymentItem[]>([]);
   const [activeLoan, setActiveLoan] = useState<Loan | null>(null);
-  const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
@@ -59,7 +58,6 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
 
   // --- This is the corrected, simplified useEffect for fetching data ---
   const fetchHistory = async (signal?: AbortSignal) => {
-    setLoading(true);
     try {
       const token = localStorage.getItem('token') || '';
       if (!token) throw new Error("Authentication token not found.");
@@ -87,8 +85,6 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
       if (err.name !== 'AbortError') {
         toast.error(err.message || "Failed to load payment history.");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -153,28 +149,6 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
       setIsFetchingReceipt(false);
       setPreviewingId(null);
     }
-  };
-
-  const printFromUrl = (url?: string) => {
-    if (!url) return;
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    iframe.src = url;
-    iframe.onload = () => {
-      try {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-      } catch (err) {
-        console.warn('print error', err);
-      }
-      setTimeout(() => iframe.remove(), 500);
-    };
-    document.body.appendChild(iframe);
   };
 
   const triggerDownloadFromUrl = (url: string, filename: string) => {
@@ -244,7 +218,7 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg"><ArrowLeft className="w-5 h-5" /></button>
+          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg" title="Go back"><ArrowLeft className="w-5 h-5" /></button>
           <h1 className="text-primary">Payment History</h1>
         </div>
       </div>
@@ -339,7 +313,11 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDownloadReceipt(paymentId)}
+                      onClick={() => {
+                        if (paymentId) {
+                          handleDownloadReceipt(paymentId);
+                        }
+                      }}
                       className="flex-1"
                       disabled={payment.status !== 'SUCCESSFUL' || downloadingId === String(paymentId)}
                     >

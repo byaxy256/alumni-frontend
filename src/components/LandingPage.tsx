@@ -39,108 +39,157 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-[#1a4d7a] relative overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-10"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1608485439523-25b28d982428?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwc3R1ZGVudHMlMjBncmFkdWF0aW9ufGVufDF8fHx8MTc2MjY1NDc4MHww&ixlib=rb-4.1.0&q=80&w=1080)',
-        }}
-      ></div>
+    <div className="min-h-screen landing-shell relative overflow-hidden">
+      <div className="landing-orb blue" />
+      <div className="landing-orb gold" />
+      <div className="landing-orb teal" />
 
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
         <header className="p-6">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="max-w-7xl mx-auto glass-panel rounded-2xl px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 text-accent-foreground" />
+              <div className="w-11 h-11 rounded-2xl bg-accent/20 flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-accent" />
               </div>
               <div>
-                <h1 className="text-xl text-white">Alumni Connect</h1>
-                <p className="text-xs text-white/80">Uganda Christian University</p>
+                <h1 className="text-lg text-foreground">Alumni Connect</h1>
+                <p className="text-xs text-muted-foreground">Uganda Christian University</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={onLogin}
-              className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+              className="btn-glass"
             >
               Login
             </Button>
           </div>
         </header>
 
-        {/* Hero Section */}
         <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-              <Award className="w-4 h-4 text-accent" />
-              <span className="text-sm text-white">Empowering Students, Connecting Alumni</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-6xl text-white mb-6">
-              Building Futures<br />
-              <span className="text-accent">Together</span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              A comprehensive platform connecting UCU alumni with current students through donations, 
-              mentorship, and financial support programs.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button 
-                size="lg" 
-                onClick={onGetStarted}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground text-base px-8"
-              >
-                Get Started
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                onClick={onLogin}
-                className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-base px-8"
-              >
-                I have an account
-              </Button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <p className="text-3xl text-white mb-1">2,500+</p>
-                <p className="text-sm text-white/80">Students Supported</p>
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 glass-panel px-4 py-2 rounded-full mb-6">
+                <Award className="w-4 h-4 text-accent" />
+                <span className="text-sm text-foreground">Empowering Students, Connecting Alumni</span>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <p className="text-3xl text-white mb-1">5,000+</p>
-                <p className="text-sm text-white/80">Active Alumni</p>
+
+              <h1 className="text-4xl md:text-6xl text-foreground mb-6 leading-tight">
+                Building Futures
+                <br />
+                <span className="text-accent">Together</span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl">
+                A modern platform connecting UCU alumni with current students through donations,
+                mentorship, and financial support programs.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                <Button
+                  size="lg"
+                  onClick={onGetStarted}
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground text-base px-8 shadow-lg"
+                >
+                  Get Started
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={onLogin}
+                  className="btn-glass text-base px-8"
+                >
+                  I have an account
+                </Button>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <p className="text-3xl text-white mb-1">UGX 2B+</p>
-                <p className="text-sm text-white/80">Total Disbursed</p>
+
+              <div className="grid grid-cols-3 gap-4 max-w-xl">
+                <div className="glass-panel rounded-2xl p-4">
+                  <p className="text-2xl text-foreground mb-1">2,500+</p>
+                  <p className="text-xs text-muted-foreground">Students Supported</p>
+                </div>
+                <div className="glass-panel rounded-2xl p-4">
+                  <p className="text-2xl text-foreground mb-1">5,000+</p>
+                  <p className="text-xs text-muted-foreground">Active Alumni</p>
+                </div>
+                <div className="glass-panel rounded-2xl p-4">
+                  <p className="text-2xl text-foreground mb-1">UGX 2B+</p>
+                  <p className="text-xs text-muted-foreground">Total Disbursed</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="glass-panel rounded-2xl p-6 lg:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest">Alumni Pulse</p>
+                  <h3 className="text-xl text-foreground">Giving Momentum</h3>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span className="h-2 w-2 rounded-full bg-accent" />
+                  Live
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="rounded-2xl surface-soft p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-foreground">Scholarship Fund</p>
+                      <p className="text-xs text-muted-foreground">Monthly goal reached</p>
+                    </div>
+                    <p className="text-sm text-foreground">96%</p>
+                  </div>
+                  <div className="mt-3 h-2 rounded-full bg-background">
+                    <div className="h-2 rounded-full bg-accent" style={{ width: "96%" }} />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl surface-soft p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-foreground">Mentorship Matches</p>
+                      <p className="text-xs text-muted-foreground">This semester</p>
+                    </div>
+                    <p className="text-sm text-foreground">212</p>
+                  </div>
+                  <div className="mt-3 h-2 rounded-full bg-background">
+                    <div className="h-2 rounded-full bg-primary" style={{ width: "72%" }} />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl surface-soft p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-foreground">New Alumni</p>
+                      <p className="text-xs text-muted-foreground">Joined this week</p>
+                    </div>
+                    <p className="text-sm text-foreground">38</p>
+                  </div>
+                  <div className="mt-3 h-2 rounded-full bg-background">
+                    <div className="h-2 rounded-full bg-accent" style={{ width: "64%" }} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Features */}
         <div className="px-6 pb-12">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-4">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <Card 
-                    key={index} 
-                    className="p-6 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-colors"
+                  <Card
+                    key={index}
+                    className="p-6 glass-panel text-center transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mx-auto mb-3">
+                    <div className="w-12 h-12 rounded-2xl accent-soft flex items-center justify-center mx-auto mb-3">
                       <Icon className="w-6 h-6 text-accent" />
                     </div>
-                    <h3 className="text-base text-white mb-2">{feature.title}</h3>
-                    <p className="text-sm text-white/70">{feature.description}</p>
+                    <h3 className="text-base text-foreground mb-2">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
                   </Card>
                 );
               })}
@@ -148,10 +197,9 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="p-6 border-t border-white/10">
+        <footer className="p-6 border-t border-border">
           <div className="max-w-7xl mx-auto text-center">
-            <p className="text-sm text-white/60">
+            <p className="text-sm text-muted-foreground">
               © 2025 Uganda Christian University Alumni Office. All rights reserved.
             </p>
           </div>

@@ -4,10 +4,29 @@ import { BrowserRouter } from "react-router-dom";
 // @ts-ignore: module declaration for CSS imports is missing in this project
 import "./index.css";
 
+const applyInitialTheme = () => {
+  try {
+    const stored = localStorage.getItem("theme");
+    const theme = stored ?? "dark";
+    if (!stored) localStorage.setItem("theme", theme);
+
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const resolved = theme === "system" ? (prefersDark ? "dark" : "light") : theme;
+
+    const root = document.documentElement;
+    root.classList.toggle("dark", resolved === "dark");
+    root.dataset.theme = theme;
+    root.style.colorScheme = resolved;
+  } catch (error) {
+    console.error("Failed to apply initial theme", error);
+  }
+};
+
 const mount = () => {
   const rootElement = document.getElementById("root");
   if (!rootElement) return false;
 
+  applyInitialTheme();
   createRoot(rootElement).render(
     <BrowserRouter>
       <App />

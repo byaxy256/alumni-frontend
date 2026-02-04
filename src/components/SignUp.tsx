@@ -8,18 +8,15 @@ import { GraduationCap, ArrowLeft } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 
 type UserType = 'student' | 'alumni' | 'alumni_office' | '';
 
 interface SignUpProps {
   onBack: () => void;
   onSignUpComplete: () => void;
-  switchToLogin: () => void; // <-- ADD THIS LINE
 }
 
-export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: SignUpProps) {
-  const navigate = useNavigate();
+export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState<UserType>('');
   const [loading, setLoading] = useState(false);
@@ -30,6 +27,7 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
     email: '',
     phone: '',
     accessNumber: '',
+    studentId: '',
     program: '',
     yearOfStudy: '',
     graduationYear: '',
@@ -138,7 +136,7 @@ export default function SignUp({ onBack, onSignUpComplete, switchToLogin }: Sign
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a] p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center relative">
-          <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg transition">
+          <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg transition" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
