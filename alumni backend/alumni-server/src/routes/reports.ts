@@ -69,7 +69,9 @@ router.get('/fund-summary/:format', authenticate, async (req, res) => {
       totalDonors: await Donation.distinct('donor_id').then(arr => arr.length),
     };
 
-    if (format === 'pdf') {
+    if (format === 'json') {
+      res.json(reportData);
+    } else if (format === 'pdf') {
       // Generate PDF
       const doc = new PDFDocument({ margin: 50 });
       
@@ -140,7 +142,7 @@ router.get('/fund-summary/:format', authenticate, async (req, res) => {
       res.setHeader('Content-Disposition', `attachment; filename=fund-summary-${Date.now()}.csv`);
       res.send(csv);
     } else {
-      res.status(400).json({ message: 'Invalid format. Use pdf, excel, or csv' });
+      res.status(400).json({ message: 'Invalid format. Use json, pdf, excel, or csv' });
     }
   } catch (error: any) {
     console.error('Fund summary report error:', error);
@@ -194,7 +196,9 @@ router.get('/income-expense/:format', authenticate, async (req, res) => {
       a.month.localeCompare(b.month)
     );
 
-    if (format === 'pdf') {
+    if (format === 'json') {
+      res.json({ generatedDate: new Date(), months: reportData });
+    } else if (format === 'pdf') {
       const doc = new PDFDocument({ margin: 50 });
       
       res.setHeader('Content-Type', 'application/pdf');
@@ -233,7 +237,7 @@ router.get('/income-expense/:format', authenticate, async (req, res) => {
       res.setHeader('Content-Disposition', `attachment; filename=income-expense-${Date.now()}.csv`);
       res.send(csv);
     } else {
-      res.status(400).json({ message: 'Invalid format' });
+      res.status(400).json({ message: 'Invalid format. Use json, pdf, excel, or csv' });
     }
   } catch (error: any) {
     console.error('Income expense report error:', error);
@@ -280,7 +284,9 @@ router.get('/donors/:format', authenticate, async (req, res) => {
       b.totalContributions - a.totalContributions
     );
 
-    if (format === 'pdf') {
+    if (format === 'json') {
+      res.json({ generatedDate: new Date(), totalDonors: donorList.length, donors: donorList });
+    } else if (format === 'pdf') {
       const doc = new PDFDocument({ margin: 50 });
       
       res.setHeader('Content-Type', 'application/pdf');
@@ -320,7 +326,7 @@ router.get('/donors/:format', authenticate, async (req, res) => {
       res.setHeader('Content-Disposition', `attachment; filename=donors-${Date.now()}.csv`);
       res.send(csv);
     } else {
-      res.status(400).json({ message: 'Invalid format' });
+      res.status(400).json({ message: 'Invalid format. Use json, pdf, excel, or csv' });
     }
   } catch (error: any) {
     console.error('Donor report error:', error);
@@ -375,7 +381,9 @@ router.get('/defaulters/:format', authenticate, async (req, res) => {
 
     defaulters.sort((a, b) => b.outstanding - a.outstanding);
 
-    if (format === 'pdf') {
+    if (format === 'json') {
+      res.json({ generatedDate: new Date(), totalDefaulters: defaulters.length, defaulters });
+    } else if (format === 'pdf') {
       const doc = new PDFDocument({ margin: 50 });
       
       res.setHeader('Content-Type', 'application/pdf');
@@ -419,7 +427,7 @@ router.get('/defaulters/:format', authenticate, async (req, res) => {
       res.setHeader('Content-Disposition', `attachment; filename=defaulters-${Date.now()}.csv`);
       res.send(csv);
     } else {
-      res.status(400).json({ message: 'Invalid format' });
+      res.status(400).json({ message: 'Invalid format. Use json, pdf, excel, or csv' });
     }
   } catch (error: any) {
     console.error('Defaulters report error:', error);
@@ -469,7 +477,9 @@ router.get('/disbursements/:format', authenticate, async (req, res) => {
 
     reportData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    if (format === 'pdf') {
+    if (format === 'json') {
+      res.json({ generatedDate: new Date(), totalTransactions: reportData.length, data: reportData });
+    } else if (format === 'pdf') {
       const doc = new PDFDocument({ margin: 50 });
       
       res.setHeader('Content-Type', 'application/pdf');
@@ -513,7 +523,7 @@ router.get('/disbursements/:format', authenticate, async (req, res) => {
       res.setHeader('Content-Disposition', `attachment; filename=disbursements-${Date.now()}.csv`);
       res.send(csv);
     } else {
-      res.status(400).json({ message: 'Invalid format' });
+      res.status(400).json({ message: 'Invalid format. Use json, pdf, excel, or csv' });
     }
   } catch (error: any) {
     console.error('Disbursements report error:', error);
@@ -559,7 +569,9 @@ router.get('/project-performance/:format', authenticate, async (req, res) => {
 
     const reportData = [loanMetrics, supportMetrics];
 
-    if (format === 'pdf') {
+    if (format === 'json') {
+      res.json({ generatedDate: new Date(), projects: reportData });
+    } else if (format === 'pdf') {
       const doc = new PDFDocument({ margin: 50 });
       
       res.setHeader('Content-Type', 'application/pdf');
@@ -604,7 +616,7 @@ router.get('/project-performance/:format', authenticate, async (req, res) => {
       res.setHeader('Content-Disposition', `attachment; filename=project-performance-${Date.now()}.csv`);
       res.send(csv);
     } else {
-      res.status(400).json({ message: 'Invalid format' });
+      res.status(400).json({ message: 'Invalid format. Use json, pdf, excel, or csv' });
     }
   } catch (error: any) {
     console.error('Project performance report error:', error);

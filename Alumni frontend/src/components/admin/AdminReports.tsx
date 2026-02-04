@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { FileText, Download, TrendingUp, Users, DollarSign, AlertCircle, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -58,33 +58,44 @@ const reportTypes = [
   },
 ];
 
-// Sample data for charts
-const incomeData = [
-  { month: 'Jul', graduandFees: 8000000, donations: 12000000, merchEvents: 2500000, other: 1500000 },
-  { month: 'Aug', graduandFees: 9500000, donations: 15000000, merchEvents: 3200000, other: 2000000 },
-  { month: 'Sep', graduandFees: 7800000, donations: 13500000, merchEvents: 2800000, other: 1800000 },
-  { month: 'Oct', graduandFees: 10200000, donations: 18000000, merchEvents: 4100000, other: 2500000 },
-  { month: 'Nov', graduandFees: 8500000, donations: 16500000, merchEvents: 3500000, other: 2200000 },
-];
+type FundSummary = {
+  generatedDate: string;
+  totalIncome: number;
+  totalExpenses: number;
+  netBalance: number;
+  incomeBreakdown: {
+    donations: number;
+    loanRepayments: number;
+  };
+  expenseBreakdown: {
+    loanDisbursements: number;
+    supportGrants: number;
+  };
+  activeLoanCount: number;
+  pendingApplications: number;
+  totalDonors: number;
+};
 
-const expenseBreakdown = [
-  { name: 'Loan Disbursements', value: 65000000, color: '#0b2a4a' },
-  { name: 'Support Grants', value: 25000000, color: '#c79b2d' },
-  { name: 'Operational Costs', value: 8000000, color: '#2d5a7b' },
-  { name: 'Project Expenses', value: 15000000, color: '#e6c86f' },
-  { name: 'Other', value: 3000000, color: '#8a9ba8' },
-];
+type IncomeExpensePoint = {
+  month: string;
+  income: number;
+  expenses: number;
+};
 
-const topDonors = [
-  { name: 'Alumni Class of 2015', amount: 25000000, contributions: 12 },
-  { name: 'UCU Faculty Fundraiser', amount: 18000000, contributions: 45 },
-  { name: 'Anonymous Donor #234', amount: 15000000, contributions: 3 },
-  { name: 'Corporate Partnership - XYZ Ltd', amount: 12000000, contributions: 1 },
-  { name: 'Alumni Class of 2010', amount: 10000000, contributions: 8 },
-];
+type DonorEntry = {
+  name: string;
+  email?: string;
+  totalContributions: number;
+  contributionCount: number;
+  lastContribution: string;
+};
 
 export default function AdminReports() {
   const [loadingReport, setLoadingReport] = useState<string | null>(null);
+  const [summary, setSummary] = useState<FundSummary | null>(null);
+  const [incomeExpense, setIncomeExpense] = useState<IncomeExpensePoint[]>([]);
+  const [topDonors, setTopDonors] = useState<DonorEntry[]>([]);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
 
   const handleGenerateReport = async (reportId: string, format: string) => {
     const reportKey = `${reportId}-${format}`;
@@ -160,9 +171,62 @@ export default function AdminReports() {
     }
   };
 
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        setDashboardLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          toast.error('You must be logged in to view reports');
+          return;
+        }
+
+        const [summaryRes, incomeExpenseRes, donorsRes] = await Promise.all([
+          fetch(`${API_URL}/api/reports/fund-summary/json`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_URL}/api/reports/income-expense/json`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_URL}/api/reports/donors/json`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        if (!summaryRes.ok) throw new Error('Failed to load fund summary');
+        if (!incomeExpenseRes.ok) throw new Error('Failed to load income vs expense');
+        if (!donorsRes.ok) throw new Error('Failed to load donors');
+
+        const summaryData = (await summaryRes.json()) as FundSummary;
+        const incomeExpenseData = await incomeExpenseRes.json();
+        const donorsData = await donorsRes.json();
+
+        setSummary(summaryData);
+        setIncomeExpense(incomeExpenseData.months || []);
+        setTopDonors((donorsData.donors || []).slice(0, 5));
+      } catch (error: any) {
+        console.error('Failed to load report dashboard:', error);
+        toast.error(error.message || 'Failed to load report dashboard');
+      } finally {
+        setDashboardLoading(false);
+      }
+    };
+
+    loadDashboard();
+  }, []);
+
   const formatCurrency = (amount: number) => {
-    return `UGX ${(amount / 1000000).toFixed(1)}M`;
+    const safeAmount = Number.isFinite(amount) ? amount : 0;
+    return `UGX ${(safeAmount / 1000000).toFixed(1)}M`;
   };
+
+  const expenseBreakdown = useMemo(() => {
+    if (!summary) return [];
+    return [
+      { name: 'Loan Disbursements', value: summary.expenseBreakdown.loanDisbursements, color: '#0b2a4a' },
+      { name: 'Support Grants', value: summary.expenseBreakdown.supportGrants, color: '#c79b2d' },
+    ];
+  }, [summary]);
 
   return (
     <div className="p-4 lg:p-8 space-y-6">
@@ -176,18 +240,24 @@ export default function AdminReports() {
         <Card>
           <CardContent className="p-6">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Income (Oct)</p>
-              <p className="text-2xl text-primary font-bold">UGX 34.8M</p>
-              <p className="text-sm text-green-600">+15% from Sept</p>
+              <p className="text-sm text-muted-foreground">Total Income</p>
+              <p className="text-2xl text-primary font-bold">
+                {dashboardLoading ? 'Loading...' : formatCurrency(summary?.totalIncome ?? 0)}
+              </p>
+              <p className="text-sm text-muted-foreground">All-time</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Expenses (Oct)</p>
-              <p className="text-2xl text-orange-600 font-bold">UGX 28.2M</p>
-              <p className="text-sm text-muted-foreground">81% of income</p>
+              <p className="text-sm text-muted-foreground">Total Expenses</p>
+              <p className="text-2xl text-orange-600 font-bold">
+                {dashboardLoading ? 'Loading...' : formatCurrency(summary?.totalExpenses ?? 0)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {dashboardLoading || !summary ? '—' : `${summary.totalIncome ? Math.round((summary.totalExpenses / summary.totalIncome) * 100) : 0}% of income`}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -195,8 +265,12 @@ export default function AdminReports() {
           <CardContent className="p-6">
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">Active Loans</p>
-              <p className="text-2xl text-primary font-bold">456</p>
-              <p className="text-sm text-muted-foreground">23 pending approval</p>
+              <p className="text-2xl text-primary font-bold">
+                {dashboardLoading ? 'Loading...' : summary?.activeLoanCount ?? 0}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {dashboardLoading ? '—' : `${summary?.pendingApplications ?? 0} pending approval`}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -204,8 +278,10 @@ export default function AdminReports() {
           <CardContent className="p-6">
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">Total Donors</p>
-              <p className="text-2xl text-accent font-bold">1,847</p>
-              <p className="text-sm text-green-600">+234 this month</p>
+              <p className="text-2xl text-accent font-bold">
+                {dashboardLoading ? 'Loading...' : summary?.totalDonors ?? 0}
+              </p>
+              <p className="text-sm text-muted-foreground">All-time</p>
             </div>
           </CardContent>
         </Card>
@@ -215,20 +291,18 @@ export default function AdminReports() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Income by Source</CardTitle>
+            <CardTitle>Income vs Expense (Last 6 Months)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={incomeData}>
+              <BarChart data={incomeExpense}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} />
                 <Tooltip formatter={(value) => formatCurrency(value as number)} />
                 <Legend />
-                <Bar dataKey="graduandFees" stackId="a" fill="#0b2a4a" name="Graduand Fees" />
-                <Bar dataKey="donations" stackId="a" fill="#c79b2d" name="Donations" />
-                <Bar dataKey="merchEvents" stackId="a" fill="#2d5a7b" name="Merch & Events" />
-                <Bar dataKey="other" stackId="a" fill="#8a9ba8" name="Other" />
+                <Bar dataKey="income" fill="#0b2a4a" name="Income" />
+                <Bar dataKey="expenses" fill="#c79b2d" name="Expenses" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -277,12 +351,15 @@ export default function AdminReports() {
                   </div>
                   <div>
                     <p className="font-semibold">{donor.name}</p>
-                    <p className="text-sm text-muted-foreground">{donor.contributions} contributions</p>
+                    <p className="text-sm text-muted-foreground">{donor.contributionCount} contributions</p>
                   </div>
                 </div>
-                <p className="text-accent font-bold">{formatCurrency(donor.amount)}</p>
+                <p className="text-accent font-bold">{formatCurrency(donor.totalContributions)}</p>
               </div>
             ))}
+            {!dashboardLoading && topDonors.length === 0 && (
+              <div className="text-sm text-muted-foreground">No donor data available.</div>
+            )}
           </div>
         </CardContent>
       </Card>
