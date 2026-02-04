@@ -1,6 +1,6 @@
 {
-  "installCommand": "cd 'Alumni frontend' && npm install",
-  "buildCommand": "cd 'Alumni frontend' && npm run build",
+  "installCommand": "npm --prefix 'Alumni frontend' install",
+  "buildCommand": "npm --prefix 'Alumni frontend' run build",
   "outputDirectory": "Alumni frontend/build",
   "framework": "vite",
   "rewrites": [
