@@ -40,7 +40,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-white to-[#f0f4f9] dark:from-primary dark:to-[#1a4d7a]">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary to-[#1a4d7a] dark:from-primary dark:to-[#1a4d7a]">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-15"
         style={{
@@ -127,7 +127,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </div>
 
-        <div className="px-6 pb-12">
+        <div className="px-6 pb-16">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-4">
               {features.map((feature, index) => {
@@ -148,6 +148,52 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
           </div>
         </div>
+
+        <section className="px-6 pb-16">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <h2 className="text-2xl text-white mb-3">Alumni Giving Made Simple</h2>
+              <p className="text-white/80 mb-4">
+                Track impact, support students, and stay connected with a clean, modern experience across mobile and web.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  size="lg"
+                  onClick={onGetStarted}
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground text-base px-8"
+                >
+                  Get Started
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={onLogin}
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-base px-8"
+                >
+                  I have an account
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <p className="text-sm text-white/70">Active Mentors</p>
+                <p className="text-2xl text-white mt-2">320+</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <p className="text-sm text-white/70">Scholarships</p>
+                <p className="text-2xl text-white mt-2">1,400+</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <p className="text-sm text-white/70">Events Hosted</p>
+                <p className="text-2xl text-white mt-2">85</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <p className="text-sm text-white/70">Communities</p>
+                <p className="text-2xl text-white mt-2">24</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <footer className="p-6 border-t border-white/10">
           <div className="max-w-7xl mx-auto text-center">
