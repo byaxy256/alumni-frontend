@@ -31,16 +31,11 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog';
 import { useRealtime } from '../../hooks/useRealtime';
-import { api, apiCall, API_BASE } from '../../api';
+import { apiCall, API_BASE } from '../../api';
 
-import { ContentItem, ContentFormData, ContentApiResponse, LoadingState, ContentError, ValidationError } from '../../types/content';
+import { ContentItem, ContentFormData } from '../../types/content';
 import { 
-  validateFormData, 
-  createContentError, 
-  getErrorMessage, 
-  getCurrentDateString, 
-  getFutureDateString,
-  sanitizeContent 
+  getFutureDateString
 } from '../../utils/validation';
 
 
@@ -57,7 +52,6 @@ export default function ContentManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   
   const [formData, setFormData] = useState<ContentFormData>({
@@ -478,6 +472,7 @@ export default function ContentManagement() {
         <Label htmlFor="audience">Audience</Label>
         <select
           id="audience"
+          title="Select audience"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
           value={formData.audience}
           onChange={(e) => setFormData({ ...formData, audience: e.target.value as any })}
@@ -494,6 +489,7 @@ export default function ContentManagement() {
           id="imageFile"
           type="file"
           accept="image/*"
+          title="Upload an image file"
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           onChange={(e) => {
             const file = e.target.files?.[0] || null;

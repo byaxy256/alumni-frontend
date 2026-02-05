@@ -3681,35 +3681,35 @@
 :root {
   --font-size: 16px;
   --font-sans: "Manrope", "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-  --background: #f6f7fb;
-  --foreground: #0f1522;
+  --background: #ffffff;
+  --foreground: #0b2a4a;
   --card: #ffffff;
   --card-foreground: #0f1522;
   --popover: #ffffff;
   --popover-foreground: #0f1522;
   --primary: #0b2a4a;
   --primary-foreground: #f5f7fb;
-  --secondary: #edf1f7;
+  --secondary: #f4f6f9;
   --secondary-foreground: #0b2a4a;
   --accent: #c79b2d;
-  --accent-foreground: #1a1200;
-  --muted: #eef2f7;
-  --muted-foreground: #5b6575;
+  --accent-foreground: #0b2a4a;
+  --muted: #f2f4f7;
+  --muted-foreground: #5b6b7a;
   --destructive: #d4183d;
   --destructive-foreground: #fff;
-  --border: #d7dde7;
+  --border: #e4e8ef;
   --input: transparent;
-  --input-background: #f1f4f9;
+  --input-background: #f6f7fa;
   --switch-background: #c7cfdb;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #6aa7ff;
+  --ring: #c79b2d;
   --chart-1: #0b2a4a;
   --chart-2: #c79b2d;
   --chart-3: #2d5a7b;
   --chart-4: #e6c86f;
   --chart-5: #8a9ba8;
-  --radius: .7rem;
+  --radius: .6rem;
   --sidebar: #0b2a4a;
   --sidebar-foreground: #f5f7fb;
   --sidebar-primary: #c79b2d;
@@ -3718,10 +3718,10 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #d7dde7;
   --sidebar-ring: #6aa7ff;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(13, 22, 34, 0.08);
-  --glass-shadow: 0 26px 80px rgba(10, 14, 26, 0.12);
-  --accent-soft: rgba(199, 155, 45, 0.16);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(11, 42, 74, 0.08);
+  --glass-shadow: 0 14px 40px rgba(11, 42, 74, 0.12);
+  --accent-soft: rgba(199, 155, 45, 0.14);
 }
 
 .dark {
@@ -3807,10 +3807,16 @@ body {
 
 .landing-shell {
   background:
-    radial-gradient(900px circle at 10% 10%, rgba(80, 135, 255, 0.22), transparent 55%),
-    radial-gradient(700px circle at 90% -10%, rgba(244, 201, 93, 0.18), transparent 55%),
-    radial-gradient(600px circle at 70% 80%, rgba(79, 183, 255, 0.18), transparent 50%),
-    linear-gradient(180deg, #0b0d12 0%, #0b0d12 35%, #0f1420 100%);
+    radial-gradient(600px circle at 10% 10%, rgba(11, 42, 74, 0.12), transparent 55%),
+    radial-gradient(500px circle at 90% -10%, rgba(199, 155, 45, 0.18), transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+}
+
+.dark .landing-shell {
+  background:
+    radial-gradient(600px circle at 10% 10%, rgba(79, 139, 255, 0.22), transparent 55%),
+    radial-gradient(500px circle at 90% -10%, rgba(244, 201, 93, 0.2), transparent 55%),
+    linear-gradient(180deg, #0b0d12 0%, #0f1420 100%);
 }
 
 .landing-orb {
@@ -3822,24 +3828,24 @@ body {
 }
 
 .landing-orb.blue {
-  width: 28rem;
-  height: 28rem;
+  width: 20rem;
+  height: 20rem;
   background: #4f8bff;
   top: -10%;
   left: -5%;
 }
 
 .landing-orb.gold {
-  width: 22rem;
-  height: 22rem;
+  width: 16rem;
+  height: 16rem;
   background: #f4c95d;
   bottom: -8%;
   right: -6%;
 }
 
 .landing-orb.teal {
-  width: 18rem;
-  height: 18rem;
+  width: 12rem;
+  height: 12rem;
   background: #41d9c4;
   top: 40%;
   right: 8%;
