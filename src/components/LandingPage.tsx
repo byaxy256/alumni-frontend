@@ -1,6 +1,11 @@
 import { Button } from './ui/button';
-import { 
-  GraduationCap, 
+import { Card } from './ui/card';
+import {
+  GraduationCap,
+  Heart,
+  Users,
+  TrendingUp,
+  Shield,
   Award
 } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
@@ -11,52 +16,87 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
+  const features = [
+    {
+      icon: Heart,
+      title: 'Student Support',
+      description: 'Providing loans and financial aid to students in need',
+    },
+    {
+      icon: Users,
+      title: 'Alumni Network',
+      description: 'Connect with thousands of UCU alumni worldwide',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Mentorship',
+      description: 'Get guidance from experienced alumni in your field',
+    },
+    {
+      icon: Shield,
+      title: 'Secure & Transparent',
+      description: 'Bank-level security with full audit trails',
+    },
+  ];
+
   return (
-    <div className="min-h-screen landing-shell relative overflow-hidden">
-      <div className="landing-orb blue" />
-      <div className="landing-orb gold" />
-      <div className="landing-orb teal" />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-white to-[#f0f4f9] dark:from-primary dark:to-[#1a4d7a]">
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-15"
+        style={{
+          backgroundImage:
+            'url(https://images.unsplash.com/photo-1608485439523-25b28d982428?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwc3R1ZGVudHMlMjBncmFkdWF0aW9ufGVufDF8fHx8MTc2MjY1NDc4MHww&ixlib=rb-4.1.0&q=80&w=1080)',
+        }}
+      />
 
       <div className="relative z-10 min-h-screen flex flex-col">
-        <header className="p-5">
-          <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <header className="p-6">
+          <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl accent-soft flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                <GraduationCap className="w-7 h-7 text-accent" />
               </div>
               <div>
-                <h1 className="text-lg text-foreground">Alumni Circle</h1>
-                <p className="text-xs text-muted-foreground">Uganda Christian University</p>
+                <h1 className="text-xl text-foreground dark:text-white">Alumni Circle</h1>
+                <p className="text-xs text-muted-foreground dark:text-white/80">Uganda Christian University</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Button variant="outline" onClick={onLogin} className="btn-glass">
+              <Button
+                variant="outline"
+                onClick={onLogin}
+                className="bg-white/10 border-white/30 text-foreground dark:text-white hover:bg-white/20"
+              >
                 Login
               </Button>
             </div>
           </div>
         </header>
 
-        <div className="flex-1 flex items-center justify-center px-5 py-10">
-          <div className="max-w-xl w-full mx-auto text-center">
-            <div className="inline-flex items-center gap-2 glass-panel px-4 py-2 rounded-full mb-6">
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <Award className="w-4 h-4 text-accent" />
-              <span className="text-sm text-foreground">Empowering Students, Connecting Alumni</span>
+              <span className="text-sm text-foreground dark:text-white">Empowering Students, Connecting Alumni</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl text-foreground mb-4 leading-tight">
-              Alumni Circle
+            <h1 className="text-4xl md:text-6xl text-foreground dark:text-white mb-6">
+              Building Futures
+              <br />
+              <span className="text-accent">Together</span>
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground mb-8">
-              Support students. Stay connected. Grow together.
+
+            <p className="text-lg md:text-xl text-muted-foreground dark:text-white/90 mb-8 max-w-2xl mx-auto">
+              A comprehensive platform connecting UCU alumni with current students through donations,
+              mentorship, and financial support programs.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
                 size="lg"
                 onClick={onGetStarted}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground text-base px-8 shadow-lg"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground text-base px-8"
               >
                 Get Started
               </Button>
@@ -64,17 +104,54 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 size="lg"
                 variant="outline"
                 onClick={onLogin}
-                className="btn-glass text-base px-8"
+                className="bg-white/10 border-white/30 text-foreground dark:text-white hover:bg-white/20 text-base px-8"
               >
                 I have an account
               </Button>
             </div>
+
+            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                <p className="text-3xl text-foreground dark:text-white mb-1">2,500+</p>
+                <p className="text-sm text-muted-foreground dark:text-white/80">Students Supported</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                <p className="text-3xl text-foreground dark:text-white mb-1">5,000+</p>
+                <p className="text-sm text-muted-foreground dark:text-white/80">Active Alumni</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                <p className="text-3xl text-foreground dark:text-white mb-1">UGX 2B+</p>
+                <p className="text-sm text-muted-foreground dark:text-white/80">Total Disbursed</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <footer className="p-6 border-t border-border">
+        <div className="px-6 pb-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-4">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <Card
+                    key={index}
+                    className="p-6 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mx-auto mb-3">
+                      <Icon className="w-6 h-6 text-accent" />
+                    </div>
+                    <h3 className="text-base text-foreground dark:text-white mb-2">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground dark:text-white/70">{feature.description}</p>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <footer className="p-6 border-t border-white/10">
           <div className="max-w-7xl mx-auto text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground dark:text-white/60">
               © 2025 Uganda Christian University Alumni Office. All rights reserved.
             </p>
           </div>
