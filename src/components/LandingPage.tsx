@@ -1,11 +1,11 @@
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { 
-  GraduationCap, 
-  Heart, 
-  Users, 
+import {
+  GraduationCap,
+  Heart,
+  Users,
   TrendingUp,
-  Shield, 
+  Shield,
   Award
 } from 'lucide-react';
 
@@ -39,30 +39,30 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
   ];
 
   return (
-    <div className="dark min-h-screen bg-gradient-to-br from-primary to-[#1a4d7a] relative overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-10"
+    <div className="min-h-screen relative overflow-hidden bg-[#0b1a2f] text-white">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1608485439523-25b28d982428?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwc3R1ZGVudHMlMjBncmFkdWF0aW9ufGVufDF8fHx8MTc2MjY1NDc4MHww&ixlib=rb-4.1.0&q=80&w=1080)',
+          backgroundImage:
+            'url(https://images.unsplash.com/photo-1608485439523-25b28d982428?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwc3R1ZGVudHMlMjBncmFkdWF0aW9ufGVufDF8fHx8MTc2MjY1NDc4MHww&ixlib=rb-4.1.0&q=80&w=1600)',
         }}
-      ></div>
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/90 via-[#0b1a2f]/80 to-[#143a5f]/80" />
 
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="p-6">
+        <header className="px-6 py-4 border-b border-white/10">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 text-accent-foreground" />
+              <div className="w-12 h-12 rounded-full bg-[#c79b2d] flex items-center justify-center">
+                <GraduationCap className="w-7 h-7 text-[#0b1a2f]" />
               </div>
               <div>
-                <h1 className="text-xl text-white">Alumni Connect</h1>
-                <p className="text-xs text-white/80">Uganda Christian University</p>
+                <h1 className="text-xl font-semibold">Alumni Connect</h1>
+                <p className="text-xs text-white/70">Uganda Christian University</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={onLogin}
               className="bg-white/10 border-white/30 text-white hover:bg-white/20"
             >
@@ -71,34 +71,34 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </header>
 
-        {/* Hero Section */}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <section className="flex-1 flex items-center justify-center px-6 py-16">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-              <Award className="w-4 h-4 text-accent" />
+              <Award className="w-4 h-4 text-[#c79b2d]" />
               <span className="text-sm text-white">Empowering Students, Connecting Alumni</span>
             </div>
-            
-            <h1 className="text-4xl md:text-6xl text-white mb-6">
-              Building Futures<br />
-              <span className="text-accent">Together</span>
+
+            <h1 className="text-4xl md:text-6xl mb-6 leading-tight">
+              Building Futures
+              <br />
+              <span className="text-[#c79b2d]">Together</span>
             </h1>
-            
-            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              A comprehensive platform connecting UCU alumni with current students through donations, 
-              mentorship, and financial support programs.
+
+            <p className="text-lg md:text-xl text-white/85 mb-8 max-w-2xl mx-auto">
+              A comprehensive platform connecting UCU alumni with current students
+              through donations, mentorship, and financial support programs.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 onClick={onGetStarted}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground text-base px-8"
+                className="bg-[#c79b2d] hover:bg-[#b78a22] text-[#0b1a2f] text-base px-8"
               >
                 Get Started
               </Button>
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 variant="outline"
                 onClick={onLogin}
                 className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-base px-8"
@@ -107,37 +107,35 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               </Button>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">2,500+</p>
-                <p className="text-sm text-white/80">Students Supported</p>
+                <p className="text-sm text-white/70">Students Supported</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">5,000+</p>
-                <p className="text-sm text-white/80">Active Alumni</p>
+                <p className="text-sm text-white/70">Active Alumni</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">UGX 2B+</p>
-                <p className="text-sm text-white/80">Total Disbursed</p>
+                <p className="text-sm text-white/70">Total Disbursed</p>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Features */}
-        <div className="px-6 pb-12">
+        <section className="px-6 pb-16">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-4">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <Card 
-                    key={index} 
+                  <Card
+                    key={index}
                     className="p-6 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mx-auto mb-3">
-                      <Icon className="w-6 h-6 text-accent" />
+                    <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mx-auto mb-3">
+                      <Icon className="w-6 h-6 text-[#c79b2d]" />
                     </div>
                     <h3 className="text-base text-white mb-2">{feature.title}</h3>
                     <p className="text-sm text-white/70">{feature.description}</p>
@@ -146,9 +144,8 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               })}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Footer */}
         <footer className="p-6 border-t border-white/10">
           <div className="max-w-7xl mx-auto text-center">
             <p className="text-sm text-white/60">
