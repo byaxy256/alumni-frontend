@@ -39,7 +39,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-[#1a4d7a] relative overflow-hidden">
+    <div className="dark min-h-screen bg-gradient-to-br from-primary to-[#1a4d7a] relative overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
