@@ -39,12 +39,13 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#0b1a2f] text-white">
+    <div className="h-screen overflow-hidden relative bg-[#0b1a2f] text-white">
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            'url(https://images.unsplash.com/photo-1608485439523-25b28d982428?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwc3R1ZGVudHMlMjBncmFkdWF0aW9ufGVufDF8fHx8MTc2MjY1NDc4MHww&ixlib=rb-4.1.0&q=80&w=1600)',
+            'url(https://nilepost.co.ug/new_cms/wp-content/uploads/2025/07/Joel1.jpeg)',
+          backgroundAttachment: 'fixed',
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/90 via-[#0b1a2f]/80 to-[#143a5f]/80" />
