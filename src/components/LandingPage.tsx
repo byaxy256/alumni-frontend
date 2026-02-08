@@ -49,7 +49,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         }}
       />
       <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/92 via-[#0b1a2f]/85 to-[#143a5f]/80" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/95 via-[#0b1a2f]/90 to-[#143a5f]/88" />
 
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-6 py-4 border-b border-white/10">
@@ -73,20 +73,20 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </header>
 
-        <section className="flex-1 flex items-center justify-center px-6 py-20">
+        <section className="flex-1 flex items-center justify-center px-6 py-24">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <Award className="w-4 h-4 text-[#c79b2d]" />
               <span className="text-sm text-white">Empowering Students, Connecting Alumni</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl mb-6 leading-tight text-white/95">
               Building Futures
               <br />
               <span className="text-[#c79b2d]">Together</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-white/85 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto">
               A comprehensive platform connecting UCU alumni with current students
               through donations, mentorship, and financial support programs.
             </p>
@@ -109,24 +109,24 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               </Button>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">2,500+</p>
-                <p className="text-sm text-white/80">Students Supported</p>
+                <p className="text-sm text-white/90">Students Supported</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">5,000+</p>
-                <p className="text-sm text-white/80">Active Alumni</p>
+                <p className="text-sm text-white/90">Active Alumni</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">UGX 2B+</p>
-                <p className="text-sm text-white/80">Total Disbursed</p>
+                <p className="text-sm text-white/90">Total Disbursed</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="px-6 pb-20 mt-8">
+        <section className="px-6 pb-28 mt-16">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-4">
               {features.map((feature, index) => {
@@ -140,7 +140,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                       <Icon className="w-6 h-6 text-[#c79b2d]" />
                     </div>
                     <h3 className="text-base text-white mb-2">{feature.title}</h3>
-                    <p className="text-sm text-white/70">{feature.description}</p>
+                    <p className="text-sm text-white/85">{feature.description}</p>
                   </Card>
                 );
               })}
