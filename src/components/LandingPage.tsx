@@ -44,7 +44,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            'url(https://ucu.ac.ug/wp-content/uploads/2025/04/masters.jpg)',
+            'url(https://ucu.ac.ug/wp-content/uploads/2025/04/GavrrufWEAAfdAP-1024x682.jpeg)',
           backgroundAttachment: 'fixed',
         }}
       />
