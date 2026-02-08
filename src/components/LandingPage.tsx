@@ -39,16 +39,17 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
   ];
 
   return (
-    <div className="h-screen overflow-hidden relative bg-[#0b1a2f] text-white">
+    <div className="min-h-screen relative bg-[#0b1a2f] text-white">
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            'url(https://nilepost.co.ug/new_cms/wp-content/uploads/2025/07/Joel1.jpeg)',
+            'url(https://ucu.ac.ug/wp-content/uploads/2025/04/masters.jpg)',
           backgroundAttachment: 'fixed',
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/90 via-[#0b1a2f]/80 to-[#143a5f]/80" />
+      <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/85 via-[#0b1a2f]/75 to-[#143a5f]/75" />
 
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-6 py-4 border-b border-white/10">
