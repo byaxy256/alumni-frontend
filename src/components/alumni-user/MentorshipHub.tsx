@@ -94,7 +94,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   const [viewingProfile, setViewingProfile] = useState<MentorRequest | FieldStudent | Mentee | null>(null);
   const [viewingMode, setViewingMode] = useState<'request' | 'approved' | 'browse' | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const lastMessageCountRef = useRef<number>(0);

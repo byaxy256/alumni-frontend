@@ -59,8 +59,8 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 <GraduationCap className="w-7 h-7 text-[#0b1a2f]" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold">Alumni Connect</h1>
-                <p className="text-xs text-white/70">Uganda Christian University</p>
+                <h1 className="text-xl font-semibold text-gray-900">Alumni Connect</h1>
+                <p className="text-xs text-gray-700">Uganda Christian University</p>
               </div>
             </div>
             <Button
@@ -109,7 +109,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               </Button>
             </div>
 
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mb-12">
+            <div className="grid grid-cols-3 gap-12 max-w-2xl mx-auto mb-12">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">2,500+</p>
                 <p className="text-sm text-white/90">Students Supported</p>
@@ -148,7 +148,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </section>
 
-        <footer className="p-6 border-t border-white/10">
+        <footer className="p-6 border-t border-white/10 mt-20">
           <div className="max-w-7xl mx-auto text-center">
             <p className="text-sm text-white/60">
               © 2025 Uganda Christian University Alumni Office. All rights reserved.
