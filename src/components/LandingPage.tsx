@@ -49,7 +49,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         }}
       />
       <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/85 via-[#0b1a2f]/75 to-[#143a5f]/75" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/92 via-[#0b1a2f]/85 to-[#143a5f]/80" />
 
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-6 py-4 border-b border-white/10">
@@ -73,7 +73,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </header>
 
-        <section className="flex-1 flex items-center justify-center px-6 py-16">
+        <section className="flex-1 flex items-center justify-center px-6 py-20">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <Award className="w-4 h-4 text-[#c79b2d]" />
@@ -112,21 +112,21 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">2,500+</p>
-                <p className="text-sm text-white/70">Students Supported</p>
+                <p className="text-sm text-white/80">Students Supported</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">5,000+</p>
-                <p className="text-sm text-white/70">Active Alumni</p>
+                <p className="text-sm text-white/80">Active Alumni</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-3xl text-white mb-1">UGX 2B+</p>
-                <p className="text-sm text-white/70">Total Disbursed</p>
+                <p className="text-sm text-white/80">Total Disbursed</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="px-6 pb-16">
+        <section className="px-6 pb-20 mt-8">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-4">
               {features.map((feature, index) => {
