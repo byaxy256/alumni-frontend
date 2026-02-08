@@ -126,7 +126,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </section>
 
-        <section className="px-6 pb-28 mt-16">
+        <section className="px-6 pb-32 mt-24">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-4">
               {features.map((feature, index) => {
@@ -139,8 +139,8 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                     <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mx-auto mb-3">
                       <Icon className="w-6 h-6 text-[#c79b2d]" />
                     </div>
-                    <h3 className="text-base text-white mb-2">{feature.title}</h3>
-                    <p className="text-sm text-white/85">{feature.description}</p>
+                    <h3 className="text-base text-black mb-2">{feature.title}</h3>
+                    <p className="text-sm text-black/80">{feature.description}</p>
                   </Card>
                 );
               })}
