@@ -91,7 +91,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               through donations, mentorship, and financial support programs.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
               <Button
                 size="lg"
                 onClick={onGetStarted}
@@ -128,7 +128,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
 
         <section className="px-6 py-20 mt-16">
           <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-4 gap-6">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
