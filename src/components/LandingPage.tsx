@@ -1,13 +1,5 @@
 import { Button } from './ui/button';
-import { Card } from './ui/card';
-import {
-  GraduationCap,
-  Heart,
-  Users,
-  TrendingUp,
-  Shield,
-  Award
-} from 'lucide-react';
+import { ArrowRight, Users, Zap, Globe, Award, BookOpen, Handshake } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -15,147 +7,200 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
-  const features = [
-    {
-      icon: Heart,
-      title: 'Student Support',
-      description: 'Providing loans and financial aid to students in need',
-    },
-    {
-      icon: Users,
-      title: 'Alumni Network',
-      description: 'Connect with thousands of UCU alumni worldwide',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Mentorship',
-      description: 'Get guidance from experienced alumni in your field',
-    },
-    {
-      icon: Shield,
-      title: 'Secure & Transparent',
-      description: 'Bank-level security with full audit trails',
-    },
-  ];
-
   return (
-    <div className="min-h-screen relative bg-[#0b1a2f] text-white">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            'url(https://ucu.ac.ug/wp-content/uploads/2025/04/GavrrufWEAAfdAP-1024x682.jpeg)',
-          backgroundAttachment: 'fixed',
-        }}
-      />
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1a2f]/95 via-[#0b1a2f]/90 to-[#143a5f]/88" />
-
-      <div className="relative z-10 min-h-screen flex flex-col">
-        <header className="px-6 py-4 border-b border-white/10">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#c79b2d] flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 text-[#0b1a2f]" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">Alumni Connect</h1>
-                <p className="text-xs text-gray-700">Uganda Christian University</p>
-              </div>
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="fixed w-full top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-white" />
             </div>
-            <Button
-              variant="outline"
-              onClick={onLogin}
-              className="bg-white/10 border-white/30 text-white hover:bg-white/20"
-            >
-              Login
-            </Button>
+            <span className="text-xl font-bold text-gray-900">Alumni Circle</span>
           </div>
-        </header>
+          <Button
+            onClick={onLogin}
+            variant="outline"
+            className="text-gray-900 border-gray-300 hover:bg-gray-100"
+          >
+            Sign In
+          </Button>
+        </div>
+      </nav>
 
-        <section className="flex-1 flex items-center justify-center px-6 py-24">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
-              <Award className="w-4 h-4 text-[#c79b2d]" />
-              <span className="text-sm text-white">Empowering Students, Connecting Alumni</span>
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-block mb-4 px-4 py-2 bg-blue-100 rounded-full">
+              <span className="text-sm font-semibold text-blue-700">✨ Join 5,000+ Alumni</span>
             </div>
-
-            <h1 className="text-4xl md:text-6xl mb-6 leading-tight text-white/95">
-              Building Futures
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+              Your Network.
               <br />
-              <span className="text-[#c79b2d]">Together</span>
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Your Future.
+              </span>
             </h1>
-
-            <p className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-              A comprehensive platform connecting UCU alumni with current students
-              through donations, mentorship, and financial support programs.
+            <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+              Connect with peers, find mentors, access financial support, and grow your career with Uganda Christian University's thriving alumni community.
             </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                size="lg"
                 onClick={onGetStarted}
-                className="bg-[#c79b2d] hover:bg-[#b78a22] text-[#0b1a2f] text-base px-8"
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transition-shadow text-base px-8 py-6"
               >
-                Get Started
+                Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button
-                size="lg"
-                variant="outline"
                 onClick={onLogin}
-                className="bg-white/10 border-white/30 text-white hover:bg-white/20 text-base px-8"
+                variant="outline"
+                size="lg"
+                className="border-2 border-gray-300 text-gray-900 hover:bg-gray-50 text-base px-8 py-6"
               >
                 I have an account
               </Button>
             </div>
+          </div>
 
-            <div className="grid grid-cols-3 gap-12 max-w-2xl mx-auto mb-12">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <p className="text-3xl text-white mb-1">2,500+</p>
-                <p className="text-sm text-white/90">Students Supported</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <p className="text-3xl text-white mb-1">5,000+</p>
-                <p className="text-sm text-white/90">Active Alumni</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                <p className="text-3xl text-white mb-1">UGX 2B+</p>
-                <p className="text-sm text-white/90">Total Disbursed</p>
-              </div>
+          {/* Stats */}
+          <div className="grid md:grid-cols-3 gap-8 mt-20">
+            <div className="text-center">
+              <p className="text-4xl font-bold text-blue-600 mb-2">2,500+</p>
+              <p className="text-gray-600">Students Supported</p>
+            </div>
+            <div className="text-center border-l border-r border-gray-200">
+              <p className="text-4xl font-bold text-indigo-600 mb-2">5,000+</p>
+              <p className="text-gray-600">Active Alumni</p>
+            </div>
+            <div className="text-center">
+              <p className="text-4xl font-bold text-blue-600 mb-2">UGX 2B+</p>
+              <p className="text-gray-600">Total Disbursed</p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="px-6 py-20 mt-16">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-6">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <Card
-                    key={index}
-                    className="p-6 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-colors"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mx-auto mb-3">
-                      <Icon className="w-6 h-6 text-[#c79b2d]" />
-                    </div>
-                    <h3 className="text-base text-gray-900 font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-sm text-gray-700">{feature.description}</p>
-                  </Card>
-                );
-              })}
+      {/* Features Section */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Everything You Need</h2>
+            <p className="text-xl text-gray-600">Powerful features designed for students and alumni</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="p-8 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Network</h3>
+              <p className="text-gray-600">Connect with thousands of alumni and peers across the globe</p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="p-8 bg-gradient-to-br from-indigo-50 to-white rounded-2xl border border-indigo-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4">
+                <Handshake className="w-6 h-6 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Mentorship</h3>
+              <p className="text-gray-600">Get guidance from experienced mentors in your field of interest</p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="p-8 bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                <Zap className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Financial Support</h3>
+              <p className="text-gray-600">Access loans, grants, and emergency funding opportunities</p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="p-8 bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                <Globe className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Global Community</h3>
+              <p className="text-gray-600">Be part of a worldwide network of UCU alumni</p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="p-8 bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+                <Award className="w-6 h-6 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Recognition</h3>
+              <p className="text-gray-600">Earn badges and recognition for your contributions</p>
+            </div>
+
+            {/* Feature 6 */}
+            <div className="p-8 bg-gradient-to-br from-pink-50 to-white rounded-2xl border border-pink-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mb-4">
+                <Zap className="w-6 h-6 text-pink-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Secure & Transparent</h3>
+              <p className="text-gray-600">Bank-level security with full transparency in all transactions</p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <footer className="p-6 border-t border-white/10 mt-20">
-          <div className="max-w-7xl mx-auto text-center">
-            <p className="text-sm text-white/60">
-              © 2025 Uganda Christian University Alumni Office. All rights reserved.
-            </p>
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-gradient-to-r from-blue-600 to-indigo-600">
+        <div className="max-w-4xl mx-auto text-center text-white">
+          <h2 className="text-4xl font-bold mb-6">Ready to Join?</h2>
+          <p className="text-xl text-blue-100 mb-10">Start your journey with Alumni Circle today</p>
+          <Button
+            onClick={onGetStarted}
+            size="lg"
+            className="bg-white text-blue-600 hover:bg-blue-50 text-base px-8 py-6 font-semibold"
+          >
+            Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="font-bold mb-4">Alumni Circle</h3>
+              <p className="text-gray-400">Connecting alumni with students for mutual growth</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-white">Features</a></li>
+                <li><a href="#" className="hover:text-white">Pricing</a></li>
+                <li><a href="#" className="hover:text-white">Blog</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-white">About</a></li>
+                <li><a href="#" className="hover:text-white">Contact</a></li>
+                <li><a href="#" className="hover:text-white">Careers</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-white">Privacy</a></li>
+                <li><a href="#" className="hover:text-white">Terms</a></li>
+                <li><a href="#" className="hover:text-white">Security</a></li>
+              </ul>
+            </div>
           </div>
-        </footer>
-      </div>
+          <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+            <p>© 2025 Uganda Christian University Alumni Office. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
