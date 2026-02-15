@@ -1,5 +1,5 @@
 import { Button } from './ui/button';
-import { ArrowRight, Users, Zap, Globe, Award, BookOpen, Handshake } from 'lucide-react';
+import { ArrowRight, Users, Zap, Globe, Award, BookOpen, Briefcase } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -29,16 +29,16 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <section className="pt-40 pb-20 px-6 bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <div className="inline-block mb-4 px-4 py-2 bg-blue-100 rounded-full">
-              <span className="text-sm font-semibold text-blue-700">✨ Join 5,000+ Alumni</span>
+            <div className="inline-block mb-6 px-4 py-2 bg-blue-50 rounded-full border border-blue-200">
+              <span className="text-sm font-medium text-blue-700">Join 5,000+ Alumni</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               Your Network.
               <br />
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-blue-600">
                 Your Future.
               </span>
             </h1>
@@ -49,7 +49,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               <Button
                 onClick={onGetStarted}
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transition-shadow text-base px-8 py-6"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-base px-8 py-6"
               >
                 Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -71,7 +71,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               <p className="text-gray-600">Students Supported</p>
             </div>
             <div className="text-center border-l border-r border-gray-200">
-              <p className="text-4xl font-bold text-indigo-600 mb-2">5,000+</p>
+              <p className="text-4xl font-bold text-blue-600 mb-2">5,000+</p>
               <p className="text-gray-600">Active Alumni</p>
             </div>
             <div className="text-center">
@@ -101,45 +101,45 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
 
             {/* Feature 2 */}
-            <div className="p-8 bg-gradient-to-br from-indigo-50 to-white rounded-2xl border border-indigo-100 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4">
-                <Handshake className="w-6 h-6 text-indigo-600" />
+            <div className="p-8 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <Briefcase className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Mentorship</h3>
               <p className="text-gray-600">Get guidance from experienced mentors in your field of interest</p>
             </div>
 
             {/* Feature 3 */}
-            <div className="p-8 bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                <Zap className="w-6 h-6 text-purple-600" />
+            <div className="p-8 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <Zap className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Financial Support</h3>
               <p className="text-gray-600">Access loans, grants, and emergency funding opportunities</p>
             </div>
 
             {/* Feature 4 */}
-            <div className="p-8 bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-                <Globe className="w-6 h-6 text-green-600" />
+            <div className="p-8 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <Globe className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Global Community</h3>
               <p className="text-gray-600">Be part of a worldwide network of UCU alumni</p>
             </div>
 
             {/* Feature 5 */}
-            <div className="p-8 bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
-                <Award className="w-6 h-6 text-orange-600" />
+            <div className="p-8 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <Award className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Recognition</h3>
               <p className="text-gray-600">Earn badges and recognition for your contributions</p>
             </div>
 
             {/* Feature 6 */}
-            <div className="p-8 bg-gradient-to-br from-pink-50 to-white rounded-2xl border border-pink-100 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mb-4">
-                <Zap className="w-6 h-6 text-pink-600" />
+            <div className="p-8 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                <Zap className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Secure & Transparent</h3>
               <p className="text-gray-600">Bank-level security with full transparency in all transactions</p>
@@ -149,14 +149,14 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <section className="py-20 px-6 bg-blue-600">
         <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-4xl font-bold mb-6">Ready to Join?</h2>
-          <p className="text-xl text-blue-100 mb-10">Start your journey with Alumni Circle today</p>
+          <h2 className="text-4xl font-bold mb-4">Ready to Join?</h2>
+          <p className="text-lg text-blue-100 mb-10">Start your journey with Alumni Circle today</p>
           <Button
             onClick={onGetStarted}
             size="lg"
-            className="bg-white text-blue-600 hover:bg-blue-50 text-base px-8 py-6 font-semibold"
+            className="bg-white text-blue-600 hover:bg-gray-100 text-base px-8 py-6 font-semibold"
           >
             Create Free Account <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
