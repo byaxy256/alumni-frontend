@@ -26,7 +26,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-[#0f2a44] opacity-40 blur-[140px]" />
       </div>
 
-      <header className="sticky top-0 z-30 bg-primary/80 backdrop-blur border-b border-white/10">
+      <header className="sticky top-0 z-40 bg-primary/90 backdrop-blur border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-11 w-11 rounded-2xl bg-accent flex items-center justify-center">
@@ -45,22 +45,22 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         </div>
       </header>
 
-      <main>
-        <section className="pt-20 pb-16 px-6">
+      <main className="pt-6">
+        <section className="pt-28 pb-16 px-6">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-white/80 mb-6">
                 <Sparkles className="h-4 w-4 text-accent" />
                 Built for UCU alumni + students
               </div>
-              <h1 className="text-4xl md:text-6xl font-semibold leading-tight mb-6">
+              <h1 className="text-4xl md:text-6xl font-semibold leading-tight mb-6 text-white">
                 Support students.
                 <br />
                 <span className="text-accent">Stay connected.</span>
                 <br />
                 Grow together.
               </h1>
-              <p className="text-lg text-white/70 mb-8 max-w-xl">
+              <p className="text-lg text-white/85 mb-8 max-w-xl">
                 A modern alumni platform that feels like an app: fast, personal, and built for real impact. Donate, mentor, and stay close to the UCU community.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -80,7 +80,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                   I have an account
                 </Button>
               </div>
-              <div className="mt-10 flex items-center gap-6 text-sm text-white/70">
+              <div className="mt-10 flex items-center gap-6 text-sm text-white/85">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-accent" /> 5,000+ alumni
                 </div>
@@ -128,7 +128,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                       <p className="text-xs text-white/60">Active</p>
                     </div>
                   </div>
-                    <div className="rounded-2xl bg-white/5 p-4 border border-white/10 flex items-center justify-between">
+                  <div className="rounded-2xl bg-white/5 p-4 border border-white/10 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
                         <CreditCard className="h-5 w-5 text-accent" />
@@ -146,33 +146,33 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </section>
 
-        <section className="px-6 pb-20">
+        <section className="px-6 pb-24 pt-10">
           <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <GraduationCapIcon className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Student Support</h3>
-              <p className="text-sm text-white/70">Flexible giving, emergency funds, and tuition support.</p>
+              <p className="text-sm text-white/85">Flexible giving, emergency funds, and tuition support.</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <Users className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Alumni Network</h3>
-              <p className="text-sm text-white/70">Find classmates, mentors, and regional chapters.</p>
+              <p className="text-sm text-white/85">Find classmates, mentors, and regional chapters.</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <ShieldCheck className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Secure & Trusted</h3>
-              <p className="text-sm text-white/70">Built with audit trails and bank‑level protection.</p>
+              <p className="text-sm text-white/85">Built with audit trails and bank‑level protection.</p>
             </div>
           </div>
         </section>
 
-        <section className="px-6 pb-24">
+        <section className="px-6 pb-28">
           <div className="max-w-5xl mx-auto rounded-3xl border border-white/10 bg-gradient-to-r from-[#1a2a40] to-[#0f1a2b] p-10 md:p-14">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
