@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { ArrowLeft, Calendar, MapPin, Users, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Clock, Loader2 } from 'lucide-react';
 import { ImageWithFallback } from '../figma_image/ImageWithFallback';
 import { API_BASE } from '../../api';
 import {
@@ -189,54 +189,70 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
           <Card className="p-6 text-center text-gray-600">No upcoming events</Card>
         ) : (
           events.map((event) => (
-            <Card key={event.id} className="p-4">
-              <div className="flex gap-4">
-                <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
-                  {event.hasImage ? (
-                    <ImageWithFallback
-                      src={`${API_BASE}/content/events/${event.id}/image`}
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary to-accent text-white flex flex-col items-center justify-center">
-                      <span className="text-xs">{event.date}</span>
-                    </div>
-                  )}
+            <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="relative h-48 bg-gray-200">
+                {event.hasImage ? (
+                  <ImageWithFallback
+                    src={`${API_BASE}/content/events/${event.id}/image`}
+                    alt={event.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
+                <div className="absolute top-3 right-3">
+                  <Badge className="bg-accent text-accent-foreground">
+                    {event.category}
+                  </Badge>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg mb-1">{event.title}</h3>
-                    <Badge>{event.category}</Badge>
+              </div>
+
+              <div className="p-4">
+                <h3 className="text-lg mb-2">{event.title}</h3>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Calendar className="w-4 h-4" />
+                    <span>{event.date}</span>
                   </div>
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>{event.date}{event.time ? ` • ${event.time}` : ''}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      <span>{event.attendees} attending</span>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Clock className="w-4 h-4" />
+                    <span>{event.time}</span>
                   </div>
-                  <div className="mt-3 flex items-center gap-3">
-                    {event.registrationFee > 0 ? (
-                      <span className="text-sm font-semibold">Fee: UGX {event.registrationFee}</span>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <MapPin className="w-4 h-4" />
+                    <span>{event.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Users className="w-4 h-4" />
+                    <span>{event.attendees} registered</span>
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-700 mb-4">{event.description}</p>
+
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div>
+                    <p className="text-xs text-gray-500">Registration Fee</p>
+                    <p className="text-base" style={{ color: '#0b2a4a' }}>
+                      {event.registrationFee === 0 ? 'Free' : `UGX ${event.registrationFee.toLocaleString()}`}
+                    </p>
+                  </div>
+                  <Button
+                    style={{ backgroundColor: '#c79b2d' }}
+                    onClick={() => handleRegister(event.id, event.registrationFee)}
+                    disabled={registering === event.id || registered.has(event.id)}
+                    className="flex gap-2"
+                  >
+                    {registering === event.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Registering...
+                      </>
+                    ) : registered.has(event.id) ? (
+                      '✓ Registered'
                     ) : (
-                      <span className="text-sm font-semibold text-green-600">Free</span>
+                      'Register Now'
                     )}
-                    <Button
-                      size="sm"
-                      onClick={() => handleRegister(event.id, event.registrationFee)}
-                      disabled={registering === event.id || registered.has(event.id)}
-                    >
-                      {registered.has(event.id) ? 'Registered' : registering === event.id ? 'Registering...' : 'Register'}
-                    </Button>
-                  </div>
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -245,42 +261,64 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
       </div>
 
       <Dialog open={showPayment} onOpenChange={setShowPayment}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Event Payment</DialogTitle>
-            <DialogDescription>
-              Pay the registration fee to complete your signup.
-            </DialogDescription>
+            <DialogTitle>Event Registration Payment</DialogTitle>
+            <DialogDescription>Complete your registration for {selectedEvent?.title}</DialogDescription>
           </DialogHeader>
-          {selectedEvent && (
-            <div className="space-y-4">
-              <div>
-                <Label>Event</Label>
-                <p className="text-sm">{selectedEvent.title}</p>
-              </div>
-              <div>
-                <Label>Amount</Label>
-                <p className="text-sm">UGX {selectedEvent.registrationFee}</p>
-              </div>
-              <div>
-                <Label>Payment Method</Label>
-                <div className="flex gap-2 mt-2">
-                  {['mtn', 'airtel'].map((m) => (
-                    <Button
-                      key={m}
-                      variant={paymentMethod === m ? 'default' : 'outline'}
-                      onClick={() => setPaymentMethod(m)}
-                    >
-                      {m.toUpperCase()}
-                    </Button>
-                  ))}
+
+          <div className="space-y-4">
+            {selectedEvent && (
+              <>
+                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Event:</span>
+                    <span className="font-semibold">{selectedEvent.title}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Date:</span>
+                    <span>{selectedEvent.date}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t pt-2">
+                    <span>Amount to Pay:</span>
+                    <span style={{ color: '#c79b2d' }}>UGX {selectedEvent.registrationFee.toLocaleString()}</span>
+                  </div>
                 </div>
-              </div>
-              <Button onClick={handlePaymentSubmit} disabled={registering === selectedEvent.id}>
-                {registering === selectedEvent.id ? 'Processing...' : 'Pay & Register'}
-              </Button>
-            </div>
-          )}
+
+                <div className="space-y-3">
+                  <Label>Payment Method</Label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="mtn"
+                        checked={paymentMethod === 'mtn'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="w-4 h-4"
+                      />
+                      <span className="font-medium">MTN Mobile Money</span>
+                    </label>
+                    <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="airtel"
+                        checked={paymentMethod === 'airtel'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="w-4 h-4"
+                      />
+                      <span className="font-medium">Airtel Money</span>
+                    </label>
+                  </div>
+                </div>
+
+                <Button onClick={handlePaymentSubmit} disabled={registering === selectedEvent.id}>
+                  {registering === selectedEvent.id ? 'Processing...' : 'Pay & Register'}
+                </Button>
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
