@@ -14,7 +14,7 @@ const pendingDisbursements = [
   {
     id: 1,
     studentName: 'Sarah Nakato',
-    studentId: 'A12345',
+    accessNumber: 'A12345',
     loanAmount: 5000000,
     purpose: 'Tuition fees for Semester 2',
     applicationDate: '2024-10-28',
@@ -27,7 +27,7 @@ const pendingDisbursements = [
   {
     id: 2,
     studentName: 'David Musoke',
-    studentId: 'B67890',
+    accessNumber: 'B67890',
     loanAmount: 3000000,
     purpose: 'Research materials',
     applicationDate: '2024-10-30',
@@ -40,7 +40,7 @@ const pendingDisbursements = [
   {
     id: 3,
     studentName: 'Mary Achieng',
-    studentId: 'A09876',
+    accessNumber: 'A09876',
     loanAmount: 7500000,
     purpose: 'Tuition fees and accommodation',
     applicationDate: '2024-11-01',
@@ -112,7 +112,7 @@ export default function DisbursementApproval() {
                     <TableCell>
                       <div>
                         <p>{disbursement.studentName}</p>
-                        <p className="text-sm text-muted-foreground">{disbursement.studentId}</p>
+                        <p className="text-sm text-muted-foreground">{disbursement.accessNumber}</p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -183,7 +183,7 @@ export default function DisbursementApproval() {
                 </div>
                 <div>
                   <Label>Access Number</Label>
-                  <p className="text-sm">{selectedDisbursement.studentId}</p>
+                  <p className="text-sm">{selectedDisbursement.accessNumber}</p>
                 </div>
                 <div>
                   <Label>Purpose</Label>

@@ -70,8 +70,20 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
       toast.error('Password is required');
       return;
     }
-    if (form.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (form.password.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return;
+    }
+    if (!/[A-Z]/.test(form.password)) {
+      toast.error('Password must include at least one capital letter');
+      return;
+    }
+    if (!/[0-9]/.test(form.password)) {
+      toast.error('Password must include at least one number');
+      return;
+    }
+    if (!/[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]/.test(form.password)) {
+      toast.error('Password must include at least one special character');
       return;
     }
     if (form.password !== form.confirmPassword) {
@@ -184,7 +196,12 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
 
               <div className="mt-3">
                 <Label>Phone</Label>
-                <Input value={form.phone} onChange={(e) => update('phone', e.target.value)} />
+                <Input
+                  value={form.phone}
+                  onChange={(e) => update('phone', e.target.value.replace(/\\D/g, '').slice(0, 10))}
+                  maxLength={10}
+                  placeholder="10-digit phone number"
+                />
               </div>
 
               {userType === 'student' && (
@@ -245,11 +262,11 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <Label>Password</Label>
-                  <Input type="password" value={form.password} onChange={(e) => update('password', e.target.value)} placeholder="Enter password" />
-                </div>
-                <div>
-                  <Label>Confirm Password</Label>
-                  <Input type="password" value={form.confirmPassword} onChange={(e) => update('confirmPassword', e.target.value)} placeholder="Confirm password" />
+                <Input type="password" value={form.password} onChange={(e) => update('password', e.target.value)} placeholder="At least 8 chars" />
+              </div>
+              <div>
+                <Label>Confirm Password</Label>
+                <Input type="password" value={form.confirmPassword} onChange={(e) => update('confirmPassword', e.target.value)} placeholder="Confirm password" />
                 </div>
               </div>
             </>

@@ -112,20 +112,20 @@ export const api = {
       return apiCall(`/mentors/students-by-field?field=${encodeURIComponent(field)}`, 'GET', undefined, token);
     },
 
-    async approveMentorRequest(studentId: string, token?: string) {
-      return apiCall('/mentors/approve', 'POST', { studentId }, token);
+    async approveMentorRequest(studentUid: string, token?: string) {
+      return apiCall('/mentors/approve', 'POST', { studentId: studentUid }, token);
     },
 
-    async rejectMentorRequest(studentId: string, token?: string) {
-      return apiCall('/mentors/reject', 'POST', { studentId }, token);
+    async rejectMentorRequest(studentUid: string, token?: string) {
+      return apiCall('/mentors/reject', 'POST', { studentId: studentUid }, token);
     },
 
     async getApprovedMentees(token?: string) {
       return apiCall('/mentors/my-approved-mentees', 'GET', undefined, token);
     },
 
-    async removeApprovedMentee(studentId: string, token?: string) {
-      return apiCall('/mentors/remove-approved', 'POST', { studentId }, token);
+    async removeApprovedMentee(studentUid: string, token?: string) {
+      return apiCall('/mentors/remove-approved', 'POST', { studentId: studentUid }, token);
     },
 
     async registerPushToken(pushToken: string, platform: 'web' | 'ios' | 'android' = 'web', token?: string) {
