@@ -82,7 +82,7 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
       toast.error('Password must include at least one number');
       return;
     }
-    if (!/[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]/.test(form.password)) {
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(form.password)) {
       toast.error('Password must include at least one special character');
       return;
     }
