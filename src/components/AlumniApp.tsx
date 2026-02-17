@@ -14,7 +14,6 @@ import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
 import { MentorshipHub } from './alumni-user/MentorshipHub';
 import { UnifiedNotifications } from './shared/UnifiedNotifications';
-import { ThemeToggle } from './ui/ThemeToggle';
 
 interface AlumniAppProps {
   user: UserType;
@@ -100,7 +99,6 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
             <h1 className="text-primary">Alumni Connect</h1>
             <p className="text-sm text-gray-600 mt-1">Alumni Portal</p>
           </div>
-          <ThemeToggle />
         </div>
         
         <nav className="flex-1 p-4 overflow-y-auto">

@@ -5,7 +5,6 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { GraduationCap, ArrowLeft } from 'lucide-react';
-import { ThemeToggle } from './ui/ThemeToggle';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
@@ -147,9 +146,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
           <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg transition" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="absolute right-6 top-6">
-            <ThemeToggle />
-          </div>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
             <GraduationCap className="w-8 h-8 text-accent-foreground" />
           </div>
