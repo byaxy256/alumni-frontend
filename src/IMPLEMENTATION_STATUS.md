@@ -75,7 +75,7 @@
    - [ ] Add "Amount Requested" field (max 3.2M UGX validation)
    - [ ] Add "Purpose" field (reason for relief)
    - [ ] Update document uploads:
-     - [x] Keep: Student ID
+     - [x] Keep: Access Number
      - [x] Keep: Financial Statement
      - [ ] Remove: Guarantor Consent Form
    - [ ] Change consent wording: "I consent to a full semester chop deduction of the entire loan amount"

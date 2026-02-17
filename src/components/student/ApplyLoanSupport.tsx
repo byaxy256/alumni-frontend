@@ -30,7 +30,7 @@ interface ApplyLoanSupportProps {
 }
 
 const MAX_LOAN_AMOUNT = 3200000; // 3.2M UGX max
-const PHONE_MAX_LENGTH = 12;
+const PHONE_MAX_LENGTH = 10;
 
 export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
   const [step, setStep] = useState(1);
@@ -61,10 +61,8 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
   });
 
   const [uploadedFiles, setUploadedFiles] = useState<{
-    studentId: File | null;
     financialStatement: File | null;
   }>({
-    studentId: null,
     financialStatement: null,
   });
 
@@ -272,7 +270,6 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
       }
 
       // files
-      if (uploadedFiles.studentId) form.append('studentIdFile', uploadedFiles.studentId, uploadedFiles.studentId.name);
       if (uploadedFiles.financialStatement) form.append('financialStatement', uploadedFiles.financialStatement, uploadedFiles.financialStatement.name);
 
       const res = await fetch(endpoint, {
@@ -603,44 +600,6 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
         Please upload the required documents to support your application.
       </p>
 
-      {/* Student ID Card */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <p className="text-sm">Student ID Card</p>
-              <p className="text-xs text-gray-500">Clear photo or scan of your student ID</p>
-            </div>
-            {uploadedFiles.studentId && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="file"
-              id="studentId"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFileUpload('studentId', e)}
-              className="hidden"
-              title="Upload student ID card"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById('studentId')?.click()}
-              className="w-full"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              {uploadedFiles.studentId ? 'Change File' : 'Upload File'}
-            </Button>
-          </div>
-          {uploadedFiles.studentId && (
-            <p className="text-xs text-green-600 mt-2">
-              ✓ {uploadedFiles.studentId.name}
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Financial Statement */}
       <Card>
         <CardContent className="p-4">
@@ -739,7 +698,7 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
               <Button 
                 onClick={handleSubmit} 
                 className="flex-1"
-                disabled={submitting || !uploadedFiles.studentId || !uploadedFiles.financialStatement || (applicationType === 'loan' && !chopConsented)}
+                disabled={submitting || !uploadedFiles.financialStatement || (applicationType === 'loan' && !chopConsented)}
               >
                 {submitting ? 'Submitting...' : 'Submit Application'}
               </Button>

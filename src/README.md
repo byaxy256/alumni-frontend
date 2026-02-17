@@ -95,7 +95,7 @@ Inspired by leading fintech apps:
 1. **Select Type** - Loan or Support Request
 2. **Personal Info** - Student details + semester (final semester blocked)
 3. **Loan Details** - Amount (max 3.2M) + purpose
-4. **Documents** - Upload Student ID + Financial Statement
+4. **Documents** - Upload Financial Statement
 5. **Consent** - Agree to full semester chop deduction
 6. **Submit** - Await Alumni Office approval
 
@@ -235,7 +235,7 @@ This is a Figma Make prototype - no installation required!
 - **Max Loan Amount**: UGX 3,200,000 (UCU tuition)
 - **Repayment**: Full semester chop (one-time deduction)
 - **Eligibility**: Non-final semester students only
-- **Documents Required**: Student ID + Financial Statement
+- **Documents Required**: Financial Statement
 - **Payment Methods**: MTN, Airtel, Bank Transfer
 
 ## 🤝 User Roles & Permissions
