@@ -19,14 +19,15 @@ interface LandingPageProps {
 
 export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
   return (
-    <div className="min-h-screen bg-primary text-white">
+    <div className="min-h-screen bg-[#0b1a2f] text-white">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-32 h-96 w-96 rounded-full bg-[#1f4b7a] opacity-35 blur-[120px]" />
         <div className="absolute top-32 -left-20 h-80 w-80 rounded-full bg-accent opacity-20 blur-[120px]" />
         <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-[#0f2a44] opacity-40 blur-[140px]" />
       </div>
+      <div className="absolute inset-0 bg-[#0b1a2f]/85" />
 
-      <header className="sticky top-0 z-40 bg-primary/90 backdrop-blur border-b border-white/10">
+      <header className="sticky top-0 z-40 bg-[#0b1a2f]/95 backdrop-blur border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-11 w-11 rounded-2xl bg-accent flex items-center justify-center">
@@ -38,14 +39,14 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={onLogin} variant="outline" className="border-white/30 text-white hover:bg-white/10">
-              Login
-            </Button>
+              <Button onClick={onLogin} variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                Login
+              </Button>
           </div>
         </div>
       </header>
 
-      <main className="pt-6">
+      <main className="pt-6 relative z-10">
         <section className="pt-28 pb-16 px-6">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -60,7 +61,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 <br />
                 Grow together.
               </h1>
-              <p className="text-lg text-white/85 mb-8 max-w-xl">
+              <p className="text-lg text-white/90 mb-8 max-w-xl">
                 A modern alumni platform that feels like an app: fast, personal, and built for real impact. Donate, mentor, and stay close to the UCU community.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -92,7 +93,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
 
             <div className="relative">
               <div className="absolute -inset-6 rounded-3xl border border-white/10 bg-white/5 blur-xl" />
-              <div className="relative rounded-3xl border border-white/10 bg-[#0f1624] p-6">
+              <div className="relative rounded-3xl border border-white/10 bg-[#0f1624]/95 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2 text-sm text-white/70">
                     <span className="h-2 w-2 rounded-full bg-accent" /> Live Activity
@@ -113,7 +114,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-2xl bg-white/5 p-4 border border-white/10">
+                  <div className="rounded-2xl bg-white/5 p-4 border border-white/10">
                       <div className="flex items-center gap-2 text-white/70 text-xs">
                         <CalendarCheck className="h-4 w-4" /> Events
                       </div>
@@ -146,23 +147,23 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           </div>
         </section>
 
-        <section className="px-6 pb-24 pt-10">
+        <section className="px-6 pb-24 pt-12">
           <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-2xl border border-white/10 bg-[#0f1624]/90 p-6">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <GraduationCapIcon className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Student Support</h3>
               <p className="text-sm text-white/85">Flexible giving, emergency funds, and tuition support.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-2xl border border-white/10 bg-[#0f1624]/90 p-6">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <Users className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Alumni Network</h3>
               <p className="text-sm text-white/85">Find classmates, mentors, and regional chapters.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-2xl border border-white/10 bg-[#0f1624]/90 p-6">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <ShieldCheck className="h-5 w-5 text-accent" />
               </div>
