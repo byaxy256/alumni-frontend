@@ -27,7 +27,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
     email: '',
     phone: '',
     accessNumber: '',
-    studentId: '',
     program: '',
     yearOfStudy: '',
     graduationYear: '',
@@ -61,10 +60,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
       return;
     }
 
-    if (userType === 'student' && !form.studentId) {
-      toast.error('Student ID is required');
-      return;
-    }
 
     if (userType === 'alumni_office' && !form.staffId) {
       toast.error('Staff ID is required');
@@ -95,7 +90,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
         role: userType,
         meta: {
           accessNumber: form.accessNumber || null,
-          university_id: form.studentId || null,
           program: form.program || null,
           yearOfStudy: form.yearOfStudy || null,
           graduationYear: form.graduationYear || null,
@@ -204,14 +198,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
                       maxLength={6}
                     />
                     <p className="text-xs text-gray-500 mt-1">Format: Letter (A/B) + 5 digits</p>
-                  </div>
-                  <div className="mt-3">
-                    <Label>Student ID *</Label>
-                    <Input
-                      value={form.studentId}
-                      onChange={(e) => update('studentId', e.target.value)}
-                      placeholder="e.g., UCU/2022/0123"
-                    />
                   </div>
                 </>
               )}
