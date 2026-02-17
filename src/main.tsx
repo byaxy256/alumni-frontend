@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 // @ts-ignore: module declaration for CSS imports is missing in this project
 import "./index.css";
 
-const applyInitialTheme = () => {
+const applyThemeFromStorage = () => {
   try {
     const stored = localStorage.getItem("theme");
     const theme = stored ?? "system";
@@ -26,7 +26,7 @@ const mount = () => {
   const rootElement = document.getElementById("root");
   if (!rootElement) return false;
 
-  applyInitialTheme();
+  applyThemeFromStorage();
   createRoot(rootElement).render(
     <BrowserRouter>
       <App />
@@ -34,6 +34,18 @@ const mount = () => {
   );
   return true;
 };
+
+// Keep theme in sync with system changes when using "system"
+try {
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  const handleSystemChange = () => {
+    const stored = localStorage.getItem("theme") ?? "system";
+    if (stored === "system") applyThemeFromStorage();
+  };
+  media.addEventListener("change", handleSystemChange);
+} catch (error) {
+  console.error("Failed to watch system theme changes", error);
+}
 
 // Vercel reported a runtime "Cannot read properties of null (reading 'useRef')".
 // This happens when React hooks run before the dispatcher is ready, often because

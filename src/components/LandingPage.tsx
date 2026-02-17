@@ -19,15 +19,15 @@ interface LandingPageProps {
 
 export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
   return (
-    <div className="min-h-screen bg-[#0b1a2f] text-white">
+    <div className="min-h-screen bg-background text-foreground dark:bg-[#0b1a2f] dark:text-white">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 -right-32 h-96 w-96 rounded-full bg-[#1f4b7a] opacity-35 blur-[120px]" />
-        <div className="absolute top-32 -left-20 h-80 w-80 rounded-full bg-accent opacity-20 blur-[120px]" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-[#0f2a44] opacity-40 blur-[140px]" />
+        <div className="absolute -top-40 -right-32 h-96 w-96 rounded-full bg-[#1f4b7a] opacity-15 blur-[120px] dark:opacity-35" />
+        <div className="absolute top-32 -left-20 h-80 w-80 rounded-full bg-accent opacity-12 blur-[120px] dark:opacity-20" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-[#0f2a44] opacity-20 blur-[140px] dark:opacity-40" />
       </div>
-      <div className="absolute inset-0 bg-[#0b1a2f]/85" />
+      <div className="absolute inset-0 bg-white/70 dark:bg-[#0b1a2f]/85" />
 
-      <header className="sticky top-0 z-40 bg-[#0b1a2f]/95 backdrop-blur border-b border-white/10">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0b1a2f]/95 backdrop-blur border-b border-black/10 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-11 w-11 rounded-2xl bg-accent flex items-center justify-center">
@@ -35,11 +35,11 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
             <div>
               <p className="text-lg font-semibold">Alumni Circle</p>
-              <p className="text-xs text-white/70">Uganda Christian University</p>
+              <p className="text-xs text-foreground/70 dark:text-white/70">Uganda Christian University</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={onLogin} variant="outline" className="border-white/30 text-white hover:bg-white/10">
+            <Button onClick={onLogin} variant="outline" className="border-black/20 text-foreground hover:bg-black/5 dark:border-white/30 dark:text-white dark:hover:bg-white/10">
               Login
             </Button>
           </div>
@@ -50,18 +50,18 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         <section className="pt-28 pb-16 px-6">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-white/80 mb-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-4 py-2 text-xs text-foreground/80 mb-6 dark:border-white/15 dark:bg-white/5 dark:text-white/80">
                 <Sparkles className="h-4 w-4 text-accent" />
                 Built for UCU alumni + students
               </div>
-              <h1 className="text-4xl md:text-6xl font-semibold leading-tight mb-6 text-white">
+              <h1 className="text-4xl md:text-6xl font-semibold leading-tight mb-6 text-foreground dark:text-white">
                 Support students.
                 <br />
                 <span className="text-accent">Stay connected.</span>
                 <br />
                 Grow together.
               </h1>
-              <p className="text-lg text-white/90 mb-8 max-w-xl">
+              <p className="text-lg text-foreground/80 dark:text-white/90 mb-8 max-w-xl">
                 A modern alumni platform that feels like an app: fast, personal, and built for real impact. Donate, mentor, and stay close to the UCU community.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -81,7 +81,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                   I have an account
                 </Button>
               </div>
-              <div className="mt-10 flex items-center gap-6 text-sm text-white/85">
+              <div className="mt-10 flex items-center gap-6 text-sm text-foreground/80 dark:text-white/85">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-accent" /> 5,000+ alumni
                 </div>
@@ -92,54 +92,54 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
 
             <div className="relative">
-              <div className="absolute -inset-6 rounded-3xl border border-white/10 bg-white/5 blur-xl" />
-              <div className="relative rounded-3xl border border-white/10 bg-[#0f1624]/95 p-6">
+              <div className="absolute -inset-6 rounded-3xl border border-black/10 bg-black/5 blur-xl dark:border-white/10 dark:bg-white/5" />
+              <div className="relative rounded-3xl border border-black/10 bg-white/80 p-6 dark:border-white/10 dark:bg-[#0f1624]/95">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2 text-sm text-white/70">
+                  <div className="flex items-center gap-2 text-sm text-foreground/70 dark:text-white/70">
                     <span className="h-2 w-2 rounded-full bg-accent" /> Live Activity
                   </div>
-                  <div className="text-xs text-white/50">Alumni Circle App</div>
+                  <div className="text-xs text-foreground/50 dark:text-white/50">Alumni Circle App</div>
                 </div>
                 <div className="space-y-4">
-                  <div className="rounded-2xl bg-white/5 p-4 border border-white/10">
+                  <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm">Scholarship Drive</p>
-                        <p className="text-xs text-white/60">This month</p>
+                        <p className="text-sm text-foreground dark:text-white">Scholarship Drive</p>
+                        <p className="text-xs text-foreground/60 dark:text-white/60">This month</p>
                       </div>
-                        <p className="text-sm text-accent">92%</p>
+                      <p className="text-sm text-accent">92%</p>
                     </div>
-                    <div className="mt-3 h-2 rounded-full bg-white/10">
+                    <div className="mt-3 h-2 rounded-full bg-black/10 dark:bg-white/10">
                       <div className="h-2 rounded-full bg-accent w-[92%]" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl bg-white/5 p-4 border border-white/10">
-                      <div className="flex items-center gap-2 text-white/70 text-xs">
+                  <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10">
+                      <div className="flex items-center gap-2 text-foreground/70 dark:text-white/70 text-xs">
                         <CalendarCheck className="h-4 w-4" /> Events
                       </div>
-                      <p className="text-xl mt-2">12</p>
-                      <p className="text-xs text-white/60">Upcoming</p>
+                      <p className="text-xl mt-2 text-foreground dark:text-white">12</p>
+                      <p className="text-xs text-foreground/60 dark:text-white/60">Upcoming</p>
                     </div>
-                    <div className="rounded-2xl bg-white/5 p-4 border border-white/10">
-                      <div className="flex items-center gap-2 text-white/70 text-xs">
+                    <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10">
+                      <div className="flex items-center gap-2 text-foreground/70 dark:text-white/70 text-xs">
                         <MessageCircle className="h-4 w-4" /> Mentors
                       </div>
-                      <p className="text-xl mt-2">240+</p>
-                      <p className="text-xs text-white/60">Active</p>
+                      <p className="text-xl mt-2 text-foreground dark:text-white">240+</p>
+                      <p className="text-xs text-foreground/60 dark:text-white/60">Active</p>
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-white/5 p-4 border border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                  <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
                         <CreditCard className="h-5 w-5 text-accent" />
                       </div>
                       <div>
-                        <p className="text-sm">Quick Donate</p>
-                        <p className="text-xs text-white/60">Instant mobile pay</p>
+                        <p className="text-sm text-foreground dark:text-white">Quick Donate</p>
+                        <p className="text-xs text-foreground/60 dark:text-white/60">Instant mobile pay</p>
                       </div>
                     </div>
-                    <Button className="bg-white/10 text-white hover:bg-white/20">Send</Button>
+                    <Button className="bg-black/10 text-foreground hover:bg-black/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">Send</Button>
                   </div>
                 </div>
               </div>
@@ -149,26 +149,26 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
 
         <section className="px-6 pb-24 pt-12">
           <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-white/10 bg-[#0f1624]/90 p-6">
+            <div className="rounded-2xl border border-black/10 bg-white/80 p-6 dark:border-white/10 dark:bg-[#0f1624]/90">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <GraduationCapIcon className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Student Support</h3>
-              <p className="text-sm text-white/85">Flexible giving, emergency funds, and tuition support.</p>
+              <p className="text-sm text-foreground/80 dark:text-white/85">Flexible giving, emergency funds, and tuition support.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-[#0f1624]/90 p-6">
+            <div className="rounded-2xl border border-black/10 bg-white/80 p-6 dark:border-white/10 dark:bg-[#0f1624]/90">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <Users className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Alumni Network</h3>
-              <p className="text-sm text-white/85">Find classmates, mentors, and regional chapters.</p>
+              <p className="text-sm text-foreground/80 dark:text-white/85">Find classmates, mentors, and regional chapters.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-[#0f1624]/90 p-6">
+            <div className="rounded-2xl border border-black/10 bg-white/80 p-6 dark:border-white/10 dark:bg-[#0f1624]/90">
               <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
                 <ShieldCheck className="h-5 w-5 text-accent" />
               </div>
               <h3 className="text-lg mb-2">Secure & Trusted</h3>
-              <p className="text-sm text-white/85">Built with audit trails and bank‑level protection.</p>
+              <p className="text-sm text-foreground/80 dark:text-white/85">Built with audit trails and bank‑level protection.</p>
             </div>
           </div>
         </section>
