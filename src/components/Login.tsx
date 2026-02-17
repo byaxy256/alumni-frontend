@@ -6,6 +6,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { GraduationCap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ThemeToggle } from './ui/ThemeToggle';
 import { toast } from 'sonner';
 
 // The props interface remains the same. It correctly expects a function from the parent.
@@ -71,6 +72,9 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
+          <div className="absolute right-6 top-6">
+            <ThemeToggle />
+          </div>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
             <GraduationCap className="w-8 h-8 text-accent-foreground" />
           </div>

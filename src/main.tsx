@@ -7,7 +7,7 @@ import "./index.css";
 const applyInitialTheme = () => {
   try {
     const stored = localStorage.getItem("theme");
-    const theme = stored ?? "dark";
+    const theme = stored ?? "system";
     if (!stored) localStorage.setItem("theme", theme);
 
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;

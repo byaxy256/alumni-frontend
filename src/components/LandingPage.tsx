@@ -11,6 +11,7 @@ import {
   CalendarCheck,
   GraduationCapIcon
 } from 'lucide-react';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -39,9 +40,10 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
           </div>
           <div className="flex items-center gap-3">
-              <Button onClick={onLogin} variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                Login
-              </Button>
+            <ThemeToggle />
+            <Button onClick={onLogin} variant="outline" className="border-white/30 text-white hover:bg-white/10">
+              Login
+            </Button>
           </div>
         </div>
       </header>
