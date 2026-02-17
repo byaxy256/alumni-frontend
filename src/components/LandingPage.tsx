@@ -27,7 +27,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
       </div>
       <div className="absolute inset-0 bg-white/70 dark:bg-[#0b1a2f]/85" />
 
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0b1a2f]/95 backdrop-blur border-b border-black/10 dark:border-white/10">
+      <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#0b1a2f]/95 backdrop-blur-lg border-b border-black/10 dark:border-white/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-11 w-11 rounded-2xl bg-accent flex items-center justify-center">
