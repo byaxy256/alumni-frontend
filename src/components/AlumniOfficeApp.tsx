@@ -18,7 +18,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { ThemeToggle } from './ui/ThemeToggle';
 
 
 
@@ -117,7 +116,6 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-2">
-            <ThemeToggle />
             <Button variant="ghost" onClick={onLogout}>
               <LogOut size={16} className="mr-2" />
               Logout
