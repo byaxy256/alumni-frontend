@@ -1104,7 +1104,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
                     {'id' in viewingProfile && (
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Student ID</p>
+                        <p className="text-xs text-gray-500 mb-1">Access Number</p>
                         <p className="text-sm font-medium font-mono">{viewingProfile.id}</p>
                       </div>
                     )}

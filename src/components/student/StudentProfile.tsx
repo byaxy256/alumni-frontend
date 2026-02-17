@@ -23,7 +23,7 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
     phone: '',
     course: '',
     semester: '',
-    universityId: '',
+    accessNumber: '',
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -40,7 +40,7 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         phone: savedUser?.phone ?? user.phoneNumber ?? '',
         course: savedUser?.meta?.course ?? user.course ?? '',
         semester: savedUser?.meta?.semester ?? '',
-        universityId: savedUser?.meta?.university_id ?? '',
+        accessNumber: savedUser?.meta?.accessNumber ?? '',
       });
     } catch {
       setProfile({
@@ -49,7 +49,7 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         phone: user.phoneNumber ?? '',
         course: user.course ?? '',
         semester: '',
-        universityId: '',
+        accessNumber: '',
       });
     }
   }, [user]);
@@ -68,12 +68,12 @@ export function StudentProfile({ user, onBack, onLogout }: StudentProfileProps) 
         phone: profile.phone,
         semester: profile.semester ? parseInt(profile.semester) : undefined,
         program: profile.course,
-        university_id: profile.universityId,
+        accessNumber: profile.accessNumber,
         meta: { 
           ...savedUserMeta, 
           course: profile.course,
           semester: profile.semester ? parseInt(profile.semester) : undefined,
-          university_id: profile.universityId,
+          accessNumber: profile.accessNumber,
         },
     };
 

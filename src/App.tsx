@@ -26,6 +26,7 @@ export type User = {
   phone?: string;
   national_id?: string;
   university_id?: string;
+  accessNumber?: string;
   grad_year?: number;
   program?: string;
   semester?: number;

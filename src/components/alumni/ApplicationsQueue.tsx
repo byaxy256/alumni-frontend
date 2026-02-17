@@ -72,7 +72,7 @@ export default function ApplicationsQueue() {
         id: loan.id,
         applicationId: `LOAN-${loan.id}`,
         type: 'loan',
-        student: { name: loan.full_name, id: loan.university_id || 'N/A', email: loan.email, phone: loan.phone, program: loan.program, year: Math.ceil(loan.semester / 2) },
+        student: { name: loan.full_name, id: loan.accessNumber || loan.meta?.accessNumber || loan.university_id || 'N/A', email: loan.email, phone: loan.phone, program: loan.program, year: Math.ceil(loan.semester / 2) },
         guarantor: { name: loan.guarantor_name || loan.guarantor || loan.guarantorName || '', phone: loan.guarantor_phone || loan.guarantorPhone || '', relation: loan.guarantor_relation || loan.guarantorRelation || '' },
         documentsCount: Number(loan.documents_count ?? loan.documentsCount ?? 0),
         documentsRequired: Number(loan.documents_required ?? loan.documentsRequired ?? 2),
@@ -88,7 +88,7 @@ export default function ApplicationsQueue() {
         id: req.id,
         applicationId: `SUPP-${req.id}`,
         type: 'support',
-        student: { name: req.full_name, id: req.university_id || 'N/A', email: req.email, phone: req.phone, program: req.program, year: Math.ceil(req.semester / 2) },
+        student: { name: req.full_name, id: req.accessNumber || req.meta?.accessNumber || req.university_id || 'N/A', email: req.email, phone: req.phone, program: req.program, year: Math.ceil(req.semester / 2) },
         guarantor: { name: req.guarantor_name || req.guarantor || req.guarantorName || '', phone: req.guarantor_phone || req.guarantorPhone || '', relation: req.guarantor_relation || req.guarantorRelation || '' },
         documentsCount: Number(req.documents_count ?? req.documentsCount ?? 0),
         documentsRequired: Number(req.documents_required ?? req.documentsRequired ?? 2),
@@ -336,7 +336,7 @@ export default function ApplicationsQueue() {
                 <h4 className="text-sm font-semibold mb-2">Student Information</h4>
                 <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg text-sm">
                   <div><p className="text-xs text-gray-500">Name</p><p>{selectedApplication.student.name}</p></div>
-                  <div><p className="text-xs text-gray-500">Student ID</p><p>{selectedApplication.student.id}</p></div>
+                  <div><p className="text-xs text-gray-500">Access Number</p><p>{selectedApplication.student.id}</p></div>
                   <div><p className="text-xs text-gray-500">Program</p><p>{selectedApplication.student.program}</p></div>
                   <div><p className="text-xs text-gray-500">Year</p><p>Year {selectedApplication.student.year}</p></div>
                   <div><p className="text-xs text-gray-500">Email</p><p className="text-xs">{selectedApplication.student.email}</p></div>
