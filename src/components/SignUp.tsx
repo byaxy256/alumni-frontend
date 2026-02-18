@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
 
-type UserType = 'student' | 'alumni' | 'alumni_office' | '';
+type UserType = 'student' | 'alumni' | '';
 
 interface SignUpProps {
   onBack: () => void;
@@ -32,7 +32,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
     graduationYear: '',
     course: '',
     department: '',
-    staffId: '',
     password: '',
     confirmPassword: '',
   });
@@ -61,10 +60,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
     }
 
 
-    if (userType === 'alumni_office' && !form.staffId) {
-      toast.error('Staff ID is required');
-      return;
-    }
 
     if (!form.password) {
       toast.error('Password is required');
@@ -107,7 +102,7 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
           graduationYear: form.graduationYear || null,
           course: form.course || null,
           department: form.department || null,
-          staffId: form.staffId || null,
+          staffId: null,
         }
       };
 
@@ -167,10 +162,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
                     <RadioGroupItem value="alumni" id="alumni" />
                     <div className="ml-2">Alumni</div>
                   </label>
-                  <label className={`p-3 border rounded w-full ${userType === 'alumni_office' ? 'border-primary' : ''}`}>
-                    <RadioGroupItem value="alumni_office" id="alumni_office" />
-                    <div className="ml-2">Alumni Office Staff</div>
-                  </label>
                 </div>
               </RadioGroup>
             </>
@@ -225,12 +216,6 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
                     <>
                       <Label>Graduation Year</Label>
                       <Input type="number" value={form.graduationYear} onChange={(e) => update('graduationYear', e.target.value)} />
-                    </>
-                  )}
-                  {userType === 'alumni_office' && (
-                    <>
-                      <Label>Staff ID</Label>
-                      <Input value={form.staffId} onChange={(e) => update('staffId', e.target.value)} />
                     </>
                   )}
                 </div>

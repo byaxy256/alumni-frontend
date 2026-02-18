@@ -258,9 +258,12 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
       form.append('currentSemester', formData.currentSemester || '');
       form.append('faculty', formData.faculty || '');
       form.append('amountRequested', String(numericAmount));
+      form.append('amount_requested', String(numericAmount));
       form.append('purpose', formData.purpose || '');
+      form.append('reason', formData.purpose || '');
       form.append('type', applicationType);
       form.append('studentUid', studentUid);
+      form.append('student_uid', studentUid);
       if (applicationType === 'loan') form.append('chopConsented', String(chopConsented));
       // Include guarantor details for loans
       if (applicationType === 'loan') {
