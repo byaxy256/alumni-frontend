@@ -7,13 +7,14 @@ import { Mentorship } from './student/Mentorship';
 import { UnifiedNotifications } from './shared/UnifiedNotifications';
 import { StudentProfile } from './student/StudentProfile';
 import { StudentFund } from './student/StudentFund';
+import { StudentDisbursements } from './student/StudentDisbursements';
 import { News } from './student/News';
 import { Events } from './student/Events';
 import type { User } from '../App';
 import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
 
-type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news' | 'events';
+type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
 
 export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<StudentScreen>('dashboard');
@@ -32,8 +33,10 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
   // --- THE FIX: A robust navigation handler ---
   const handleNavigate = (targetScreen: string) => {
     // This maps different button IDs to the correct screen components
-    if (['apply', 'benefits'].includes(targetScreen)) {
+    if (targetScreen === 'apply') {
       setCurrentScreen('apply');
+    } else if (targetScreen === 'benefits') {
+      setCurrentScreen('fund');
     } else if (targetScreen === 'loan-details') {
       setCurrentScreen('loans'); // Map the 'loan-details' ID from the nav to the 'loans' screen
     } else {
@@ -61,6 +64,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         return <StudentProfile user={user} onBack={() => handleNavigate('dashboard')} onLogout={onLogout} />;
       case 'fund':
         return <StudentFund user={user} onBack={() => handleNavigate('dashboard')} />;
+      case 'disbursements':
+        return <StudentDisbursements user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'news':
         return <News onBack={() => handleNavigate('dashboard')} />;
       case 'events':
@@ -79,6 +84,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     notifications: 'Notifications',
     profile: 'Profile',
     fund: 'Student Fund',
+    disbursements: 'Disbursements',
     news: 'News',
     events: 'Events',
   };
@@ -89,6 +95,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     { id: 'loan-details', label: 'Loans', icon: DollarSign },
     { id: 'payment-history', label: 'Payments', icon: History },
     { id: 'fund', label: 'Student Fund', icon: Wallet },
+    { id: 'disbursements', label: 'Disbursements', icon: DollarSign },
     { id: 'mentorship', label: 'Mentorship', icon: Users },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'events', label: 'Events', icon: Calendar },

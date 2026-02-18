@@ -5,7 +5,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { ArrowLeft, MessageSquare, Send, Star, UserPlus, Loader2, Paperclip, Mic, Image, FileText, Video } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, Star, UserPlus, Paperclip, Mic, Image, FileText, Video, Loader2 } from 'lucide-react';
+import { LoadingSpinner } from '../ui/loading-spinner';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Input } from '../ui/input';
 import { toast } from 'sonner';
@@ -62,11 +63,11 @@ interface Message {
 export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }) {
   const [myMentors, setMyMentors] = useState<MyMentor[]>([]);
   const [availableMentors, setAvailableMentors] = useState<Mentor[]>([]);
-  const [loading, setLoading] = useState(true);
   const [myMentorsLoading, setMyMentorsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterField, setFilterField] = useState<string>('All Fields');
   const [pendingRequests, setPendingRequests] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -87,16 +88,14 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     const loadAvailableMentors = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token') || '';
         const filters: { field?: string; search?: string } = {};
         if (filterField && filterField !== 'All Fields') {
           filters.field = filterField;
         }
-        
         if (searchQuery) {
           filters.search = searchQuery;
         }
-        
+        const token = localStorage.getItem('token') || '';
         const mentors = await api.getMentors(filters, token);
         setAvailableMentors(mentors);
       } catch (error) {
@@ -106,7 +105,6 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
         setLoading(false);
       }
     };
-
     loadAvailableMentors();
   }, [filterField, searchQuery]);
 
@@ -489,14 +487,14 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
         <h2 className="text-lg font-semibold mb-4">My Mentors</h2>
         {myMentorsLoading ? (
           <div className="flex items-center justify-center p-8">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            <LoadingSpinner size={24} label="Loading your mentors..." />
           </div>
         ) : myMentors.length > 0 ? (
-          myMentors.map(mentor => (
+          myMentors.map((mentor: MyMentor) => (
             <Card key={mentor.id} className="bg-green-50 border-green-200">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <Avatar className="h-12 w-12"><AvatarFallback>{mentor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback></Avatar>
+                  <Avatar className="h-12 w-12"><AvatarFallback>{mentor.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
                   <div>
                     <p className="font-semibold">{mentor.name}</p>
                     <p className="text-xs text-gray-600">{mentor.field || mentor.course || 'General'}</p>
@@ -516,6 +514,12 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
           <div className="text-center py-8">
             <p className="text-sm text-gray-500 mb-4">You are not currently matched with any mentors.</p>
             <p className="text-xs text-gray-400">Browse available mentors below and request to connect!</p>
+          </div>
+        )}
+        {/* Global loading overlay for available mentors */}
+        {loading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <LoadingSpinner size={36} label="Loading mentors..." />
           </div>
         )}
       </section>
@@ -615,8 +619,9 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                   )}
                 </CardContent>
               </Card>
-            )})
-          
+            );
+            })}
+
           {availableMentors.filter(mentor => {
             const matchesSearch = mentor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                                 mentor.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
