@@ -66,6 +66,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
   const [myMentorsLoading, setMyMentorsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterField, setFilterField] = useState<string>('All Fields');
+  const [pendingRequests, setPendingRequests] = useState<Record<string, string>>({});
 
 
 
@@ -108,6 +109,24 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
 
     loadAvailableMentors();
   }, [filterField, searchQuery]);
+
+  // Load my pending mentor requests (for undo + disable)
+  useEffect(() => {
+    const loadPending = async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const pending = await api.getMyMentorRequests(token);
+        const mapped: Record<string, string> = {};
+        (pending || []).forEach((p: any) => {
+          if (p?.mentorUid && p?.assignmentId) mapped[p.mentorUid] = p.assignmentId;
+        });
+        setPendingRequests(mapped);
+      } catch (error) {
+        console.error('Error loading pending mentor requests:', error);
+      }
+    };
+    loadPending();
+  }, []);
 
   // Load my mentors from API
   useEffect(() => {
@@ -402,6 +421,57 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     );
   }
 
+  const getMentorUid = (mentor: Mentor) => mentor.uid || (mentor as any).mentor_uid || mentor.id;
+
+  const handleRequestMentor = async (mentor: Mentor) => {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const mentorUid = getMentorUid(mentor);
+      if (!mentorUid) {
+        toast.error('Mentor UID missing. Please refresh and try again.');
+        return;
+      }
+      const res = await api.requestMentor(mentorUid, token, mentor.field);
+      const assignmentId = res?.assignmentId;
+      if (assignmentId) {
+        setPendingRequests(prev => ({ ...prev, [mentorUid]: assignmentId }));
+      }
+      toast.success(`Request sent to ${mentor.name}!`);
+    } catch (error: any) {
+      const message = error?.message || 'Failed to send request.';
+      if (message.toLowerCase().includes('already exists')) {
+        toast.info(`Request already sent to ${mentor.name}.`);
+        const token = localStorage.getItem('token') || '';
+        const pending = await api.getMyMentorRequests(token);
+        const mapped: Record<string, string> = {};
+        (pending || []).forEach((p: any) => {
+          if (p?.mentorUid && p?.assignmentId) mapped[p.mentorUid] = p.assignmentId;
+        });
+        setPendingRequests(mapped);
+        return;
+      }
+      toast.error(message);
+    }
+  };
+
+  const handleUndoRequest = async (mentor: Mentor) => {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const mentorUid = getMentorUid(mentor);
+      const assignmentId = pendingRequests[mentorUid];
+      if (!assignmentId) return;
+      await api.cancelMentorRequest(assignmentId, token);
+      setPendingRequests(prev => {
+        const next = { ...prev };
+        delete next[mentorUid];
+        return next;
+      });
+      toast.success(`Request cancelled for ${mentor.name}.`);
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to cancel request.');
+    }
+  };
+
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
     <div className="p-4 lg:p-6 space-y-8">
@@ -450,79 +520,6 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
         )}
       </section>
 
-      {/* Featured/Available Mentors Section */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4">Available Mentors</h2>
-        {loading ? (
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-4">
-            {availableMentors.slice(0, 4).map(mentor => (
-              <Card key={mentor.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4 mb-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback>{mentor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm">{mentor.name}</p>
-                      <p className="text-xs text-gray-600">{mentor.field} at {mentor.company}</p>
-                    </div>
-                    <Badge variant={mentor.status === 'available' ? 'default' : 'secondary'} className={mentor.status === 'available' ? 'bg-green-500 text-white' : ''}>
-                      {mentor.status === 'available' ? 'Available' : 'Busy'}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-600 mb-1 line-clamp-2">{mentor.bio}</p>
-                  <p className="text-[11px] text-gray-500 mb-2">{mentor.mentees}/{mentor.maxMentees || 15} mentees</p>
-                  <div className="flex items-center gap-1 mb-3">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="text-xs">{mentor.rating}</span>
-                    <span className="text-xs text-gray-500">• {mentor.experience} years exp</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {mentor.expertise.slice(0, 3).map(exp => (
-                      <Badge key={exp} variant="secondary" className="text-xs">{exp}</Badge>
-                    ))}
-                  </div>
-                  <Button 
-                    className="w-full" 
-                    variant="outline" 
-                    size="sm"
-                    disabled={mentor.status === 'unavailable'}
-                    onClick={async () => {
-                      try {
-                        const token = localStorage.getItem('token') || '';
-                        const mentorUid = mentor.uid || (mentor as any).mentor_uid || mentor.id;
-                        if (!mentorUid) {
-                          toast.error('Mentor UID missing. Please refresh and try again.');
-                          return;
-                        }
-                        console.log('Requesting mentor with UID:', mentorUid, mentor);
-                        await api.requestMentor(mentorUid, token, mentor.field);
-                        toast.success(`Request sent to ${mentor.name}!`);
-                      } catch (error) {
-                        toast.error(error instanceof Error ? error.message : 'Failed to send request.');
-                      }
-                    }}
-                  >
-                    {mentor.status === 'available' ? 'Request Mentorship' : 'Currently Unavailable'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-        
-        {availableMentors.length === 0 && !loading && (
-          <div className="text-center py-8">
-            <p className="text-sm text-gray-500">No available mentors found in your field.</p>
-          </div>
-        )}
-      </section>
-
-
       <section>
         <h2 className="text-lg font-semibold mb-4">Available Mentors</h2>
         
@@ -566,7 +563,11 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               const matchesField = selectedField === 'All Fields' || mentor.field === selectedField;
               return matchesSearch && matchesField;
             })
-            .map(mentor => (
+            .map(mentor => {
+              const mentorUid = getMentorUid(mentor);
+              const pendingId = mentorUid ? pendingRequests[mentorUid] : undefined;
+              const isPending = Boolean(pendingId);
+              return (
               <Card key={mentor.id}>
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
@@ -594,28 +595,27 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                   </div>
                   <Button
                     className="w-full"
-                    disabled={mentor.status === 'unavailable'}
-                    onClick={async () => {
-                      try {
-                        const token = localStorage.getItem('token') || '';
-                        const mentorUid = mentor.uid || (mentor as any).mentor_uid || mentor.id;
-                        if (!mentorUid) {
-                          toast.error('Mentor UID missing. Please refresh and try again.');
-                          return;
-                        }
-                        console.log('Requesting mentor with UID:', mentorUid, mentor);
-                        await api.requestMentor(mentorUid, token, mentor.field);
-                        toast.success(`Request sent to ${mentor.name}!`);
-                      } catch (error) {
-                        toast.error(error instanceof Error ? error.message : 'Failed to send request.');
-                      }
-                    }}
+                    disabled={mentor.status === 'unavailable' || isPending}
+                    onClick={() => handleRequestMentor(mentor)}
                   >
-                    {mentor.status === 'available' ? <><UserPlus className="w-4 h-4 mr-2"/> Request Mentor</> : 'Currently Unavailable'}
+                    {mentor.status === 'available'
+                      ? isPending
+                        ? 'Request Sent'
+                        : <><UserPlus className="w-4 h-4 mr-2"/> Request Mentor</>
+                      : 'Currently Unavailable'}
                   </Button>
+                  {isPending && (
+                    <Button
+                      variant="outline"
+                      className="w-full mt-2"
+                      onClick={() => handleUndoRequest(mentor)}
+                    >
+                      Undo Request
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+            )})
           
           {availableMentors.filter(mentor => {
             const matchesSearch = mentor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

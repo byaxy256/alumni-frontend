@@ -108,6 +108,14 @@ export const api = {
       return apiCall('/mentors/request', 'POST', { mentorUid, field }, token);
     },
 
+    async getMyMentorRequests(token?: string) {
+      return apiCall('/mentors/my-requests', 'GET', undefined, token);
+    },
+
+    async cancelMentorRequest(assignmentId: string, token?: string) {
+      return apiCall('/mentors/cancel-request', 'POST', { assignmentId }, token);
+    },
+
     async getStudentsByField(field: string, token?: string) {
       return apiCall(`/mentors/students-by-field?field=${encodeURIComponent(field)}`, 'GET', undefined, token);
     },
