@@ -130,11 +130,14 @@ export default function ApplicationsQueue() {
   const updateApplicationStatus = async (app: Application, newStatus: 'approved' | 'rejected', reason?: string) => {
     try {
       const token = localStorage.getItem('token') || '';
-      const endpoint = `${API_BASE}/${app.type === 'loan' ? 'loans' : 'support'}/${app.id}/status`;
+      const isLoan = app.type === 'loan';
+      const endpoint = isLoan
+        ? `${API_BASE}/loans/${app.id}/status`
+        : `${API_BASE}/support/${app.id}`;
       const body = { status: newStatus, ...(reason && { reason }) };
       
       const res = await fetch(endpoint, {
-        method: 'PATCH',
+        method: isLoan ? 'PATCH' : 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),
       });
