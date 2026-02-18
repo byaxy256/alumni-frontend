@@ -116,19 +116,15 @@ export function Events({ onBack }: EventsProps) {
         amount: selectedEvent.registrationFee,
         method: paymentMethod
       });
-      // Create payment
-      const payRes = await fetch(`${API_BASE}/payments/initialize`, {
+      // Record payment (server will mark as SUCCESS for events)
+      const payRes = await fetch(`${API_BASE}/content/events/${selectedEvent.id}/pay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
-          amount: selectedEvent.registrationFee,
-          phone: '', // Will be filled by payment service
-          reference: `event-${selectedEvent.id}`,
-          type: paymentMethod,
-          description: `Event Registration: ${selectedEvent.title}`
+          method: paymentMethod
         })
       });
 
@@ -145,16 +141,15 @@ export function Events({ onBack }: EventsProps) {
         return;
       }
       const payJson = await payRes.json().catch(() => ({}));
-      console.log('Payment init ok', payJson);
+      console.log('Payment recorded', payJson);
 
-      // Confirm payment and complete registration server-side
-      const confirmRes = await fetch(`${API_BASE}/payments/confirm-event`, {
+      // Complete registration after payment
+      const confirmRes = await fetch(`${API_BASE}/content/events/${selectedEvent.id}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ reference: `event-${selectedEvent.id}` })
       });
 
       if (confirmRes.ok) {

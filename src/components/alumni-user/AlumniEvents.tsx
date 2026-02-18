@@ -107,18 +107,14 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
 
     setRegistering(selectedEvent.id);
     try {
-      const payRes = await fetch(`${API_BASE}/payments/initialize`, {
+      const payRes = await fetch(`${API_BASE}/content/events/${selectedEvent.id}/pay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
-          amount: selectedEvent.registrationFee,
-          phone: '',
-          reference: `event-${selectedEvent.id}`,
-          type: paymentMethod,
-          description: `Event Registration: ${selectedEvent.title}`
+          method: paymentMethod
         })
       });
 
@@ -134,13 +130,12 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
         return;
       }
 
-      const confirmRes = await fetch(`${API_BASE}/payments/confirm-event`, {
+      const confirmRes = await fetch(`${API_BASE}/content/events/${selectedEvent.id}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ reference: `event-${selectedEvent.id}` })
       });
 
       if (confirmRes.ok) {

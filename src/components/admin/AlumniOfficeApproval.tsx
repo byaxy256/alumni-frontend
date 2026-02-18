@@ -6,6 +6,8 @@ import { Check, X, Clock, Mail, Phone, User, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 import { apiCall } from '../../api';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 interface PendingUser {
   uid: string;
@@ -29,6 +31,15 @@ export default function AlumniOfficeApproval() {
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    staffId: '',
+    password: '',
+    adminSecret: '',
+  });
 
   useEffect(() => {
     loadAllAlumniOffice();
@@ -102,6 +113,38 @@ export default function AlumniOfficeApproval() {
     }
   };
 
+  const handleCreateAccount = async () => {
+    if (!createForm.fullName || !createForm.email || !createForm.password || !createForm.adminSecret) {
+      toast.error('Full name, email, password, and admin secret are required.');
+      return;
+    }
+    try {
+      setCreating(true);
+      const payload = {
+        full_name: createForm.fullName,
+        email: createForm.email,
+        phone: createForm.phone || '',
+        password: createForm.password,
+        role: 'alumni_office',
+        meta: {
+          staff_id: createForm.staffId || null,
+          approved: false,
+          suspended: false,
+        },
+        adminSecret: createForm.adminSecret,
+      };
+      await apiCall('/auth/register', 'POST', payload);
+      toast.success('Alumni office account created. Approve it below.');
+      setCreateForm({ fullName: '', email: '', phone: '', staffId: '', password: '', adminSecret: '' });
+      await loadAllAlumniOffice();
+    } catch (err: any) {
+      console.error('Failed to create alumni office account:', err);
+      toast.error(err?.error || err?.message || 'Failed to create account');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -135,6 +178,44 @@ export default function AlumniOfficeApproval() {
           Pending: {pendingUsers.length} • Total Alumni Office: {allUsers.length}
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Alumni Office Account</CardTitle>
+          <CardDescription>Admins can create staff accounts here (requires admin secret).</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Full Name</Label>
+            <Input value={createForm.fullName} onChange={(e) => setCreateForm(f => ({ ...f, fullName: e.target.value }))} />
+          </div>
+          <div className="space-y-2">
+            <Label>Email</Label>
+            <Input type="email" value={createForm.email} onChange={(e) => setCreateForm(f => ({ ...f, email: e.target.value }))} />
+          </div>
+          <div className="space-y-2">
+            <Label>Phone</Label>
+            <Input value={createForm.phone} onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value.replace(/\\D/g, '').slice(0, 10) }))} maxLength={10} />
+          </div>
+          <div className="space-y-2">
+            <Label>Staff ID</Label>
+            <Input value={createForm.staffId} onChange={(e) => setCreateForm(f => ({ ...f, staffId: e.target.value }))} />
+          </div>
+          <div className="space-y-2">
+            <Label>Temporary Password</Label>
+            <Input type="password" value={createForm.password} onChange={(e) => setCreateForm(f => ({ ...f, password: e.target.value }))} />
+          </div>
+          <div className="space-y-2">
+            <Label>Admin Secret</Label>
+            <Input type="password" value={createForm.adminSecret} onChange={(e) => setCreateForm(f => ({ ...f, adminSecret: e.target.value }))} />
+          </div>
+          <div className="md:col-span-2 flex justify-end">
+            <Button onClick={handleCreateAccount} disabled={creating}>
+              {creating ? 'Creating...' : 'Create Account'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {allUsers.length === 0 ? (
         <Card>
