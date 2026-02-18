@@ -10,7 +10,9 @@ import { AlumniApp } from './components/AlumniApp';
 import { AlumniOfficeApp } from './components/AlumniOfficeApp';
 import { AdminApp } from './components/AdminApp';
 import { Toaster } from './components/ui/sonner';
-import { GraduationCap } from 'lucide-react';
+// import { GraduationCap } from 'lucide-react';
+import { LoadingSpinner } from './components/ui/loading-spinner';
+// import { GraduationCap } from 'lucide-react';
 import { initPushNotifications } from './firebaseMessaging';
 
 // This is the correct, complete User type definition
@@ -146,12 +148,7 @@ export default function App() {
   if (isCheckingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-foreground text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-card border border-border flex items-center justify-center">
-            <GraduationCap className="w-8 h-8 text-accent" />
-          </div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+        <LoadingSpinner size={64} label="Checking authentication..." />
       </div>
     );
   }
