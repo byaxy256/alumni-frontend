@@ -14,7 +14,7 @@ import type { User } from '../App';
 import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
 
-type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
+type StudentScreen = 'dashboard' | 'apply-loan' | 'apply-benefit' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
 
 export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<StudentScreen>('dashboard');
@@ -33,12 +33,12 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
   // --- THE FIX: A robust navigation handler ---
   const handleNavigate = (targetScreen: string) => {
     // This maps different button IDs to the correct screen components
-    if (targetScreen === 'apply') {
-      setCurrentScreen('apply');
-    } else if (targetScreen === 'benefits') {
-      setCurrentScreen('fund');
+    if (targetScreen === 'apply' || targetScreen === 'apply-loan') {
+      setCurrentScreen('apply-loan');
+    } else if (targetScreen === 'benefits' || targetScreen === 'apply-benefit') {
+      setCurrentScreen('apply-benefit');
     } else if (targetScreen === 'loan-details') {
-      setCurrentScreen('loans'); // Map the 'loan-details' ID from the nav to the 'loans' screen
+      setCurrentScreen('loans');
     } else {
       setCurrentScreen(targetScreen as StudentScreen);
     }
@@ -50,8 +50,10 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     switch (currentScreen) {
       case 'dashboard':
         return <StudentDashboard user={user} onNavigate={handleNavigate} />;
-      case 'apply':
-        return <ApplyLoanSupport user={user} onBack={() => handleNavigate('dashboard')} />;
+      case 'apply-loan':
+        return <ApplyLoanSupport user={user} onBack={() => handleNavigate('dashboard')} applicationType="loan" />;
+      case 'apply-benefit':
+        return <ApplyLoanSupport user={user} onBack={() => handleNavigate('dashboard')} applicationType="benefit" />;
       case 'loans':
         return <LoanDetails user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'payment-history':
@@ -77,7 +79,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
 
   const screenTitles: Record<StudentScreen, string> = {
     dashboard: 'Dashboard',
-    apply: 'Apply',
+    'apply-loan': 'Apply for Loan',
+    'apply-benefit': 'Apply for Benefit',
     loans: 'Loans',
     'payment-history': 'Payments',
     mentorship: 'Mentorship',
