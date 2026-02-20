@@ -435,6 +435,17 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
         setPendingRequests(prev => ({ ...prev, [mentorUid]: assignmentId }));
       }
       toast.success(`Request sent to ${mentor.name}!`);
+      
+      // Reload available mentors to get updated counts
+      const filters: { field?: string; search?: string } = {};
+      if (filterField && filterField !== 'All Fields') {
+        filters.field = filterField;
+      }
+      if (searchQuery) {
+        filters.search = searchQuery;
+      }
+      const mentors = await api.getMentors(filters, token);
+      setAvailableMentors(mentors);
     } catch (error: any) {
       const message = error?.message || 'Failed to send request.';
       if (message.toLowerCase().includes('already exists')) {
@@ -465,6 +476,17 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
         return next;
       });
       toast.success(`Request cancelled for ${mentor.name}.`);
+      
+      // Reload available mentors to get updated counts
+      const filters: { field?: string; search?: string } = {};
+      if (filterField && filterField !== 'All Fields') {
+        filters.field = filterField;
+      }
+      if (searchQuery) {
+        filters.search = searchQuery;
+      }
+      const mentors = await api.getMentors(filters, token);
+      setAvailableMentors(mentors);
     } catch (error: any) {
       toast.error(error?.message || 'Failed to cancel request.');
     }
