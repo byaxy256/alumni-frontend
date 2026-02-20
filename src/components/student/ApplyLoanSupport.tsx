@@ -27,14 +27,15 @@ import { UCU_COURSES, getDurationByProgram, type DegreeLevel, getCoursesByDegree
 interface ApplyLoanSupportProps {
   user: User;
   onBack: () => void;
+  applicationType?: 'loan' | 'benefit';
 }
 
 const MAX_LOAN_AMOUNT = 3200000; // 3.2M UGX max
 const PHONE_MAX_LENGTH = 10;
 
-export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
+export function ApplyLoanSupport({ user, onBack, applicationType: propApplicationType = 'loan' }: ApplyLoanSupportProps) {
   const [step, setStep] = useState(1);
-  const [applicationType, setApplicationType] = useState<'loan' | 'support'>('loan');
+  const [applicationType, setApplicationType] = useState<'loan' | 'support'>(propApplicationType === 'benefit' ? 'support' : 'loan');
   const [showChopConsent, setShowChopConsent] = useState(false);
   const [chopConsented, setChopConsented] = useState(false);
   const [submitting, setSubmitting] = useState(false);

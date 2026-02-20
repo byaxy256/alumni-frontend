@@ -189,11 +189,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {quickActions.map(a => {
               const Icon = a.icon;
-              let targetScreen = a.id;
-              if (a.id === 'apply') targetScreen = 'apply';
-              else if (a.id === 'benefits') targetScreen = 'fund';
               return (
-                <button key={a.id} onClick={() => onNavigate(targetScreen)} className="group text-left">
+                <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left">
                   <Card className="p-5 hover:shadow-xl transition-all duration-300 border-0 bg-white overflow-hidden relative hover:-translate-y-1">
                     <div className="relative">
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-white bg-gradient-to-br ${a.color}`}>
