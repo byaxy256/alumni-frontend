@@ -499,6 +499,8 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     <p className="font-semibold">{mentor.name}</p>
                     <p className="text-xs text-gray-600">{mentor.field || mentor.course || 'General'}</p>
                     <Badge variant="outline" className="mt-1 bg-white">Active</Badge>
+                    {/* Show mentee count for this mentor */}
+                    <p className="text-xs text-gray-500 mt-1">Mentees: {mentor.mentees ?? 0}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
