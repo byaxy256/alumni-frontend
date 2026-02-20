@@ -639,9 +639,24 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
       <section>
         <h2 className="text-lg font-semibold mb-4">Why Get a Mentor?</h2>
         <div className="grid md:grid-cols-3 gap-4">
-            <Card><CardContent className="p-4">...</CardContent></Card>
-            <Card><CardContent className="p-4">...</CardContent></Card>
-            <Card><CardContent className="p-4">...</CardContent></Card>
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-sm mb-2">Career Guidance</h3>
+                <p className="text-xs text-gray-600">Get personalized advice on your career path from experienced professionals in your field.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-sm mb-2">Networking</h3>
+                <p className="text-xs text-gray-600">Build valuable connections with UCU alumni working in leading companies worldwide.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-sm mb-2">Skill Development</h3>
+                <p className="text-xs text-gray-600">Learn industry best practices and develop the skills that matter most for your success.</p>
+              </CardContent>
+            </Card>
         </div>
       </section>
     </div>
