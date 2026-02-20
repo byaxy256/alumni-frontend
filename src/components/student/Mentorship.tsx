@@ -572,55 +572,57 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
             .map(mentor => {
               const mentorUid = getMentorUid(mentor);
               const pendingId = mentorUid ? pendingRequests[mentorUid] : undefined;
+              // Only allow undo if there is a pending request (not approved yet)
               const isPending = Boolean(pendingId);
               return (
-              <Card key={mentor.id}>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-16 w-16">
-                        <AvatarFallback>{mentor.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold">{mentor.name}</p>
-                        <p className="text-xs text-gray-600">{mentor.field} at {mentor.company}</p>
-                        <p className="text-xs text-gray-500">{mentor.location}</p>
-                        <div className="flex items-center gap-1 text-xs mt-1">
-                          <span>{mentor.mentees} mentees · {mentor.experience} years exp · Class of {mentor.classOf}</span>
+                <Card key={mentor.id}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-16 w-16">
+                          <AvatarFallback>{mentor.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold">{mentor.name}</p>
+                          <p className="text-xs text-gray-600">{mentor.field} at {mentor.company}</p>
+                          <p className="text-xs text-gray-500">{mentor.location}</p>
+                          <div className="flex items-center gap-1 text-xs mt-1">
+                            <span>{mentor.mentees} mentees · {mentor.experience} years exp · Class of {mentor.classOf}</span>
+                          </div>
                         </div>
                       </div>
+                      <Badge variant={mentor.status === 'available' ? 'default' : 'secondary'} className={mentor.status === 'available' ? 'bg-green-500 text-white' : ''}>
+                        {mentor.status === 'available' ? 'Available' : 'Unavailable'}
+                      </Badge>
                     </div>
-                    <Badge variant={mentor.status === 'available' ? 'default' : 'secondary'} className={mentor.status === 'available' ? 'bg-green-500 text-white' : ''}>
-                      {mentor.status === 'available' ? 'Available' : 'Unavailable'}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-600 my-3">{mentor.bio}</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs">{exp}</Badge>)}
-                  </div>
-                  <Button
-                    className="w-full"
-                    disabled={mentor.status === 'unavailable' || isPending}
-                    onClick={() => handleRequestMentor(mentor)}
-                  >
-                    {mentor.status === 'available'
-                      ? isPending
-                        ? 'Request Sent'
-                        : <><UserPlus className="w-4 h-4 mr-2"/> Request Mentor</>
-                      : 'Currently Unavailable'}
-                  </Button>
-                  {isPending && (
+                    <p className="text-sm text-gray-600 my-3">{mentor.bio}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs">{exp}</Badge>)}
+                    </div>
                     <Button
-                      variant="outline"
-                      className="w-full mt-2"
-                      onClick={() => handleUndoRequest(mentor)}
+                      className="w-full"
+                      disabled={mentor.status === 'unavailable' || isPending}
+                      onClick={() => handleRequestMentor(mentor)}
                     >
-                      Undo Request
+                      {mentor.status === 'available'
+                        ? isPending
+                          ? 'Request Sent'
+                          : <><UserPlus className="w-4 h-4 mr-2"/> Request Mentor</>
+                        : 'Currently Unavailable'}
                     </Button>
-                  )}
-                </CardContent>
-              </Card>
-            );
+                    {/* Undo button should always show for pending requests, even if not approved */}
+                    {isPending && (
+                      <Button
+                        variant="outline"
+                        className="w-full mt-2"
+                        onClick={() => handleUndoRequest(mentor)}
+                      >
+                        Undo Request
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
             })}
 
           {availableMentors.filter(mentor => {
