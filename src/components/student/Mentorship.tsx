@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { ArrowLeft, MessageSquare, Send, Star, UserPlus, Paperclip, Mic, Image, FileText, Video, Loader2 } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, UserPlus, Paperclip, Mic, Image, FileText, Video, Loader2 } from 'lucide-react';
 import { LoadingSpinner } from '../ui/loading-spinner';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Input } from '../ui/input';
@@ -584,8 +584,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                         <p className="text-xs text-gray-600">{mentor.field} at {mentor.company}</p>
                         <p className="text-xs text-gray-500">{mentor.location}</p>
                         <div className="flex items-center gap-1 text-xs mt-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                          <span>{mentor.rating} · {mentor.mentees} mentees · {mentor.experience} years exp · Class of {mentor.classOf}</span>
+                          <span>{mentor.mentees} mentees · {mentor.experience} years exp · Class of {mentor.classOf}</span>
                         </div>
                       </div>
                     </div>
