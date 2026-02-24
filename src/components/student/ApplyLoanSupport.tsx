@@ -33,9 +33,14 @@ interface ApplyLoanSupportProps {
 const MAX_LOAN_AMOUNT = 3200000; // 3.2M UGX max
 const PHONE_MAX_LENGTH = 10;
 
-export function ApplyLoanSupport({ user, onBack, applicationType: propApplicationType = 'loan' }: ApplyLoanSupportProps) {
-  const [step, setStep] = useState(1);
-  const [applicationType, setApplicationType] = useState<'loan' | 'support'>(propApplicationType === 'benefit' ? 'support' : 'loan');
+export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
+  const { user, onBack } = props;
+  const propApplicationType = props.applicationType;
+  const isDirectEntry = propApplicationType !== undefined;
+  const initialType: 'loan' | 'support' = propApplicationType === 'benefit' ? 'support' : 'loan';
+
+  const [step, setStep] = useState(isDirectEntry ? 2 : 1);
+  const [applicationType, setApplicationType] = useState<'loan' | 'support'>(initialType);
   const [showChopConsent, setShowChopConsent] = useState(false);
   const [chopConsented, setChopConsented] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -88,6 +93,14 @@ export function ApplyLoanSupport({ user, onBack, applicationType: propApplicatio
       }));
     }
   }, [user?.meta?.accessNumber]);
+
+  // If user entered directly from quick actions, ensure we skip the type picker
+  useEffect(() => {
+    if (isDirectEntry) {
+      setApplicationType(initialType);
+      setStep(2);
+    }
+  }, [isDirectEntry, initialType]);
 
   // Get available courses for selected degree level
   const availableCourses = formData.degreeLevel 

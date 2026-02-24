@@ -143,9 +143,9 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   }, [loans, supportRequests]);
   
   const quickActions = [
-    { id: 'apply', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, color: 'from-blue-500 to-blue-700' },
+    { id: 'apply-loan', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, color: 'from-blue-500 to-blue-700' },
     { id: 'loans', title: 'My Loans', subtitle: 'View loans & payments', icon: Wallet, color: 'from-indigo-500 to-indigo-700' },
-    { id: 'benefits', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, color: 'from-green-500 to-green-700' },
+    { id: 'apply-benefit', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, color: 'from-green-500 to-green-700' },
     { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'Connect with alumni', icon: Users, color: 'from-purple-500 to-purple-700' },
     { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, color: 'from-orange-500 to-orange-700' },
   ];

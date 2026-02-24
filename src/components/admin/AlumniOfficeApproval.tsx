@@ -120,6 +120,7 @@ export default function AlumniOfficeApproval() {
     }
     try {
       setCreating(true);
+      const token = localStorage.getItem('token') || '';
       const payload = {
         full_name: createForm.fullName,
         email: createForm.email,
@@ -133,7 +134,7 @@ export default function AlumniOfficeApproval() {
         },
         adminSecret: createForm.adminSecret,
       };
-      await apiCall('/auth/register', 'POST', payload);
+      await apiCall('/auth/register', 'POST', payload, token || undefined);
       toast.success('Alumni office account created. Approve it below.');
       setCreateForm({ fullName: '', email: '', phone: '', staffId: '', password: '', adminSecret: '' });
       await loadAllAlumniOffice();
