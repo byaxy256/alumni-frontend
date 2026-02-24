@@ -27,17 +27,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email, password, and role are required' });
     }
 
-    // Block self-registration of privileged roles unless an admin secret is provided
-    if (role === 'admin' || role === 'alumni_office') {
-      const secretFromHeader = (req.headers['x-admin-secret'] as string | undefined) || '';
-      const secretFromBody = (req.body?.adminSecret as string | undefined) || '';
-      const provided = (secretFromHeader || secretFromBody).trim();
-      const expected = (process.env.ADMIN_REGISTRATION_SECRET || '').trim();
-
-      if (!expected || provided !== expected) {
-        return res.status(403).json({ error: 'Admin/alumni office registration is not allowed' });
-      }
-    }
+    // No admin secret required for registration - will be required on login instead
 
     // Check if user already exists
     const existing = await User.findOne({ $or: [{ email }, { phone: phone || '' }] });
@@ -105,18 +95,20 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ $or: [{ email: cred }, { phone: cred }] });
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
-    // Block alumni office access until approved and not suspended
-    if (user.role === 'alumni_office') {
-      if (user.meta?.approved !== true) {
-        return res.status(403).json({ error: 'Alumni office account not approved yet' });
-      }
-      if (user.meta?.suspended === true) {
-        return res.status(403).json({ error: 'Alumni office account is suspended' });
-      }
-    }
-
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ error: 'Invalid credentials' });
+
+    // Alumni office staff must provide admin secret to login
+    if (user.role === 'alumni_office') {
+      const secretFromHeader = (req.headers['x-admin-secret'] as string | undefined) || '';
+      const secretFromBody = (req.body?.adminSecret as string | undefined) || '';
+      const provided = (secretFromHeader || secretFromBody).trim();
+      const expected = (process.env.ADMIN_REGISTRATION_SECRET || '').trim();
+
+      if (!expected || provided !== expected) {
+        return res.status(403).json({ error: 'Admin secret required for alumni office login' });
+      }
+    }
 
     const token = genToken({ id: user._id.toString(), role: user.role, uid: user.uid, email: user.email });
 
