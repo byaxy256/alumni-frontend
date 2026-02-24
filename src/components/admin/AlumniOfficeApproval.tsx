@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Check, X, Clock, Mail, Phone, User, Calendar } from 'lucide-react';
+import { Mail, Phone, User, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 import { apiCall } from '../../api';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -24,12 +23,8 @@ interface PendingUser {
 }
 
 export default function AlumniOfficeApproval() {
-  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [allUsers, setAllUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<PendingUser | null>(null);
-  const [showApproveDialog, setShowApproveDialog] = useState(false);
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -52,34 +47,11 @@ export default function AlumniOfficeApproval() {
       const users = await apiCall('/auth/users', 'GET', undefined, token || undefined);
       const alumniOffice = (users || []).filter((u: PendingUser) => u.role === 'alumni_office');
       setAllUsers(alumniOffice);
-      setPendingUsers(alumniOffice.filter((u: { meta: { approved: boolean; }; }) => u.meta?.approved !== true));
     } catch (err) {
-      console.error('Failed to load pending alumni office accounts:', err);
-      toast.error('Failed to load pending accounts');
+      console.error('Failed to load alumni office accounts:', err);
+      toast.error('Failed to load accounts');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleApproval = async (uid: string, approved: boolean) => {
-    try {
-      setProcessing(true);
-      const token = localStorage.getItem('token');
-      await apiCall('/admin/approve-alumni-office', 'POST', { uid, approved }, token || undefined);
-      
-      toast.success(approved ? 'Alumni office account approved' : 'Alumni office account rejected');
-      
-      // Reload the list
-      await loadAllAlumniOffice();
-      
-      setShowApproveDialog(false);
-      setShowRejectDialog(false);
-      setSelectedUser(null);
-    } catch (err: any) {
-      console.error('Failed to update approval status:', err);
-      toast.error(err.message || 'Failed to update approval status');
-    } finally {
-      setProcessing(false);
     }
   };
 
