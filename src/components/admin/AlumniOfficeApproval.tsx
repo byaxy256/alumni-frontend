@@ -172,10 +172,10 @@ export default function AlumniOfficeApproval() {
   return (
     <div className="p-4 lg:p-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Alumni Office Account Approval</h1>
-        <p className="text-muted-foreground">Review and approve alumni office staff registrations</p>
+        <h1 className="text-3xl font-bold">Alumni Office Account Management</h1>
+        <p className="text-muted-foreground">Create and manage alumni office staff accounts</p>
         <div className="text-sm text-muted-foreground mt-1">
-          Pending: {pendingUsers.length} • Total Alumni Office: {allUsers.length}
+          Total Staff: {allUsers.length}
         </div>
       </div>
 
@@ -217,18 +217,8 @@ export default function AlumniOfficeApproval() {
         </CardContent>
       </Card>
 
-      {allUsers.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">No Alumni Office Users</h3>
-            <p className="text-muted-foreground">There are no alumni office accounts yet.</p>
-          </CardContent>
-        </Card>
-      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {allUsers.map((user) => {
-            const isPending = user.meta?.approved !== true;
             const isSuspended = user.meta?.suspended === true;
             return (
             <Card key={user.uid} className="hover:shadow-lg transition-shadow">
@@ -240,18 +230,13 @@ export default function AlumniOfficeApproval() {
                       {user.full_name}
                     </CardTitle>
                     <CardDescription className="mt-2">
-                      {isPending ? (
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Pending Review
-                        </Badge>
-                      ) : isSuspended ? (
+                      {isSuspended ? (
                         <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
                           Suspended
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          Approved
+                          Active
                         </Badge>
                       )}
                     </CardDescription>
@@ -283,109 +268,31 @@ export default function AlumniOfficeApproval() {
                 </div>
 
                 <div className="flex gap-2 pt-3 border-t">
-                  {isPending ? (
-                    <>
-                      <Button
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setShowApproveDialog(true);
-                        }}
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-black border border-green-600 transition-colors"
-                        size="sm"
-                      >
-                        <Check className="w-4 h-4 mr-1" />
-                        Approve
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setShowRejectDialog(true);
-                        }}
-                        variant="destructive"
-                        className="flex-1"
-                        size="sm"
-                      >
-                        <X className="w-4 h-4 mr-1" />
-                        Reject
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        onClick={() => handleSuspend(user.uid, !isSuspended)}
-                        className="flex-1"
-                        variant={isSuspended ? 'secondary' : 'outline'}
-                        size="sm"
-                        disabled={processing}
-                      >
-                        {isSuspended ? 'Unsuspend User' : 'Suspend User'}
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(user.uid)}
-                        variant="destructive"
-                        className="flex-1"
-                        size="sm"
-                        disabled={processing}
-                      >
-                        Delete User
-                      </Button>
-                    </>
-                  )}
+                  <Button
+                    onClick={() => handleSuspend(user.uid, !isSuspended)}
+                    className="flex-1"
+                    variant={isSuspended ? 'secondary' : 'outline'}
+                    size="sm"
+                    disabled={processing}
+                  >
+                    {isSuspended ? 'Unsuspend' : 'Suspend'}
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(user.uid)}
+                    variant="destructive"
+                    className="flex-1"
+                    size="sm"
+                    disabled={processing}
+                  >
+                    Delete
+                  </Button>
                 </div>
               </CardContent>
             </Card>
             );
           })}
         </div>
-      )}
 
-      {/* Approve Dialog */}
-      <AlertDialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Approve Alumni Office Account</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to approve <strong>{selectedUser?.full_name}</strong> ({selectedUser?.email}) as an alumni office staff member?
-              <br /><br />
-              They will gain access to manage applications, view student records, and perform other alumni office functions.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={processing}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => selectedUser && handleApproval(selectedUser.uid, true)}
-              disabled={processing}
-              className="bg-green-500 hover:bg-green-600 text-black border border-green-600 transition-colors"
-            >
-              {processing ? 'Approving...' : 'Approve Account'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Reject Dialog */}
-      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reject Alumni Office Account</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to reject <strong>{selectedUser?.full_name}</strong> ({selectedUser?.email})?
-              <br /><br />
-              This account will be marked as rejected and they will not be able to access alumni office features.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={processing}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => selectedUser && handleApproval(selectedUser.uid, false)}
-              disabled={processing}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {processing ? 'Rejecting...' : 'Reject Account'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
