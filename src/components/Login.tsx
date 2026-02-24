@@ -26,12 +26,18 @@ interface LoginProps {
 export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginProps) {
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [adminSecret, setAdminSecret] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
 
   const handleLogin = async () => {
     if (!emailOrPhone || !password) {
       toast.error('Please fill all fields');
+      return;
+    }
+    if (needsAdminSecret && !adminSecret) {
+      toast.error('Admin secret is required');
       return;
     }
     setLoading(true);
@@ -39,16 +45,24 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
     try {
       const credential = emailOrPhone.trim();
       const normalizedCredential = credential.includes('@') ? credential.toLowerCase() : credential;
-      const data = await api.login(normalizedCredential, password);
+      const data = await api.login(normalizedCredential, password, adminSecret || undefined);
       console.log('Login response:', data);
       
       toast.success('Login successful');
       onLoginSuccess(data.user, data.token);
+      setNeedsAdminSecret(false);
 
     } catch (err: any) {
       console.error('Login error', err);
       const errorMsg = err?.message || err?.response?.data?.error || 'Login failed';
-      toast.error(errorMsg);
+      
+      // Check if this is an admin secret error
+      if (errorMsg?.includes('Admin secret required')) {
+        setNeedsAdminSecret(true);
+        toast.error('Admin secret required to login');
+      } else {
+        toast.error(errorMsg);
+      }
     } finally {
       setLoading(false);
     }
@@ -104,6 +118,18 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
               </button>
             </div>
           </div>
+
+          {needsAdminSecret && (
+            <div>
+              <Label>Admin Secret</Label>
+              <Input
+                type="password"
+                value={adminSecret}
+                onChange={(e) => setAdminSecret(e.target.value)}
+                placeholder="Enter admin secret"
+              />
+            </div>
+          )}
 
           <Button onClick={handleLogin} className="w-full" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</Button>
 

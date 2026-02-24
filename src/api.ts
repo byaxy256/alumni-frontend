@@ -44,11 +44,14 @@ export const api = {
     return res.json();
   },
 
-  async login(credential: string, password: string) {
+  async login(credential: string, password: string, adminSecret?: string) {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential, password }),
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(adminSecret && { 'x-admin-secret': adminSecret })
+      },
+      body: JSON.stringify({ credential, password, adminSecret }),
     });
     if (!res.ok) {
       const error = await res.json().catch(() => ({} as any));
