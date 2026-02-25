@@ -86,8 +86,8 @@ export default function AlumniOfficeApproval() {
   };
 
   const handleCreateAccount = async () => {
-    if (!createForm.fullName || !createForm.email || !createForm.password || !createForm.adminSecret) {
-      toast.error('Full name, email, password, and admin secret are required.');
+    if (!createForm.fullName || !createForm.email || !createForm.password) {
+      toast.error('Full name, email, and password are required.');
       return;
     }
     try {
@@ -104,7 +104,7 @@ export default function AlumniOfficeApproval() {
           approved: false,
           suspended: false,
         },
-        adminSecret: createForm.adminSecret,
+        ...(createForm.adminSecret ? { adminSecret: createForm.adminSecret } : {}),
       };
       await apiCall('/auth/register', 'POST', payload, token || undefined);
       toast.success('Alumni office account created. Approve it below.');
