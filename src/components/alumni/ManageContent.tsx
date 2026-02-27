@@ -627,7 +627,7 @@ export default function ContentManagement() {
 
       {/* Create Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="max-w-2xl h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Create {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
@@ -639,7 +639,7 @@ export default function ContentManagement() {
             <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           </div>
 
-          <DialogFooter className="shrink-0 border-t pt-4 bg-background">
+          <DialogFooter className="shrink-0 border-t pt-4 bg-background sticky bottom-0">
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
               Cancel
             </Button>
@@ -652,7 +652,7 @@ export default function ContentManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="max-w-2xl h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Edit {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
@@ -664,7 +664,7 @@ export default function ContentManagement() {
             <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           </div>
 
-          <DialogFooter className="shrink-0 border-t pt-4 bg-background">
+          <DialogFooter className="shrink-0 border-t pt-4 bg-background sticky bottom-0">
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
