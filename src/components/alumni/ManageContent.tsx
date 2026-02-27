@@ -627,7 +627,7 @@ export default function ContentManagement() {
 
       {/* Create Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="max-w-2xl h-[90svh] max-h-[90svh] sm:h-[90vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Create {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
@@ -635,7 +635,7 @@ export default function ContentManagement() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1 pb-4 overscroll-contain touch-pan-y">
             <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           </div>
 
@@ -652,7 +652,7 @@ export default function ContentManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="max-w-2xl h-[90svh] max-h-[90svh] sm:h-[90vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Edit {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
@@ -660,7 +660,7 @@ export default function ContentManagement() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1 pb-4 overscroll-contain touch-pan-y">
             <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           </div>
 

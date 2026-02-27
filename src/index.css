@@ -198,6 +198,20 @@
   }
 }
 
+/* Allow scrolling even when Radix sets data-scroll-locked on body */
+body[data-scroll-locked] {
+  overflow: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: auto !important;
+  position: static !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 @layer base {
   *, :after, :before, ::backdrop {
     box-sizing: border-box;
