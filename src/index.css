@@ -212,6 +212,19 @@ body[data-scroll-locked] {
   margin-right: 0 !important;
 }
 
+html,
+body {
+  height: auto !important;
+  min-height: 100%;
+  overflow: auto;
+}
+
+html[data-scroll-locked],
+body[data-scroll-locked] {
+  overflow: auto !important;
+  overscroll-behavior: auto !important;
+}
+
 @layer base {
   *, :after, :before, ::backdrop {
     box-sizing: border-box;
