@@ -270,13 +270,13 @@ export function Events({ onBack }: EventsProps) {
 
       {/* Payment Modal */}
       <Dialog open={showPayment} onOpenChange={setShowPayment}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md h-[90svh] max-h-[90svh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Event Registration Payment</DialogTitle>
             <DialogDescription>Complete your registration for {selectedEvent?.title}</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-4 flex-1 min-h-0 overflow-y-auto pr-1 pb-4 overscroll-contain touch-pan-y">
             {selectedEvent && (
               <>
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
@@ -322,7 +322,7 @@ export function Events({ onBack }: EventsProps) {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 sticky bottom-0 bg-background pt-2">
                   <Button
                     variant="outline"
                     className="flex-1"
