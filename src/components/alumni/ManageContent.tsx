@@ -627,19 +627,19 @@ export default function ContentManagement() {
 
       {/* Create Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl h-[90svh] max-h-[90svh] sm:h-[90vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: '90dvh', height: '90dvh', overflow: 'hidden' }}>
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Create {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
               Fill in the details below. Published items will be visible to all users immediately.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1 pb-4 overscroll-contain touch-pan-y">
+          <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', minHeight: 0, paddingRight: '4px', paddingBottom: '8px' }}>
             <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           </div>
 
-          <DialogFooter className="shrink-0 border-t pt-4 bg-background sticky bottom-0">
+          <DialogFooter className="flex-shrink-0 border-t pt-4 bg-background">
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
               Cancel
             </Button>
@@ -652,19 +652,19 @@ export default function ContentManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl h-[90svh] max-h-[90svh] sm:h-[90vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: '90dvh', height: '90dvh', overflow: 'hidden' }}>
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Edit {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
             <DialogDescription>
               Update the content details below.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1 pb-4 overscroll-contain touch-pan-y">
+          <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', minHeight: 0, paddingRight: '4px', paddingBottom: '8px' }}>
             <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
           </div>
 
-          <DialogFooter className="shrink-0 border-t pt-4 bg-background sticky bottom-0">
+          <DialogFooter className="flex-shrink-0 border-t pt-4 bg-background">
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
