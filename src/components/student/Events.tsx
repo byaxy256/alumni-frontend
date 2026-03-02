@@ -29,21 +29,16 @@ export function Events({ onBack }: EventsProps) {
   const [showPayment, setShowPayment] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState('mtn');
-  const [accessNumber, setAccessNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
-  // PIN prompt state — same pattern as LoanDetails / PaymentHistory
   const [showPINPrompt, setShowPINPrompt] = useState(false);
   const [pendingTransactionId, setPendingTransactionId] = useState<string | null>(null);
   const [pendingEventId, setPendingEventId] = useState<number | null>(null);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') || '' : '';
 
-  const sanitizeAccessNumber = (value: string) => {
-    const upper = value.toUpperCase();
-    const letter = upper[0];
-    if (letter !== 'A' && letter !== 'B') return '';
-    const digits = upper.slice(1).replace(/\D/g, '').slice(0, 5);
-    return `${letter}${digits}`;
+  const sanitizePhone = (value: string) => {
+    return value.replace(/\D/g, '').slice(0, 12);
   };
 
   useEffect(() => {
@@ -86,7 +81,6 @@ export function Events({ onBack }: EventsProps) {
       return;
     }
 
-    // Free event — register directly
     setRegistering(eventId);
     try {
       const res = await fetch(`${API_BASE}/content/events/${eventId}/register`, {
@@ -105,7 +99,7 @@ export function Events({ onBack }: EventsProps) {
       setEvents(prev =>
         prev.map(ev => ev.id === eventId ? { ...ev, attendees: (ev.attendees || 0) + 1 } : ev)
       );
-      toast.success('✅ Successfully registered for the event!');
+      toast.success('Successfully registered for the event!');
     } catch (err) {
       console.error('Registration error:', err);
       toast.error('Error registering for event');
@@ -114,14 +108,11 @@ export function Events({ onBack }: EventsProps) {
     }
   };
 
-  // Step 1 — initiate payment via the same endpoint used by loan payments
   const handlePaymentSubmit = async () => {
     if (!selectedEvent) { toast.error('No event selected. Please try again.'); return; }
     if (!token) { toast.error('Please log in to continue.'); return; }
-
-    const accessPattern = /^[AB]\d{5}$/;
-    if (!accessPattern.test(accessNumber)) {
-      toast.error('Access number must be in format A12345 or B12345.');
+    if (phoneNumber.length < 10) {
+      toast.error('Please enter a valid phone number.');
       return;
     }
 
@@ -136,7 +127,7 @@ export function Events({ onBack }: EventsProps) {
         body: JSON.stringify({
           amount: selectedEvent.registrationFee,
           provider: paymentMethod,
-          phone: accessNumber,
+          phone: phoneNumber,
           eventId: selectedEvent.id,
         }),
       });
@@ -159,7 +150,6 @@ export function Events({ onBack }: EventsProps) {
     }
   };
 
-  // Step 2 — called after PIN is verified successfully
   const handlePINSuccess = async () => {
     if (!pendingTransactionId || !pendingEventId) {
       toast.error('Missing transaction details. Please try again.');
@@ -167,7 +157,6 @@ export function Events({ onBack }: EventsProps) {
       return;
     }
     try {
-      // Confirm the payment with the backend
       const confirmRes = await fetch(`${API_BASE}/payments/confirm`, {
         method: 'POST',
         headers: {
@@ -181,7 +170,6 @@ export function Events({ onBack }: EventsProps) {
         throw new Error(err.error || 'Payment confirmation failed.');
       }
 
-      // Complete the event registration
       const regRes = await fetch(`${API_BASE}/content/events/${pendingEventId}/register`, {
         method: 'POST',
         headers: {
@@ -200,7 +188,7 @@ export function Events({ onBack }: EventsProps) {
           ev.id === pendingEventId ? { ...ev, attendees: (ev.attendees || 0) + 1 } : ev
         )
       );
-      toast.success('✅ Payment confirmed! You are registered for the event!');
+      toast.success('Payment confirmed! You are registered for the event!');
     } catch (err: any) {
       toast.error(err.message || 'Error completing registration');
     } finally {
@@ -208,7 +196,7 @@ export function Events({ onBack }: EventsProps) {
       setPendingTransactionId(null);
       setPendingEventId(null);
       setSelectedEvent(null);
-      setAccessNumber('');
+      setPhoneNumber('');
     }
   };
 
@@ -288,7 +276,7 @@ export function Events({ onBack }: EventsProps) {
                     {registering === event.id ? (
                       <><Loader2 className="w-4 h-4 animate-spin" />Registering...</>
                     ) : registered.has(event.id) ? (
-                      '✓ Registered'
+                      'Registered'
                     ) : (
                       'Register Now'
                     )}
@@ -302,7 +290,7 @@ export function Events({ onBack }: EventsProps) {
 
       {/* Payment Modal */}
       <Dialog open={showPayment} onOpenChange={setShowPayment}>
-        <DialogContent className="sm:max-w-md h-[90svh] max-h-[90svh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Event Registration Payment</DialogTitle>
             <DialogDescription>
@@ -310,90 +298,70 @@ export function Events({ onBack }: EventsProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 flex-1 min-h-0 overflow-y-auto pr-1 pb-4 overscroll-contain touch-pan-y">
-            {selectedEvent && (
-              <>
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Event:</span>
-                    <span className="font-semibold">{selectedEvent.title}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Date:</span>
-                    <span>{selectedEvent.date}</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold border-t pt-2">
-                    <span>Amount to Pay:</span>
-                    <span style={{ color: '#c79b2d' }}>
-                      UGX {selectedEvent.registrationFee.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label>Payment Method</Label>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                      <input
-                        type="radio" name="payment" value="mtn"
-                        checked={paymentMethod === 'mtn'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-4 h-4"
-                      />
-                      <span className="font-medium">MTN Mobile Money</span>
-                    </label>
-                    <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                      <input
-                        type="radio" name="payment" value="airtel"
-                        checked={paymentMethod === 'airtel'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-4 h-4"
-                      />
-                      <span className="font-medium">Airtel Money</span>
-                    </label>
-                  </div>
-                </div>
-
+          {selectedEvent && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Payment Method</Label>
                 <div className="space-y-2">
-                  <Label htmlFor="accessNumber">Access Number</Label>
-                  <Input
-                    id="accessNumber"
-                    type="text"
-                    placeholder="A12345 or B12345"
-                    value={accessNumber}
-                    onChange={(e) => setAccessNumber(sanitizeAccessNumber(e.target.value))}
-                    maxLength={6}
-                  />
-                  <p className="text-xs text-gray-500">Format: A or B followed by 5 digits</p>
+                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio" name="payment" value="mtn"
+                      checked={paymentMethod === 'mtn'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="font-medium">MTN Mobile Money</span>
+                  </label>
+                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio" name="payment" value="airtel"
+                      checked={paymentMethod === 'airtel'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <span className="font-medium">Airtel Money</span>
+                  </label>
                 </div>
+              </div>
 
-                <div className="flex gap-2 sticky bottom-0 bg-background pt-2">
-                  <Button variant="outline" className="flex-1" onClick={() => setShowPayment(false)}>
-                    Cancel
-                  </Button>
-                  <Button
-                    style={{ backgroundColor: '#c79b2d' }}
-                    className="flex-1"
-                    onClick={handlePaymentSubmit}
-                    disabled={registering === selectedEvent.id || !accessNumber}
-                  >
-                    {registering === selectedEvent.id ? (
-                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
-                    ) : (
-                      `Pay UGX ${selectedEvent.registrationFee.toLocaleString()}`
-                    )}
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="e.g. 0771234567"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(sanitizePhone(e.target.value))}
+                  maxLength={12}
+                />
+                <p className="text-xs text-gray-500">Enter the mobile money number to charge</p>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => setShowPayment(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  style={{ backgroundColor: '#c79b2d' }}
+                  className="flex-1"
+                  onClick={handlePaymentSubmit}
+                  disabled={registering === selectedEvent.id || phoneNumber.length < 10}
+                >
+                  {registering === selectedEvent.id ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
+                  ) : (
+                    `Pay UGX ${selectedEvent.registrationFee.toLocaleString()}`
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
-      {/* PIN Prompt — same component used by loan payments */}
       {showPINPrompt && pendingTransactionId && (
         <PaymentPINPrompt
-          phoneNumber={accessNumber}
+          phoneNumber={phoneNumber}
           amount={selectedEvent?.registrationFee ?? 0}
           provider={paymentMethod as 'mtn' | 'airtel'}
           onSuccess={handlePINSuccess}
@@ -401,7 +369,7 @@ export function Events({ onBack }: EventsProps) {
             setShowPINPrompt(false);
             setPendingTransactionId(null);
             setPendingEventId(null);
-            setAccessNumber('');
+            setPhoneNumber('');
             toast.info('Payment cancelled.');
           }}
         />
