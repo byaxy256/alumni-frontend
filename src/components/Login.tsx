@@ -27,6 +27,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [adminSecret, setAdminSecret] = useState('');
+  const [roleHint, setRoleHint] = useState<'student' | 'alumni'>('student');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
@@ -68,10 +69,6 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
     }
   };
 
-  const handleGoogle = () => {
-    toast('Continue with Google is not implemented yet.');
-  };
-
   // --- No changes are needed for the UI (JSX) ---
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a] p-4">
@@ -93,6 +90,21 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
         </CardHeader>
 
         <CardContent className="space-y-4">
+          <div>
+            <Label>Account Type</Label>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <Button type="button" variant={roleHint === 'student' ? 'default' : 'outline'} onClick={() => setRoleHint('student')}>
+                Student
+              </Button>
+              <Button type="button" variant={roleHint === 'alumni' ? 'default' : 'outline'} onClick={() => setRoleHint('alumni')}>
+                Alumni
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Use this to confirm the account you expect to access. Google sign-in is available during signup after selecting a role.
+            </p>
+          </div>
+
           <div>
             <Label>Email or Phone</Label>
             <Input value={emailOrPhone} onChange={(e) => setEmailOrPhone(e.target.value)} placeholder="student@ucu.ac.ug or +256..." />
@@ -132,10 +144,6 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           )}
 
           <Button onClick={handleLogin} className="w-full" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</Button>
-
-          <div className="flex items-center gap-3 justify-center">
-            <Button variant="outline" onClick={handleGoogle}>Continue with Google</Button>
-          </div>
 
           <p className="text-xs text-center text-gray-500">
             Don't have an account? <button onClick={switchToSignup} className="text-primary hover:underline">Sign up</button>

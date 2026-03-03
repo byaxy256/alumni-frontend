@@ -166,7 +166,7 @@ export default function App() {
   if (showSignUp && !user) {
     return (
       <>
-        <SignUp onBack={handleBackToLanding} onSignUpComplete={handleSignUpComplete} />
+        <SignUp onBack={handleBackToLanding} onSignUpComplete={handleSignUpComplete} onLoginSuccess={handleLogin} />
         <Toaster />
       </>
     );

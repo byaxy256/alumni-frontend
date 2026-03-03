@@ -1,5 +1,7 @@
 // src/components/SignUp.tsx
 import { useState } from 'react';
+import axios from 'axios';
+import { signInWithPopup } from 'firebase/auth';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -8,15 +10,18 @@ import { GraduationCap, ArrowLeft } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
+import { API_BASE } from '../api';
+import { auth, googleProvider, hasFirebaseEnv } from '../lib/firebase';
 
 type UserType = 'student' | 'alumni' | '';
 
 interface SignUpProps {
   onBack: () => void;
   onSignUpComplete: () => void;
+  onLoginSuccess: (user: any, token: string) => void;
 }
 
-export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
+export default function SignUp({ onBack, onSignUpComplete, onLoginSuccess }: SignUpProps) {
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState<UserType>('');
   const [loading, setLoading] = useState(false);
@@ -37,6 +42,32 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
   });
 
   const update = (field: string, val: string) => setForm(f => ({ ...f, [field]: val }));
+
+  const handleGoogleSignup = async () => {
+    if (!userType) {
+      toast.error('Select whether you are signing up as a student or alumni first');
+      return;
+    }
+    if (!hasFirebaseEnv) {
+      toast.error('Google sign-in is not configured. Missing Firebase frontend environment variables.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      const res = await axios.post(`${API_BASE}/auth/google`, { idToken, requestedRole: userType });
+      toast.success('Google signup successful');
+      onLoginSuccess(res.data.user, res.data.token);
+    } catch (err: any) {
+      console.error('Google signup error:', err);
+      const errorMsg = err?.response?.data?.error || err?.message || 'Google signup failed';
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleNext = async () => {
     if (step === 1) {
@@ -164,6 +195,15 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
                   </label>
                 </div>
               </RadioGroup>
+
+              <div className="mt-6 border-t pt-6">
+                <Button variant="outline" className="w-full" onClick={handleGoogleSignup} disabled={loading || !userType}>
+                  Continue with Google as {userType || '...'}
+                </Button>
+                <p className="text-xs text-center text-gray-500 mt-2">
+                  Google signup uses the role you choose here.
+                </p>
+              </div>
             </>
           )}
 
@@ -253,6 +293,17 @@ export default function SignUp({ onBack, onSignUpComplete }: SignUpProps) {
                 <Label>Confirm Password</Label>
                 <Input type="password" value={form.confirmPassword} onChange={(e) => update('confirmPassword', e.target.value)} placeholder="Confirm password" />
                 </div>
+              </div>
+
+              <div className="mt-6 border-t pt-6">
+                <Button variant="outline" className="w-full" onClick={handleGoogleSignup} disabled={loading}>
+                  Continue with Google as {userType}
+                </Button>
+                {!hasFirebaseEnv && (
+                  <p className="text-xs text-red-600 mt-2">
+                    Google sign-in is unavailable because Firebase env vars are missing.
+                  </p>
+                )}
               </div>
             </>
           )}
