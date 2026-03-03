@@ -14,7 +14,7 @@ import {
 } from '../ui/dialog';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
-import { PaymentPINPrompt } from 'src/components/student/PaymentPINPrompt.tsx';
+import { PaymentPINPrompt } from '../student/PaymentPINPrompt';
 import { toast } from 'sonner';
 
 interface EventsProps {
