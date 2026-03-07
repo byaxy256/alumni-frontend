@@ -101,13 +101,13 @@ export default function AlumniOfficeApproval() {
         role: 'alumni_office',
         meta: {
           staff_id: createForm.staffId || null,
-          approved: false,
+          approved: true,
           suspended: false,
         },
         ...(createForm.adminSecret ? { adminSecret: createForm.adminSecret } : {}),
       };
       await apiCall('/auth/register', 'POST', payload, token || undefined);
-      toast.success('Alumni office account created. Approve it below.');
+      toast.success('Alumni office account created successfully.');
       setCreateForm({ fullName: '', email: '', phone: '', staffId: '', password: '', adminSecret: '' });
       await loadAllAlumniOffice();
     } catch (err: any) {
