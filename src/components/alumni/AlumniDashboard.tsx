@@ -38,11 +38,27 @@ type NotificationItem = {
   // other fields...
 };
 
+type DonationStats = {
+  totalRaised?: number;
+  donorCount?: number;
+  donationCount?: number;
+};
+
+type DisbursementItem = {
+  id?: string;
+  student_uid?: string;
+  net_amount?: number;
+  original_amount?: number;
+  approved_at?: string;
+};
+
 export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [loans, setLoans] = useState<Loan[]>([]);
   const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [donationStats, setDonationStats] = useState<DonationStats>({});
+  const [disbursements, setDisbursements] = useState<DisbursementItem[]>([]);
   const [me, setMe] = useState<User | null>(null);
 
   // Derived metrics
@@ -50,15 +66,20 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     supportRequests.filter(sr => (sr.status ?? '').toLowerCase() === 'pending').length +
     loans.filter(l => (l.status ?? '').toLowerCase() === 'pending').length;
 
-  // Treat approved loans as active for dashboard purposes
-  const activeLoans = loans.filter(l => {
-    const status = (l.status ?? '').toLowerCase();
-    return status === 'active' || status === 'approved';
-  }).length;
-  const totalDisbursed = loans.reduce(
-    (s, l) => s + Number((l as any).disbursedAmount ?? (l as any).disbursed_amount ?? l.amount ?? 0),
-    0
-  );
+  const totalRaised = Number(donationStats.totalRaised || 0);
+  const totalDisbursed = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
+  const totalFundBalance = totalRaised - totalDisbursed;
+  const activeBeneficiaries = new Set(
+    disbursements
+      .map((d) => d.student_uid)
+      .filter((uid): uid is string => Boolean(uid))
+  ).size;
+
+  const formatCompactUGX = (value: number) => {
+    if (value >= 1000000000) return `UGX ${(value / 1000000000).toFixed(1)}B`;
+    if (value >= 1000000) return `UGX ${(value / 1000000).toFixed(1)}M`;
+    return `UGX ${Math.round(value).toLocaleString()}`;
+  };
 
   // monthly applications received derived from supportRequests & loans createdAt
   const monthlyApplications = (() => {
@@ -138,54 +159,50 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
   // src/components/AlumniDashboard.tsx
 
-useEffect(() => {
-  const ac = new AbortController();
-  const token = localStorage.getItem('token') || '';
-  const headers = { Authorization: `Bearer ${token}` };
+  useEffect(() => {
+    const ac = new AbortController();
+    const token = localStorage.getItem('token') || '';
+    const headers = { Authorization: `Bearer ${token}` };
 
-  console.log('AlumniDashboard loading with token:', token ? 'present' : 'missing');
+    async function loadAll() {
+      setLoading(true);
+      try {
+        const [loansRes, supportRes, notifsRes, meRes, donationsRes, disburseRes] = await Promise.all([
+          fetch(`${API_BASE}/loans`, { headers, signal: ac.signal }),
+          fetch(`${API_BASE}/support`, { headers, signal: ac.signal }),
+          fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal }),
+          fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal }),
+          fetch(`${API_BASE}/donations/all-stats`, { headers, signal: ac.signal }),
+          fetch(`${API_BASE}/disburse`, { headers, signal: ac.signal }),
+        ]);
 
-  async function loadAll() {
-    setLoading(true);
-    try {
-      const [loansRes, supportRes, notifsRes, meRes] = await Promise.all([
-        fetch(`${API_BASE}/loans`, { headers, signal: ac.signal }),
-        fetch(`${API_BASE}/support`, { headers, signal: ac.signal }),
-        fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal }),
-        fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal }),
-      ]);
-      console.log('API Responses:', {
-        loans: loansRes.status,
-        support: supportRes.status,
-        notifs: notifsRes.status,
-        me: meRes.status,
-      });
+        const loansJson = loansRes.ok ? await loansRes.json() : [];
+        const supportJson = supportRes.ok ? await supportRes.json() : [];
+        const notifsJson = notifsRes.ok ? await notifsRes.json() : [];
+        const meJson = meRes.ok ? await meRes.json() : null;
+        const donationsJson = donationsRes.ok ? await donationsRes.json() : {};
+        const disburseJson = disburseRes.ok ? await disburseRes.json() : [];
 
-      const loansJson = loansRes.ok ? await loansRes.json() : [];
-      const supportJson = supportRes.ok ? await supportRes.json() : [];
-      const notifsJson = notifsRes.ok ? await notifsRes.json() : [];
-      const meJson = meRes.ok ? await meRes.json() : null;
-      console.log('Fetched data:', {
-        loans: Array.isArray(loansJson) ? loansJson.length : 0,
-        support: Array.isArray(supportJson) ? supportJson.length : 0,
-        notifs: Array.isArray(notifsJson) ? notifsJson.length : 0,
-      });
-
-      // Store all loans and support requests (don't filter - we need all data for charts and calculations)
-      setLoans(Array.isArray(loansJson) ? loansJson : []);
-      setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
-      setNotifications(Array.isArray(notifsJson) ? notifsJson : []);
-      setMe(meJson || null);
-    } catch (err: any) {
-      console.error('Dashboard fetch error', err);
-    } finally {
-      setLoading(false);
+        setLoans(Array.isArray(loansJson) ? loansJson : []);
+        setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
+        setNotifications(Array.isArray(notifsJson) ? notifsJson : []);
+        setMe(meJson?.user || null);
+        setDonationStats(donationsJson || {});
+        setDisbursements(Array.isArray(disburseJson) ? disburseJson : []);
+      } catch (err: any) {
+        console.error('Dashboard fetch error', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }
 
-  loadAll();
-  return () => ac.abort();
-}, []);
+    loadAll();
+    const interval = window.setInterval(loadAll, 15000);
+    return () => {
+      window.clearInterval(interval);
+      ac.abort();
+    };
+  }, []);
 
   return (
     <div className="p-4 lg:p-6 space-y-6 pb-20 lg:pb-6">
@@ -206,10 +223,10 @@ useEffect(() => {
             </div>
             <p className="text-xs text-gray-500">Total Fund Balance</p>
             <p className="text-lg lg:text-xl mt-1" style={{ color: '#0b2a4a' }}>
-              UGX {(totalDisbursed / 1000000).toFixed(1)}M
+              {loading ? 'Updating...' : formatCompactUGX(totalFundBalance)}
             </p>
-            <Badge variant="outline" className="mt-2 text-xs text-green-600 border-green-600">
-              {loading ? 'Updating...' : '+8.5% this month'}
+            <Badge variant="outline" className="mt-2 text-xs text-blue-600 border-blue-600">
+              {loading ? 'Syncing...' : 'Live balance'}
             </Badge>
           </CardContent>
         </Card>
@@ -242,9 +259,9 @@ useEffect(() => {
                 <Users size={20} className="text-green-600" />
               </div>
             </div>
-            <p className="text-xs text-gray-500">Active Loans</p>
-            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : activeLoans}</p>
-            <p className="text-xs text-gray-500 mt-2">Students supported</p>
+            <p className="text-xs text-gray-500">Active Beneficiaries</p>
+            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : activeBeneficiaries}</p>
+            <p className="text-xs text-gray-500 mt-2">Unique disbursed students</p>
           </CardContent>
         </Card>
 
@@ -259,9 +276,9 @@ useEffect(() => {
             </div>
             <p className="text-xs text-gray-500">Total Disbursed</p>
             <p className="text-lg lg:text-xl mt-1">
-              UGX {(totalDisbursed / 1000000).toFixed(0)}M
+              {loading ? 'Updating...' : formatCompactUGX(totalDisbursed)}
             </p>
-            <p className="text-xs text-gray-500 mt-2">Since inception</p>
+            <p className="text-xs text-gray-500 mt-2">Net approved disbursements</p>
           </CardContent>
         </Card>
       </div>

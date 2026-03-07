@@ -27,7 +27,6 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [adminSecret, setAdminSecret] = useState('');
-  const [roleHint, setRoleHint] = useState<'student' | 'alumni' | 'staff'>('student');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
@@ -91,24 +90,6 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
         <CardContent className="space-y-4">
           <div>
-            <Label>Account Type</Label>
-            <div className="grid grid-cols-3 gap-3 mt-2">
-              <Button type="button" variant={roleHint === 'student' ? 'default' : 'outline'} onClick={() => setRoleHint('student')}>
-                Student
-              </Button>
-              <Button type="button" variant={roleHint === 'alumni' ? 'default' : 'outline'} onClick={() => setRoleHint('alumni')}>
-                Alumni
-              </Button>
-              <Button type="button" variant={roleHint === 'staff' ? 'default' : 'outline'} onClick={() => setRoleHint('staff')}>
-                Staff
-              </Button>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Use this to confirm the account you expect to access. Google sign-in is available during signup after selecting a role.
-            </p>
-          </div>
-
-          <div>
             <Label>Email or Phone</Label>
             <Input value={emailOrPhone} onChange={(e) => setEmailOrPhone(e.target.value)} placeholder="student@ucu.ac.ug or +256..." />
           </div>
@@ -134,7 +115,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             </div>
           </div>
 
-          {(roleHint === 'staff' || needsAdminSecret) && (
+          {needsAdminSecret && (
             <div>
               <Label>Admin Secret</Label>
               <Input
