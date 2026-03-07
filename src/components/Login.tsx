@@ -27,7 +27,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [adminSecret, setAdminSecret] = useState('');
-  const [roleHint, setRoleHint] = useState<'student' | 'alumni'>('student');
+  const [roleHint, setRoleHint] = useState<'student' | 'alumni' | 'staff'>('student');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
@@ -92,12 +92,15 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
         <CardContent className="space-y-4">
           <div>
             <Label>Account Type</Label>
-            <div className="grid grid-cols-2 gap-3 mt-2">
+            <div className="grid grid-cols-3 gap-3 mt-2">
               <Button type="button" variant={roleHint === 'student' ? 'default' : 'outline'} onClick={() => setRoleHint('student')}>
                 Student
               </Button>
               <Button type="button" variant={roleHint === 'alumni' ? 'default' : 'outline'} onClick={() => setRoleHint('alumni')}>
                 Alumni
+              </Button>
+              <Button type="button" variant={roleHint === 'staff' ? 'default' : 'outline'} onClick={() => setRoleHint('staff')}>
+                Staff
               </Button>
             </div>
             <p className="text-xs text-gray-500 mt-2">
@@ -131,14 +134,14 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             </div>
           </div>
 
-          {needsAdminSecret && (
+          {(roleHint === 'staff' || needsAdminSecret) && (
             <div>
               <Label>Admin Secret</Label>
               <Input
                 type="password"
                 value={adminSecret}
                 onChange={(e) => setAdminSecret(e.target.value)}
-                placeholder="Enter admin secret"
+                placeholder="Required for first staff login"
               />
             </div>
           )}

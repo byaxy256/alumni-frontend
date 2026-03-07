@@ -14,6 +14,12 @@ import { Toaster } from './components/ui/sonner';
 import { LoadingSpinner } from './components/ui/loading-spinner';
 // import { GraduationCap } from 'lucide-react';
 import { initPushNotifications } from './firebaseMessaging';
+import { apiCall } from './api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
+import { Label } from './components/ui/label';
+import { Input } from './components/ui/input';
+import { Button } from './components/ui/button';
+import { toast } from 'sonner';
 
 // This is the correct, complete User type definition
 export type User = {
@@ -55,6 +61,11 @@ export default function App() {
 
   const [showLogin, setShowLogin] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const handleLogin = (userData: any, token: string) => {
     const meta = userData.meta ?? {};
@@ -79,7 +90,11 @@ export default function App() {
     setUser(transformedUser);
     localStorage.setItem('user', JSON.stringify(transformedUser));
     localStorage.setItem('token', token);
-  initPushNotifications(transformedUser);
+    initPushNotifications(transformedUser);
+    const requiresReset =
+      transformedUser.role === 'alumni_office' &&
+      transformedUser.meta?.must_change_password === true;
+    setMustChangePassword(requiresReset);
     
     setShowLogin(false);
     setShowLanding(false);
@@ -93,6 +108,51 @@ export default function App() {
     setShowLanding(true);
     setShowLogin(false);
     setShowSignUp(false);
+    setMustChangePassword(false);
+  };
+
+  const handleForcePasswordChange = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error('Fill all password fields');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('New password and confirm password do not match');
+      return;
+    }
+    if (!/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[^A-Za-z0-9]/.test(newPassword) || newPassword.length < 8) {
+      toast.error('Password must be 8+ chars with capital letter, number and special character');
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      await apiCall('/auth/change-password', 'POST', { currentPassword, newPassword });
+
+      const nextUser = user
+        ? {
+            ...user,
+            meta: {
+              ...(user.meta || {}),
+              must_change_password: false,
+            },
+          }
+        : null;
+      if (nextUser) {
+        setUser(nextUser);
+        localStorage.setItem('user', JSON.stringify(nextUser));
+      }
+
+      setMustChangePassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      toast.success('Password changed successfully');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   // Your navigation functions are preserved exactly
@@ -176,6 +236,53 @@ export default function App() {
     return (
       <>
         <Login onLoginSuccess={handleLogin} onBack={handleBackToLanding} switchToSignup={handleGetStarted} />
+        <Toaster />
+      </>
+    );
+  }
+
+  if (user && mustChangePassword) {
+    return (
+      <>
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Set New Password</CardTitle>
+              <CardDescription>
+                This is your first staff login. Use your temporary password, then set a new password to continue.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Temporary Password</Label>
+                <Input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>New Password</Label>
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Confirm New Password</Label>
+                <Input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+              <Button className="w-full" onClick={handleForcePasswordChange} disabled={changingPassword}>
+                {changingPassword ? 'Updating...' : 'Update Password'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
         <Toaster />
       </>
     );
