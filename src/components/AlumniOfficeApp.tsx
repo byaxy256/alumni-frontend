@@ -67,16 +67,16 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#c79b2d' }}>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent">
               <span className="text-white text-sm">UCU</span>
             </div>
             <div>
-              <h1 className="text-sm" style={{ color: '#0b2a4a' }}>Alumni Connect Office</h1>
+              <h1 className="text-sm text-primary">Alumni Connect Office</h1>
               <p className="text-xs text-gray-500">{user.name}</p>
             </div>
           </div>
@@ -136,7 +136,6 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                     variant={isActive ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => setCurrentScreen(item.id as AlumniScreen)}
-                    style={isActive ? { backgroundColor: '#0b2a4a' } : {}}
                   >
                     <Icon size={16} className="mr-2" />
                     {item.label}
@@ -162,7 +161,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
               <button
                 key={item.id}
                 onClick={() => setCurrentScreen(item.id as AlumniScreen)}
-                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-[#0b2a4a]' : 'text-gray-500'}`}
+                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-primary' : 'text-gray-500'}`}
               >
                 <Icon size={18} />
                 <span className="text-xs">{item.label.split(' ')[0]}</span>
