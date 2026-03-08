@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { DollarSign, Wallet, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
+import { DollarSign, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { User } from '../../App';
 import { API_BASE } from '../../api';
@@ -61,6 +60,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [donationStats, setDonationStats] = useState<DonationStats>({});
   const [disbursements, setDisbursements] = useState<DisbursementItem[]>([]);
+  const [totalAlumni, setTotalAlumni] = useState(0);
   const [me, setMe] = useState<User | null>(null);
 
   // Derived metrics
@@ -71,6 +71,9 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   const totalRaised = Number(donationStats.totalRaised || 0);
   const totalDisbursed = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
   const totalFundBalance = totalRaised - totalDisbursed;
+  const activeDonors = Number(donationStats.donorCount || 0);
+  const resolvedTotalAlumni = Math.max(totalAlumni, activeDonors);
+  const nonDonorAlumni = Math.max(resolvedTotalAlumni - activeDonors, 0);
 
   const formatCompactUGX = (value: number) => {
     if (value >= 1000000000) return `UGX ${(value / 1000000000).toFixed(1)}B`;
@@ -103,13 +106,12 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     return months;
   })();
 
-  const financialBreakdown = [
-    { name: 'Total Revenue', value: Math.max(totalRaised, 0), color: '#0b2a4a' },
-    { name: 'Total Expenses', value: Math.max(totalDisbursed, 0), color: '#c79b2d' },
-    { name: 'Available Balance', value: Math.max(totalFundBalance, 0), color: '#10b981' },
+  const donorsBreakdown = [
+    { name: 'Active Donors', value: activeDonors, color: '#0b2a4a' },
+    { name: 'Other Alumni', value: nonDonorAlumni, color: '#c79b2d' },
   ].filter((item) => item.value > 0);
 
-  const totalFinancialValue = financialBreakdown.reduce((sum, item) => sum + item.value, 0);
+  const totalDonorValue = donorsBreakdown.reduce((sum, item) => sum + item.value, 0);
 
   const recentActivities = notifications.slice(0, 6).map((n, idx) => ({
     id: n.id ?? idx,
@@ -130,13 +132,14 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     async function loadAll() {
       setLoading(true);
       try {
-        const [loansRes, supportRes, notifsRes, meRes, donationsRes, disburseRes] = await Promise.all([
+        const [loansRes, supportRes, notifsRes, meRes, donationsRes, disburseRes, usersRes] = await Promise.all([
           fetch(`${API_BASE}/loans`, { headers, signal: ac.signal }),
           fetch(`${API_BASE}/support`, { headers, signal: ac.signal }),
           fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal }),
           fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal }),
           fetch(`${API_BASE}/donations/all-stats`, { headers, signal: ac.signal }),
           fetch(`${API_BASE}/disburse`, { headers, signal: ac.signal }),
+          fetch(`${API_BASE}/auth/users`, { headers, signal: ac.signal }),
         ]);
 
         const loansJson = loansRes.ok ? await loansRes.json() : [];
@@ -145,6 +148,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         const meJson = meRes.ok ? await meRes.json() : null;
         const donationsJson = donationsRes.ok ? await donationsRes.json() : {};
         const disburseJson = disburseRes.ok ? await disburseRes.json() : [];
+        const usersJson = usersRes.ok ? await usersRes.json() : [];
 
         setLoans(Array.isArray(loansJson) ? loansJson : []);
         setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
@@ -152,6 +156,11 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         setMe(meJson?.user || null);
         setDonationStats(donationsJson || {});
         setDisbursements(Array.isArray(disburseJson) ? disburseJson : []);
+        if (Array.isArray(usersJson)) {
+          setTotalAlumni(usersJson.filter((u: any) => u?.role === 'alumni').length);
+        } else {
+          setTotalAlumni(0);
+        }
       } catch (err: any) {
         console.error('Dashboard fetch error', err);
       } finally {
@@ -160,16 +169,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     }
 
     loadAll();
-    const interval = window.setInterval(loadAll, 60000);
-    const refreshOnFocus = () => {
-      if (!document.hidden) loadAll();
-    };
-    window.addEventListener('visibilitychange', refreshOnFocus);
-    window.addEventListener('focus', refreshOnFocus);
     return () => {
-      window.clearInterval(interval);
-      window.removeEventListener('visibilitychange', refreshOnFocus);
-      window.removeEventListener('focus', refreshOnFocus);
       ac.abort();
     };
   }, []);
@@ -195,9 +195,6 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
             <p className="text-lg lg:text-xl mt-1" style={{ color: '#0b2a4a' }}>
               {loading ? 'Updating...' : formatCompactUGX(totalFundBalance)}
             </p>
-            <Badge variant="outline" className="mt-2 text-xs text-blue-600 border-blue-600">
-              {loading ? 'Syncing...' : 'Database synced'}
-            </Badge>
           </CardContent>
         </Card>
 
@@ -226,12 +223,12 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                <Wallet size={20} className="text-green-600" />
+                <Users size={20} className="text-green-600" />
               </div>
             </div>
-            <p className="text-xs text-gray-500">Total Revenue</p>
-            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : formatCompactUGX(totalRaised)}</p>
-            <p className="text-xs text-gray-500 mt-2">{loading ? 'Updating...' : `${Number(donationStats.donationCount || 0)} confirmed donations`}</p>
+            <p className="text-xs text-gray-500">Total Alumni</p>
+            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : resolvedTotalAlumni.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 mt-2">{loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}</p>
           </CardContent>
         </Card>
 
@@ -275,16 +272,16 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base lg:text-lg">Financial Breakdown</CardTitle>
-            <CardDescription>Total revenue, total expenses, and available balance</CardDescription>
+            <CardTitle className="text-base lg:text-lg">Donor Coverage</CardTitle>
+            <CardDescription>Active donors vs total alumni</CardDescription>
           </CardHeader>
           <CardContent>
-            {financialBreakdown.length ? (
+            {donorsBreakdown.length ? (
               <div className="flex items-center gap-4">
                 <ResponsiveContainer width="50%" height={200}>
                   <PieChart>
                     <Pie
-                      data={financialBreakdown}
+                      data={donorsBreakdown}
                       cx="50%"
                       cy="50%"
                       innerRadius={40}
@@ -292,29 +289,29 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
                       paddingAngle={2}
                       dataKey="value"
                     >
-                      {financialBreakdown.map((entry, index) => (
-                        <Cell key={`financial-cell-${index}`} fill={entry.color} />
+                      {donorsBreakdown.map((entry, index) => (
+                        <Cell key={`donor-cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex-1 space-y-2">
-                  {financialBreakdown.map((item) => {
-                    const share = totalFinancialValue > 0 ? Math.round((item.value / totalFinancialValue) * 100) : 0;
+                  {donorsBreakdown.map((item) => {
+                    const share = totalDonorValue > 0 ? Math.round((item.value / totalDonorValue) * 100) : 0;
                     return (
                       <div key={item.name} className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }} />
                           <span>{item.name}</span>
                         </div>
-                        <span className="text-gray-600">{formatCompactUGX(item.value)} ({share}%)</span>
+                        <span className="text-gray-600">{item.value.toLocaleString()} ({share}%)</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
             ) : (
-              <div className="text-sm text-muted-foreground">No financial data yet.</div>
+              <div className="text-sm text-muted-foreground">No alumni/donor data yet.</div>
             )}
           </CardContent>
         </Card>
