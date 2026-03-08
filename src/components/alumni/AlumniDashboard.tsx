@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { DollarSign, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { DollarSign, Wallet, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { User } from '../../App';
 import { API_BASE } from '../../api';
 
@@ -71,11 +71,6 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   const totalRaised = Number(donationStats.totalRaised || 0);
   const totalDisbursed = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
   const totalFundBalance = totalRaised - totalDisbursed;
-  const activeBeneficiaries = new Set(
-    disbursements
-      .map((d) => d.student_uid)
-      .filter((uid): uid is string => Boolean(uid))
-  ).size;
 
   const formatCompactUGX = (value: number) => {
     if (value >= 1000000000) return `UGX ${(value / 1000000000).toFixed(1)}B`;
@@ -108,57 +103,13 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     return months;
   })();
 
-  const incomeSources = (() => {
-    const byCause = donationStats.byCause || {};
-    const entries = Object.entries(byCause).filter(([, amount]) => Number(amount) > 0);
-    const colors = ['#0b2a4a', '#c79b2d', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
+  const financialBreakdown = [
+    { name: 'Total Revenue', value: Math.max(totalRaised, 0), color: '#0b2a4a' },
+    { name: 'Total Expenses', value: Math.max(totalDisbursed, 0), color: '#c79b2d' },
+    { name: 'Available Balance', value: Math.max(totalFundBalance, 0), color: '#10b981' },
+  ].filter((item) => item.value > 0);
 
-    if (!entries.length) {
-      return totalRaised > 0
-        ? [{ name: 'Donations', amount: totalRaised, color: colors[0] }]
-        : [];
-    }
-
-    return entries
-      .sort((a, b) => Number(b[1]) - Number(a[1]))
-      .map(([name, amount], index) => ({
-        name,
-        amount: Number(amount) || 0,
-        color: colors[index % colors.length],
-      }));
-  })();
-
-  const totalIncomeSourcesAmount = incomeSources.reduce((sum, source) => sum + source.amount, 0);
-
-  const beneficiaryTrend = (() => {
-    const months: { key: string; month: string; beneficiaries: number }[] = [];
-    const setsByMonth: Record<string, Set<string>> = {};
-    const now = new Date();
-
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      months.push({ key, month: d.toLocaleString(undefined, { month: 'short' }), beneficiaries: 0 });
-      setsByMonth[key] = new Set<string>();
-    }
-
-    disbursements.forEach((item) => {
-      const uid = item.student_uid;
-      const dateRaw = item.approved_at || item.created_at;
-      if (!uid || !dateRaw) return;
-      const d = new Date(dateRaw);
-      if (Number.isNaN(d.getTime())) return;
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (setsByMonth[key]) {
-        setsByMonth[key].add(uid);
-      }
-    });
-
-    return months.map((m) => ({
-      month: m.month,
-      beneficiaries: setsByMonth[m.key]?.size || 0,
-    }));
-  })();
+  const totalFinancialValue = financialBreakdown.reduce((sum, item) => sum + item.value, 0);
 
   const recentActivities = notifications.slice(0, 6).map((n, idx) => ({
     id: n.id ?? idx,
@@ -209,9 +160,16 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     }
 
     loadAll();
-    const interval = window.setInterval(loadAll, 15000);
+    const interval = window.setInterval(loadAll, 60000);
+    const refreshOnFocus = () => {
+      if (!document.hidden) loadAll();
+    };
+    window.addEventListener('visibilitychange', refreshOnFocus);
+    window.addEventListener('focus', refreshOnFocus);
     return () => {
       window.clearInterval(interval);
+      window.removeEventListener('visibilitychange', refreshOnFocus);
+      window.removeEventListener('focus', refreshOnFocus);
       ac.abort();
     };
   }, []);
@@ -238,7 +196,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
               {loading ? 'Updating...' : formatCompactUGX(totalFundBalance)}
             </p>
             <Badge variant="outline" className="mt-2 text-xs text-blue-600 border-blue-600">
-              {loading ? 'Syncing...' : 'Live balance'}
+              {loading ? 'Syncing...' : 'Database synced'}
             </Badge>
           </CardContent>
         </Card>
@@ -268,12 +226,12 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                <Users size={20} className="text-green-600" />
+                <Wallet size={20} className="text-green-600" />
               </div>
             </div>
-            <p className="text-xs text-gray-500">Active Beneficiaries</p>
-            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : activeBeneficiaries}</p>
-            <p className="text-xs text-gray-500 mt-2">Unique disbursed students</p>
+            <p className="text-xs text-gray-500">Total Revenue</p>
+            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : formatCompactUGX(totalRaised)}</p>
+            <p className="text-xs text-gray-500 mt-2">{loading ? 'Updating...' : `${Number(donationStats.donationCount || 0)} confirmed donations`}</p>
           </CardContent>
         </Card>
 
@@ -317,19 +275,47 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base lg:text-lg">Beneficiary Activity</CardTitle>
-            <CardDescription>Unique students disbursed (last 6 months)</CardDescription>
+            <CardTitle className="text-base lg:text-lg">Financial Breakdown</CardTitle>
+            <CardDescription>Total revenue, total expenses, and available balance</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={beneficiaryTrend}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="beneficiaries" stroke="#10b981" strokeWidth={2.5} />
-              </LineChart>
-            </ResponsiveContainer>
+            {financialBreakdown.length ? (
+              <div className="flex items-center gap-4">
+                <ResponsiveContainer width="50%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={financialBreakdown}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {financialBreakdown.map((entry, index) => (
+                        <Cell key={`financial-cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex-1 space-y-2">
+                  {financialBreakdown.map((item) => {
+                    const share = totalFinancialValue > 0 ? Math.round((item.value / totalFinancialValue) * 100) : 0;
+                    return (
+                      <div key={item.name} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }} />
+                          <span>{item.name}</span>
+                        </div>
+                        <span className="text-gray-600">{formatCompactUGX(item.value)} ({share}%)</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">No financial data yet.</div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -395,40 +381,33 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         </CardContent>
       </Card>
 
-      {/* Income Sources */}
+      {/* Financial Totals */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base lg:text-lg">Income Sources</CardTitle>
-          <CardDescription>Ranked by actual donation amounts</CardDescription>
+          <CardTitle className="text-base lg:text-lg">Financial Totals</CardTitle>
+          <CardDescription>Current totals from the database</CardDescription>
         </CardHeader>
         <CardContent>
-          {incomeSources.length ? (
-            <div className="space-y-3">
-              {incomeSources.map((source) => {
-                const share = totalIncomeSourcesAmount > 0
-                  ? Math.round((source.amount / totalIncomeSourcesAmount) * 100)
-                  : 0;
-                return (
-                  <div key={source.name} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>{source.name}</span>
-                      <span className="text-gray-600">
-                        {formatCompactUGX(source.amount)} ({share}%)
-                      </span>
-                    </div>
-                    <div className="h-2.5 rounded bg-gray-100 overflow-hidden">
-                      <div
-                        className="h-full rounded"
-                        style={{ width: `${share}%`, backgroundColor: source.color }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="p-3 rounded-lg bg-blue-50">
+              <p className="text-xs text-gray-500">Total Revenue</p>
+              <p className="text-lg mt-1" style={{ color: '#0b2a4a' }}>
+                {loading ? '...' : formatCompactUGX(totalRaised)}
+              </p>
             </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">No income source data yet.</div>
-          )}
+            <div className="p-3 rounded-lg bg-yellow-50">
+              <p className="text-xs text-gray-500">Total Expenses</p>
+              <p className="text-lg mt-1" style={{ color: '#c79b2d' }}>
+                {loading ? '...' : formatCompactUGX(totalDisbursed)}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-green-50">
+              <p className="text-xs text-gray-500">Available Balance</p>
+              <p className="text-lg mt-1 text-green-700">
+                {loading ? '...' : formatCompactUGX(totalFundBalance)}
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
