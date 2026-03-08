@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { DollarSign, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import type { User } from '../../App';
 import { API_BASE } from '../../api';
 
@@ -42,6 +42,7 @@ type DonationStats = {
   totalRaised?: number;
   donorCount?: number;
   donationCount?: number;
+  byCause?: Record<string, number>;
 };
 
 type DisbursementItem = {
@@ -50,6 +51,7 @@ type DisbursementItem = {
   net_amount?: number;
   original_amount?: number;
   approved_at?: string;
+  created_at?: string;
 };
 
 export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
@@ -106,46 +108,56 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     return months;
   })();
 
-  // income breakdown best-effort: group by source field if available in supportRequests/loans
-  const incomeBreakdown = (() => {
-    // fallback static when no data
-    if (!supportRequests.length && !loans.length) {
-      return [
-        { name: 'Graduand Fees', value: 45, color: '#0b2a4a' },
-        { name: 'Donations', value: 33, color: '#c79b2d' },
-        { name: 'Events', value: 32, color: '#3b82f6' },
-        { name: 'Merchandise', value: 15, color: '#10b981' },
-      ];
+  const incomeSources = (() => {
+    const byCause = donationStats.byCause || {};
+    const entries = Object.entries(byCause).filter(([, amount]) => Number(amount) > 0);
+    const colors = ['#0b2a4a', '#c79b2d', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
+
+    if (!entries.length) {
+      return totalRaised > 0
+        ? [{ name: 'Donations', amount: totalRaised, color: colors[0] }]
+        : [];
     }
-    // naive distribution: count support requests by simple heuristics
-    const counts: Record<string, number> = { graduand: 0, donations: 0, events: 0, merch: 0 };
-    supportRequests.forEach(r => {
-      const details = JSON.stringify(r).toLowerCase();
-      if (details.includes('graduand') || details.includes('fee')) counts.graduand += Number(r.amountRequested ?? 0);
-      else if (details.includes('donation')) counts.donations += Number(r.amountRequested ?? 0);
-      else if (details.includes('event')) counts.events += Number(r.amountRequested ?? 0);
-      else counts.merch += Number(r.amountRequested ?? 0);
+
+    return entries
+      .sort((a, b) => Number(b[1]) - Number(a[1]))
+      .map(([name, amount], index) => ({
+        name,
+        amount: Number(amount) || 0,
+        color: colors[index % colors.length],
+      }));
+  })();
+
+  const totalIncomeSourcesAmount = incomeSources.reduce((sum, source) => sum + source.amount, 0);
+
+  const beneficiaryTrend = (() => {
+    const months: { key: string; month: string; beneficiaries: number }[] = [];
+    const setsByMonth: Record<string, Set<string>> = {};
+    const now = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      months.push({ key, month: d.toLocaleString(undefined, { month: 'short' }), beneficiaries: 0 });
+      setsByMonth[key] = new Set<string>();
+    }
+
+    disbursements.forEach((item) => {
+      const uid = item.student_uid;
+      const dateRaw = item.approved_at || item.created_at;
+      if (!uid || !dateRaw) return;
+      const d = new Date(dateRaw);
+      if (Number.isNaN(d.getTime())) return;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (setsByMonth[key]) {
+        setsByMonth[key].add(uid);
+      }
     });
-    // if counts are zero fallback to loan-based totals
-    const total =
-      counts.graduand + counts.donations + counts.events + counts.merch ||
-      loans.reduce((s, l) => s + Number(l.amount ?? l.disbursedAmount ?? 0), 0);
 
-    if (!total) {
-      return [
-        { name: 'Graduand Fees', value: 45, color: '#0b2a4a' },
-        { name: 'Donations', value: 33, color: '#c79b2d' },
-        { name: 'Events', value: 32, color: '#3b82f6' },
-        { name: 'Merchandise', value: 15, color: '#10b981' },
-      ];
-    }
-
-    return [
-      { name: 'Graduand Fees', value: Math.round((counts.graduand / total) * 100) || 10, color: '#0b2a4a' },
-      { name: 'Donations', value: Math.round((counts.donations / total) * 100) || 10, color: '#c79b2d' },
-      { name: 'Events', value: Math.round((counts.events / total) * 100) || 10, color: '#3b82f6' },
-      { name: 'Merchandise', value: Math.round((counts.merch / total) * 100) || 10, color: '#10b981' },
-    ];
+    return months.map((m) => ({
+      month: m.month,
+      beneficiaries: setsByMonth[m.key]?.size || 0,
+    }));
   })();
 
   const recentActivities = notifications.slice(0, 6).map((n, idx) => ({
@@ -305,40 +317,19 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base lg:text-lg">Income Sources</CardTitle>
-            <CardDescription>Distribution by category (best-effort)</CardDescription>
+            <CardTitle className="text-base lg:text-lg">Beneficiary Activity</CardTitle>
+            <CardDescription>Unique students disbursed (last 6 months)</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
-              <ResponsiveContainer width="50%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={incomeBreakdown}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {incomeBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex-1 space-y-2">
-                {incomeBreakdown.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }}></div>
-                      <span>{item.name}</span>
-                    </div>
-                    <span className="text-gray-600">{item.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={beneficiaryTrend}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Line type="monotone" dataKey="beneficiaries" stroke="#10b981" strokeWidth={2.5} />
+              </LineChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
@@ -404,42 +395,40 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         </CardContent>
       </Card>
 
-      {/* Income Breakdown Details */}
+      {/* Income Sources */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base lg:text-lg">Fund Sources Breakdown</CardTitle>
+          <CardTitle className="text-base lg:text-lg">Income Sources</CardTitle>
+          <CardDescription>Ranked by actual donation amounts</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-              <div>
-                <p className="text-sm">Graduand Fees</p>
-                <p className="text-xs text-gray-600">Annual registration fees</p>
-              </div>
-              <p className="text-base" style={{ color: '#0b2a4a' }}>{Math.round((incomeBreakdown[0]?.value ?? 45))}%</p>
+          {incomeSources.length ? (
+            <div className="space-y-3">
+              {incomeSources.map((source) => {
+                const share = totalIncomeSourcesAmount > 0
+                  ? Math.round((source.amount / totalIncomeSourcesAmount) * 100)
+                  : 0;
+                return (
+                  <div key={source.name} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{source.name}</span>
+                      <span className="text-gray-600">
+                        {formatCompactUGX(source.amount)} ({share}%)
+                      </span>
+                    </div>
+                    <div className="h-2.5 rounded bg-gray-100 overflow-hidden">
+                      <div
+                        className="h-full rounded"
+                        style={{ width: `${share}%`, backgroundColor: source.color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-              <div>
-                <p className="text-sm">Donations</p>
-                <p className="text-xs text-gray-600">Alumni contributions</p>
-              </div>
-              <p className="text-base" style={{ color: '#c79b2d' }}>{Math.round((incomeBreakdown[1]?.value ?? 33))}%</p>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <div>
-                <p className="text-sm">Event Revenue</p>
-                <p className="text-xs text-gray-600">Conferences & gatherings</p>
-              </div>
-              <p className="text-base text-green-600">{Math.round((incomeBreakdown[2]?.value ?? 32))}%</p>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-              <div>
-                <p className="text-sm">Merchandise Sales</p>
-                <p className="text-xs text-gray-600">Branded products</p>
-              </div>
-              <p className="text-base text-purple-600">{Math.round((incomeBreakdown[3]?.value ?? 15))}%</p>
-            </div>
-          </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">No income source data yet.</div>
+          )}
         </CardContent>
       </Card>
     </div>
