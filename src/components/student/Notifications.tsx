@@ -199,7 +199,7 @@ export function Notifications({ user, onBack }: NotificationsProps) {
             <Card 
               key={notification.id} 
               className={`${!notification.read ? 'border-l-4' : ''} cursor-pointer hover:shadow-md transition-shadow`} 
-              style={!notification.read ? { borderLeftColor: '#0b2a4a' } : {}}
+              style={!notification.read ? { borderLeftColor: 'var(--primary)' } : {}}
               onClick={() => handleNotificationClick(notification)}
             >
               <CardContent className="p-4">

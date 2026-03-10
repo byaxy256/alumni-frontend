@@ -223,8 +223,8 @@ export default function AdminReports() {
   const expenseBreakdown = useMemo(() => {
     if (!summary) return [];
     return [
-      { name: 'Loan Disbursements', value: summary.expenseBreakdown.loanDisbursements, color: '#0b2a4a' },
-      { name: 'Support Grants', value: summary.expenseBreakdown.supportGrants, color: '#c79b2d' },
+      { name: 'Loan Disbursements', value: summary.expenseBreakdown.loanDisbursements, color: 'var(--primary)' },
+      { name: 'Support Grants', value: summary.expenseBreakdown.supportGrants, color: 'var(--accent)' },
     ];
   }, [summary]);
 
@@ -301,8 +301,8 @@ export default function AdminReports() {
                 <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} />
                 <Tooltip formatter={(value) => formatCurrency(value as number)} />
                 <Legend />
-                <Bar dataKey="income" fill="#0b2a4a" name="Income" />
-                <Bar dataKey="expenses" fill="#c79b2d" name="Expenses" />
+                <Bar dataKey="income" fill="var(--primary)" name="Income" />
+                <Bar dataKey="expenses" fill="var(--accent)" name="Expenses" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

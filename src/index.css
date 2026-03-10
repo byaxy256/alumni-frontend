@@ -3933,6 +3933,73 @@ body {
   background-color: var(--muted);
 }
 
+/* UCU brand utility remap for legacy blue/purple classes used across dashboards */
+.bg-blue-50 { background-color: rgba(47,95,191,0.10); }
+@supports (background-color: color-mix(in oklab, var(--brand-blue) 10%, transparent)) {
+  .bg-blue-50 { background-color: color-mix(in oklab, var(--brand-blue) 10%, transparent); }
+}
+.bg-blue-100 { background-color: rgba(47,95,191,0.18); }
+@supports (background-color: color-mix(in oklab, var(--brand-blue) 18%, transparent)) {
+  .bg-blue-100 { background-color: color-mix(in oklab, var(--brand-blue) 18%, transparent); }
+}
+.bg-blue-500,
+.bg-blue-600,
+.bg-blue-700 { background-color: var(--brand-blue); }
+.text-blue-600,
+.bg-purple-50 { background-color: rgba(106,63,160,0.10); }
+@supports (background-color: color-mix(in oklab, var(--brand-purple) 10%, transparent)) {
+  .bg-purple-50 { background-color: rgba(106,63,160,0.10); }
+  @supports (background-color: color-mix(in oklab, var(--brand-purple) 10%, transparent)) {
+    .bg-purple-50 { background-color: color-mix(in oklab, var(--brand-purple) 10%, transparent); }
+  }
+}
+.bg-purple-100 { background-color: rgba(106,63,160,0.18); }
+@supports (background-color: color-mix(in oklab, var(--brand-purple) 18%, transparent)) {
+  .bg-purple-100 { background-color: color-mix(in oklab, var(--brand-purple) 18%, transparent); }
+}
+.bg-purple-500,
+.bg-purple-600,
+.bg-purple-700 { background-color: var(--brand-purple); }
+.text-purple-600,
+.text-purple-700,
+.text-purple-800,
+.text-purple-900 { color: var(--brand-purple); }
+.border-purple-300 { border-color: rgb(190,168,183); }
+@supports (border-color: color-mix(in oklab, var(--brand-purple) 30%, var(--border))) {
+  .border-purple-300 { border-color: rgb(190,168,183); }
+  @supports (border-color: color-mix(in oklab, var(--brand-purple) 30%, var(--border))) {
+    .border-purple-300 { border-color: rgb(190,168,183); }
+    @supports (border-color: color-mix(in oklab, var(--brand-purple) 30%, var(--border))) {
+      .border-purple-300 { border-color: rgb(190,168,183); }
+    }
+  }
+}
+.bg-purple-50 { background-color: rgba(106,63,160,0.10); }
+@supports (background-color: color-mix(in oklab, var(--brand-purple) 10%, transparent)) {
+  .bg-purple-50 { background-color: color-mix(in oklab, var(--brand-purple) 10%, transparent); }
+}
+.bg-purple-100 { background-color: rgba(106,63,160,0.18); }
+@supports (background-color: color-mix(in oklab, var(--brand-purple) 18%, transparent)) {
+  .bg-purple-100 { background-color: color-mix(in oklab, var(--brand-purple) 18%, transparent); }
+}
+.bg-purple-500,
+.bg-purple-600,
+.bg-purple-700 { background-color: var(--brand-purple); }
+.text-purple-600,
+.text-purple-700,
+.text-purple-800,
+.text-purple-900 { color: var(--brand-purple); }
+/* Fallback for browsers that don't support color-mix (e.g. Chrome < 111) */
+.border-purple-300 { border-color: rgb(190,168,183); }
+@supports (border-color: color-mix(in oklab, var(--brand-purple) 30%, var(--border))) {
+  .border-purple-300 { border-color: color-mix(in oklab, var(--brand-purple) 30%, var(--border)); }
+}
+
+.from-blue-500 { --tw-gradient-from: var(--brand-blue); }
+.to-blue-700 { --tw-gradient-to: var(--brand-blue); }
+.from-purple-500 { --tw-gradient-from: var(--brand-purple); }
+.to-purple-700 { --tw-gradient-to: var(--brand-purple); }
+
 html {
   font-size: var(--font-size);
 }

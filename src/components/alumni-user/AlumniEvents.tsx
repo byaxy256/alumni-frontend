@@ -273,14 +273,14 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
                 <div className="flex items-center justify-between pt-4 border-t">
                   <div>
                     <p className="text-xs text-gray-500">Registration Fee</p>
-                    <p className="text-base" style={{ color: '#0b2a4a' }}>
+                    <p className="text-base" style={{ color: 'var(--primary)' }}>
                       {event.registrationFee === 0
                         ? 'Free'
                         : `UGX ${event.registrationFee.toLocaleString()}`}
                     </p>
                   </div>
                   <Button
-                    style={{ backgroundColor: '#c79b2d' }}
+                    style={{ backgroundColor: 'var(--accent)' }}
                     onClick={() => handleRegister(event.id, event.registrationFee)}
                     disabled={registering === event.id || registered.has(event.id)}
                     className="flex gap-2"
@@ -324,7 +324,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
                     <span>Amount to Pay:</span>
-                    <span style={{ color: '#c79b2d' }}>
+                    <span style={{ color: 'var(--accent)' }}>
                       UGX {selectedEvent.registrationFee.toLocaleString()}
                     </span>
                   </div>
@@ -372,7 +372,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
                     Cancel
                   </Button>
                   <Button
-                    style={{ backgroundColor: '#c79b2d' }}
+                    style={{ backgroundColor: 'var(--accent)' }}
                     className="flex-1"
                     onClick={handlePaymentSubmit}
                     disabled={registering === selectedEvent.id || !accessNumber}

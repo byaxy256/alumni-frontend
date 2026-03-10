@@ -225,7 +225,7 @@ export default function ApplicationsQueue() {
                 </div>
                 {selectedApplications.length > 0 && (
                 <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleBulkAction()} style={{ backgroundColor: '#c79b2d' }}>
+                    <Button size="sm" onClick={() => handleBulkAction()} style={{ backgroundColor: 'var(--accent)' }}>
                         <Check size={16} className="mr-2" /> Approve ({selectedApplications.length})
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => handleBulkAction()}>
@@ -268,7 +268,7 @@ export default function ApplicationsQueue() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-base font-semibold">{application.student.name}</p>
                           <Badge variant="outline" className="text-xs">{application.student.id}</Badge>
-                          <Badge style={application.type === 'loan' ? { backgroundColor: '#0b2a4a' } : { backgroundColor: '#c79b2d' }} className="text-white text-xs capitalize">
+                          <Badge style={application.type === 'loan' ? { backgroundColor: 'var(--primary)' } : { backgroundColor: 'var(--accent)' }} className="text-white text-xs capitalize">
                             {application.type}
                           </Badge>
                         </div>
@@ -276,7 +276,7 @@ export default function ApplicationsQueue() {
                         <p className="text-xs text-gray-400">Applied: {application.submittedDate}</p>
                       </div>
                       <div className="text-left lg:text-right">
-                        <p className="text-lg font-bold" style={{ color: '#0b2a4a' }}>UGX {application.amount.toLocaleString()}</p>
+                        <p className="text-lg font-bold" style={{ color: 'var(--primary)' }}>UGX {application.amount.toLocaleString()}</p>
                         {application.type === 'loan' && <p className="text-xs text-gray-500">{application.repaymentPeriod} months repayment</p>}
                       </div>
                     </div>
@@ -303,7 +303,7 @@ export default function ApplicationsQueue() {
                        <Button size="sm" variant="outline" onClick={() => { setSelectedApplication(application); setIsDetailsDialogOpen(true); }}>
                          <Eye size={16} className="mr-2" /> View Details
                        </Button>
-                       <Button size="sm" onClick={() => handleApprove(application)} style={{ backgroundColor: '#c79b2d' }}>
+                       <Button size="sm" onClick={() => handleApprove(application)} style={{ backgroundColor: 'var(--accent)' }}>
                          <Check size={16} className="mr-2" /> Approve
                        </Button>
                        <Button size="sm" variant="outline" onClick={() => handleReject(application)}>
@@ -369,7 +369,7 @@ export default function ApplicationsQueue() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={confirmApproval} style={{ backgroundColor: '#c79b2d' }}>Approve</AlertDialogAction>
+                  <AlertDialogAction onClick={confirmApproval} style={{ backgroundColor: 'var(--accent)' }}>Approve</AlertDialogAction>
               </AlertDialogFooter>
           </AlertDialogContent>
         )}

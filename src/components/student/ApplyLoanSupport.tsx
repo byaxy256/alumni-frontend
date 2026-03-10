@@ -435,8 +435,8 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
 
             {/* Guarantor fields for loans */}
             {applicationType === 'loan' && (
-              <div className="space-y-4 p-4 rounded-lg border" style={{ backgroundColor: '#0b2a4a', borderColor: '#c79b2d' }}>
-                <h4 className="font-semibold text-sm" style={{ color: '#c79b2d' }}>Guarantor Information *</h4>
+              <div className="space-y-4 p-4 rounded-lg border" style={{ backgroundColor: 'var(--primary)', borderColor: 'var(--accent)' }}>
+                <h4 className="font-semibold text-sm" style={{ color: 'var(--accent)' }}>Guarantor Information *</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="guarantorName" style={{ color: '#ffffff' }}>Guarantor Name</Label>
@@ -470,7 +470,7 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
                     maxLength={PHONE_MAX_LENGTH}
                     required
                   />
-                  <p className="text-xs mt-1" style={{ color: '#c79b2d' }}>{formData.guarantorPhone.length}/{PHONE_MAX_LENGTH} characters</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--accent)' }}>{formData.guarantorPhone.length}/{PHONE_MAX_LENGTH} characters</p>
                 </div>
               </div>
             )}

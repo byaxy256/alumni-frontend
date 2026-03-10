@@ -231,7 +231,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
           <div className="flex items-center justify-between">
             <h2 className="text-lg">Loan Details</h2>
             {activeLoan && (
-              <Badge style={{ backgroundColor: '#c79b2d' }} className="text-white capitalize">
+              <Badge style={{ backgroundColor: 'var(--accent)' }} className="text-white capitalize">
                 {activeLoan.status}
               </Badge>
             )}
@@ -258,7 +258,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Outstanding Balance</p>
-                  <p className="text-base font-bold" style={{ color: '#0b2a4a' }}>
+                  <p className="text-base font-bold" style={{ color: 'var(--primary)' }}>
                     UGX {Number(activeLoan.outstanding_balance ?? 0).toLocaleString()}
                   </p>
                 </div>
@@ -275,7 +275,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
                   </p>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="h-2 rounded-full" style={{ backgroundColor: '#c79b2d', width: `${activeLoan.amount_requested ? ((activeLoan.amount_requested - activeLoan.outstanding_balance) / activeLoan.amount_requested) * 100 : 0}%` }}></div>
+                  <div className="h-2 rounded-full" style={{ backgroundColor: 'var(--accent)', width: `${activeLoan.amount_requested ? ((activeLoan.amount_requested - activeLoan.outstanding_balance) / activeLoan.amount_requested) * 100 : 0}%` }}></div>
                 </div>
               </div>
             </CardContent>
@@ -303,7 +303,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
           <div className="grid grid-cols-2 gap-3">
             <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
               <DialogTrigger asChild>
-                <Button className="w-full" style={{ backgroundColor: '#0b2a4a' }}>
+                <Button className="w-full" style={{ backgroundColor: 'var(--primary)' }}>
                   <DollarSign size={16} className="mr-2" /> Make Payment
                 </Button>
               </DialogTrigger>
@@ -327,7 +327,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>Cancel</Button>
-                  <Button onClick={handleMakePayment} style={{ backgroundColor: '#c79b2d' }} disabled={isSubmittingPayment}>
+                  <Button onClick={handleMakePayment} style={{ backgroundColor: 'var(--accent)' }} disabled={isSubmittingPayment}>
                     {isSubmittingPayment ? (
                       <>
                         <Loader2 size={16} className="mr-2 animate-spin" /> Processing...

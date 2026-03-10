@@ -68,9 +68,9 @@ const incomeData = [
 ];
 
 const expenseBreakdown = [
-  { name: 'Loan Disbursements', value: 65000000, color: '#0b2a4a' },
-  { name: 'Support Grants', value: 25000000, color: '#c79b2d' },
-  { name: 'Operational Costs', value: 8000000, color: '#2d5a7b' },
+  { name: 'Loan Disbursements', value: 65000000, color: 'var(--primary)' },
+  { name: 'Support Grants', value: 25000000, color: 'var(--accent)' },
+  { name: 'Operational Costs', value: 8000000, color: 'var(--brand-blue)' },
   { name: 'Project Expenses', value: 15000000, color: '#e6c86f' },
   { name: 'Other', value: 3000000, color: '#8a9ba8' },
 ];
@@ -225,9 +225,9 @@ export default function Reports() {
                 <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} />
                 <Tooltip formatter={(value) => formatCurrency(value as number)} />
                 <Legend />
-                <Bar dataKey="graduandFees" stackId="a" fill="#0b2a4a" name="Graduand Fees" />
-                <Bar dataKey="donations" stackId="a" fill="#c79b2d" name="Donations" />
-                <Bar dataKey="merchEvents" stackId="a" fill="#2d5a7b" name="Merch & Events" />
+                <Bar dataKey="graduandFees" stackId="a" fill="var(--primary)" name="Graduand Fees" />
+                <Bar dataKey="donations" stackId="a" fill="var(--accent)" name="Donations" />
+                <Bar dataKey="merchEvents" stackId="a" fill="var(--brand-blue)" name="Merch & Events" />
                 <Bar dataKey="other" stackId="a" fill="#8a9ba8" name="Other" />
               </BarChart>
             </ResponsiveContainer>

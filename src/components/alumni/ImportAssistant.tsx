@@ -210,7 +210,7 @@ export default function ImportAssistant() {
               <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
                 Back
               </Button>
-              <Button onClick={handleDryRun} className="flex-1" style={{ backgroundColor: '#0b2a4a' }}>
+              <Button onClick={handleDryRun} className="flex-1" style={{ backgroundColor: 'var(--primary)' }}>
                 Run Dry Run
               </Button>
             </div>
@@ -308,7 +308,7 @@ export default function ImportAssistant() {
               <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
                 Back
               </Button>
-              <Button onClick={handleImport} className="flex-1" style={{ backgroundColor: '#c79b2d' }}>
+              <Button onClick={handleImport} className="flex-1" style={{ backgroundColor: 'var(--accent)' }}>
                 <Upload size={16} className="mr-2" />
                 Start Import
               </Button>
@@ -339,7 +339,7 @@ export default function ImportAssistant() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
                       step >= stepNum
-                        ? 'bg-[#0b2a4a] text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : 'bg-gray-200 text-gray-600'
                     }`}
                   >
@@ -348,7 +348,7 @@ export default function ImportAssistant() {
                   {stepNum < 3 && (
                     <div
                       className={`flex-1 h-1 rounded ${
-                        step > stepNum ? 'bg-[#0b2a4a]' : 'bg-gray-200'
+                        step > stepNum ? 'bg-primary' : 'bg-gray-200'
                       }`}
                     ></div>
                   )}
