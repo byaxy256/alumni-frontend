@@ -27,12 +27,20 @@ export function ThemeToggle() {
   }
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null
-    if (savedTheme) {
-      setTheme(savedTheme)
-      applyTheme(savedTheme)
+    const savedTheme = localStorage.getItem('theme')
+    const validTheme: Theme | null =
+      savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system'
+        ? savedTheme
+        : null
+    const hasManualPreference = localStorage.getItem('themePreferenceSet') === '1'
+
+    if (validTheme && hasManualPreference) {
+      setTheme(validTheme)
+      applyTheme(validTheme)
     } else {
       // Default to system theme
+      setTheme('system')
+      localStorage.setItem('theme', 'system')
       applyTheme('system')
     }
     setMounted(true)
@@ -40,8 +48,12 @@ export function ThemeToggle() {
     // Keep in sync with system preference when using system mode
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     const handleSystemChange = () => {
-      const stored = (localStorage.getItem('theme') as Theme | null) || 'system'
-      if (stored === 'system') applyTheme('system')
+      const stored = localStorage.getItem('theme')
+      const resolved: Theme =
+        stored === 'light' || stored === 'dark' || stored === 'system'
+          ? stored
+          : 'system'
+      if (resolved === 'system') applyTheme('system')
     }
     media.addEventListener('change', handleSystemChange)
     return () => media.removeEventListener('change', handleSystemChange)
@@ -49,6 +61,7 @@ export function ThemeToggle() {
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme)
+    localStorage.setItem('themePreferenceSet', '1')
     localStorage.setItem('theme', newTheme)
     applyTheme(newTheme)
   }

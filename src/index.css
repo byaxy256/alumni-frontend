@@ -3707,89 +3707,89 @@ body[data-scroll-locked] {
 :root {
   --font-size: 16px;
   --font-sans: "Manrope", "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-  --background: #ffffff;
-  --foreground: #0b2a4a;
-  --card: #ffffff;
-  --card-foreground: #0f1522;
-  --popover: #ffffff;
-  --popover-foreground: #0f1522;
-  --primary: #0b2a4a;
-  --primary-foreground: #f5f7fb;
-  --secondary: #f4f6f9;
-  --secondary-foreground: #0b2a4a;
+  --background: #f8f5f0;
+  --foreground: #2f1f1b;
+  --card: #fffdf9;
+  --card-foreground: #2f1f1b;
+  --popover: #fffdf9;
+  --popover-foreground: #2f1f1b;
+  --primary: #7a1f2a;
+  --primary-foreground: #fff5ea;
+  --secondary: #efe5d5;
+  --secondary-foreground: #5b2730;
   --accent: #c79b2d;
-  --accent-foreground: #0b2a4a;
-  --muted: #f2f4f7;
-  --muted-foreground: #5b6b7a;
+  --accent-foreground: #2f1f1b;
+  --muted: #f2ece1;
+  --muted-foreground: #6b5a52;
   --destructive: #d4183d;
   --destructive-foreground: #fff;
-  --border: #e4e8ef;
+  --border: #e2d5c1;
   --input: transparent;
-  --input-background: #f6f7fa;
-  --switch-background: #c7cfdb;
+  --input-background: #f5efe4;
+  --switch-background: #cdb28f;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #c79b2d;
-  --chart-1: #0b2a4a;
+  --ring: #7a1f2a;
+  --chart-1: #7a1f2a;
   --chart-2: #c79b2d;
-  --chart-3: #2d5a7b;
-  --chart-4: #e6c86f;
-  --chart-5: #8a9ba8;
+  --chart-3: #9f3645;
+  --chart-4: #e2bb66;
+  --chart-5: #b78e54;
   --radius: .6rem;
-  --sidebar: #0b2a4a;
-  --sidebar-foreground: #f5f7fb;
+  --sidebar: #5b1420;
+  --sidebar-foreground: #fff5ea;
   --sidebar-primary: #c79b2d;
-  --sidebar-primary-foreground: #1a1200;
-  --sidebar-accent: #2d5a7b;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #d7dde7;
-  --sidebar-ring: #6aa7ff;
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(11, 42, 74, 0.08);
-  --glass-shadow: 0 14px 40px rgba(11, 42, 74, 0.12);
+  --sidebar-primary-foreground: #2f1f1b;
+  --sidebar-accent: #8f2e3d;
+  --sidebar-accent-foreground: #fff5ea;
+  --sidebar-border: #7a1f2a;
+  --sidebar-ring: #d6ac55;
+  --glass-bg: rgba(255, 253, 249, 0.86);
+  --glass-border: rgba(122, 31, 42, 0.18);
+  --glass-shadow: 0 14px 40px rgba(88, 20, 31, 0.16);
   --accent-soft: rgba(199, 155, 45, 0.14);
 }
 
 .dark {
-  --background: #0b0d12;
-  --foreground: #eef2f7;
-  --card: #141823;
-  --card-foreground: #eef2f7;
-  --popover: #141823;
-  --popover-foreground: #eef2f7;
-  --primary: #e7edf6;
-  --primary-foreground: #0b0d12;
-  --secondary: #1a2030;
-  --secondary-foreground: #e7edf6;
-  --accent: #f4c95d;
-  --accent-foreground: #1a1200;
-  --muted: #161b26;
-  --muted-foreground: #9aa6b2;
+  --background: #140f14;
+  --foreground: #f3eadf;
+  --card: #1d151c;
+  --card-foreground: #f3eadf;
+  --popover: #1d151c;
+  --popover-foreground: #f3eadf;
+  --primary: #e0b75e;
+  --primary-foreground: #2f1f1b;
+  --secondary: #2a1d25;
+  --secondary-foreground: #f3eadf;
+  --accent: #b33a4c;
+  --accent-foreground: #fff5ea;
+  --muted: #221820;
+  --muted-foreground: #b6a89d;
   --destructive: #f87171;
   --destructive-foreground: #2b0c0c;
-  --border: #232a3a;
-  --input: #1b2130;
-  --input-background: #121826;
-  --ring: #6ab7ff;
+  --border: #352630;
+  --input: #2a1d25;
+  --input-background: #1d151c;
+  --ring: #e0b75e;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #6ab7ff;
-  --chart-2: #f4c95d;
-  --chart-3: #3aa6b9;
-  --chart-4: #8b6cff;
-  --chart-5: #7dd3fc;
-  --sidebar: #0f1420;
-  --sidebar-foreground: #e7edf6;
-  --sidebar-primary: #f4c95d;
-  --sidebar-primary-foreground: #1a1200;
-  --sidebar-accent: #1a2232;
-  --sidebar-accent-foreground: #e7edf6;
-  --sidebar-border: #1f2535;
-  --sidebar-ring: #6ab7ff;
-  --glass-bg: rgba(20, 24, 35, 0.68);
+  --chart-1: #e0b75e;
+  --chart-2: #b33a4c;
+  --chart-3: #d08c54;
+  --chart-4: #7a1f2a;
+  --chart-5: #f0d7a4;
+  --sidebar: #170f16;
+  --sidebar-foreground: #f3eadf;
+  --sidebar-primary: #e0b75e;
+  --sidebar-primary-foreground: #2f1f1b;
+  --sidebar-accent: #2a1d25;
+  --sidebar-accent-foreground: #f3eadf;
+  --sidebar-border: #2c1d26;
+  --sidebar-ring: #e0b75e;
+  --glass-bg: rgba(29, 21, 28, 0.74);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
-  --accent-soft: rgba(244, 201, 93, 0.18);
+  --accent-soft: rgba(179, 58, 76, 0.2);
 }
 
 body {
@@ -3833,16 +3833,16 @@ body {
 
 .landing-shell {
   background:
-    radial-gradient(600px circle at 10% 10%, rgba(11, 42, 74, 0.12), transparent 55%),
+    radial-gradient(600px circle at 10% 10%, rgba(122, 31, 42, 0.12), transparent 55%),
     radial-gradient(500px circle at 90% -10%, rgba(199, 155, 45, 0.18), transparent 55%),
-    linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+    linear-gradient(180deg, #fdf8f2 0%, #f5eee3 100%);
 }
 
 .dark .landing-shell {
   background:
-    radial-gradient(600px circle at 10% 10%, rgba(79, 139, 255, 0.22), transparent 55%),
-    radial-gradient(500px circle at 90% -10%, rgba(244, 201, 93, 0.2), transparent 55%),
-    linear-gradient(180deg, #0b0d12 0%, #0f1420 100%);
+    radial-gradient(600px circle at 10% 10%, rgba(179, 58, 76, 0.2), transparent 55%),
+    radial-gradient(500px circle at 90% -10%, rgba(224, 183, 94, 0.24), transparent 55%),
+    linear-gradient(180deg, #140f14 0%, #1a1118 100%);
 }
 
 .landing-orb {
@@ -3856,7 +3856,7 @@ body {
 .landing-orb.blue {
   width: 20rem;
   height: 20rem;
-  background: #4f8bff;
+  background: #7a1f2a;
   top: -10%;
   left: -5%;
 }
@@ -3864,7 +3864,7 @@ body {
 .landing-orb.gold {
   width: 16rem;
   height: 16rem;
-  background: #f4c95d;
+  background: #c79b2d;
   bottom: -8%;
   right: -6%;
 }
@@ -3872,7 +3872,7 @@ body {
 .landing-orb.teal {
   width: 12rem;
   height: 12rem;
-  background: #41d9c4;
+  background: #a83f50;
   top: 40%;
   right: 8%;
 }

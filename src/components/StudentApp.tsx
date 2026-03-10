@@ -13,6 +13,7 @@ import { Events } from './student/Events';
 import type { User } from '../App';
 import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 type StudentScreen = 'dashboard' | 'apply-loan' | 'apply-benefit' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
 
@@ -107,7 +108,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
 
   // Your JSX is preserved, but now uses the new `handleNavigate` function
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background text-foreground flex">
       {/* Mobile header */}
       <div className="md:hidden w-full fixed top-0 left-0 right-0 z-40">
         <MobileHeader
@@ -124,14 +125,17 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             className="absolute inset-0 bg-black/40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white border-r border-gray-200 p-4">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border p-4">
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-primary">Alumni Circle</h1>
-                <p className="text-sm text-gray-600 mt-1">Student Portal</p>
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-primary text-accent flex items-center justify-center text-xs font-semibold">UCU</div>
+                <div>
+                  <h1 className="text-primary">Alumni Circle</h1>
+                  <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
+                </div>
               </div>
               <button
-                className="text-gray-500 hover:text-gray-700"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -150,8 +154,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                        ? 'bg-primary text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -160,14 +164,16 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 );
               })}
             </nav>
-            <div className="mt-4 border-t border-gray-200 pt-4">
+            <div className="mt-4 border-t border-border pt-4">
               <button
                 onClick={() => {
                   handleNavigate('profile');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  currentScreen === 'profile' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                  currentScreen === 'profile'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <UserIcon className="w-5 h-5" />
@@ -178,13 +184,17 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         </div>
       )}
 
-      <aside className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200 fixed h-screen">
-        <div className="p-6 border-b border-gray-200">
+      <aside className="hidden md:flex md:flex-col w-64 bg-card border-r border-border fixed h-screen">
+        <div className="p-6 border-b border-border">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-primary">Alumni Circle</h1>
-              <p className="text-sm text-gray-600 mt-1">Student Portal</p>
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-primary text-accent flex items-center justify-center text-xs font-semibold">UCU</div>
+              <div>
+                <h1 className="text-primary">Alumni Circle</h1>
+                <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
+              </div>
             </div>
+            <ThemeToggle />
           </div>
         </div>
         <nav className="flex-1 p-4 overflow-y-auto">
@@ -195,7 +205,11 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 <button
                   key={item.id}
                   onClick={() => handleNavigate(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
                 >
                   <Icon className="w-5 h-5" />
                   <span>{item.label}</span>
@@ -204,8 +218,15 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             })}
           </div>
         </nav>
-        <div className="p-4 border-t border-gray-200">
-          <button onClick={() => handleNavigate('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === 'profile' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
+        <div className="p-4 border-t border-border">
+          <button
+            onClick={() => handleNavigate('profile')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              currentScreen === 'profile'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            }`}
+          >
             <UserIcon className="w-5 h-5" />
             <span>Profile</span>
           </button>

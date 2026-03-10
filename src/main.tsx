@@ -4,11 +4,17 @@ import { BrowserRouter } from "react-router-dom";
 // @ts-ignore: module declaration for CSS imports is missing in this project
 import "./index.css";
 
+type ThemeMode = "light" | "dark" | "system";
+
 const applyThemeFromStorage = () => {
   try {
     const stored = localStorage.getItem("theme");
-    const theme = stored ?? "system";
-    if (!stored) localStorage.setItem("theme", theme);
+    const isValid = stored === "light" || stored === "dark" || stored === "system";
+    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
+    const theme: ThemeMode =
+      isValid && hasManualPreference ? (stored as ThemeMode) : "system";
+
+    if (stored !== theme) localStorage.setItem("theme", theme);
 
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const resolved = theme === "system" ? (prefersDark ? "dark" : "light") : theme;
@@ -39,8 +45,16 @@ const mount = () => {
 try {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
   const handleSystemChange = () => {
-    const stored = localStorage.getItem("theme") ?? "system";
-    if (stored === "system") applyThemeFromStorage();
+    const stored = localStorage.getItem("theme");
+    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
+    const theme: ThemeMode =
+      stored === "light" || stored === "dark" || stored === "system"
+        ? hasManualPreference
+          ? stored
+          : "system"
+        : "system";
+    if (stored !== theme) localStorage.setItem("theme", theme);
+    if (theme === "system") applyThemeFromStorage();
   };
   media.addEventListener("change", handleSystemChange);
 } catch (error) {

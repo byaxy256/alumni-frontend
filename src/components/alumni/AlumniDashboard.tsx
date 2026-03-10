@@ -107,8 +107,8 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   })();
 
   const donorsBreakdown = [
-    { name: 'Active Donors', value: activeDonors, color: '#0b2a4a' },
-    { name: 'Other Alumni', value: nonDonorAlumni, color: '#c79b2d' },
+    { name: 'Active Donors', value: activeDonors, color: 'var(--chart-1)' },
+    { name: 'Other Alumni', value: nonDonorAlumni, color: 'var(--chart-2)' },
   ].filter((item) => item.value > 0);
 
   const totalDonorValue = donorsBreakdown.reduce((sum, item) => sum + item.value, 0);
@@ -179,7 +179,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
       {/* Welcome Section */}
       <div>
         <h2 className="text-xl lg:text-2xl">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
-        <p className="text-sm text-gray-600">Here's what's happening with the Alumni Fund</p>
+        <p className="text-sm text-muted-foreground">Here's what's happening with the Alumni Fund</p>
       </div>
 
       {/* Key Metrics */}
@@ -187,12 +187,12 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <DollarSign size={20} className="text-blue-600" />
+              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+                <DollarSign size={20} className="text-primary" />
               </div>
             </div>
-            <p className="text-xs text-gray-500">Total Fund Balance</p>
-            <p className="text-lg lg:text-xl mt-1" style={{ color: '#0b2a4a' }}>
+            <p className="text-xs text-muted-foreground">Total Fund Balance</p>
+            <p className="text-lg lg:text-xl mt-1 text-primary">
               {loading ? 'Updating...' : formatCompactUGX(totalFundBalance)}
             </p>
           </CardContent>
@@ -201,17 +201,16 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                <AlertCircle size={20} className="text-yellow-600" />
+              <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                <AlertCircle size={20} className="text-accent" />
               </div>
             </div>
-            <p className="text-xs text-gray-500">Pending Applications</p>
+            <p className="text-xs text-muted-foreground">Pending Applications</p>
             <p className="text-lg lg:text-xl mt-1">{loading ? '...' : pendingApplications}</p>
             <Button
               variant="link"
               size="sm"
-              className="p-0 h-auto mt-2 text-xs"
-              style={{ color: '#c79b2d' }}
+              className="p-0 h-auto mt-2 text-xs text-accent"
               onClick={() => onNavigate('applications')}
             >
               Review Now →
@@ -222,30 +221,30 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                <Users size={20} className="text-green-600" />
+              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+                <Users size={20} className="text-primary" />
               </div>
             </div>
-            <p className="text-xs text-gray-500">Total Alumni</p>
+            <p className="text-xs text-muted-foreground">Total Alumni</p>
             <p className="text-lg lg:text-xl mt-1">{loading ? '...' : resolvedTotalAlumni.toLocaleString()}</p>
-            <p className="text-xs text-gray-500 mt-2">{loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}</p>
+            <p className="text-xs text-muted-foreground mt-2">{loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full" style={{ backgroundColor: '#c79b2d20' }}>
+              <div className="w-10 h-10 rounded-full bg-accent/20">
                 <div className="w-full h-full flex items-center justify-center">
-                  <TrendingUp size={20} style={{ color: '#c79b2d' }} />
+                  <TrendingUp size={20} className="text-accent" />
                 </div>
               </div>
             </div>
-            <p className="text-xs text-gray-500">Total Disbursed</p>
+            <p className="text-xs text-muted-foreground">Total Disbursed</p>
             <p className="text-lg lg:text-xl mt-1">
               {loading ? 'Updating...' : formatCompactUGX(totalDisbursed)}
             </p>
-            <p className="text-xs text-gray-500 mt-2">Net approved disbursements</p>
+            <p className="text-xs text-muted-foreground mt-2">Net approved disbursements</p>
           </CardContent>
         </Card>
       </div>
@@ -264,7 +263,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Bar dataKey="applications" fill="#0b2a4a" />
+                <Bar dataKey="applications" fill="var(--chart-1)" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -304,7 +303,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
                           <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }} />
                           <span>{item.name}</span>
                         </div>
-                        <span className="text-gray-600">{item.value.toLocaleString()} ({share}%)</span>
+                        <span className="text-muted-foreground">{item.value.toLocaleString()} ({share}%)</span>
                       </div>
                     );
                   })}
@@ -359,16 +358,16 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
             <div>Loading recent activity...</div>
           ) : recentActivities.length ? (
             recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <Clock size={16} className="text-blue-600" />
+              <div key={activity.id} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  <Clock size={16} className="text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm">
                     <span className="font-medium">{activity.user}</span> {activity.action}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5">{activity.target}</p>
-                  <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{activity.target}</p>
+                  <p className="text-xs text-muted-foreground/80 mt-1">{activity.time}</p>
                 </div>
               </div>
             ))
@@ -386,21 +385,21 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg bg-blue-50">
-              <p className="text-xs text-gray-500">Total Revenue</p>
-              <p className="text-lg mt-1" style={{ color: '#0b2a4a' }}>
+            <div className="p-3 rounded-lg border border-primary/20 bg-primary/10">
+              <p className="text-xs text-muted-foreground">Total Revenue</p>
+              <p className="text-lg mt-1 text-primary">
                 {loading ? '...' : formatCompactUGX(totalRaised)}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-yellow-50">
-              <p className="text-xs text-gray-500">Total Expenses</p>
-              <p className="text-lg mt-1" style={{ color: '#c79b2d' }}>
+            <div className="p-3 rounded-lg border border-accent/25 bg-accent/15">
+              <p className="text-xs text-muted-foreground">Total Expenses</p>
+              <p className="text-lg mt-1 text-accent">
                 {loading ? '...' : formatCompactUGX(totalDisbursed)}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-green-50">
-              <p className="text-xs text-gray-500">Available Balance</p>
-              <p className="text-lg mt-1 text-green-700">
+            <div className="p-3 rounded-lg border border-border bg-muted/60">
+              <p className="text-xs text-muted-foreground">Available Balance</p>
+              <p className="text-lg mt-1 text-foreground">
                 {loading ? '...' : formatCompactUGX(totalFundBalance)}
               </p>
             </div>

@@ -2,7 +2,7 @@
 
 
 import { useState, useEffect } from 'react';
-import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare, LogOut } from 'lucide-react';
+import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare } from 'lucide-react';
 import type { User as UserType } from '../App';
 import { AlumniDashboard } from './alumni-user/AlumniDashboard';
 import { AlumniDonations } from './alumni-user/AlumniDonations';
@@ -14,6 +14,7 @@ import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
 import { MentorshipHub } from './alumni-user/MentorshipHub';
 import { UnifiedNotifications } from './shared/UnifiedNotifications';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 interface AlumniAppProps {
   user: UserType;
@@ -90,15 +91,19 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
 
   // --- Your UI is preserved, but now uses the centralized logic ---
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background text-foreground flex">
       {/* Sidebar Navigation */}
-      <aside className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200 fixed h-screen">
+      <aside className="hidden md:flex md:flex-col w-64 bg-card border-r border-border fixed h-screen">
 
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h1 className="text-primary">Alumni Connect</h1>
-            <p className="text-sm text-gray-600 mt-1">Alumni Portal</p>
+        <div className="p-6 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-primary text-accent flex items-center justify-center text-xs font-semibold">UCU</div>
+            <div>
+              <h1 className="text-primary">Alumni Connect</h1>
+              <p className="text-sm text-muted-foreground mt-1">Alumni Portal</p>
+            </div>
           </div>
+          <ThemeToggle />
         </div>
         
         <nav className="flex-1 p-4 overflow-y-auto">
@@ -110,7 +115,9 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
                   key={item.id}
                   onClick={() => handleNavigate(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    currentScreen === item.id ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+                    currentScreen === item.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -121,11 +128,13 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
           </div>
         </nav>
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-border">
           <button
             onClick={() => handleNavigate('profile')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              currentScreen === 'profile' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
+              currentScreen === 'profile'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             }`}
           >
             <User className="w-5 h-5" />
@@ -140,7 +149,7 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50 shadow-lg">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-2 py-2 z-50 shadow-lg backdrop-blur">
         <div className="flex justify-around items-center max-w-lg mx-auto">
           {/* We now filter the main navItems array for mobile */}
           {navItems.filter(item => item.mobile).map((item) => {
@@ -150,7 +159,7 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
                 key={item.id}
                 onClick={() => handleNavigate(item.id)}
                 className={`flex flex-col items-center gap-1 p-2 w-1/5 ${ // Added width for better spacing
-                  currentScreen === item.id ? 'text-primary' : 'text-gray-500'
+                  currentScreen === item.id ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
                 <Icon size={20} />
@@ -162,7 +171,7 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
                 key="profile"
                 onClick={() => handleNavigate('profile')}
                 className={`flex flex-col items-center gap-1 p-2 w-1/5 ${
-                  currentScreen === 'profile' ? 'text-primary' : 'text-gray-500'
+                  currentScreen === 'profile' ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
                 <User size={20} />

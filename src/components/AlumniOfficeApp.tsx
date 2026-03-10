@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 
 
@@ -67,17 +68,17 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-200">
+      <header className="sticky top-0 z-40 w-full bg-card/95 border-b border-border backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent">
-              <span className="text-white text-sm">UCU</span>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary">
+              <span className="text-accent text-sm font-semibold">UCU</span>
             </div>
             <div>
               <h1 className="text-sm text-primary">Alumni Connect Office</h1>
-              <p className="text-xs text-gray-500">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.name}</p>
             </div>
           </div>
 
@@ -85,7 +86,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
           <div className="lg:hidden">
             <DropdownMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="text-foreground">
                   <Menu size={20} />
                 </Button>
               </DropdownMenuTrigger>
@@ -116,6 +117,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="ghost" onClick={onLogout}>
               <LogOut size={16} className="mr-2" />
               Logout
@@ -124,7 +126,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:block border-t">
+        <div className="hidden lg:block border-t border-border">
           <nav className="px-4 py-2">
             <div className="flex gap-2">
               {navigationItems.map((item) => {
@@ -152,7 +154,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 border-t border-border px-2 py-2 z-50 backdrop-blur">
         <div className="flex justify-around items-center max-w-lg mx-auto">
           {navigationItems.slice(0, 5).map((item) => {
             const Icon = item.icon;
@@ -161,7 +163,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
               <button
                 key={item.id}
                 onClick={() => setCurrentScreen(item.id as AlumniScreen)}
-                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-primary' : 'text-gray-500'}`}
+                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
               >
                 <Icon size={18} />
                 <span className="text-xs">{item.label.split(' ')[0]}</span>
