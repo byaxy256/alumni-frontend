@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { ArrowLeft, MessageSquare, Send, UserPlus, Paperclip, Mic, Image, FileText, Video, Loader2 } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, UserPlus, Paperclip, Mic, Image, FileText, Video, Loader2, Eye, Star, BriefcaseBusiness, Building2, MapPin, X } from 'lucide-react';
 import { LoadingSpinner } from '../ui/loading-spinner';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Input } from '../ui/input';
@@ -63,6 +63,7 @@ interface Message {
 export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }) {
   const [myMentors, setMyMentors] = useState<MyMentor[]>([]);
   const [availableMentors, setAvailableMentors] = useState<Mentor[]>([]);
+  const [selectedMentorProfile, setSelectedMentorProfile] = useState<Mentor | null>(null);
   const [myMentorsLoading, setMyMentorsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterField, setFilterField] = useState<string>('All Fields');
@@ -492,6 +493,9 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     }
   };
 
+  const selectedMentorUid = selectedMentorProfile ? getMentorUid(selectedMentorProfile) : '';
+  const selectedMentorPending = selectedMentorUid ? Boolean(pendingRequests[selectedMentorUid]) : false;
+
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
     <div className="p-4 lg:p-6 space-y-8">
@@ -528,6 +532,13 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                 <div className="flex gap-2">
                     <Button className="flex-1" onClick={() => handleOpenChat(mentor)}>
                         <MessageSquare className="w-4 h-4 mr-2"/> Message
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setSelectedMentorProfile(mentor)}
+                    >
+                      <Eye className="w-4 h-4 mr-2" /> View Details
                     </Button>
                 </div>
                 {mentor.nextSession && <p className="text-xs text-gray-500 mt-3 text-center">Next session: {mentor.nextSession}</p>}
@@ -621,17 +632,26 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     <div className="flex flex-wrap gap-2 mb-4">
                       {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs">{exp}</Badge>)}
                     </div>
-                    <Button
-                      className="w-full"
-                      disabled={mentor.status === 'unavailable' || isPending}
-                      onClick={() => handleRequestMentor(mentor)}
-                    >
-                      {mentor.status === 'available'
-                        ? isPending
-                          ? 'Request Sent'
-                          : <><UserPlus className="w-4 h-4 mr-2"/> Request Mentor</>
-                        : 'Currently Unavailable'}
-                    </Button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setSelectedMentorProfile(mentor)}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
+                      <Button
+                        className="w-full"
+                        disabled={mentor.status === 'unavailable' || isPending}
+                        onClick={() => handleRequestMentor(mentor)}
+                      >
+                        {mentor.status === 'available'
+                          ? isPending
+                            ? 'Request Sent'
+                            : <><UserPlus className="w-4 h-4 mr-2"/> Request Mentor</>
+                          : 'Currently Unavailable'}
+                      </Button>
+                    </div>
                     {/* Undo button should always show for pending requests, even if not approved */}
                     {isPending && (
                       <Button
@@ -684,6 +704,131 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
             </Card>
         </div>
       </section>
+
+      {selectedMentorProfile && (
+        <div className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-border px-5 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">{selectedMentorProfile.name}</h3>
+                <p className="text-sm text-muted-foreground">{selectedMentorProfile.title || selectedMentorProfile.field || 'Mentor'}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedMentorProfile(null)}
+                aria-label="Close mentor profile"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="p-5 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Work Experience</p>
+                  <p className="text-sm flex items-center gap-2">
+                    <BriefcaseBusiness className="w-4 h-4 text-primary" />
+                    {selectedMentorProfile.experience || 0} years
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Current Workplace</p>
+                  <p className="text-sm flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-primary" />
+                    {selectedMentorProfile.company || 'Not provided'}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Location</p>
+                  <p className="text-sm flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    {selectedMentorProfile.location || 'Not provided'}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Mentor Rating</p>
+                  <p className="text-sm flex items-center gap-2">
+                    <Star className="w-4 h-4 text-accent" />
+                    {selectedMentorProfile.rating?.toFixed?.(1) ?? '4.0'} / 5
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium mb-2">About</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {selectedMentorProfile.bio || 'No bio shared yet.'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Field</p>
+                  <p>{selectedMentorProfile.field || 'General'}</p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Class Of</p>
+                  <p>{selectedMentorProfile.classOf || 'N/A'}</p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Current Mentees</p>
+                  <p>{selectedMentorProfile.mentees ?? 0}</p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Capacity</p>
+                  <p>{selectedMentorProfile.maxMentees ?? 10}</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium mb-2">Expertise</p>
+                <div className="flex flex-wrap gap-2">
+                  {(selectedMentorProfile.expertise || []).length ? (
+                    selectedMentorProfile.expertise.map((exp) => (
+                      <Badge key={exp} variant="secondary" className="text-xs">
+                        {exp}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No expertise tags provided.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <Button variant="outline" onClick={() => setSelectedMentorProfile(null)}>
+                  Close
+                </Button>
+                <Button
+                  disabled={selectedMentorProfile.status === 'unavailable' || selectedMentorPending}
+                  onClick={async () => {
+                    await handleRequestMentor(selectedMentorProfile);
+                  }}
+                >
+                  {selectedMentorProfile.status === 'available'
+                    ? selectedMentorPending
+                      ? 'Request Sent'
+                      : 'Request Mentor'
+                    : 'Currently Unavailable'}
+                </Button>
+              </div>
+
+              {selectedMentorPending && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    await handleUndoRequest(selectedMentorProfile);
+                  }}
+                >
+                  Undo Request
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

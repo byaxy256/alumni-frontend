@@ -3719,6 +3719,8 @@ body[data-scroll-locked] {
   --secondary-foreground: #5b2730;
   --accent: #c79b2d;
   --accent-foreground: #2f1f1b;
+  --brand-blue: #2f5fbf;
+  --brand-purple: #6a3fa0;
   --muted: #f2ece1;
   --muted-foreground: #6b5a52;
   --destructive: #d4183d;
@@ -3732,15 +3734,15 @@ body[data-scroll-locked] {
   --ring: #7a1f2a;
   --chart-1: #7a1f2a;
   --chart-2: #c79b2d;
-  --chart-3: #9f3645;
-  --chart-4: #e2bb66;
+  --chart-3: #2f5fbf;
+  --chart-4: #6a3fa0;
   --chart-5: #b78e54;
   --radius: .6rem;
   --sidebar: #5b1420;
   --sidebar-foreground: #fff5ea;
   --sidebar-primary: #c79b2d;
   --sidebar-primary-foreground: #2f1f1b;
-  --sidebar-accent: #8f2e3d;
+  --sidebar-accent: #3b63ab;
   --sidebar-accent-foreground: #fff5ea;
   --sidebar-border: #7a1f2a;
   --sidebar-ring: #d6ac55;
@@ -3757,12 +3759,14 @@ body[data-scroll-locked] {
   --card-foreground: #f3eadf;
   --popover: #1d151c;
   --popover-foreground: #f3eadf;
-  --primary: #e0b75e;
-  --primary-foreground: #2f1f1b;
+  --primary: #b33a4c;
+  --primary-foreground: #fff5ea;
   --secondary: #2a1d25;
   --secondary-foreground: #f3eadf;
-  --accent: #b33a4c;
-  --accent-foreground: #fff5ea;
+  --accent: #e0b75e;
+  --accent-foreground: #2f1f1b;
+  --brand-blue: #5f8ef4;
+  --brand-purple: #9a70da;
   --muted: #221820;
   --muted-foreground: #b6a89d;
   --destructive: #f87171;
@@ -3770,19 +3774,19 @@ body[data-scroll-locked] {
   --border: #352630;
   --input: #2a1d25;
   --input-background: #1d151c;
-  --ring: #e0b75e;
+  --ring: #b33a4c;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #e0b75e;
-  --chart-2: #b33a4c;
-  --chart-3: #d08c54;
-  --chart-4: #7a1f2a;
+  --chart-1: #b33a4c;
+  --chart-2: #e0b75e;
+  --chart-3: #5f8ef4;
+  --chart-4: #9a70da;
   --chart-5: #f0d7a4;
   --sidebar: #170f16;
   --sidebar-foreground: #f3eadf;
   --sidebar-primary: #e0b75e;
   --sidebar-primary-foreground: #2f1f1b;
-  --sidebar-accent: #2a1d25;
+  --sidebar-accent: #25335d;
   --sidebar-accent-foreground: #f3eadf;
   --sidebar-border: #2c1d26;
   --sidebar-ring: #e0b75e;
@@ -3834,14 +3838,18 @@ body {
 .landing-shell {
   background:
     radial-gradient(600px circle at 10% 10%, rgba(122, 31, 42, 0.12), transparent 55%),
-    radial-gradient(500px circle at 90% -10%, rgba(199, 155, 45, 0.18), transparent 55%),
+    radial-gradient(500px circle at 90% -10%, rgba(47, 95, 191, 0.16), transparent 55%),
+    radial-gradient(420px circle at 80% 75%, rgba(106, 63, 160, 0.14), transparent 60%),
+    radial-gradient(450px circle at 45% -10%, rgba(199, 155, 45, 0.18), transparent 55%),
     linear-gradient(180deg, #fdf8f2 0%, #f5eee3 100%);
 }
 
 .dark .landing-shell {
   background:
     radial-gradient(600px circle at 10% 10%, rgba(179, 58, 76, 0.2), transparent 55%),
-    radial-gradient(500px circle at 90% -10%, rgba(224, 183, 94, 0.24), transparent 55%),
+    radial-gradient(500px circle at 90% -10%, rgba(95, 142, 244, 0.22), transparent 55%),
+    radial-gradient(420px circle at 80% 75%, rgba(154, 112, 218, 0.2), transparent 60%),
+    radial-gradient(450px circle at 45% -10%, rgba(224, 183, 94, 0.22), transparent 55%),
     linear-gradient(180deg, #140f14 0%, #1a1118 100%);
 }
 
@@ -3856,7 +3864,7 @@ body {
 .landing-orb.blue {
   width: 20rem;
   height: 20rem;
-  background: #7a1f2a;
+  background: var(--brand-blue);
   top: -10%;
   left: -5%;
 }
@@ -3872,7 +3880,7 @@ body {
 .landing-orb.teal {
   width: 12rem;
   height: 12rem;
-  background: #a83f50;
+  background: var(--brand-purple);
   top: 40%;
   right: 8%;
 }

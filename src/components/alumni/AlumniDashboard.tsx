@@ -221,8 +221,11 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
-                <Users size={20} className="text-primary" />
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: 'color-mix(in oklab, var(--brand-blue) 20%, transparent)' }}
+              >
+                <Users size={20} style={{ color: 'var(--brand-blue)' }} />
               </div>
             </div>
             <p className="text-xs text-muted-foreground">Total Alumni</p>
@@ -234,9 +237,12 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-accent/20">
+              <div
+                className="w-10 h-10 rounded-full"
+                style={{ backgroundColor: 'color-mix(in oklab, var(--brand-purple) 24%, transparent)' }}
+              >
                 <div className="w-full h-full flex items-center justify-center">
-                  <TrendingUp size={20} className="text-accent" />
+                  <TrendingUp size={20} style={{ color: 'var(--brand-purple)' }} />
                 </div>
               </div>
             </div>
