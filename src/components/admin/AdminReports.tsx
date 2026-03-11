@@ -96,6 +96,7 @@ export default function AdminReports() {
   const [incomeExpense, setIncomeExpense] = useState<IncomeExpensePoint[]>([]);
   const [topDonors, setTopDonors] = useState<DonorEntry[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
 
   const handleGenerateReport = async (reportId: string, format: string) => {
     const reportKey = `${reportId}-${format}`;
@@ -172,12 +173,12 @@ export default function AdminReports() {
   };
 
   useEffect(() => {
-    const loadDashboard = async () => {
+    const loadDashboard = async (silent = false) => {
       try {
-        setDashboardLoading(true);
+        if (!silent) setDashboardLoading(true);
         const token = localStorage.getItem('token');
         if (!token) {
-          toast.error('You must be logged in to view reports');
+          if (!silent) toast.error('You must be logged in to view reports');
           return;
         }
 
@@ -204,15 +205,36 @@ export default function AdminReports() {
         setSummary(summaryData);
         setIncomeExpense(incomeExpenseData.months || []);
         setTopDonors((donorsData.donors || []).slice(0, 5));
+        setLastUpdatedAt(new Date());
       } catch (error: any) {
         console.error('Failed to load report dashboard:', error);
-        toast.error(error.message || 'Failed to load report dashboard');
+        if (!silent) toast.error(error.message || 'Failed to load report dashboard');
       } finally {
         setDashboardLoading(false);
       }
     };
 
-    loadDashboard();
+    loadDashboard(false);
+
+    const intervalId = window.setInterval(() => {
+      loadDashboard(true);
+    }, 60000);
+
+    const handleFocus = () => loadDashboard(true);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadDashboard(true);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const formatCurrency = (amount: number) => {
@@ -233,6 +255,11 @@ export default function AdminReports() {
       <div>
         <h2 className="text-2xl font-bold">Reports & Analytics Hub</h2>
         <p className="text-muted-foreground">System-wide financial reports, risk analysis, and performance metrics</p>
+        {lastUpdatedAt ? (
+          <p className="text-xs text-muted-foreground mt-1">
+            Auto-updated {lastUpdatedAt.toLocaleTimeString()}
+          </p>
+        ) : null}
       </div>
 
       {/* Quick Stats */}
@@ -252,7 +279,7 @@ export default function AdminReports() {
           <CardContent className="p-6">
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">Total Expenses</p>
-              <p className="text-2xl text-orange-600 font-bold">
+              <p className="text-2xl text-accent font-bold">
                 {dashboardLoading ? 'Loading...' : formatCurrency(summary?.totalExpenses ?? 0)}
               </p>
               <p className="text-sm text-muted-foreground">
@@ -322,7 +349,7 @@ export default function AdminReports() {
                   labelLine={false}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={100}
-                  fill="#8884d8"
+                  fill="var(--chart-1)"
                   dataKey="value"
                 >
                   {expenseBreakdown.map((entry, index) => (

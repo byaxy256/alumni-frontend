@@ -3885,6 +3885,55 @@ body {
   right: 8%;
 }
 
+.bg-white {
+  background-color: var(--card);
+}
+
+.bg-gray-50,
+.bg-slate-50 {
+  background-color: var(--background);
+}
+
+.bg-gray-100,
+.bg-slate-100 {
+  background-color: var(--muted);
+}
+
+.bg-gray-200,
+.bg-slate-200 {
+  background-color: color-mix(in oklab, var(--border) 82%, var(--card));
+}
+
+.text-black,
+.text-gray-900,
+.text-slate-900 {
+  color: var(--foreground);
+}
+
+.text-gray-700,
+.text-gray-600,
+.text-gray-500,
+.text-slate-700,
+.text-slate-600,
+.text-slate-500 {
+  color: var(--muted-foreground);
+}
+
+.border-gray-200,
+.border-slate-200,
+.border-gray-100,
+.border-slate-100 {
+  border-color: var(--border);
+}
+
+.hover\:bg-gray-50:hover {
+  background-color: color-mix(in oklab, var(--muted) 55%, var(--background));
+}
+
+.hover\:bg-gray-100:hover {
+  background-color: color-mix(in oklab, var(--muted) 78%, var(--background));
+}
+
 .dark .bg-white {
   background-color: var(--card);
 }
@@ -4005,6 +4054,7 @@ body {
 
 .from-orange-500 { --tw-gradient-from: color-mix(in oklab, var(--accent) 78%, var(--primary)) !important; }
 .to-orange-700 { --tw-gradient-to: color-mix(in oklab, var(--accent) 55%, var(--primary)) !important; }
+.to-\[\#1a4d7a\] { --tw-gradient-to: color-mix(in oklab, var(--brand-blue) 85%, var(--brand-purple)) !important; }
 
 html {
   font-size: var(--font-size);

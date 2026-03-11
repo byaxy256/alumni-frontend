@@ -125,21 +125,22 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   // src/components/AlumniDashboard.tsx
 
   useEffect(() => {
+    let cancelled = false;
     const ac = new AbortController();
     const token = localStorage.getItem('token') || '';
     const headers = { Authorization: `Bearer ${token}` };
 
-    async function loadAll() {
-      setLoading(true);
+    async function loadAll(silent = false) {
+      if (!silent) setLoading(true);
       try {
         const [loansRes, supportRes, notifsRes, meRes, donationsRes, disburseRes, usersRes] = await Promise.all([
-          fetch(`${API_BASE}/loans`, { headers, signal: ac.signal }),
-          fetch(`${API_BASE}/support`, { headers, signal: ac.signal }),
-          fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal }),
-          fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal }),
-          fetch(`${API_BASE}/donations/all-stats`, { headers, signal: ac.signal }),
-          fetch(`${API_BASE}/disburse`, { headers, signal: ac.signal }),
-          fetch(`${API_BASE}/auth/users`, { headers, signal: ac.signal }),
+          fetch(`${API_BASE}/loans`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/support`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/donations/all-stats`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/disburse`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/auth/users`, { headers, signal: ac.signal, cache: 'no-store' }),
         ]);
 
         const loansJson = loansRes.ok ? await loansRes.json() : [];
@@ -150,6 +151,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         const disburseJson = disburseRes.ok ? await disburseRes.json() : [];
         const usersJson = usersRes.ok ? await usersRes.json() : [];
 
+        if (cancelled) return;
         setLoans(Array.isArray(loansJson) ? loansJson : []);
         setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
         setNotifications(Array.isArray(notifsJson) ? notifsJson : []);
@@ -162,15 +164,36 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
           setTotalAlumni(0);
         }
       } catch (err: any) {
-        console.error('Dashboard fetch error', err);
+        if (!cancelled) {
+          console.error('Dashboard fetch error', err);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     loadAll();
+
+    const intervalId = window.setInterval(() => {
+      loadAll(true);
+    }, 60000);
+
+    const handleFocus = () => loadAll(true);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadAll(true);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
+      cancelled = true;
       ac.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 

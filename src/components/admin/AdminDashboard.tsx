@@ -53,7 +53,7 @@ interface TrendData {
   newUsers: number;
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--brand-purple)'];
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -252,9 +252,9 @@ export default function AdminDashboard() {
                   }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="donations" stroke="#10b981" name="Donations" strokeWidth={2} />
-                <Line type="monotone" dataKey="disbursements" stroke="#3b82f6" name="Disbursements" strokeWidth={2} />
-                <Line type="monotone" dataKey="newUsers" stroke="#f59e0b" name="New Users" strokeWidth={2} />
+                <Line type="monotone" dataKey="donations" stroke="var(--chart-2)" name="Donations" strokeWidth={2} />
+                <Line type="monotone" dataKey="disbursements" stroke="var(--chart-1)" name="Disbursements" strokeWidth={2} />
+                <Line type="monotone" dataKey="newUsers" stroke="var(--chart-3)" name="New Users" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
                   labelLine={false}
                   label={({ name, value }) => `${name}: ${value}`}
                   outerRadius={100}
-                  fill="#8884d8"
+                  fill="var(--chart-1)"
                   dataKey="value"
                 >
                   {userDistribution.map((_, index) => (
@@ -308,8 +308,8 @@ export default function AdminDashboard() {
                 }}
               />
               <Legend />
-              <Bar dataKey="applications" fill="#8b5cf6" name="Applications" />
-              <Bar dataKey="disbursements" fill="#3b82f6" name="Disbursements (UGX)" />
+              <Bar dataKey="applications" fill="var(--chart-4)" name="Applications" />
+              <Bar dataKey="disbursements" fill="var(--chart-1)" name="Disbursements (UGX)" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
