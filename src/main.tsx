@@ -27,12 +27,7 @@ const applyTheme = (theme: ThemeMode) => {
 };
 
 const getInitialTheme = (): ThemeMode => {
-  try {
-    localStorage.setItem("theme", "system");
-    localStorage.removeItem("themePreferenceSet");
-  } catch (error) {
-    console.error("Failed to persist theme preference", error);
-  }
+  // System-only: always follow OS preference, ignore any stored overrides
   return "system";
 };
 

@@ -53,9 +53,13 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         <section className="pt-28 pb-16 px-6">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs text-foreground/80 mb-6 dark:border-accent/25 dark:bg-accent/10 dark:text-foreground">
-                <Sparkles className="h-4 w-4 text-accent" />
-                Built for UCU alumni + students
+              <div className="flex justify-center sm:justify-start">
+                <div className="inline-flex max-w-xs sm:max-w-none items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs text-center sm:text-left text-foreground/80 mb-6 dark:border-accent/25 dark:bg-accent/10 dark:text-foreground">
+                  <Sparkles className="h-4 w-4 text-accent shrink-0" />
+                  <span className="whitespace-normal">
+                    Built for UCU alumni + students
+                  </span>
+                </div>
               </div>
               <h1 className="text-4xl md:text-6xl font-semibold leading-tight mb-6 text-foreground">
                 Support students.
