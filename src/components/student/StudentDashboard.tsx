@@ -164,6 +164,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   const deductionsTotal = supportRequests.filter(sr => sr.status !== 'rejected').reduce((s, sr) => s + (sr.amount_requested || 0), 0);
 
   return (
+    <>
     <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-6 py-6">
         <div className="flex justify-between items-start mb-6">
@@ -238,7 +239,13 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
             <div className="space-y-2">
               {notifications.slice(0, 2).map((n) => (
                 <Card key={n.id} className="p-4 border border-gray-200 bg-white flex items-center gap-3">
-                  <input type="checkbox" className="rounded border-gray-300" readOnly checked={n.read} />
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-300"
+                    readOnly
+                    checked={n.read}
+                    aria-label={n.read ? 'Notice read' : 'Notice unread'}
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-900">{n.title}</p>
                     <p className="text-xs text-gray-500">{n.time}</p>
@@ -330,6 +337,6 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           <div className="py-4"><p className="text-sm text-foreground">{selectedNotification?.message}</p></div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
