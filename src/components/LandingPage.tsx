@@ -30,12 +30,12 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
       <header className="sticky top-0 z-40 bg-[#fff9f2]/94 dark:bg-card/92 backdrop-blur-2xl border-b border-primary/10 dark:border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <a
-            href="https://en.wikipedia.org/wiki/Uganda_Christian_University"
+            href="https://waitro.org/member/ucu-uganda-christian-university/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 hover:opacity-90 transition"
           >
-            <UcuBadgeLogo className="h-9 w-9" />
+            <UcuBadgeLogo className="h-9 w-[4.5rem] rounded-md border-primary/20 bg-transparent" imageClassName="object-contain" />
             <div>
               <p className="text-lg font-semibold">Alumni Circle</p>
               <p className="text-xs text-foreground/70 dark:text-muted-foreground">Uganda Christian University</p>

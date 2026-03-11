@@ -15,19 +15,19 @@ export function UcuBadgeLogo({
   linkHref,
 }: UcuBadgeLogoProps) {
   const logoSources = [
-    '/ucu-logo.png',
+    '/ucu-logo.jpg',
     'https://upload.wikimedia.org/wikipedia/en/5/5d/Uganda_Christian_University_logo.jpg',
   ];
   const [sourceIndex, setSourceIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
 
   const logoContent = (
-    <div className={cn('h-10 w-10 shrink-0 overflow-hidden rounded-full border border-border bg-card flex items-center justify-center', className)}>
+    <div className={cn('h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border/70 bg-card/60 p-0.5 flex items-center justify-center', className)}>
       {!imageError ? (
         <img
           src={logoSources[sourceIndex]}
           alt="Uganda Christian University badge"
-          className={cn('h-full w-full object-cover', imageClassName)}
+          className={cn('h-full w-full object-contain', imageClassName)}
           onError={() => {
             if (sourceIndex < logoSources.length - 1) {
               setSourceIndex((prev) => prev + 1);
