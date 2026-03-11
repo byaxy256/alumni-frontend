@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { CheckCircle2, FileText, Clock } from 'lucide-react';
+import { CheckCircle2, Clock } from 'lucide-react';
 import type { Application } from './types'; // We will create this types file next
 
 interface SubmissionSuccessProps {

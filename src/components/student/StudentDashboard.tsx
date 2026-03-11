@@ -143,11 +143,11 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   }, [loans, supportRequests]);
   
   const quickActions = [
-    { id: 'apply-loan', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, color: 'from-blue-500 to-blue-700' },
-    { id: 'loans', title: 'My Loans', subtitle: 'View loans & payments', icon: Wallet, color: 'from-indigo-500 to-indigo-700' },
-    { id: 'apply-benefit', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, color: 'from-green-500 to-green-700' },
-    { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'Connect with alumni', icon: Users, color: 'from-purple-500 to-purple-700' },
-    { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, color: 'from-orange-500 to-orange-700' },
+    { id: 'apply-loan', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, iconStart: 'var(--primary)', iconEnd: 'var(--brand-purple)' },
+    { id: 'loans', title: 'My Loans', subtitle: 'View loans & payments', icon: Wallet, iconStart: 'var(--brand-blue)', iconEnd: 'var(--primary)' },
+    { id: 'apply-benefit', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, iconStart: 'var(--accent)', iconEnd: 'var(--primary)' },
+    { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'View profiles before requesting', icon: Users, iconStart: 'var(--brand-purple)', iconEnd: 'var(--brand-blue)' },
+    { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, iconStart: 'var(--brand-blue)', iconEnd: 'var(--brand-purple)' },
   ];
   
   if (loading) {
@@ -161,8 +161,11 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
 
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-br from-primary to-[#1a4d7a] text-white p-6 rounded-b-3xl shadow-lg">
+    <div className="min-h-screen bg-background">
+      <div
+        className="text-white p-6 rounded-b-3xl shadow-lg"
+        style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--brand-purple) 45%, var(--brand-blue) 100%)' }}
+      >
         <div className="max-w-5xl mx-auto flex justify-between items-start mb-6">
           <div>
             <p className="opacity-90 text-sm mb-1">Welcome back,</p>
@@ -191,13 +194,21 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
               const Icon = a.icon;
               return (
                 <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left">
-                  <Card className="p-5 hover:shadow-xl transition-all duration-300 border-0 bg-white overflow-hidden relative hover:-translate-y-1">
+                  <Card className="p-5 hover:shadow-xl transition-all duration-300 border border-border bg-card overflow-hidden relative hover:-translate-y-1">
                     <div className="relative">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-white bg-gradient-to-br ${a.color}`}>
+                      <div
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-white"
+                        style={{ background: `linear-gradient(135deg, ${a.iconStart}, ${a.iconEnd})` }}
+                      >
                         <Icon className="w-6 h-6 text-white" />
                       </div>
-                      <h3 className="text-sm text-gray-900 mb-1 font-semibold">{a.title}</h3>
-                      <p className="text-xs text-gray-500">{a.subtitle}</p>
+                      <h3 className="text-sm text-foreground mb-1 font-semibold">{a.title}</h3>
+                      <p className="text-xs text-muted-foreground">{a.subtitle}</p>
+                      <div className="mt-3">
+                        <span className="inline-flex items-center rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground">
+                          Open
+                        </span>
+                      </div>
                     </div>
                   </Card>
                 </button>
@@ -206,18 +217,18 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
           
           <div className="mb-6">
-            <h2 className="text-lg text-gray-900 font-semibold mb-4">My Applications</h2>
+            <h2 className="text-lg text-foreground font-semibold mb-4">My Applications</h2>
             <div className="space-y-3">
               {allApplications.length > 0 ? (
                 allApplications.map((app) => (
-                  <Card key={`${app.type}-${app.id}`} className="p-4 bg-white">
+                  <Card key={`${app.type}-${app.id}`} className="p-4 bg-card border-border">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-semibold text-gray-800">{app.type} Application</p>
-                        <p className="text-sm text-gray-600">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
-                        <p className="text-xs text-gray-400">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
+                        <p className="font-semibold text-foreground">{app.type} Application</p>
+                        <p className="text-sm text-muted-foreground">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
                       </div>
-                      <Badge className={`capitalize ${app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''} ${app.status === 'approved' ? 'bg-green-100 text-green-800' : ''} ${app.status === 'rejected' ? 'bg-red-100 text-red-800' : ''}`}>
+                      <Badge className={`capitalize ${app.status === 'pending' ? 'bg-accent/20 text-accent-foreground' : ''} ${app.status === 'approved' ? 'bg-primary/20 text-primary' : ''} ${app.status === 'rejected' ? 'bg-destructive/20 text-destructive' : ''}`}>
                         {app.status || 'pending'}
                       </Badge>
                     </div>
@@ -225,8 +236,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                 ))
               ) : (
                 <div className="text-center py-4 border-2 border-dashed rounded-lg">
-                  <FileText className="mx-auto h-8 w-8 text-gray-400" />
-                  <p className="mt-2 text-sm text-gray-500">You have no submitted applications.</p>
+                  <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
+                  <p className="mt-2 text-sm text-muted-foreground">You have no submitted applications.</p>
                 </div>
               )}
             </div>
@@ -234,21 +245,21 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
 
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg text-gray-900">Recent Notifications</h2>
+              <h2 className="text-lg text-foreground">Recent Notifications</h2>
               <button onClick={handleViewAllNotifications} className="text-sm text-primary hover:underline">View All</button>
             </div>
             <div className="space-y-3">
               {notifications.length > 0 ? (
                 notifications.slice(0, 3).map((notification) => (
-                  <Card key={notification.id} onClick={() => handleNotificationClick(notification)} className="p-4 hover:shadow-md transition-shadow cursor-pointer border-0 bg-white relative">
+                  <Card key={notification.id} onClick={() => handleNotificationClick(notification)} className="p-4 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card relative">
                     {!notification.read && <div className="absolute top-4 right-4 w-2 h-2 bg-red-500 rounded-full"></div>}
                     <div className="flex gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-100"><Bell className="w-5 h-5 text-blue-600" /></div>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent/20"><Bell className="w-5 h-5 text-accent" /></div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm text-gray-900 ${!notification.read ? 'font-semibold' : ''}`}>{notification.title}</p>
-                        <p className="text-xs text-gray-600 line-clamp-2">{notification.message}</p>
+                        <p className={`text-sm text-foreground ${!notification.read ? 'font-semibold' : ''}`}>{notification.title}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" />
                     </div>
                   </Card>
                 ))
@@ -259,17 +270,17 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <Card className="p-4 text-center border-0 bg-gradient-to-br from-blue-50 to-blue-100">
-              <p className="text-2xl font-bold text-blue-900">{totalApplications}</p>
-              <p className="text-xs text-blue-700 mt-1">Total Applications</p>
+            <Card className="p-4 text-center border border-border" style={{ background: 'linear-gradient(135deg, color-mix(in oklab, var(--brand-blue) 12%, transparent), color-mix(in oklab, var(--brand-blue) 22%, transparent))' }}>
+              <p className="text-2xl font-bold" style={{ color: 'var(--brand-blue)' }}>{totalApplications}</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--brand-blue)' }}>Total Applications</p>
             </Card>
-            <Card className="p-4 text-center border-0 bg-gradient-to-br from-green-50 to-green-100">
-              <p className="text-2xl font-bold text-green-900">{activeLoansCount}</p>
-              <p className="text-xs text-green-700 mt-1">Active Loans</p>
+            <Card className="p-4 text-center border border-border" style={{ background: 'linear-gradient(135deg, color-mix(in oklab, var(--primary) 10%, transparent), color-mix(in oklab, var(--primary) 20%, transparent))' }}>
+              <p className="text-2xl font-bold text-primary">{activeLoansCount}</p>
+              <p className="text-xs text-primary mt-1">Active Loans</p>
             </Card>
-            <Card className="p-4 text-center border-0 bg-gradient-to-br from-purple-50 to-purple-100">
-              <p className="text-2xl font-bold text-purple-900">{mentors.length}</p>
-              <p className="text-xs text-purple-700 mt-1">Mentors</p>
+            <Card className="p-4 text-center border border-border" style={{ background: 'linear-gradient(135deg, color-mix(in oklab, var(--brand-purple) 12%, transparent), color-mix(in oklab, var(--brand-purple) 22%, transparent))' }}>
+              <p className="text-2xl font-bold" style={{ color: 'var(--brand-purple)' }}>{mentors.length}</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--brand-purple)' }}>Mentors</p>
             </Card>
           </div>
         </div>
@@ -279,9 +290,9 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedNotification?.title}</DialogTitle>
-            <DialogDescription className="text-sm text-gray-600">{selectedNotification?.time}</DialogDescription>
+            <DialogDescription className="text-sm text-muted-foreground">{selectedNotification?.time}</DialogDescription>
           </DialogHeader>
-          <div className="py-4"><p className="text-sm text-gray-700">{selectedNotification?.message}</p></div>
+          <div className="py-4"><p className="text-sm text-foreground">{selectedNotification?.message}</p></div>
         </DialogContent>
       </Dialog>
     </div>
