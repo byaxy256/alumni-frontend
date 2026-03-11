@@ -41,6 +41,7 @@ interface AuditLog {
   action: string;
   details: string;
   ip_address?: string;
+  metadata?: Record<string, any>;
 }
 
 export default function UserRoleManagement() {
@@ -138,10 +139,23 @@ export default function UserRoleManagement() {
   };
 
   const getActionBadgeColor = (action: string) => {
-    if (action.includes('APPROVED') || action.includes('LOGIN')) return 'bg-green-100 text-green-800';
-    if (action.includes('REJECTED') || action.includes('SUSPENDED') || action.includes('LOGOUT')) return 'bg-red-100 text-red-800';
-    if (action.includes('UPDATED') || action.includes('MODIFIED')) return 'bg-blue-100 text-blue-800';
+    const normalized = action.toLowerCase();
+    if (normalized.includes('approved') || normalized.includes('login')) return 'bg-green-100 text-green-800';
+    if (normalized.includes('rejected') || normalized.includes('suspended') || normalized.includes('logout')) return 'bg-red-100 text-red-800';
+    if (normalized.includes('updated') || normalized.includes('modified') || normalized.includes('changed')) return 'bg-blue-100 text-blue-800';
     return 'bg-gray-100 text-gray-800';
+  };
+
+  const buildMetadataSummary = (log: AuditLog) => {
+    const metadata = log.metadata || {};
+    const lines: string[] = [];
+    if (metadata.path) lines.push(`Path: ${metadata.path}`);
+    if (metadata.status) lines.push(`Status: ${metadata.status}`);
+    if (metadata.target_uid) lines.push(`Target UID: ${metadata.target_uid}`);
+    if (Array.isArray(metadata.changed_fields) && metadata.changed_fields.length) {
+      lines.push(`Changed: ${metadata.changed_fields.join(', ')}`);
+    }
+    return lines;
   };
 
   const formatLastLogin = (value?: string, fallback?: string, fallback2?: string) => {
@@ -419,7 +433,9 @@ export default function UserRoleManagement() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {footprints.map((log) => (
+                    {footprints.map((log) => {
+                      const metadataLines = buildMetadataSummary(log);
+                      return (
                       <TableRow key={log._id}>
                         <TableCell className="text-sm whitespace-nowrap">{formatTimestamp(log.timestamp)}</TableCell>
                         <TableCell>
@@ -427,10 +443,18 @@ export default function UserRoleManagement() {
                             {log.action}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm max-w-md whitespace-pre-wrap break-words">{log.details}</TableCell>
+                        <TableCell className="text-sm max-w-md whitespace-pre-wrap break-words">
+                          {log.details}
+                          {metadataLines.length > 0 && (
+                            <div className="mt-1 text-xs text-muted-foreground whitespace-pre-wrap break-words">
+                              {metadataLines.join('\n')}
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell className="text-sm text-muted-foreground">{log.ip_address || '—'}</TableCell>
                       </TableRow>
-                    ))}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

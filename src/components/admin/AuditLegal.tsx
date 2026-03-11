@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -94,6 +94,10 @@ export default function AuditLegal() {
     return matchesSearch;
   });
 
+  const actionOptions = useMemo(() => {
+    return ['all', ...Array.from(new Set(auditLogs.map((log) => log.action))).sort()];
+  }, [auditLogs]);
+
   const formatTimestamp = (timestamp: string) => {
     try {
       const date = new Date(timestamp);
@@ -111,11 +115,25 @@ export default function AuditLegal() {
   };
 
   const getActionBadgeColor = (action: string) => {
-    if (action.includes('APPROVED') || action.includes('LOGIN')) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-    if (action.includes('REJECTED') || action.includes('SUSPENDED') || action.includes('LOGOUT')) return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-    if (action.includes('UPDATED') || action.includes('MODIFIED')) return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-    if (action.includes('DISBURSED') || action.includes('DONATION')) return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+    const normalized = action.toLowerCase();
+    if (normalized.includes('approved') || normalized.includes('login')) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+    if (normalized.includes('rejected') || normalized.includes('suspended') || normalized.includes('logout')) return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+    if (normalized.includes('updated') || normalized.includes('modified') || normalized.includes('changed')) return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+    if (normalized.includes('disbursed') || normalized.includes('donation') || normalized.includes('payment')) return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
     return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+  };
+
+  const buildMetadataSummary = (log: AuditLog) => {
+    const metadata = log.metadata || {};
+    const lines: string[] = [];
+    if (metadata.path) lines.push(`Path: ${metadata.path}`);
+    if (metadata.status) lines.push(`Status: ${metadata.status}`);
+    if (metadata.target_uid) lines.push(`Target UID: ${metadata.target_uid}`);
+    if (metadata.target_email) lines.push(`Target: ${metadata.target_email}`);
+    if (Array.isArray(metadata.changed_fields) && metadata.changed_fields.length) {
+      lines.push(`Changed: ${metadata.changed_fields.join(', ')}`);
+    }
+    return lines;
   };
 
   const handleExportLogs = () => {
@@ -229,16 +247,11 @@ export default function AuditLegal() {
                 <SelectValue placeholder="Filter by action" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Actions</SelectItem>
-                <SelectItem value="USER_LOGIN">Login</SelectItem>
-                <SelectItem value="USER_LOGOUT">Logout</SelectItem>
-                <SelectItem value="APPLICATION_APPROVED">Applications Approved</SelectItem>
-                <SelectItem value="APPLICATION_REJECTED">Applications Rejected</SelectItem>
-                <SelectItem value="LOAN_DISBURSED">Loan Disbursements</SelectItem>
-                <SelectItem value="DONATION_RECEIVED">Donations</SelectItem>
-                <SelectItem value="USER_CREATED">User Registration</SelectItem>
-                <SelectItem value="USER_UPDATED">User Updates</SelectItem>
-                <SelectItem value="ALUMNI_OFFICE_APPROVED">Alumni Office Approvals</SelectItem>
+                {actionOptions.map((action) => (
+                  <SelectItem key={action} value={action}>
+                    {action === 'all' ? 'All Actions' : action}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -268,7 +281,9 @@ export default function AuditLegal() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredLogs.map((log) => (
+                  {filteredLogs.map((log) => {
+                    const metadataLines = buildMetadataSummary(log);
+                    return (
                     <TableRow key={log._id}>
                       <TableCell className="whitespace-nowrap text-muted-foreground">
                         {formatTimestamp(log.timestamp)}
@@ -284,12 +299,18 @@ export default function AuditLegal() {
                       <TableCell>
                         <Badge className={getActionBadgeColor(log.action)}>{log.action}</Badge>
                       </TableCell>
-                      <TableCell className="max-w-xs">
-                        <div className="truncate" title={log.details}>{log.details}</div>
+                      <TableCell className="max-w-[30rem]">
+                        <div className="text-sm whitespace-pre-wrap break-words">{log.details}</div>
+                        {metadataLines.length > 0 && (
+                          <div className="mt-1 text-xs text-muted-foreground whitespace-pre-wrap break-words">
+                            {metadataLines.join('\n')}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell className="text-muted-foreground">{log.ip_address || 'N/A'}</TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}

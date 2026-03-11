@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 // The props interface remains the same. It correctly expects a function from the parent.
 interface LoginProps {
@@ -71,20 +72,33 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
   // --- No changes are needed for the UI (JSX) ---
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[color:var(--hover-50)] to-[color:var(--accent-soft-16)] dark:from-background dark:via-[#1b131a] dark:to-[#181f32] p-4">
+      <Card className="w-full max-w-md glass-panel">
         <CardHeader className="text-center relative">
           <button
             onClick={onBack}
-            className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg"
+            className="absolute left-6 top-6 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg"
             title="Go back"
             aria-label="Go back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
+          <div className="absolute right-6 top-6">
+            <ThemeToggle />
+          </div>
           <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
           <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>Login to Alumni Aid</CardDescription>
+          <CardDescription>
+            Login to Alumni Aid ·{' '}
+            <a
+              href="https://en.wikipedia.org/wiki/Uganda_Christian_University"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              About UCU
+            </a>
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">

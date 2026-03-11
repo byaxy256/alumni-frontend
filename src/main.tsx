@@ -4,19 +4,46 @@ import { BrowserRouter } from "react-router-dom";
 // @ts-ignore: module declaration for CSS imports is missing in this project
 import "./index.css";
 
-const applySystemTheme = () => {
+type ThemeMode = "light" | "dark" | "system";
+
+const resolveTheme = (theme: ThemeMode): "light" | "dark" => {
+  if (theme === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return theme;
+};
+
+const applyTheme = (theme: ThemeMode) => {
   try {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const resolved = prefersDark ? "dark" : "light";
+    const resolved = resolveTheme(theme);
 
     const root = document.documentElement;
     root.classList.toggle("dark", resolved === "dark");
-    root.dataset.theme = "system";
+    root.dataset.theme = theme;
     root.style.colorScheme = resolved;
-    localStorage.setItem("theme", "system");
-    localStorage.removeItem("themePreferenceSet");
   } catch (error) {
-    console.error("Failed to apply initial theme", error);
+    console.error("Failed to apply theme", error);
+  }
+};
+
+const getInitialTheme = (): ThemeMode => {
+  try {
+    const savedTheme = localStorage.getItem("theme");
+    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
+    const validTheme: ThemeMode | null =
+      savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
+        ? savedTheme
+        : null;
+
+    if (validTheme && hasManualPreference) {
+      return validTheme;
+    }
+
+    localStorage.setItem("theme", "system");
+    return "system";
+  } catch (error) {
+    console.error("Failed to read theme preference", error);
+    return "system";
   }
 };
 
@@ -24,7 +51,7 @@ const mount = () => {
   const rootElement = document.getElementById("root");
   if (!rootElement) return false;
 
-  applySystemTheme();
+  applyTheme(getInitialTheme());
   createRoot(rootElement).render(
     <BrowserRouter>
       <App />
@@ -37,7 +64,13 @@ const mount = () => {
 try {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
   const handleSystemChange = () => {
-    applySystemTheme();
+    const savedTheme = localStorage.getItem("theme");
+    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
+    const shouldFollowSystem = !hasManualPreference || savedTheme === "system";
+
+    if (shouldFollowSystem) {
+      applyTheme("system");
+    }
   };
   media.addEventListener("change", handleSystemChange);
 } catch (error) {

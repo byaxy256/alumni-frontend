@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { API_BASE } from '../api';
 import { auth, googleProvider, hasFirebaseEnv } from '../lib/firebase';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 type UserType = 'student' | 'alumni' | '';
 
@@ -167,15 +168,28 @@ export default function SignUp({ onBack, onSignUpComplete, onLoginSuccess }: Sig
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[color:var(--hover-50)] to-[color:var(--accent-soft-16)] dark:from-background dark:via-[#1b131a] dark:to-[#181f32] p-4">
+      <Card className="w-full max-w-2xl glass-panel">
         <CardHeader className="text-center relative">
-          <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-gray-100 rounded-lg transition" title="Go back">
+          <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
+          <div className="absolute right-6 top-6">
+            <ThemeToggle />
+          </div>
           <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
           <CardTitle>Create Account</CardTitle>
-          <CardDescription>Step {step} of 2</CardDescription>
+          <CardDescription>
+            Step {step} of 2 ·{' '}
+            <a
+              href="https://en.wikipedia.org/wiki/Uganda_Christian_University"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              About UCU
+            </a>
+          </CardDescription>
         </CardHeader>
 
         <CardContent>

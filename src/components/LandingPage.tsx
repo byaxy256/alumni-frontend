@@ -11,6 +11,7 @@ import {
   GraduationCapIcon
 } from 'lucide-react';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -19,24 +20,30 @@ interface LandingPageProps {
 
 export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-background text-foreground">
+    <div className="landing-shell relative min-h-screen overflow-x-clip bg-background text-foreground">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-32 h-96 w-96 rounded-full bg-primary opacity-20 blur-[120px] dark:opacity-45" />
         <div className="absolute top-32 -left-20 h-80 w-80 rounded-full bg-accent opacity-16 blur-[120px] dark:opacity-28" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-[#5a1a25] opacity-22 blur-[140px] dark:opacity-42" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-[color:var(--brand-hero-to)] opacity-22 blur-[140px] dark:opacity-32" />
       </div>
-      <div className="absolute inset-0 bg-[#f8f5f0]/74 dark:bg-black/42" />
+      <div className="absolute inset-0 bg-[#f8f5f0]/62 dark:bg-black/28" />
 
       <header className="sticky top-0 z-40 bg-[#fff9f2]/94 dark:bg-card/92 backdrop-blur-2xl border-b border-primary/10 dark:border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <a
+            href="https://en.wikipedia.org/wiki/Uganda_Christian_University"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 hover:opacity-90 transition"
+          >
             <UcuBadgeLogo className="h-11 w-11" />
             <div>
               <p className="text-lg font-semibold">Alumni Circle</p>
               <p className="text-xs text-foreground/70 dark:text-muted-foreground">Uganda Christian University</p>
             </div>
-          </div>
+          </a>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Button onClick={onLogin} variant="outline" className="border-primary/30 text-foreground hover:bg-primary/5 dark:border-accent/35 dark:hover:bg-accent/10">
               Login
             </Button>
@@ -172,7 +179,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         </section>
 
         <section className="px-6 pb-28">
-          <div className="max-w-5xl mx-auto rounded-3xl border border-white/10 bg-primary p-10 md:p-14">
+          <div className="max-w-5xl mx-auto rounded-3xl border border-white/20 bg-gradient-to-r from-primary/90 to-[color:var(--brand-hero-to)] p-10 md:p-14 dark:from-[#2b1d27] dark:to-[#24314f] dark:border-white/10">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <h2 className="text-3xl font-semibold mb-2">Ready to make an impact?</h2>

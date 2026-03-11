@@ -5,22 +5,24 @@ type UcuBadgeLogoProps = {
   className?: string;
   imageClassName?: string;
   fallbackTextClassName?: string;
+  linkHref?: string;
 };
 
 export function UcuBadgeLogo({
   className,
   imageClassName,
   fallbackTextClassName,
+  linkHref,
 }: UcuBadgeLogoProps) {
   const logoSources = ['/ucu-logo.png', '/images.png'];
   const [sourceIndex, setSourceIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
 
-  return (
+  const logoContent = (
     <div className={cn('overflow-hidden rounded-full border border-border bg-card flex items-center justify-center', className)}>
       {!imageError ? (
         <img
-          src='https://en.wikipedia.org/wiki/Uganda_Christian_University'
+          src={logoSources[sourceIndex]}
           alt="Uganda Christian University badge"
           className={cn('h-full w-full object-cover', imageClassName)}
           onError={() => {
@@ -36,5 +38,15 @@ export function UcuBadgeLogo({
       )}
     </div>
   );
+
+  if (linkHref) {
+    return (
+      <a href={linkHref} target="_blank" rel="noopener noreferrer" aria-label="Open Uganda Christian University page">
+        {logoContent}
+      </a>
+    );
+  }
+
+  return logoContent;
 }
 

@@ -3778,11 +3778,11 @@ body[data-scroll-locked] {
   --card-foreground: #f3eadf;
   --popover: #1d151c;
   --popover-foreground: #f3eadf;
-  --primary: #b33a4c;
+  --primary: #8f2f3f;
   --primary-foreground: #fff5ea;
   --secondary: #2a1d25;
   --secondary-foreground: #f3eadf;
-  --accent: #e0b75e;
+  --accent: #d8b46d;
   --accent-foreground: #2f1f1b;
   --brand-blue: #5f8ef4;
   --brand-purple: #9a70da;
@@ -3793,10 +3793,10 @@ body[data-scroll-locked] {
   --border: #352630;
   --input: #2a1d25;
   --input-background: #1d151c;
-  --ring: #b33a4c;
+  --ring: #8f2f3f;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #b33a4c;
+  --chart-1: #8f2f3f;
   --chart-2: #e0b75e;
   --chart-3: #5f8ef4;
   --chart-4: #9a70da;
