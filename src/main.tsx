@@ -44,7 +44,7 @@ const mount = () => {
   return true;
 };
 
-// Keep theme in sync with system changes when using "system"
+// Keep theme in sync with system changes so it updates immediately when device theme changes
 try {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
   const handleSystemChange = () => {
@@ -65,13 +65,13 @@ try {
   window.addEventListener("focus", handleVisibilityOrFocus);
   window.addEventListener("pageshow", handleVisibilityOrFocus);
 
-  // Web fallback: some browsers intermittently miss media change events.
-  // Keep system theme in sync while the tab is visible.
+  // Poll every 300ms when tab is visible so theme updates immediately even if
+  // the browser doesn't fire the media "change" event (e.g. some mobile webviews).
   window.setInterval(() => {
     if (document.visibilityState === "visible") {
       applyTheme("system");
     }
-  }, 1500);
+  }, 300);
 } catch (error) {
   console.error("Failed to watch system theme changes", error);
 }
