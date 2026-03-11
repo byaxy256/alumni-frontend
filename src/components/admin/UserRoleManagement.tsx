@@ -16,7 +16,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from '../ui/alert-dialog';
-import { Search, UserPlus, Shield, Eye, Mail, Copy, Filter, RefreshCw } from 'lucide-react';
+import { Search, UserPlus, Shield, Eye, Mail, Copy, RefreshCw, Ban, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiCall } from '../../api';
 
@@ -56,21 +56,39 @@ export default function UserRoleManagement() {
   const [footprints, setFootprints] = useState<AuditLog[]>([]);
   const [footprintsLoading, setFootprintsLoading] = useState(false);
 
+  const currentUserUid = useMemo(() => {
+    try {
+      const raw = localStorage.getItem('user');
+      if (!raw) return '';
+      const parsed = JSON.parse(raw);
+      return parsed?.uid || '';
+    } catch {
+      return '';
+    }
+  }, []);
+
+  const deriveStatus = (user: BackendUser) => {
+    if (user.meta?.suspended === true) return 'suspended';
+    if (user.role === 'alumni_office' && user.meta?.approved === false) return 'pending';
+    return 'active';
+  };
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const data = await apiCall('/auth/users', 'GET', undefined, token || undefined);
+      setUsers(data || []);
+    } catch (err) {
+      console.error('Failed to load users', err);
+      toast.error('Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        const data = await apiCall('/auth/users', 'GET', undefined, token || undefined);
-        setUsers(data || []);
-      } catch (err) {
-        console.error('Failed to load users', err);
-        toast.error('Failed to load users');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
+    void loadUsers();
   }, []);
 
   const filteredUsers = useMemo(() => {
@@ -79,16 +97,16 @@ export default function UserRoleManagement() {
       const email = user.email?.toLowerCase() || '';
       const matchesSearch = name.includes(searchQuery.toLowerCase()) || email.includes(searchQuery.toLowerCase());
       const matchesRole = roleFilter === 'all' || user.role === roleFilter.toLowerCase();
-      const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'verified';
+      const derivedStatus = deriveStatus(user);
       const matchesStatus = statusFilter === 'all' || derivedStatus === statusFilter;
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [users, searchQuery, roleFilter, statusFilter]);
 
   const statusCounts = useMemo(() => {
-    const counts = { all: users.length, pending: 0, verified: 0 };
+    const counts = { all: users.length, pending: 0, active: 0, suspended: 0 };
     users.forEach(user => {
-      const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'verified';
+      const derivedStatus = deriveStatus(user);
       counts[derivedStatus] += 1;
     });
     return counts;
@@ -104,6 +122,49 @@ export default function UserRoleManagement() {
 
   const handleGrantRole = (role: string) => {
     toast.success(`Role updated to ${role}`);
+  };
+
+  const handleSuspendUser = async (user: BackendUser) => {
+    const isSuspended = user.meta?.suspended === true;
+    const actionLabel = isSuspended ? 'unsuspend' : 'suspend';
+
+    if (!window.confirm(`Are you sure you want to ${actionLabel} ${user.full_name || user.email}?`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await apiCall(
+        `/admin/users/${encodeURIComponent(user.uid)}/suspend`,
+        'PATCH',
+        { suspended: !isSuspended },
+        token || undefined
+      );
+      toast.success(`User ${isSuspended ? 'unsuspended' : 'suspended'} successfully`);
+      await loadUsers();
+    } catch (err: any) {
+      console.error('Failed to update suspension status:', err);
+      toast.error(err?.message || 'Failed to update suspension status');
+    }
+  };
+
+  const handleDeleteUser = async (user: BackendUser) => {
+    if (!window.confirm(`Delete user ${user.full_name || user.email}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await apiCall(`/admin/users/${encodeURIComponent(user.uid)}`, 'DELETE', undefined, token || undefined);
+      toast.success('User deleted successfully');
+      await loadUsers();
+      if (selectedUser?.uid === user.uid) {
+        setSelectedUser(null);
+      }
+    } catch (err: any) {
+      console.error('Failed to delete user:', err);
+      toast.error(err?.message || 'Failed to delete user');
+    }
   };
 
   const loadFootprints = async (user: BackendUser) => {
@@ -204,11 +265,14 @@ export default function UserRoleManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="alumni">Alumni Office</SelectItem>
+                    <SelectItem value="alumni">Alumni</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Alumni Office staff accounts are managed in the Alumni Office section.
+              </p>
               <Button className="w-full">Create User</Button>
             </div>
           </DialogContent>
@@ -234,11 +298,18 @@ export default function UserRoleManagement() {
               Pending ({statusCounts.pending})
             </Button>
             <Button
-              variant={statusFilter === 'verified' ? 'default' : 'outline'}
+              variant={statusFilter === 'active' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setStatusFilter('verified')}
+              onClick={() => setStatusFilter('active')}
             >
-              Verified ({statusCounts.verified})
+              Active ({statusCounts.active})
+            </Button>
+            <Button
+              variant={statusFilter === 'suspended' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('suspended')}
+            >
+              Suspended ({statusCounts.suspended})
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -289,7 +360,9 @@ export default function UserRoleManagement() {
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.map((user) => {
-                    const derivedStatus = user.role === 'alumni_office' && user.meta?.approved === false ? 'pending' : 'verified';
+                    const derivedStatus = deriveStatus(user);
+                    const isSelf = currentUserUid === user.uid;
+                    const isProtected = isSelf || user.role === 'admin';
                     return (
                       <TableRow key={user.uid}>
                         <TableCell>
@@ -304,7 +377,10 @@ export default function UserRoleManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={derivedStatus === 'verified' ? 'default' : 'secondary'} className="capitalize">
+                          <Badge
+                            variant={derivedStatus === 'active' ? 'default' : 'secondary'}
+                            className={derivedStatus === 'suspended' ? 'bg-red-100 text-red-800 border-red-200 capitalize' : 'capitalize'}
+                          >
                             {derivedStatus}
                           </Badge>
                         </TableCell>
@@ -312,6 +388,27 @@ export default function UserRoleManagement() {
                           {formatLastLogin(user.last_login, user.updated_at, user.created_at)}
                         </TableCell>
                         <TableCell className="space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSuspendUser(user)}
+                            disabled={isProtected}
+                            title={isProtected ? 'Admins and your own account cannot be suspended here' : ''}
+                          >
+                            <Ban className="w-4 h-4 mr-1" />
+                            {user.meta?.suspended ? 'Unsuspend' : 'Suspend'}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-700 border-red-300 hover:bg-red-50"
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={isProtected}
+                            title={isProtected ? 'Admins and your own account cannot be deleted here' : ''}
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
+                          </Button>
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button
@@ -373,7 +470,6 @@ export default function UserRoleManagement() {
                                     <SelectContent>
                                       <SelectItem value="student">Student</SelectItem>
                                       <SelectItem value="alumni">Alumni</SelectItem>
-                                      <SelectItem value="alumni_office">Alumni Office</SelectItem>
                                       <SelectItem value="admin">Admin</SelectItem>
                                     </SelectContent>
                                   </Select>
