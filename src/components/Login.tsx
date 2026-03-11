@@ -90,17 +90,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           </button>
           <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
           <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>
-            Login to Alumni Aid ·{' '}
-            <a
-              href="https://en.wikipedia.org/wiki/Uganda_Christian_University"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              About UCU
-            </a>
-          </CardDescription>
+          <CardDescription>Login to Alumni Aid</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">

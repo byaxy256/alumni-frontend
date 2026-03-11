@@ -14,7 +14,11 @@ export function UcuBadgeLogo({
   fallbackTextClassName,
   linkHref,
 }: UcuBadgeLogoProps) {
-  const logoSources = ['/ucu-logo.png', '/images.png'];
+  const logoSources = [
+    '/ucu-logo.png',
+    '/images.png',
+    'https://upload.wikimedia.org/wikipedia/en/5/5d/Uganda_Christian_University_logo.jpg',
+  ];
   const [sourceIndex, setSourceIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
 

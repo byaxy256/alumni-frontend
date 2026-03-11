@@ -181,17 +181,7 @@ export default function SignUp({ onBack, onSignUpComplete, onLoginSuccess }: Sig
           </button>
           <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
           <CardTitle>Create Account</CardTitle>
-          <CardDescription>
-            Step {step} of 2 ·{' '}
-            <a
-              href="https://en.wikipedia.org/wiki/Uganda_Christian_University"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              About UCU
-            </a>
-          </CardDescription>
+          <CardDescription>Step {step} of 2</CardDescription>
         </CardHeader>
 
         <CardContent>
