@@ -55,7 +55,19 @@ try {
   const handleSystemChange = () => {
     applyTheme("system");
   };
-  media.addEventListener("change", handleSystemChange);
+
+  if (typeof media.addEventListener === "function") {
+    media.addEventListener("change", handleSystemChange);
+  } else if (typeof media.addListener === "function") {
+    media.addListener(handleSystemChange);
+  }
+
+  const handleVisibilityOrFocus = () => {
+    applyTheme("system");
+  };
+
+  document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+  window.addEventListener("focus", handleVisibilityOrFocus);
 } catch (error) {
   console.error("Failed to watch system theme changes", error);
 }

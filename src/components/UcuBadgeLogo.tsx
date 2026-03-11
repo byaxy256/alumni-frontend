@@ -23,12 +23,12 @@ export function UcuBadgeLogo({
   const [imageError, setImageError] = useState(false);
 
   const logoContent = (
-    <div className={cn('overflow-hidden rounded-full border border-border bg-card flex items-center justify-center', className)}>
+    <div className={cn('h-10 w-10 shrink-0 overflow-hidden rounded-full border border-border bg-card flex items-center justify-center', className)}>
       {!imageError ? (
         <img
           src={logoSources[sourceIndex]}
           alt="Uganda Christian University badge"
-          className={cn('h-full w-full object-cover', imageClassName)}
+          className={cn('h-full w-full object-contain p-0.5', imageClassName)}
           onError={() => {
             if (sourceIndex < logoSources.length - 1) {
               setSourceIndex((prev) => prev + 1);

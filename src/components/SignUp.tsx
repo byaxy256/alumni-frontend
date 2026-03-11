@@ -179,7 +179,7 @@ export default function SignUp({ onBack, onSignUpComplete, onLoginSuccess }: Sig
           <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
+          <UcuBadgeLogo className="w-12 h-12 mx-auto mb-4" />
           <CardTitle>Create Account</CardTitle>
           <CardDescription>Step {step} of 2</CardDescription>
         </CardHeader>

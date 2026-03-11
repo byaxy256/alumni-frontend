@@ -88,7 +88,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
+          <UcuBadgeLogo className="w-12 h-12 mx-auto mb-4" />
           <CardTitle>Welcome Back</CardTitle>
           <CardDescription>Login to Alumni Aid</CardDescription>
         </CardHeader>
