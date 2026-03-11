@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '../ui/badge';
 import { API_BASE } from '../../api';
 import { toast } from 'sonner';
-import { UcuBadgeLogo } from '../UcuBadgeLogo';
+
 
 // --- Type Definitions ---
 interface Loan { id: string; amount_requested: number; status: string; created_at: string; [key: string]: any; }
@@ -169,7 +169,11 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       >
         <div className="max-w-5xl mx-auto flex justify-between items-start mb-6">
           <div className="flex items-start gap-3">
-            <UcuBadgeLogo className="w-11 h-11 border-white/30 bg-white/10" imageClassName="object-contain p-0.5" />
+            <div className="w-11 h-11 shrink-0 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+              <span className="text-base font-bold text-white select-none">
+                {(me?.full_name || 'S').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+              </span>
+            </div>
             <div>
             <p className="opacity-90 text-sm mb-1">Welcome back,</p>
             <h1 className="text-2xl font-semibold">{me?.full_name || 'Student'}</h1>

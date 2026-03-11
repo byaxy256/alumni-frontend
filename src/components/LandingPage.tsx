@@ -35,7 +35,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             rel="noopener noreferrer"
             className="flex items-center gap-3 hover:opacity-90 transition"
           >
-            <UcuBadgeLogo className="h-11 w-11" />
+            <UcuBadgeLogo className="h-9 w-9" />
             <div>
               <p className="text-lg font-semibold">Alumni Circle</p>
               <p className="text-xs text-foreground/70 dark:text-muted-foreground">Uganda Christian University</p>

@@ -72,7 +72,7 @@ export default function AlumniOfficeOperations() {
   return (
     <div className="p-4 lg:p-8 space-y-6">
       <div className="flex items-center gap-3">
-        <UcuBadgeLogo className="w-11 h-11" imageClassName="object-contain p-0.5" />
+        <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />
         <div>
           <h2 className="text-2xl font-bold">Alumni Office - Operational Dashboard</h2>
           <p className="text-muted-foreground">Manage loans, track repayments, and monitor student progress</p>

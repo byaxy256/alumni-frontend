@@ -202,7 +202,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     <div className="p-4 lg:p-6 space-y-6 pb-20 lg:pb-6">
       {/* Welcome Section */}
       <div className="flex items-center gap-3">
-        <UcuBadgeLogo className="w-11 h-11" imageClassName="object-contain p-0.5" />
+        <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />
         <div>
           <h2 className="text-xl lg:text-2xl">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
           <p className="text-sm text-muted-foreground">Here's what's happening with the Alumni Fund</p>
