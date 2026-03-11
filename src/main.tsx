@@ -4,25 +4,17 @@ import { BrowserRouter } from "react-router-dom";
 // @ts-ignore: module declaration for CSS imports is missing in this project
 import "./index.css";
 
-type ThemeMode = "light" | "dark" | "system";
-
-const applyThemeFromStorage = () => {
+const applySystemTheme = () => {
   try {
-    const stored = localStorage.getItem("theme");
-    const isValid = stored === "light" || stored === "dark" || stored === "system";
-    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
-    const theme: ThemeMode =
-      isValid && hasManualPreference ? (stored as ThemeMode) : "system";
-
-    if (stored !== theme) localStorage.setItem("theme", theme);
-
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const resolved = theme === "system" ? (prefersDark ? "dark" : "light") : theme;
+    const resolved = prefersDark ? "dark" : "light";
 
     const root = document.documentElement;
     root.classList.toggle("dark", resolved === "dark");
-    root.dataset.theme = theme;
+    root.dataset.theme = "system";
     root.style.colorScheme = resolved;
+    localStorage.setItem("theme", "system");
+    localStorage.removeItem("themePreferenceSet");
   } catch (error) {
     console.error("Failed to apply initial theme", error);
   }
@@ -32,7 +24,7 @@ const mount = () => {
   const rootElement = document.getElementById("root");
   if (!rootElement) return false;
 
-  applyThemeFromStorage();
+  applySystemTheme();
   createRoot(rootElement).render(
     <BrowserRouter>
       <App />
@@ -45,16 +37,7 @@ const mount = () => {
 try {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
   const handleSystemChange = () => {
-    const stored = localStorage.getItem("theme");
-    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
-    const theme: ThemeMode =
-      stored === "light" || stored === "dark" || stored === "system"
-        ? hasManualPreference
-          ? stored
-          : "system"
-        : "system";
-    if (stored !== theme) localStorage.setItem("theme", theme);
-    if (theme === "system") applyThemeFromStorage();
+    applySystemTheme();
   };
   media.addEventListener("change", handleSystemChange);
 } catch (error) {

@@ -14,7 +14,7 @@ import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
 import { MentorshipHub } from './alumni-user/MentorshipHub';
 import { UnifiedNotifications } from './shared/UnifiedNotifications';
-import { ThemeToggle } from './ui/ThemeToggle';
+import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 interface AlumniAppProps {
   user: UserType;
@@ -97,13 +97,12 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
 
         <div className="p-6 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-primary text-accent flex items-center justify-center text-xs font-semibold">UCU</div>
+            <UcuBadgeLogo className="h-9 w-9" />
             <div>
               <h1 className="text-primary">Alumni Connect</h1>
               <p className="text-sm text-muted-foreground mt-1">Alumni Portal</p>
             </div>
           </div>
-          <ThemeToggle />
         </div>
         
         <nav className="flex-1 p-4 overflow-y-auto">

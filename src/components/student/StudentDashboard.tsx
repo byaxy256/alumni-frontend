@@ -143,11 +143,11 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   }, [loans, supportRequests]);
   
   const quickActions = [
-    { id: 'apply-loan', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, iconStart: 'var(--primary)', iconEnd: 'var(--brand-purple)' },
-    { id: 'loans', title: 'My Loans', subtitle: 'View loans & payments', icon: Wallet, iconStart: 'var(--brand-blue)', iconEnd: 'var(--primary)' },
-    { id: 'apply-benefit', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, iconStart: 'var(--accent)', iconEnd: 'var(--primary)' },
-    { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'View profiles before requesting', icon: Users, iconStart: 'var(--brand-purple)', iconEnd: 'var(--brand-blue)' },
-    { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, iconStart: 'var(--brand-blue)', iconEnd: 'var(--brand-purple)' },
+    { id: 'apply-loan', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, iconBg: 'var(--primary)' },
+    { id: 'loans', title: 'My Loans', subtitle: 'View loans & payments', icon: Wallet, iconBg: 'var(--brand-blue)' },
+    { id: 'apply-benefit', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, iconBg: 'var(--accent-primary-mix)' },
+    { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'View profiles before requesting', icon: Users, iconBg: 'var(--brand-purple)' },
+    { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, iconBg: 'var(--brand-blue)' },
   ];
   
   if (loading) {
@@ -164,7 +164,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
     <div className="min-h-screen bg-background">
       <div
         className="text-white p-6 rounded-b-3xl shadow-lg"
-        style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--brand-purple) 45%, var(--brand-blue) 100%)' }}
+        style={{ backgroundColor: 'var(--primary)' }}
       >
         <div className="max-w-5xl mx-auto flex justify-between items-start mb-6">
           <div>
@@ -198,17 +198,12 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                     <div className="relative">
                       <div
                         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-white"
-                        style={{ background: `linear-gradient(135deg, ${a.iconStart}, ${a.iconEnd})` }}
+                        style={{ backgroundColor: a.iconBg }}
                       >
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <h3 className="text-sm text-foreground mb-1 font-semibold">{a.title}</h3>
                       <p className="text-xs text-muted-foreground">{a.subtitle}</p>
-                      <div className="mt-3">
-                        <span className="inline-flex items-center rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground">
-                          Open
-                        </span>
-                      </div>
                     </div>
                   </Card>
                 </button>
@@ -270,15 +265,15 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <Card className="p-4 text-center border border-border" style={{ background: 'linear-gradient(135deg, color-mix(in oklab, var(--brand-blue) 12%, transparent), color-mix(in oklab, var(--brand-blue) 22%, transparent))' }}>
+            <Card className="p-4 text-center border border-border" style={{ backgroundColor: 'var(--brand-blue-soft-10)' }}>
               <p className="text-2xl font-bold" style={{ color: 'var(--brand-blue)' }}>{totalApplications}</p>
               <p className="text-xs mt-1" style={{ color: 'var(--brand-blue)' }}>Total Applications</p>
             </Card>
-            <Card className="p-4 text-center border border-border" style={{ background: 'linear-gradient(135deg, color-mix(in oklab, var(--primary) 10%, transparent), color-mix(in oklab, var(--primary) 20%, transparent))' }}>
+            <Card className="p-4 text-center border border-border" style={{ backgroundColor: 'var(--accent-soft-20)' }}>
               <p className="text-2xl font-bold text-primary">{activeLoansCount}</p>
               <p className="text-xs text-primary mt-1">Active Loans</p>
             </Card>
-            <Card className="p-4 text-center border border-border" style={{ background: 'linear-gradient(135deg, color-mix(in oklab, var(--brand-purple) 12%, transparent), color-mix(in oklab, var(--brand-purple) 22%, transparent))' }}>
+            <Card className="p-4 text-center border border-border" style={{ backgroundColor: 'var(--brand-purple-soft-10)' }}>
               <p className="text-2xl font-bold" style={{ color: 'var(--brand-purple)' }}>{mentors.length}</p>
               <p className="text-xs mt-1" style={{ color: 'var(--brand-purple)' }}>Mentors</p>
             </Card>

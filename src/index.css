@@ -4094,6 +4094,25 @@ body {
 .to-orange-700 { --tw-gradient-to: var(--accent-primary-strong) !important; }
 .to-\[\#1a4d7a\] { --tw-gradient-to: var(--brand-hero-to) !important; }
 
+/* Prefer solid fills instead of gradients across app surfaces */
+.bg-gradient-to-b,
+.bg-gradient-to-t,
+.bg-gradient-to-r,
+.bg-gradient-to-l,
+.bg-gradient-to-br,
+.bg-gradient-to-bl,
+.bg-gradient-to-tr,
+.bg-gradient-to-tl {
+  background-image: none !important;
+}
+
+.from-primary { background-color: var(--primary) !important; }
+.from-accent { background-color: var(--accent) !important; }
+.from-gray-50 { background-color: var(--background) !important; }
+.from-gray-100 { background-color: var(--muted) !important; }
+.from-red-500 { background-color: var(--primary) !important; }
+.from-pink-500 { background-color: var(--brand-purple) !important; }
+
 html {
   font-size: var(--font-size);
 }

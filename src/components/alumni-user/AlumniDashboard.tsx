@@ -119,7 +119,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Make a Donation',
       subtitle: 'Support current students',
       icon: Heart,
-      gradient: 'from-red-500 to-pink-600',
+      iconBg: 'var(--primary)',
       action: () => onNavigate('donations')
     },
     {
@@ -127,7 +127,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Mentor Students',
       subtitle: 'Share your experience',
       icon: MessageSquare,
-      gradient: 'from-purple-500 to-purple-700',
+      iconBg: 'var(--brand-purple)',
       action: () => onNavigate('mentorship')
     },
     {
@@ -135,7 +135,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Upcoming Events',
       subtitle: 'Reunions & networking',
       icon: Calendar,
-      gradient: 'from-blue-500 to-blue-700',
+      iconBg: 'var(--brand-blue)',
       action: () => onNavigate('events')
     },
     {
@@ -143,7 +143,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Alumni Network',
       subtitle: 'Connect with classmates',
       icon: Users,
-      gradient: 'from-green-500 to-green-700',
+      iconBg: 'var(--accent-primary-mix)',
       action: () => onNavigate('connect')
     },
     {
@@ -151,7 +151,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'UCU News',
       subtitle: 'Latest updates',
       icon: Newspaper,
-      gradient: 'from-orange-500 to-orange-700',
+      iconBg: 'var(--accent-primary-mix)',
       action: () => onNavigate('news')
     },
     {
@@ -159,7 +159,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Alumni Benefits',
       subtitle: 'Exclusive perks',
       icon: Gift,
-      gradient: 'from-indigo-500 to-indigo-700',
+      iconBg: 'var(--indigo-mix)',
       action: () => onNavigate('benefits')
     },
   ];
@@ -182,9 +182,9 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-20 md:pb-6">
+    <div className="min-h-screen bg-background pb-20 md:pb-6">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-primary to-[#1a4d7a] text-white p-6 md:p-8">
+      <div className="bg-primary text-white p-6 md:p-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 flex justify-between items-start">
             <div>
@@ -256,10 +256,12 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
                   onClick={action.action}
                   className="group"
                 >
-                  <Card className="p-5 hover:shadow-xl transition-all duration-300 border-0 bg-white overflow-hidden relative h-full">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-5 transition-opacity`}></div>
+                  <Card className="p-5 hover:shadow-xl transition-all duration-300 border border-border bg-card overflow-hidden relative h-full">
                     <div className="relative">
-                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                      <div
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"
+                        style={{ backgroundColor: action.iconBg }}
+                      >
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <h3 className="text-sm text-gray-900 mb-1">{action.title}</h3>
@@ -285,13 +287,13 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {upcomingEvents.map((event) => (
-                <Card 
+                <Card
                   key={event.id}
-                  className="p-5 hover:shadow-md transition-shadow cursor-pointer border-0 bg-white"
+                  className="p-5 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card"
                   onClick={() => onNavigate('events')}
                 >
                   <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent to-accent/80 flex flex-col items-center justify-center text-white flex-shrink-0">
+                    <div className="w-14 h-14 rounded-xl bg-accent flex flex-col items-center justify-center text-primary flex-shrink-0">
                       <span className="text-sm">{event.date.split(' ')[1]}</span>
                       <span className="text-xs opacity-80">{event.date.split(' ')[0]}</span>
                     </div>
@@ -312,51 +314,51 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
 
 
           {/* Mentorship Stats */}
-          <Card className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 border-0 mb-6">
+          <Card className="p-5 bg-card border border-border mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg text-purple-900">Mentorship Program</h3>
-                <p className="text-sm text-purple-700 mt-1">
+                <h3 className="text-lg text-foreground">Mentorship Program</h3>
+                <p className="text-sm text-muted-foreground mt-1">
                   Currently mentoring 3 students
                 </p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--brand-purple)' }}>
                 <MessageSquare className="w-6 h-6 text-white" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="text-center">
-                <p className="text-2xl text-purple-900">3</p>
-                <p className="text-xs text-purple-700">Mentees</p>
+                <p className="text-2xl text-foreground">3</p>
+                <p className="text-xs text-muted-foreground">Mentees</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl text-purple-900">24</p>
-                <p className="text-xs text-purple-700">Sessions</p>
+                <p className="text-2xl text-foreground">24</p>
+                <p className="text-xs text-muted-foreground">Sessions</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl text-purple-900">4.8</p>
-                <p className="text-xs text-purple-700">Rating</p>
+                <p className="text-2xl text-foreground">4.8</p>
+                <p className="text-xs text-muted-foreground">Rating</p>
               </div>
             </div>
             <Button
               onClick={() => onNavigate('mentorship')}
               variant="outline"
-              className="w-full border-purple-300 text-purple-700 hover:bg-purple-200"
+              className="w-full border-border text-foreground hover:bg-muted"
             >
-              Open Mentorship Hub
+              Mentorship Hub
             </Button>
           </Card>
 
           {/* Students in Field Section */}
-          <Card className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 border-0">
+          <Card className="p-5 bg-card border border-border">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg text-blue-900">Students in Your Field</h3>
-                <p className="text-sm text-blue-700 mt-1">
+                <h3 className="text-lg text-foreground">Students in Your Field</h3>
+                <p className="text-sm text-muted-foreground mt-1">
                   {user.meta?.field || 'General'} students looking for mentorship
                 </p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--brand-blue)' }}>
                 <UserCheck className="w-6 h-6 text-white" />
               </div>
             </div>
@@ -368,31 +370,31 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
             ) : studentsInField.length > 0 ? (
               <>
                 <div className="text-center mb-4">
-                  <p className="text-2xl text-blue-900">{studentsInField.length}</p>
-                  <p className="text-xs text-blue-700">Students Available</p>
+                  <p className="text-2xl text-foreground">{studentsInField.length}</p>
+                  <p className="text-xs text-muted-foreground">Students Available</p>
                 </div>
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {studentsInField.slice(0, 5).map((student) => (
                     <div key={student.id} className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-blue-500 text-white text-xs">
+                        <AvatarFallback className="text-white text-xs" style={{ backgroundColor: 'var(--brand-blue)' }}>
                           {student.name.split(' ').map((n: string) => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-blue-900 truncate">{student.name}</p>
-                        <p className="text-xs text-blue-700">{student.course} • Year {student.year}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{student.name}</p>
+                        <p className="text-xs text-muted-foreground">{student.course} • Year {student.year}</p>
                       </div>
                       <div className="flex gap-1">
                         <Button size="sm" variant="outline" className="h-8 w-8 p-0 border-blue-300">
-                          <Mail className="w-3 h-3 text-blue-600" />
+                          <Mail className="w-3 h-3" style={{ color: 'var(--brand-blue)' }} />
                         </Button>
                       </div>
                     </div>
                   ))}
                   {studentsInField.length > 5 && (
                     <div className="text-center">
-                      <p className="text-xs text-blue-600">
+                      <p className="text-xs text-muted-foreground">
                         +{studentsInField.length - 5} more students
                       </p>
                     </div>
@@ -400,15 +402,15 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
                 </div>
                 <Button
                   onClick={() => onNavigate('mentorship')}
-                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Start Mentoring
                 </Button>
               </>
             ) : (
               <div className="text-center py-8">
-                <p className="text-sm text-blue-700 mb-2">No students found in your field</p>
-                <p className="text-xs text-blue-600">Students from other fields might still benefit from your expertise!</p>
+                <p className="text-sm text-muted-foreground mb-2">No students found in your field</p>
+                <p className="text-xs text-muted-foreground">Students from other fields might still benefit from your expertise.</p>
               </div>
             )}
           </Card>

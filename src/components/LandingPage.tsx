@@ -1,6 +1,5 @@
 import { Button } from './ui/button';
 import {
-  GraduationCap,
   Users,
   HeartHandshake,
   Sparkles,
@@ -11,7 +10,7 @@ import {
   CalendarCheck,
   GraduationCapIcon
 } from 'lucide-react';
-import { ThemeToggle } from './ui/ThemeToggle';
+import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -31,16 +30,13 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
       <header className="sticky top-0 z-40 bg-[#fff9f2]/94 dark:bg-card/92 backdrop-blur-2xl border-b border-primary/10 dark:border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-2xl flex items-center justify-center bg-primary">
-              <GraduationCap className="h-6 w-6 text-accent" />
-            </div>
+            <UcuBadgeLogo className="h-11 w-11" />
             <div>
               <p className="text-lg font-semibold">Alumni Circle</p>
               <p className="text-xs text-foreground/70 dark:text-muted-foreground">Uganda Christian University</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <Button onClick={onLogin} variant="outline" className="border-primary/30 text-foreground hover:bg-primary/5 dark:border-accent/35 dark:hover:bg-accent/10">
               Login
             </Button>
@@ -176,7 +172,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         </section>
 
         <section className="px-6 pb-28">
-          <div className="max-w-5xl mx-auto rounded-3xl border border-white/10 bg-gradient-to-r from-[#7a1f2a] to-[#4f1420] p-10 md:p-14">
+          <div className="max-w-5xl mx-auto rounded-3xl border border-white/10 bg-primary p-10 md:p-14">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <h2 className="text-3xl font-semibold mb-2">Ready to make an impact?</h2>

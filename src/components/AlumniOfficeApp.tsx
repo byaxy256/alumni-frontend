@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { ThemeToggle } from './ui/ThemeToggle';
+import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 
 
@@ -73,9 +73,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
       <header className="sticky top-0 z-40 w-full bg-card/95 border-b border-border backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary">
-              <span className="text-accent text-sm font-semibold">UCU</span>
-            </div>
+            <UcuBadgeLogo className="w-10 h-10" />
             <div>
               <h1 className="text-sm text-primary">Alumni Connect Office</h1>
               <p className="text-xs text-muted-foreground">{user.name}</p>
@@ -117,7 +115,6 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-2">
-            <ThemeToggle />
             <Button variant="ghost" onClick={onLogout}>
               <LogOut size={16} className="mr-2" />
               Logout

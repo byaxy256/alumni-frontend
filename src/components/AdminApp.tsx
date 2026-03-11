@@ -10,7 +10,7 @@ import DisbursementApproval from './admin/DisbursementApproval';
 import AuditLegal from './admin/AuditLegal';
 import AlumniOfficeApproval from './admin/AlumniOfficeApproval';
 import { User } from '../App';
-import { ThemeToggle } from './ui/ThemeToggle';
+import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'alumni-approval'>('dashboard');
@@ -34,10 +34,9 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
 
           <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 bg-primary border-b border-sidebar-border">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-accent text-primary flex items-center justify-center text-xs font-semibold">UCU</div>
+              <UcuBadgeLogo className="h-8 w-8" />
               <h1 className="text-sidebar-foreground">Alumni connect Admin</h1>
             </div>
-            <ThemeToggle />
           </div>
           <nav className="flex-1 px-4 py-6 space-y-2">
             {menuItems.map((item) => {
@@ -75,7 +74,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-primary border-b border-border z-40">
         <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-accent text-primary flex items-center justify-center text-xs font-semibold">UCU</div>
+            <UcuBadgeLogo className="h-8 w-8" />
             <h1 className="text-primary-foreground">Alumni connect Admin</h1>
           </div>
           <Button

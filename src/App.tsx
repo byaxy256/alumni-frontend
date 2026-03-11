@@ -21,6 +21,8 @@ import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
 import { toast } from 'sonner';
 
+const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+
 // This is the correct, complete User type definition
 export type User = {
   field: string;
@@ -203,6 +205,54 @@ export default function App() {
     if (user) {
       initPushNotifications(user);
     }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let timeoutId: number | null = null;
+    const activityEvents: Array<keyof WindowEventMap> = [
+      'mousemove',
+      'mousedown',
+      'keydown',
+      'scroll',
+      'touchstart',
+      'click',
+    ];
+
+    const logoutForInactivity = () => {
+      toast.info('You were logged out after 1 hour of inactivity.');
+      handleLogout();
+    };
+
+    const resetInactivityTimer = () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+      timeoutId = window.setTimeout(logoutForInactivity, INACTIVITY_TIMEOUT_MS);
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        resetInactivityTimer();
+      }
+    };
+
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, resetInactivityTimer, { passive: true });
+    });
+    document.addEventListener('visibilitychange', handleVisibility);
+    resetInactivityTimer();
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, resetInactivityTimer);
+      });
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [user]);
 
   if (isCheckingAuth) {

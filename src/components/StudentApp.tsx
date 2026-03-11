@@ -13,7 +13,7 @@ import { Events } from './student/Events';
 import type { User } from '../App';
 import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
-import { ThemeToggle } from './ui/ThemeToggle';
+import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 type StudentScreen = 'dashboard' | 'apply-loan' | 'apply-benefit' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
 
@@ -128,7 +128,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
           <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full bg-primary text-accent flex items-center justify-center text-xs font-semibold">UCU</div>
+                <UcuBadgeLogo className="h-9 w-9" />
                 <div>
                   <h1 className="text-primary">Alumni Circle</h1>
                   <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
@@ -188,13 +188,12 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         <div className="p-6 border-b border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-primary text-accent flex items-center justify-center text-xs font-semibold">UCU</div>
+              <UcuBadgeLogo className="h-9 w-9" />
               <div>
                 <h1 className="text-primary">Alumni Circle</h1>
                 <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
               </div>
             </div>
-            <ThemeToggle />
           </div>
         </div>
         <nav className="flex-1 p-4 overflow-y-auto">

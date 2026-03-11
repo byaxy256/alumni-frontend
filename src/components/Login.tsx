@@ -5,8 +5,9 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { GraduationCap, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 // The props interface remains the same. It correctly expects a function from the parent.
 interface LoginProps {
@@ -70,7 +71,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
   // --- No changes are needed for the UI (JSX) ---
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-[#1a4d7a] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center relative">
           <button
@@ -81,9 +82,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
-            <GraduationCap className="w-8 h-8 text-accent-foreground" />
-          </div>
+          <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
           <CardTitle>Welcome Back</CardTitle>
           <CardDescription>Login to Alumni Aid</CardDescription>
         </CardHeader>
