@@ -199,13 +199,13 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   }, []);
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 pb-20 lg:pb-6">
+    <div className="p-4 lg:p-6 space-y-6 pb-20 lg:pb-6 bg-white min-h-full">
       {/* Welcome Section */}
       <div className="flex items-center gap-3">
         <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />
         <div>
-          <h2 className="text-xl lg:text-2xl">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
-          <p className="text-sm text-muted-foreground">Here's what's happening with the Alumni Fund</p>
+          <h2 className="text-xl lg:text-2xl font-semibold text-gray-900">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
+          <p className="text-sm text-gray-500">Here's what's happening with the Alumni Fund</p>
         </div>
       </div>
 

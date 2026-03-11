@@ -161,7 +161,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
         )}
       </header>
 
-      <main className="lg:pb-4">
+      <main className="lg:pb-4 bg-white min-h-screen">
         {renderScreen()}
       </main>
     </div>

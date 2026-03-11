@@ -131,7 +131,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
       )}
 
       {/* Main Content */}
-      <main className="lg:pl-72 pt-16 lg:pt-0 min-h-screen">
+      <main className="lg:pl-72 pt-16 lg:pt-0 min-h-screen bg-white">
         {currentView === 'dashboard' && <AdminDashboard />}
         {currentView === 'reports' && <AdminReports />}
         {currentView === 'config' && <SystemConfig />}

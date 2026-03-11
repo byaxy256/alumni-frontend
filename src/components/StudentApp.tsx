@@ -11,9 +11,10 @@ import { StudentDisbursements } from './student/StudentDisbursements';
 import { News } from './student/News';
 import { Events } from './student/Events';
 import type { User } from '../App';
-import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar, Settings } from 'lucide-react';
+import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar, Settings, Search, MessageCircle } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
+import { Avatar, AvatarFallback } from './ui/avatar';
 
 type StudentScreen = 'dashboard' | 'apply-loan' | 'apply-benefit' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
 
@@ -248,8 +249,30 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
           </button>
         </div>
       </aside>
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0 pt-14 md:pt-0">
-        {renderScreen()}
+      <main className="flex-1 md:ml-64 pb-20 md:pb-0 pt-14 md:pt-0 flex flex-col bg-white">
+        {/* Top header: search + icons (desktop only) */}
+        <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white shrink-0">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 text-gray-500 w-full max-w-sm">
+            <Search className="w-4 h-4 shrink-0" />
+            <span className="text-sm">Search</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => handleNavigate('notifications')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-600" aria-label="Notifications">
+              <Bell className="w-5 h-5" />
+            </button>
+            <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-600" aria-label="Messages">
+              <MessageCircle className="w-5 h-5" />
+            </button>
+            <Avatar className="h-9 w-9 border border-gray-200">
+              <AvatarFallback className="bg-[#0b2a4a] text-white text-sm">
+                {(user?.full_name || 'S').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto">
+          {renderScreen()}
+        </div>
       </main>
       {/* Mobile bottom nav removed in favor of drawer */}
     </div>
