@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
-import { ThemeToggle } from './ui/ThemeToggle';
 
 // The props interface remains the same. It correctly expects a function from the parent.
 interface LoginProps {
@@ -72,8 +71,14 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
   // --- No changes are needed for the UI (JSX) ---
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[color:var(--hover-50)] to-[color:var(--accent-soft-16)] dark:from-background dark:via-[#1b131a] dark:to-[#181f32] p-4">
-      <Card className="w-full max-w-md glass-panel">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-[color:var(--hover-50)] to-[color:var(--accent-soft-16)] dark:from-background dark:via-[#1b131a] dark:to-[#181f32] p-4">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-primary/20 blur-[100px] dark:bg-primary/30" />
+        <div className="absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-[color:var(--brand-hero-to)]/20 blur-[110px] dark:bg-[color:var(--brand-hero-to)]/35" />
+        <div className="absolute top-1/3 left-1/2 h-60 w-60 -translate-x-1/2 rounded-full bg-accent/20 blur-[100px] dark:bg-accent/25" />
+      </div>
+
+      <Card className="relative w-full max-w-md border-white/25 dark:border-white/10 bg-white/70 dark:bg-[#1b141d]/78 backdrop-blur-2xl shadow-[0_30px_80px_rgba(0,0,0,0.22)] dark:shadow-[0_40px_100px_rgba(0,0,0,0.55)]">
         <CardHeader className="text-center relative">
           <button
             onClick={onBack}
@@ -83,9 +88,6 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="absolute right-6 top-6">
-            <ThemeToggle />
-          </div>
           <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
           <CardTitle>Welcome Back</CardTitle>
           <CardDescription>

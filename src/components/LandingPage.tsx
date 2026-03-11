@@ -11,7 +11,6 @@ import {
   GraduationCapIcon
 } from 'lucide-react';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
-import { ThemeToggle } from './ui/ThemeToggle';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -43,7 +42,6 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
           </a>
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <Button onClick={onLogin} variant="outline" className="border-primary/30 text-foreground hover:bg-primary/5 dark:border-accent/35 dark:hover:bg-accent/10">
               Login
             </Button>

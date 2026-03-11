@@ -28,23 +28,12 @@ const applyTheme = (theme: ThemeMode) => {
 
 const getInitialTheme = (): ThemeMode => {
   try {
-    const savedTheme = localStorage.getItem("theme");
-    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
-    const validTheme: ThemeMode | null =
-      savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
-        ? savedTheme
-        : null;
-
-    if (validTheme && hasManualPreference) {
-      return validTheme;
-    }
-
     localStorage.setItem("theme", "system");
-    return "system";
+    localStorage.removeItem("themePreferenceSet");
   } catch (error) {
-    console.error("Failed to read theme preference", error);
-    return "system";
+    console.error("Failed to persist theme preference", error);
   }
+  return "system";
 };
 
 const mount = () => {
@@ -64,13 +53,7 @@ const mount = () => {
 try {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
   const handleSystemChange = () => {
-    const savedTheme = localStorage.getItem("theme");
-    const hasManualPreference = localStorage.getItem("themePreferenceSet") === "1";
-    const shouldFollowSystem = !hasManualPreference || savedTheme === "system";
-
-    if (shouldFollowSystem) {
-      applyTheme("system");
-    }
+    applyTheme("system");
   };
   media.addEventListener("change", handleSystemChange);
 } catch (error) {

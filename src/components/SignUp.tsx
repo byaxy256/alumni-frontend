@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import { API_BASE } from '../api';
 import { auth, googleProvider, hasFirebaseEnv } from '../lib/firebase';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
-import { ThemeToggle } from './ui/ThemeToggle';
 
 type UserType = 'student' | 'alumni' | '';
 
@@ -168,15 +167,18 @@ export default function SignUp({ onBack, onSignUpComplete, onLoginSuccess }: Sig
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[color:var(--hover-50)] to-[color:var(--accent-soft-16)] dark:from-background dark:via-[#1b131a] dark:to-[#181f32] p-4">
-      <Card className="w-full max-w-2xl glass-panel">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-[color:var(--hover-50)] to-[color:var(--accent-soft-16)] dark:from-background dark:via-[#1b131a] dark:to-[#181f32] p-4">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-primary/20 blur-[100px] dark:bg-primary/30" />
+        <div className="absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-[color:var(--brand-hero-to)]/20 blur-[110px] dark:bg-[color:var(--brand-hero-to)]/35" />
+        <div className="absolute top-1/3 left-1/2 h-60 w-60 -translate-x-1/2 rounded-full bg-accent/20 blur-[100px] dark:bg-accent/25" />
+      </div>
+
+      <Card className="relative w-full max-w-2xl border-white/25 dark:border-white/10 bg-white/70 dark:bg-[#1b141d]/78 backdrop-blur-2xl shadow-[0_30px_80px_rgba(0,0,0,0.22)] dark:shadow-[0_40px_100px_rgba(0,0,0,0.55)]">
         <CardHeader className="text-center relative">
           <button onClick={onBack} className="absolute left-6 top-6 p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg transition" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="absolute right-6 top-6">
-            <ThemeToggle />
-          </div>
           <UcuBadgeLogo className="w-16 h-16 mx-auto mb-4" />
           <CardTitle>Create Account</CardTitle>
           <CardDescription>
