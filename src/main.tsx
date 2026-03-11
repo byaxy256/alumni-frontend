@@ -27,7 +27,12 @@ const applyTheme = (theme: ThemeMode) => {
 };
 
 const getInitialTheme = (): ThemeMode => {
-  // System-only: always follow OS preference, ignore any stored overrides
+  try {
+    const saved = localStorage.getItem("theme") as ThemeMode | null;
+    if (saved === "light" || saved === "dark" || saved === "system") return saved;
+  } catch (e) {
+    console.error("Failed to read theme", e);
+  }
   return "system";
 };
 
@@ -48,7 +53,12 @@ const mount = () => {
 try {
   const media = window.matchMedia("(prefers-color-scheme: dark)");
   const handleSystemChange = () => {
-    applyTheme("system");
+    try {
+      const stored = (localStorage.getItem("theme") as ThemeMode | null) || "system";
+      if (stored === "system") applyTheme("system");
+    } catch {
+      applyTheme("system");
+    }
   };
 
   if (typeof media.addEventListener === "function") {
@@ -58,18 +68,26 @@ try {
   }
 
   const handleVisibilityOrFocus = () => {
-    applyTheme("system");
+    try {
+      const stored = (localStorage.getItem("theme") as ThemeMode | null) || "system";
+      if (stored === "system") applyTheme("system");
+    } catch {
+      applyTheme("system");
+    }
   };
 
   document.addEventListener("visibilitychange", handleVisibilityOrFocus);
   window.addEventListener("focus", handleVisibilityOrFocus);
   window.addEventListener("pageshow", handleVisibilityOrFocus);
 
-  // Poll every 300ms when tab is visible so theme updates immediately even if
-  // the browser doesn't fire the media "change" event (e.g. some mobile webviews).
   window.setInterval(() => {
     if (document.visibilityState === "visible") {
-      applyTheme("system");
+      try {
+        const stored = (localStorage.getItem("theme") as ThemeMode | null) || "system";
+        if (stored === "system") applyTheme("system");
+      } catch {
+        applyTheme("system");
+      }
     }
   }, 300);
 } catch (error) {
