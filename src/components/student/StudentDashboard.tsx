@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '../ui/badge';
 import { API_BASE } from '../../api';
 import { toast } from 'sonner';
+import { UcuBadgeLogo } from '../UcuBadgeLogo';
 
 // --- Type Definitions ---
 interface Loan { id: string; amount_requested: number; status: string; created_at: string; [key: string]: any; }
@@ -167,10 +168,13 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
         style={{ backgroundColor: 'var(--primary)' }}
       >
         <div className="max-w-5xl mx-auto flex justify-between items-start mb-6">
-          <div>
+          <div className="flex items-start gap-3">
+            <UcuBadgeLogo className="w-11 h-11 border-white/30 bg-white/10" imageClassName="object-contain p-0.5" />
+            <div>
             <p className="opacity-90 text-sm mb-1">Welcome back,</p>
             <h1 className="text-2xl font-semibold">{me?.full_name || 'Student'}</h1>
             <p className="text-sm opacity-80 mt-1">{me?.program || 'No program specified'}</p>
+            </div>
           </div>
           <button onClick={handleViewAllNotifications} className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
             <Bell className="w-6 h-6" />

@@ -23,6 +23,7 @@ import {
 import { useState, useEffect } from 'react';
 import { api, API_BASE } from '../../api';
 import { toast } from 'sonner';
+import { UcuBadgeLogo } from '../UcuBadgeLogo';
 
 interface AlumniDashboardProps {
   user: User;
@@ -187,12 +188,15 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       <div className="bg-primary text-white p-6 md:p-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 flex justify-between items-start">
-            <div>
-              <p className="opacity-90 text-sm mb-1">Welcome back,</p>
-              <h1 className="text-2xl md:text-3xl">{displayName}</h1>
-              <p className="text-sm opacity-80 mt-1">
-                {displayCourse} • Class of {displayGradYear}
-              </p>
+            <div className="flex items-start gap-3">
+              <UcuBadgeLogo className="w-11 h-11 border-white/30 bg-white/10" imageClassName="object-contain p-0.5" />
+              <div>
+                <p className="opacity-90 text-sm mb-1">Welcome back,</p>
+                <h1 className="text-2xl md:text-3xl">{displayName}</h1>
+                <p className="text-sm opacity-80 mt-1">
+                  {displayCourse} • Class of {displayGradYear}
+                </p>
+              </div>
             </div>
             <button 
               onClick={() => {

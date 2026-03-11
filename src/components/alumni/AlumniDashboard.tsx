@@ -5,6 +5,7 @@ import { DollarSign, Users, FileText, TrendingUp, AlertCircle, Clock } from 'luc
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { User } from '../../App';
 import { API_BASE } from '../../api';
+import { UcuBadgeLogo } from '../UcuBadgeLogo';
 
 interface AlumniDashboardProps {
   user: User;
@@ -200,9 +201,12 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   return (
     <div className="p-4 lg:p-6 space-y-6 pb-20 lg:pb-6">
       {/* Welcome Section */}
-      <div>
-        <h2 className="text-xl lg:text-2xl">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
-        <p className="text-sm text-muted-foreground">Here's what's happening with the Alumni Fund</p>
+      <div className="flex items-center gap-3">
+        <UcuBadgeLogo className="w-11 h-11" imageClassName="object-contain p-0.5" />
+        <div>
+          <h2 className="text-xl lg:text-2xl">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
+          <p className="text-sm text-muted-foreground">Here's what's happening with the Alumni Fund</p>
+        </div>
       </div>
 
       {/* Key Metrics */}

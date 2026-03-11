@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Users, DollarSign, FileText, TrendingUp, BookOpen, UserCheck, RefreshCw } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { apiCall } from '../../api';
+import { UcuBadgeLogo } from '../UcuBadgeLogo';
 
 interface DashboardStats {
   users: {
@@ -194,9 +195,12 @@ export default function AdminDashboard() {
   return (
     <div className="p-4 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-3">
+          <UcuBadgeLogo className="w-11 h-11" imageClassName="object-contain p-0.5" />
+          <div>
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">System overview and key metrics</p>
+          </div>
         </div>
         <button
           onClick={() => loadDashboardData(true)}
