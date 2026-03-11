@@ -16,7 +16,6 @@ export function UcuBadgeLogo({
 }: UcuBadgeLogoProps) {
   const logoSources = [
     '/ucu-logo.png',
-    '/images.png',
     'https://upload.wikimedia.org/wikipedia/en/5/5d/Uganda_Christian_University_logo.jpg',
   ];
   const [sourceIndex, setSourceIndex] = useState(0);
@@ -28,7 +27,7 @@ export function UcuBadgeLogo({
         <img
           src={logoSources[sourceIndex]}
           alt="Uganda Christian University badge"
-          className={cn('h-full w-full object-contain p-0.5', imageClassName)}
+          className={cn('h-full w-full object-cover', imageClassName)}
           onError={() => {
             if (sourceIndex < logoSources.length - 1) {
               setSourceIndex((prev) => prev + 1);

@@ -68,6 +68,15 @@ try {
 
   document.addEventListener("visibilitychange", handleVisibilityOrFocus);
   window.addEventListener("focus", handleVisibilityOrFocus);
+  window.addEventListener("pageshow", handleVisibilityOrFocus);
+
+  // Web fallback: some browsers intermittently miss media change events.
+  // Keep system theme in sync while the tab is visible.
+  window.setInterval(() => {
+    if (document.visibilityState === "visible") {
+      applyTheme("system");
+    }
+  }, 1500);
 } catch (error) {
   console.error("Failed to watch system theme changes", error);
 }

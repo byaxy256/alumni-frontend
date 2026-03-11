@@ -59,24 +59,6 @@ export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [showSignUp, setShowSignUp] = useState(false);
 
-  // Force system dark/light mode — re-apply on every render and track OS changes
-  useEffect(() => {
-    const applySystemTheme = () => {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.classList.toggle('dark', isDark);
-      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-    };
-    applySystemTheme();
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    if (typeof mq.addEventListener === 'function') {
-      mq.addEventListener('change', applySystemTheme);
-      return () => mq.removeEventListener('change', applySystemTheme);
-    } else if (typeof mq.addListener === 'function') {
-      mq.addListener(applySystemTheme);
-      return () => mq.removeListener(applySystemTheme);
-    }
-  }, []);
-
 
 
   const [showLogin, setShowLogin] = useState(false);
