@@ -19,7 +19,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
   const menuItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home },
     { id: 'reports' as const, label: 'Reports & Analytics', icon: BarChart3 },
-    { id: 'config' as const, label: 'System Config', icon: Settings },
+    { id: 'config' as const, label: 'Settings', icon: Settings },
     { id: 'users' as const, label: 'User Management', icon: Users },
     { id: 'alumni-approval' as const, label: 'Alumni Office Approval', icon: UserCheck },
     { id: 'disbursements' as const, label: 'Disbursements', icon: CreditCard },
@@ -29,13 +29,16 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
   return (
     <div className="min-h-screen bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col bg-sidebar">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] text-slate-100 shadow-2xl">
         <div className="flex flex-col flex-1 min-h-0">
 
-          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 bg-primary border-b border-sidebar-border">
+          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 border-b border-white/10">
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-8 w-8" />
-              <h1 className="text-sidebar-foreground">Alumni connect Admin</h1>
+              <div>
+                <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
+                <p className="text-xs text-slate-300 mt-0.5">System Admin</p>
+              </div>
             </div>
           </div>
           <nav className="flex-1 px-4 py-6 space-y-2">
@@ -47,8 +50,8 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
                   onClick={() => setCurrentView(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentView === item.id
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      ? 'bg-white/12 text-white'
+                      : 'text-slate-200 hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -57,11 +60,11 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
               );
             })}
           </nav>
-          <div className="flex-shrink-0 p-4 border-t border-sidebar-border">
+          <div className="flex-shrink-0 p-4 border-t border-white/10">
             <Button
               onClick={onLogout}
               variant="ghost"
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+              className="w-full justify-start text-slate-200 hover:bg-white/5 hover:text-white"
             >
               <LogOut className="w-5 h-5 mr-3" />
               Logout
@@ -71,17 +74,20 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-primary border-b border-border z-40">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-[#0b2a4a] border-b border-border z-40">
         <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="h-8 w-8" />
-            <h1 className="text-primary-foreground">Alumni connect Admin</h1>
+            <div>
+              <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
+              <p className="text-xs text-slate-200 mt-0.5">System Admin</p>
+            </div>
           </div>
           <Button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             variant="ghost"
             size="icon"
-            className="text-primary-foreground"
+            className="text-white"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </Button>
@@ -90,7 +96,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-30 bg-sidebar pt-16">
+        <div className="lg:hidden fixed inset-0 z-30 bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] pt-16 text-slate-100">
           <nav className="p-4 space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -103,8 +109,8 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentView === item.id
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      ? 'bg-white/12 text-white'
+                      : 'text-slate-200 hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -115,7 +121,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
             <Button
               onClick={onLogout}
               variant="ghost"
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent mt-4"
+              className="w-full justify-start text-slate-200 hover:bg-white/5 hover:text-white mt-4"
             >
               <LogOut className="w-5 h-5 mr-3" />
               Logout

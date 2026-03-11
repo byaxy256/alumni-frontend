@@ -11,13 +11,7 @@ import Reports from './alumni/Reports';
 import ManageContent from './alumni/ManageContent';
 import type { User } from '../App';
 import { Button } from './ui/button';
-import { LogOut, Menu, Home, FileText, Upload, Mail, FolderOpen, ShoppingBag, BarChart3, Settings2Icon } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+import { LogOut, Menu, Home, FileText, Upload, Mail, FolderOpen, ShoppingBag, BarChart3, Settings2Icon, Settings } from 'lucide-react';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 
@@ -40,7 +34,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
     { id: 'reports', label: 'Reports', icon: BarChart3 },
   ];
 
-    const renderScreen = () => {
+  const renderScreen = () => {
     switch (currentScreen) {
       case 'dashboard':
         return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as AlumniScreen)} />;
@@ -68,107 +62,158 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-card/95 border-b border-border backdrop-blur">
+    <div className="min-h-screen bg-background text-foreground flex">
+      {/* Mobile header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0b2a4a] text-white">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <UcuBadgeLogo className="w-10 h-10" />
+            <UcuBadgeLogo className="w-9 h-9" />
             <div>
-              <h1 className="text-sm text-primary">Alumni Connect Office</h1>
-              <p className="text-xs text-muted-foreground">{user.name}</p>
+              <h1 className="text-sm font-semibold">Alumni Circle</h1>
+              <p className="text-xs text-slate-200">Alumni Office</p>
             </div>
           </div>
-
-          {/* Mobile Menu */}
-          <div className="lg:hidden">
-            <DropdownMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground">
-                  <Menu size={20} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {navigationItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={item.id}
-                      onClick={() => {
-                        setCurrentScreen(item.id as AlumniScreen);
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      <Icon className="mr-2 h-4 w-4" />
-                      {item.label}
-                    </DropdownMenuItem>
-                  );
-                })}
-                <DropdownMenuItem onClick={onLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-2">
-            <Button variant="ghost" onClick={onLogout}>
-              <LogOut size={16} className="mr-2" />
-              Logout
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white"
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </Button>
         </div>
+      </div>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:block border-t border-border">
-          <nav className="px-4 py-2">
-            <div className="flex gap-2">
+      {/* Mobile sidebar drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] text-slate-100 p-4 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <UcuBadgeLogo className="h-9 w-9" />
+                <div>
+                  <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
+                  <p className="text-xs text-slate-300 mt-1">Alumni Office</p>
+                  <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{user.name}</p>
+                </div>
+              </div>
+              <button
+                className="text-slate-300 hover:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+            </div>
+            <nav className="space-y-1">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentScreen === item.id;
                 return (
-                  <Button
+                  <button
                     key={item.id}
-                    variant={isActive ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setCurrentScreen(item.id as AlumniScreen)}
+                    onClick={() => {
+                      setCurrentScreen(item.id as AlumniScreen);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive ? 'bg-white/10 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                    }`}
                   >
-                    <Icon size={16} className="mr-2" />
-                    {item.label}
-                  </Button>
+                    <Icon className="w-5 h-5" />
+                    <span>{item.label}</span>
+                  </button>
                 );
               })}
+            </nav>
+            <div className="mt-4 border-t border-white/10 pt-4 space-y-2">
+              <button
+                onClick={() => {
+                  setCurrentScreen('dashboard');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-200 hover:bg-white/5 hover:text-white"
+              >
+                <Settings className="w-5 h-5" />
+                <span>Settings</span>
+              </button>
+              <button
+                onClick={() => {
+                  onLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-200 hover:bg-white/5 hover:text-white"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
             </div>
-          </nav>
+          </aside>
         </div>
-      </header>
+      )}
 
-      <main className="lg:pb-4">
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex lg:flex-col w-72 bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] text-slate-100 fixed inset-y-0 shadow-2xl">
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <UcuBadgeLogo className="h-9 w-9" />
+              <div>
+                <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
+                <p className="text-xs text-slate-300 mt-1">Alumni Office</p>
+                <p className="text-[11px] text-slate-400 truncate max-w-[160px]">{user.name}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <nav className="flex-1 p-4 overflow-y-auto">
+          <div className="space-y-1">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentScreen === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setCurrentScreen(item.id as AlumniScreen)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive ? 'bg-white/12 text-white' : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+        <div className="p-4 border-t border-white/10 space-y-2">
+          <button
+            onClick={() => setCurrentScreen('dashboard')}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-200 hover:bg-white/5 hover:text-white"
+          >
+            <Settings className="w-5 h-5" />
+            <span>Settings</span>
+          </button>
+          <Button
+            onClick={onLogout}
+            variant="ghost"
+            className="w-full justify-start text-slate-200 hover:bg-white/5 hover:text-white"
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            Logout
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 lg:ml-72 pt-14 lg:pt-0 lg:pb-4">
         {renderScreen()}
       </main>
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 border-t border-border px-2 py-2 z-50 backdrop-blur">
-        <div className="flex justify-around items-center max-w-lg mx-auto">
-          {navigationItems.slice(0, 5).map((item) => {
-            const Icon = item.icon;
-            const isActive = currentScreen === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setCurrentScreen(item.id as AlumniScreen)}
-                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-              >
-                <Icon size={18} />
-                <span className="text-xs">{item.label.split(' ')[0]}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
     </div>
   );
 }

@@ -164,8 +164,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   return (
     <div className="min-h-screen bg-background">
       <div
-        className="text-white p-6 rounded-b-3xl shadow-lg"
-        style={{ backgroundColor: 'var(--primary)' }}
+        className="text-white p-6 rounded-b-3xl shadow-lg bg-gradient-to-br from-[#0b2a4a] via-[#0b2a4a] to-[#1e40af]"
       >
         <div className="max-w-5xl mx-auto flex justify-between items-start mb-6">
           <div className="flex items-start gap-3">

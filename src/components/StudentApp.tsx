@@ -11,7 +11,7 @@ import { StudentDisbursements } from './student/StudentDisbursements';
 import { News } from './student/News';
 import { Events } from './student/Events';
 import type { User } from '../App';
-import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
+import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar, Settings } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
@@ -125,17 +125,17 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             className="absolute inset-0 bg-black/40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border p-4">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] text-slate-100 p-4 shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <UcuBadgeLogo className="h-9 w-9" />
                 <div>
-                  <h1 className="text-primary">Alumni Circle</h1>
-                  <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
+                  <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
+                  <p className="text-xs text-slate-300 mt-1">Student Dashboard</p>
                 </div>
               </div>
               <button
-                className="text-muted-foreground hover:text-foreground"
+                className="text-slate-300 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -154,8 +154,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        ? 'bg-white/10 text-white'
+                        : 'text-slate-200 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -164,7 +164,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 );
               })}
             </nav>
-            <div className="mt-4 border-t border-border pt-4">
+            <div className="mt-4 border-t border-white/10 pt-4 space-y-2">
               <button
                 onClick={() => {
                   handleNavigate('profile');
@@ -172,26 +172,36 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   currentScreen === 'profile'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-white/10 text-white'
+                    : 'text-slate-200 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <UserIcon className="w-5 h-5" />
                 <span>Profile</span>
+              </button>
+              <button
+                onClick={() => {
+                  handleNavigate('dashboard');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-200 hover:bg-white/5 hover:text-white"
+              >
+                <Settings className="w-5 h-5" />
+                <span>Settings</span>
               </button>
             </div>
           </aside>
         </div>
       )}
 
-      <aside className="hidden md:flex md:flex-col w-64 bg-card border-r border-border fixed h-screen">
-        <div className="p-6 border-b border-border">
+      <aside className="hidden md:flex md:flex-col w-64 bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] text-slate-100 fixed h-screen shadow-2xl">
+        <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-9 w-9" />
               <div>
-                <h1 className="text-primary">Alumni Circle</h1>
-                <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
+                <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
+                <p className="text-xs text-slate-300 mt-1">Student Dashboard</p>
               </div>
             </div>
           </div>
@@ -206,8 +216,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                   onClick={() => handleNavigate(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      ? 'bg-white/12 text-white'
+                      : 'text-slate-200 hover:bg-white/5 hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -217,17 +227,24 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             })}
           </div>
         </nav>
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-white/10 space-y-2">
           <button
             onClick={() => handleNavigate('profile')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
               currentScreen === 'profile'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                ? 'bg-white/10 text-white'
+                : 'text-slate-200 hover:bg-white/5 hover:text-white'
             }`}
           >
             <UserIcon className="w-5 h-5" />
             <span>Profile</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('dashboard')}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-200 hover:bg-white/5 hover:text-white"
+          >
+            <Settings className="w-5 h-5" />
+            <span>Settings</span>
           </button>
         </div>
       </aside>

@@ -211,33 +211,35 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <Card>
+        {/* Total Fund Balance */}
+        <Card className="bg-[#0b2a4a] text-white border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
-                <DollarSign size={20} className="text-primary" />
+              <div className="w-10 h-10 rounded-full bg-white/12 flex items-center justify-center">
+                <DollarSign size={20} className="text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Total Fund Balance</p>
-            <p className="text-lg lg:text-xl mt-1 text-primary">
+            <p className="text-xs text-blue-100/90">Total Fund Balance</p>
+            <p className="text-lg lg:text-xl mt-1">
               {loading ? 'Updating...' : formatCompactUGX(totalFundBalance)}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Pending Applications */}
+        <Card className="bg-[#b91c1c] text-white border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                <AlertCircle size={20} className="text-accent" />
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <AlertCircle size={20} className="text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Pending Applications</p>
+            <p className="text-xs text-red-100/90">Pending Applications</p>
             <p className="text-lg lg:text-xl mt-1">{loading ? '...' : pendingApplications}</p>
             <Button
-              variant="link"
+              variant="outline"
               size="sm"
-              className="p-0 h-auto mt-2 text-xs text-accent"
+              className="mt-2 h-8 px-3 text-xs border-white/40 text-white hover:bg-white/10"
               onClick={() => onNavigate('applications')}
             >
               Review Now →
@@ -245,39 +247,37 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Total Alumni */}
+        <Card className="bg-[#14532d] text-white border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: 'color-mix(in oklab, var(--brand-blue) 20%, transparent)' }}
-              >
-                <Users size={20} style={{ color: 'var(--brand-blue)' }} />
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <Users size={20} />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Total Alumni</p>
-            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : resolvedTotalAlumni.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-2">{loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}</p>
+            <p className="text-xs text-emerald-100/90">Total Alumni</p>
+            <p className="text-lg lg:text-xl mt-1">
+              {loading ? '...' : resolvedTotalAlumni.toLocaleString()}
+            </p>
+            <p className="text-xs text-emerald-100/90 mt-2">
+              {loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Total Disbursed */}
+        <Card className="bg-[#047857] text-white border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div
-                className="w-10 h-10 rounded-full"
-                style={{ backgroundColor: 'color-mix(in oklab, var(--brand-purple) 24%, transparent)' }}
-              >
-                <div className="w-full h-full flex items-center justify-center">
-                  <TrendingUp size={20} style={{ color: 'var(--brand-purple)' }} />
-                </div>
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <TrendingUp size={20} />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Total Disbursed</p>
+            <p className="text-xs text-emerald-100/90">Total Disbursed</p>
             <p className="text-lg lg:text-xl mt-1">
               {loading ? 'Updating...' : formatCompactUGX(totalDisbursed)}
             </p>
-            <p className="text-xs text-muted-foreground mt-2">Net approved disbursements</p>
+            <p className="text-xs text-emerald-100/90 mt-2">Net approved disbursements</p>
           </CardContent>
         </Card>
       </div>
