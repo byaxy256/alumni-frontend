@@ -182,98 +182,78 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
     },
   ];
 
-  const greeting = (() => {
-    const h = new Date().getHours();
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    return 'Good evening';
-  })();
-
   return (
-    <div className="min-h-screen bg-white pb-20 md:pb-6">
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">{greeting}, {displayName?.split(' ')[0] || 'Moses'}</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Alumni Dashboard</p>
+    <div className="min-h-screen bg-background pb-20 md:pb-6">
+      {/* Hero Section */}
+      <div className="bg-primary text-white p-6 md:p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6 flex justify-between items-start">
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 shrink-0 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
+                <span className="text-base font-bold text-white select-none">
+                  {(displayName || 'A').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <p className="opacity-90 text-sm mb-1">Welcome back,</p>
+                <h1 className="text-2xl md:text-3xl">{displayName}</h1>
+                <p className="text-sm opacity-80 mt-1">
+                  {displayCourse} • Class of {displayGradYear}
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => {
+                console.log('Notification icon clicked, navigating to notifications');
+                onNavigate('notifications');
+              }} 
+              className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition cursor-pointer z-10"
+              aria-label="View notifications"
+            >
+              <Mail className="w-6 h-6" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-semibold">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
           </div>
-          <button
-            onClick={() => onNavigate('notifications')}
-            className="relative p-2 rounded-full hover:bg-gray-100 text-gray-600"
-            aria-label="View notifications"
-          >
-            <Mail className="w-6 h-6" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-semibold text-white">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
+
+          {/* Donation Impact Card */}
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 rounded-full bg-white/20">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h2 className="text-lg">Your Impact</h2>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs opacity-80">Total Donated</p>
+                <p className="text-xl mt-1">UGX {donationStats.totalDonated.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-xs opacity-80">Students Helped</p>
+                <p className="text-xl mt-1">{donationStats.studentsHelped}</p>
+              </div>
+              <div>
+                <p className="text-xs opacity-80">This Year</p>
+                <p className="text-xl mt-1">UGX {donationStats.currentYear.toLocaleString()}</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => onNavigate('donations')}
+              className="w-full mt-4 bg-accent hover:bg-accent/90"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Donate Now
+            </Button>
+          </Card>
         </div>
+      </div>
 
-        {/* Metric cards: blue, red, green */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="p-5 text-white" style={{ backgroundColor: 'var(--card-metric-blue)' }}>
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="w-5 h-5" />
-                <span className="text-sm font-medium opacity-90">Total Contributions</span>
-              </div>
-              <p className="text-2xl font-bold">UGX {donationStats.totalDonated.toLocaleString()}</p>
-            </div>
-          </Card>
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="p-5 text-white" style={{ backgroundColor: 'var(--card-metric-red)' }}>
-              <div className="flex items-center gap-2 mb-2">
-                <Heart className="w-5 h-5" />
-                <span className="text-sm font-medium opacity-90">Active Campaigns</span>
-              </div>
-              <p className="text-2xl font-bold">6</p>
-            </div>
-          </Card>
-          <Card className="border-0 shadow-md overflow-hidden">
-            <div className="p-5 text-white" style={{ backgroundColor: 'var(--card-metric-green)' }}>
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-5 h-5" />
-                <span className="text-sm font-medium opacity-90">Upcoming</span>
-              </div>
-              <p className="text-2xl font-bold">3</p>
-            </div>
-          </Card>
-        </div>
-
-        {/* Your Impact + Donate */}
-        <Card className="p-5 border border-gray-200 bg-white mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="p-2 rounded-full bg-[#0b2a4a]/10">
-              <TrendingUp className="w-5 h-5 text-[#0b2a4a]" />
-            </div>
-            <h2 className="text-lg font-medium text-gray-900">Your Impact</h2>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-xs text-gray-500">Total Donated</p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">UGX {donationStats.totalDonated.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Students Helped</p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">{donationStats.studentsHelped}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">This Year</p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">UGX {donationStats.currentYear.toLocaleString()}</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => onNavigate('donations')}
-            className="w-full mt-4 bg-[#0b2a4a] hover:bg-[#0b2a4a]/90"
-          >
-            <Heart className="w-4 h-4 mr-2" />
-            Donate Now
-          </Button>
-        </Card>
-
-      <div className="pb-6">
+      <div className="px-6 md:px-8 -mt-6 pb-6">
+        <div className="max-w-6xl mx-auto">
           {/* Quick Actions Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             {quickActions.map((action) => {
@@ -282,9 +262,9 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
                 <button
                   key={action.id}
                   onClick={action.action}
-                  className="group text-left"
+                  className="group"
                 >
-                  <Card className="p-5 hover:shadow-lg transition-all border border-gray-200 bg-white overflow-hidden relative h-full">
+                  <Card className="p-5 hover:shadow-xl transition-all duration-300 border border-border bg-card overflow-hidden relative h-full">
                     <div className="relative">
                       <div
                         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"

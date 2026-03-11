@@ -12,6 +12,12 @@ import ManageContent from './alumni/ManageContent';
 import type { User } from '../App';
 import { Button } from './ui/button';
 import { LogOut, Menu, Home, FileText, Upload, Mail, FolderOpen, ShoppingBag, BarChart3, Settings2Icon } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 
@@ -34,7 +40,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
     { id: 'reports', label: 'Reports', icon: BarChart3 },
   ];
 
-  const renderScreen = () => {
+    const renderScreen = () => {
     switch (currentScreen) {
       case 'dashboard':
         return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as AlumniScreen)} />;
@@ -63,40 +69,61 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header with top menu bar (staff) */}
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-[#0b2a4a] text-white">
+      {/* Header */}
+      <header className="sticky top-0 z-40 w-full bg-card/95 border-b border-border backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="w-10 h-10" />
             <div>
-              <h1 className="text-sm font-semibold">Alumni Circle</h1>
-              <p className="text-xs text-slate-200">Alumni Office • {user.name}</p>
+              <h1 className="text-sm text-primary">Alumni Connect Office</h1>
+              <p className="text-xs text-muted-foreground">{user.name}</p>
             </div>
           </div>
 
-          {/* Mobile menu trigger */}
+          {/* Mobile Menu */}
           <div className="lg:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              <Menu size={20} />
-            </Button>
+            <DropdownMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-foreground">
+                  <Menu size={20} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {navigationItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={item.id}
+                      onClick={() => {
+                        setCurrentScreen(item.id as AlumniScreen);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      <Icon className="mr-2 h-4 w-4" />
+                      {item.label}
+                    </DropdownMenuItem>
+                  );
+                })}
+                <DropdownMenuItem onClick={onLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          {/* Desktop right side actions */}
+
+          {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-2">
-            <Button variant="ghost" onClick={onLogout} className="text-white hover:bg-white/10">
+            <Button variant="ghost" onClick={onLogout}>
               <LogOut size={16} className="mr-2" />
               Logout
             </Button>
           </div>
         </div>
 
-        {/* Desktop top nav bar */}
-        <div className="hidden lg:block border-t border-white/10 bg-[#0b2a4a]">
+        {/* Desktop Navigation */}
+        <div className="hidden lg:block border-t border-border">
           <nav className="px-4 py-2">
             <div className="flex gap-2">
               {navigationItems.map((item) => {
@@ -107,11 +134,6 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                     key={item.id}
                     variant={isActive ? 'default' : 'ghost'}
                     size="sm"
-                    className={
-                      isActive
-                        ? 'bg-white text-[#0b2a4a]'
-                        : 'text-slate-100 hover:bg-white/10 hover:text-white'
-                    }
                     onClick={() => setCurrentScreen(item.id as AlumniScreen)}
                   >
                     <Icon size={16} className="mr-2" />
@@ -122,48 +144,31 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
             </div>
           </nav>
         </div>
-
-        {/* Mobile dropdown menu under header */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-white/10 bg-[#0b2a4a]">
-            <nav className="px-2 py-2 space-y-1">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = currentScreen === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setCurrentScreen(item.id as AlumniScreen);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${
-                      isActive ? 'bg-white text-[#0b2a4a]' : 'text-slate-100 hover:bg-white/10'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-              <button
-                onClick={() => {
-                  onLogout();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-100 hover:bg-white/10"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
-            </nav>
-          </div>
-        )}
       </header>
 
-      <main className="lg:pb-4 bg-white min-h-screen">
+      <main className="lg:pb-4">
         {renderScreen()}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 border-t border-border px-2 py-2 z-50 backdrop-blur">
+        <div className="flex justify-around items-center max-w-lg mx-auto">
+          {navigationItems.slice(0, 5).map((item) => {
+            const Icon = item.icon;
+            const isActive = currentScreen === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentScreen(item.id as AlumniScreen)}
+                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+              >
+                <Icon size={18} />
+                <span className="text-xs">{item.label.split(' ')[0]}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

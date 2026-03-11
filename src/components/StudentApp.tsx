@@ -11,10 +11,9 @@ import { StudentDisbursements } from './student/StudentDisbursements';
 import { News } from './student/News';
 import { Events } from './student/Events';
 import type { User } from '../App';
-import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar, Settings, Search, MessageCircle } from 'lucide-react';
+import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
 import { MobileHeader } from './MobileHeader';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
-import { Avatar, AvatarFallback } from './ui/avatar';
 
 type StudentScreen = 'dashboard' | 'apply-loan' | 'apply-benefit' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
 
@@ -126,17 +125,17 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             className="absolute inset-0 bg-black/40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] text-slate-100 p-4 shadow-xl">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <UcuBadgeLogo className="h-9 w-9" />
                 <div>
-                  <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
-                  <p className="text-xs text-slate-300 mt-1">Student Dashboard</p>
+                  <h1 className="text-primary">Alumni Circle</h1>
+                  <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
                 </div>
               </div>
               <button
-                className="text-slate-300 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -155,8 +154,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                        ? 'bg-white/10 text-white'
-                        : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -165,7 +164,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 );
               })}
             </nav>
-            <div className="mt-4 border-t border-white/10 pt-4 space-y-2">
+            <div className="mt-4 border-t border-border pt-4">
               <button
                 onClick={() => {
                   handleNavigate('profile');
@@ -173,36 +172,26 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   currentScreen === 'profile'
-                    ? 'bg-white/10 text-white'
-                    : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
                 <UserIcon className="w-5 h-5" />
                 <span>Profile</span>
-              </button>
-              <button
-                onClick={() => {
-                  handleNavigate('dashboard');
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-200 hover:bg-white/5 hover:text-white"
-              >
-                <Settings className="w-5 h-5" />
-                <span>Settings</span>
               </button>
             </div>
           </aside>
         </div>
       )}
 
-      <aside className="hidden md:flex md:flex-col w-64 bg-gradient-to-b from-[#0b2a4a] via-[#0b2a4a] to-[#020617] text-slate-100 fixed h-screen shadow-2xl">
-        <div className="p-6 border-b border-white/10">
+      <aside className="hidden md:flex md:flex-col w-64 bg-card border-r border-border fixed h-screen">
+        <div className="p-6 border-b border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-9 w-9" />
               <div>
-                <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
-                <p className="text-xs text-slate-300 mt-1">Student Dashboard</p>
+                <h1 className="text-primary">Alumni Circle</h1>
+                <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
               </div>
             </div>
           </div>
@@ -217,8 +206,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                   onClick={() => handleNavigate(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                      ? 'bg-white/12 text-white'
-                      : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -228,51 +217,22 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             })}
           </div>
         </nav>
-        <div className="p-4 border-t border-white/10 space-y-2">
+        <div className="p-4 border-t border-border">
           <button
             onClick={() => handleNavigate('profile')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
               currentScreen === 'profile'
-                ? 'bg-white/10 text-white'
-                : 'text-slate-200 hover:bg-white/5 hover:text-white'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             }`}
           >
             <UserIcon className="w-5 h-5" />
             <span>Profile</span>
           </button>
-          <button
-            onClick={() => handleNavigate('dashboard')}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-200 hover:bg-white/5 hover:text-white"
-          >
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </button>
         </div>
       </aside>
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0 pt-14 md:pt-0 flex flex-col bg-white">
-        {/* Top header: search + icons (desktop only) */}
-        <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white shrink-0">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 text-gray-500 w-full max-w-sm">
-            <Search className="w-4 h-4 shrink-0" />
-            <span className="text-sm">Search</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => handleNavigate('notifications')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-600" aria-label="Notifications">
-              <Bell className="w-5 h-5" />
-            </button>
-            <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-600" aria-label="Messages">
-              <MessageCircle className="w-5 h-5" />
-            </button>
-            <Avatar className="h-9 w-9 border border-gray-200">
-              <AvatarFallback className="bg-[#0b2a4a] text-white text-sm">
-                {(user?.full_name || 'S').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-        <div className="flex-1 overflow-auto">
-          {renderScreen()}
-        </div>
+      <main className="flex-1 md:ml-64 pb-20 md:pb-0 pt-14 md:pt-0">
+        {renderScreen()}
       </main>
       {/* Mobile bottom nav removed in favor of drawer */}
     </div>
