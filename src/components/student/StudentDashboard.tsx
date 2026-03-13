@@ -29,8 +29,24 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
     const next = !isDark;
     setIsDark(next);
     document.documentElement.classList.toggle('dark', next);
+    document.documentElement.dataset.theme = next ? 'dark' : 'light';
     document.documentElement.style.colorScheme = next ? 'dark' : 'light';
+    try {
+      localStorage.setItem('theme', next ? 'dark' : 'light');
+    } catch (error) {
+      console.error('Failed to save theme preference', error);
+    }
   };
+
+  useEffect(() => {
+    const syncThemeState = () => setIsDark(document.documentElement.classList.contains('dark'));
+    window.addEventListener('focus', syncThemeState);
+    document.addEventListener('visibilitychange', syncThemeState);
+    return () => {
+      window.removeEventListener('focus', syncThemeState);
+      document.removeEventListener('visibilitychange', syncThemeState);
+    };
+  }, []);
 
   // This is the correct, robust data-fetching logic.
   const fetchAll = async () => {
@@ -141,7 +157,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const totalApplications = loans.length + supportRequests.length;
-  const activeLoansCount = loans.filter(l => l.status === 'approved' || l.status === 'active').length;
+  const myLoansCount = loans.length;
+  const myMentorsCount = mentors.length;
   const allApplications = useMemo(() => {
     const combined = [
       ...loans.map(l => ({ ...l, type: 'Loan' })),
@@ -157,7 +174,6 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
     { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'View profiles before requesting', icon: Users, iconBg: 'var(--brand-purple)' },
     { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, iconBg: 'var(--brand-blue)' },
   ];
-  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -169,19 +185,16 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
 
   return (
     <>
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f3f5fb] dark:bg-background">
 
       {/* ── Coloured Hero Header ── */}
-      <div className="bg-sidebar text-sidebar-foreground px-6 pt-8 pb-14 rounded-b-3xl shadow-lg relative overflow-hidden">
-        {/* subtle pattern blobs */}
-        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute bottom-0 left-8 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
+      <div className="bg-[#0f3a68] dark:bg-sidebar text-white dark:text-sidebar-foreground px-6 pt-6 pb-5 rounded-b-2xl shadow-lg relative overflow-hidden">
 
         <div className="relative max-w-5xl mx-auto flex justify-between items-start">
           <div>
-            <p className="text-sidebar-foreground/75 text-sm mb-1">Welcome back,</p>
-            <h1 className="text-2xl font-semibold">{me?.full_name || 'Student'}</h1>
-            <p className="text-sidebar-foreground/70 text-sm mt-0.5">Student Dashboard</p>
+            <p className="text-white/80 dark:text-sidebar-foreground/75 text-sm mb-1">Welcome back,</p>
+            <h1 className="text-3xl font-semibold leading-tight">{me?.full_name?.split(' ')[0] || 'Student'}</h1>
+            <p className="text-white/70 dark:text-sidebar-foreground/70 text-sm mt-0.5">{me?.program || 'No program specified'}</p>
           </div>
           <div className="flex items-center gap-2">
             {/* Dark mode toggle */}
@@ -196,25 +209,27 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
             <button onClick={handleViewAllNotifications} className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-400 rounded-full border-2 border-sidebar" />
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-400 rounded-full border-2 border-[#0f3a68] dark:border-sidebar" />
               )}
             </button>
           </div>
         </div>
 
-        {/* Stat chips inside header */}
-        <div className="relative max-w-5xl mx-auto mt-5 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-white/10 border border-white/15 px-4 py-3">
-            <p className="text-xs text-sidebar-foreground/70">Total Applications</p>
+        <div className="relative max-w-5xl mx-auto mt-4 h-px bg-white/45 dark:bg-sidebar-foreground/45" />
+
+        {/* Colored strip (requested): loans / mentors / applications */}
+        <div className="relative max-w-5xl mx-auto mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="rounded-xl px-4 py-3 bg-[#3f5eb7] text-white border border-white/15">
+            <p className="text-xs text-white/80">My Loans</p>
+            <p className="text-xl font-bold mt-0.5">{myLoansCount}</p>
+          </div>
+          <div className="rounded-xl px-4 py-3 bg-[#9c4f7a] text-white border border-white/15">
+            <p className="text-xs text-white/80">My Mentors</p>
+            <p className="text-xl font-bold mt-0.5">{myMentorsCount}</p>
+          </div>
+          <div className="rounded-xl px-4 py-3 bg-[#7aa4c2] text-white border border-white/15">
+            <p className="text-xs text-white/80">Applications</p>
             <p className="text-xl font-bold mt-0.5">{totalApplications}</p>
-          </div>
-          <div className="rounded-xl bg-white/10 border border-white/15 px-4 py-3">
-            <p className="text-xs text-sidebar-foreground/70">Active Loans</p>
-            <p className="text-xl font-bold mt-0.5">{activeLoansCount}</p>
-          </div>
-          <div className="rounded-xl bg-white/10 border border-white/15 px-4 py-3">
-            <p className="text-xs text-sidebar-foreground/70">My Mentors</p>
-            <p className="text-xl font-bold mt-0.5">{mentors.length}</p>
           </div>
         </div>
       </div>
