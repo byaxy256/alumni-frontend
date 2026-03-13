@@ -148,7 +148,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Student Loan',
       subtitle: 'Apply for financial aid',
       icon: DollarSign,
-      tileGradient: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+      tileGradient: 'linear-gradient(145deg, #1E4C8F 0%, #2A5CA8 100%)',
       iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
@@ -158,7 +158,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'My Loans',
       subtitle: 'View loans & payments',
       icon: Wallet,
-      tileGradient: 'linear-gradient(135deg, #7A1E2C 0%, #6D28D9 100%)',
+      tileGradient: 'linear-gradient(145deg, #7A1E2C 0%, #8B1E3F 100%)',
       iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
@@ -168,7 +168,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Student Benefit',
       subtitle: 'Emergency support',
       icon: Gift,
-      tileGradient: 'linear-gradient(135deg, #D4A017 0%, #B8860B 100%)',
+      tileGradient: 'linear-gradient(145deg, #C99700 0%, #D4A017 100%)',
       iconBadge: 'bg-black/10 border-black/20 text-slate-900',
       titleClass: 'text-slate-900',
       subtitleClass: 'text-slate-900/80'
@@ -178,7 +178,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Pick a Mentor',
       subtitle: 'Connect with alumni',
       icon: Users,
-      tileGradient: 'linear-gradient(135deg, #2F6B3B 0%, #1F4D2A 100%)',
+      tileGradient: 'linear-gradient(145deg, #2B5F35 0%, #2F6B3B 100%)',
       iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
@@ -188,7 +188,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'News',
       subtitle: 'Latest updates',
       icon: Newspaper,
-      tileGradient: 'linear-gradient(135deg, #1D4ED8 0%, #7A1E2C 100%)',
+      tileGradient: 'linear-gradient(145deg, #1E4C8F 0%, #2A5CA8 100%)',
       iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
@@ -237,9 +237,10 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
               return (
                 <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left h-full relative z-10">
                   <Card
-                    className="relative z-10 p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-white/15 overflow-hidden hover:-translate-y-1 min-h-[146px] h-full"
+                    className="relative z-10 p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-white/20 overflow-hidden hover:-translate-y-0.5 min-h-[146px] h-full"
                     style={{ background: a.tileGradient }}
                   >
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 65%)' }} />
                     <div className="relative h-full flex flex-col justify-between">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${a.iconBadge}`}>
                         <Icon className={`w-6 h-6 ${a.id === 'benefits' ? 'text-slate-900' : 'text-white'}`} />
