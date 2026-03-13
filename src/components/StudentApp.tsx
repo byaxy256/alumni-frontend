@@ -76,7 +76,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-white">Alumni Aid</h1>
+              <h1 className="text-white">Alumni circle</h1>
               <p className="text-sm text-white/80 mt-1">Student Portal</p>
             </div>
             <ThemeToggle />
@@ -100,19 +100,19 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 <button
                   key={item.id}
                   onClick={() => handleNavigate(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details') ? 'bg-primary text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details') ? 'bg-white/20 text-white shadow-sm' : 'text-white hover:bg-white/10 hover:text-white'}`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  <Icon className="w-5 h-5 text-white" />
+                  <span className="text-white">{item.label}</span>
                 </button>
               );
             })}
           </div>
         </nav>
         <div className="p-4">
-          <button onClick={() => handleNavigate('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === 'profile' ? 'bg-primary text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'}`}>
-            <UserIcon className="w-5 h-5" />
-            <span>Profile</span>
+          <button onClick={() => handleNavigate('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === 'profile' ? 'bg-white/20 text-white shadow-sm' : 'text-white hover:bg-white/10 hover:text-white'}`}>
+            <UserIcon className="w-5 h-5 text-white" />
+            <span className="text-white">Profile</span>
           </button>
         </div>
       </aside>
