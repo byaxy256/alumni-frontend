@@ -3738,13 +3738,13 @@ body[data-scroll-locked] {
   --chart-4: #9c4f7a;
   --chart-5: #8db2a8;
   --radius: .6rem;
-  --sidebar: #2b3f88;
+  --sidebar: #1f2f68;
   --sidebar-foreground: #e8ecff;
-  --sidebar-primary: #425ec2;
+  --sidebar-primary: #3d57b5;
   --sidebar-primary-foreground: #f4f7ff;
-  --sidebar-accent: #334b9e;
+  --sidebar-accent: #2f4391;
   --sidebar-accent-foreground: #e8ecff;
-  --sidebar-border: #445a9d;
+  --sidebar-border: #32457f;
   --sidebar-ring: #d6ae63;
   --glass-bg: rgba(249, 250, 254, 0.9);
   --glass-border: rgba(63, 94, 183, 0.16);

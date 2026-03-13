@@ -168,11 +168,46 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   }, [loans, supportRequests]);
   
   const quickActions = [
-    { id: 'apply-loan', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, iconBg: 'var(--primary)' },
-    { id: 'loans', title: 'My Loans', subtitle: 'View loans & payments', icon: Wallet, iconBg: 'var(--brand-blue)' },
-    { id: 'apply-benefit', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, iconBg: 'var(--accent-primary-mix)' },
-    { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'View profiles before requesting', icon: Users, iconBg: 'var(--brand-purple)' },
-    { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, iconBg: 'var(--brand-blue)' },
+    {
+      id: 'apply-loan',
+      title: 'Student Loan',
+      subtitle: 'Apply for financial aid',
+      icon: DollarSign,
+      iconBg: 'var(--primary)',
+      cardClass: 'bg-[#e8eeff] border-[#c8d4fb]'
+    },
+    {
+      id: 'loans',
+      title: 'My Loans',
+      subtitle: 'View loans & payments',
+      icon: Wallet,
+      iconBg: 'var(--brand-blue)',
+      cardClass: 'bg-[#e6edff] border-[#c3d1ff]'
+    },
+    {
+      id: 'apply-benefit',
+      title: 'Student Benefit',
+      subtitle: 'Emergency support',
+      icon: Gift,
+      iconBg: 'var(--accent-primary-mix)',
+      cardClass: 'bg-[#f7efdc] border-[#ead8a9]'
+    },
+    {
+      id: 'mentorship',
+      title: 'Pick a Mentor',
+      subtitle: 'View profiles before requesting',
+      icon: Users,
+      iconBg: 'var(--brand-purple)',
+      cardClass: 'bg-[#f1e5ee] border-[#dbbfd0]'
+    },
+    {
+      id: 'news',
+      title: 'News',
+      subtitle: 'Latest updates',
+      icon: Newspaper,
+      iconBg: 'var(--brand-blue)',
+      cardClass: 'bg-[#e8efff] border-[#c7d5fb]'
+    },
   ];
   if (loading) {
     return (
@@ -188,7 +223,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
     <div className="min-h-screen bg-[#f3f5fb] dark:bg-background">
 
       {/* ── Coloured Hero Header ── */}
-      <div className="bg-[#0f3a68] dark:bg-sidebar text-white dark:text-sidebar-foreground px-6 pt-6 pb-5 rounded-b-2xl shadow-lg relative overflow-hidden">
+      <div className="bg-[#0f3a68] dark:bg-sidebar text-white dark:text-sidebar-foreground px-6 pt-6 pb-4 rounded-b-2xl shadow-lg relative overflow-hidden">
 
         <div className="relative max-w-5xl mx-auto flex justify-between items-start">
           <div>
@@ -217,25 +252,10 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
 
         <div className="relative max-w-5xl mx-auto mt-4 h-px bg-white/45 dark:bg-sidebar-foreground/45" />
 
-        {/* Colored strip (requested): loans / mentors / applications */}
-        <div className="relative max-w-5xl mx-auto mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="rounded-xl px-4 py-3 bg-[#3f5eb7] text-white border border-white/15">
-            <p className="text-xs text-white/80">My Loans</p>
-            <p className="text-xl font-bold mt-0.5">{myLoansCount}</p>
-          </div>
-          <div className="rounded-xl px-4 py-3 bg-[#9c4f7a] text-white border border-white/15">
-            <p className="text-xs text-white/80">My Mentors</p>
-            <p className="text-xl font-bold mt-0.5">{myMentorsCount}</p>
-          </div>
-          <div className="rounded-xl px-4 py-3 bg-[#7aa4c2] text-white border border-white/15">
-            <p className="text-xs text-white/80">Applications</p>
-            <p className="text-xl font-bold mt-0.5">{totalApplications}</p>
-          </div>
-        </div>
       </div>
 
       {/* ── Body (pulled up to overlap hero bottom) ── */}
-      <div className="max-w-5xl mx-auto px-6 -mt-6 pb-8 space-y-6">
+      <div className="max-w-5xl mx-auto px-6 py-6 pb-8 space-y-6">
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -243,7 +263,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
             const Icon = a.icon;
             return (
               <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left">
-                <Card className="p-5 hover:shadow-lg transition-all border border-border bg-card overflow-hidden relative hover:-translate-y-0.5">
+                <Card className={`p-5 hover:shadow-lg transition-all border overflow-hidden relative hover:-translate-y-0.5 ${a.cardClass} dark:bg-card dark:border-border`}>
                   <div
                     className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
                     style={{ backgroundColor: a.iconBg }}
@@ -256,6 +276,28 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
               </button>
             );
           })}
+        </div>
+
+        {/* Colored thing down: My loans / mentors / applications */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Card className="border-0 text-white bg-gradient-to-r from-[#3f5eb7] to-[#4c70cf] shadow-sm">
+            <div className="p-4">
+              <p className="text-xs text-white/80">My Loans</p>
+              <p className="text-2xl font-semibold mt-1">{myLoansCount}</p>
+            </div>
+          </Card>
+          <Card className="border-0 text-white bg-gradient-to-r from-[#9c4f7a] to-[#b15e8d] shadow-sm">
+            <div className="p-4">
+              <p className="text-xs text-white/80">My Mentors</p>
+              <p className="text-2xl font-semibold mt-1">{myMentorsCount}</p>
+            </div>
+          </Card>
+          <Card className="border-0 text-white bg-gradient-to-r from-[#7aa4c2] to-[#8cb5d0] shadow-sm">
+            <div className="p-4">
+              <p className="text-xs text-white/80">Applications</p>
+              <p className="text-2xl font-semibold mt-1">{totalApplications}</p>
+            </div>
+          </Card>
         </div>
 
         {/* Recent Notifications */}
