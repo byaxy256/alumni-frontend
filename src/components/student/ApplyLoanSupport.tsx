@@ -7,7 +7,7 @@ import { Textarea } from '../ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Progress } from '../ui/progress';
-import { ArrowLeft, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Upload, CheckCircle2, AlertCircle, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import type { User } from '../../App';
 import {
@@ -27,20 +27,14 @@ import { UCU_COURSES, getDurationByProgram, type DegreeLevel, getCoursesByDegree
 interface ApplyLoanSupportProps {
   user: User;
   onBack: () => void;
-  applicationType?: 'loan' | 'benefit';
 }
 
 const MAX_LOAN_AMOUNT = 3200000; // 3.2M UGX max
-const PHONE_MAX_LENGTH = 10;
+const PHONE_MAX_LENGTH = 12;
 
-export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
-  const { user, onBack } = props;
-  const propApplicationType = props.applicationType;
-  const isDirectEntry = propApplicationType !== undefined;
-  const initialType: 'loan' | 'support' = propApplicationType === 'benefit' ? 'support' : 'loan';
-
-  const [step, setStep] = useState(isDirectEntry ? 2 : 1);
-  const [applicationType, setApplicationType] = useState<'loan' | 'support'>(initialType);
+export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
+  const [step, setStep] = useState(1);
+  const [applicationType, setApplicationType] = useState<'loan' | 'support'>('loan');
   const [showChopConsent, setShowChopConsent] = useState(false);
   const [chopConsented, setChopConsented] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -67,8 +61,10 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
   });
 
   const [uploadedFiles, setUploadedFiles] = useState<{
+    studentId: File | null;
     financialStatement: File | null;
   }>({
+    studentId: null,
     financialStatement: null,
   });
 
@@ -93,14 +89,6 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
       }));
     }
   }, [user?.meta?.accessNumber]);
-
-  // If user entered directly from quick actions, ensure we skip the type picker
-  useEffect(() => {
-    if (isDirectEntry) {
-      setApplicationType(initialType);
-      setStep(2);
-    }
-  }, [isDirectEntry, initialType]);
 
   // Get available courses for selected degree level
   const availableCourses = formData.degreeLevel 
@@ -272,12 +260,9 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
       form.append('currentSemester', formData.currentSemester || '');
       form.append('faculty', formData.faculty || '');
       form.append('amountRequested', String(numericAmount));
-      form.append('amount_requested', String(numericAmount));
       form.append('purpose', formData.purpose || '');
-      form.append('reason', formData.purpose || '');
       form.append('type', applicationType);
       form.append('studentUid', studentUid);
-      form.append('student_uid', studentUid);
       if (applicationType === 'loan') form.append('chopConsented', String(chopConsented));
       // Include guarantor details for loans
       if (applicationType === 'loan') {
@@ -287,6 +272,7 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
       }
 
       // files
+      if (uploadedFiles.studentId) form.append('studentIdFile', uploadedFiles.studentId, uploadedFiles.studentId.name);
       if (uploadedFiles.financialStatement) form.append('financialStatement', uploadedFiles.financialStatement, uploadedFiles.financialStatement.name);
 
       const res = await fetch(endpoint, {
@@ -435,8 +421,8 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
 
             {/* Guarantor fields for loans */}
             {applicationType === 'loan' && (
-              <div className="space-y-4 p-4 rounded-lg border" style={{ backgroundColor: 'var(--primary)', borderColor: 'var(--accent)' }}>
-                <h4 className="font-semibold text-sm" style={{ color: 'var(--accent)' }}>Guarantor Information *</h4>
+              <div className="space-y-4 p-4 rounded-lg border" style={{ backgroundColor: '#0b2a4a', borderColor: '#c79b2d' }}>
+                <h4 className="font-semibold text-sm" style={{ color: '#c79b2d' }}>Guarantor Information *</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="guarantorName" style={{ color: '#ffffff' }}>Guarantor Name</Label>
@@ -470,7 +456,7 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
                     maxLength={PHONE_MAX_LENGTH}
                     required
                   />
-                  <p className="text-xs mt-1" style={{ color: 'var(--accent)' }}>{formData.guarantorPhone.length}/{PHONE_MAX_LENGTH} characters</p>
+                  <p className="text-xs mt-1" style={{ color: '#c79b2d' }}>{formData.guarantorPhone.length}/{PHONE_MAX_LENGTH} characters</p>
                 </div>
               </div>
             )}
@@ -617,6 +603,43 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
         Please upload the required documents to support your application.
       </p>
 
+      {/* Student ID Card */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-sm">Student ID Card</p>
+              <p className="text-xs text-gray-500">Clear photo or scan of your student ID</p>
+            </div>
+            {uploadedFiles.studentId && <CheckCircle2 className="w-5 h-5 text-green-600" />}
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="file"
+              id="studentId"
+              accept="image/*,.pdf"
+              onChange={(e) => handleFileUpload('studentId', e)}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById('studentId')?.click()}
+              className="w-full"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              {uploadedFiles.studentId ? 'Change File' : 'Upload File'}
+            </Button>
+          </div>
+          {uploadedFiles.studentId && (
+            <p className="text-xs text-green-600 mt-2">
+              ✓ {uploadedFiles.studentId.name}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Financial Statement */}
       <Card>
         <CardContent className="p-4">
@@ -627,14 +650,13 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
             </div>
             {uploadedFiles.financialStatement && <CheckCircle2 className="w-5 h-5 text-green-600" />}
           </div>
-          <div>
+          <div className="flex items-center gap-2">
             <input
               type="file"
               id="financialStatement"
               accept="image/*,.pdf"
               onChange={(e) => handleFileUpload('financialStatement', e)}
               className="hidden"
-              title="Upload financial statement or proof of need"
             />
             <Button
               type="button"
@@ -679,7 +701,7 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg" title="Go back">
+          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1">
@@ -715,7 +737,7 @@ export function ApplyLoanSupport(props: ApplyLoanSupportProps) {
               <Button 
                 onClick={handleSubmit} 
                 className="flex-1"
-                disabled={submitting || !uploadedFiles.financialStatement || (applicationType === 'loan' && !chopConsented)}
+                disabled={submitting || !uploadedFiles.studentId || !uploadedFiles.financialStatement || (applicationType === 'loan' && !chopConsented)}
               >
                 {submitting ? 'Submitting...' : 'Submit Application'}
               </Button>

@@ -7,19 +7,16 @@ import { Mentorship } from './student/Mentorship';
 import { UnifiedNotifications } from './shared/UnifiedNotifications';
 import { StudentProfile } from './student/StudentProfile';
 import { StudentFund } from './student/StudentFund';
-import { StudentDisbursements } from './student/StudentDisbursements';
 import { News } from './student/News';
 import { Events } from './student/Events';
 import type { User } from '../App';
 import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
-import { MobileHeader } from './MobileHeader';
-import { UcuBadgeLogo } from './UcuBadgeLogo';
+import { ThemeToggle } from './ui/ThemeToggle';
 
-type StudentScreen = 'dashboard' | 'apply-loan' | 'apply-benefit' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'disbursements' | 'news' | 'events';
+type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news' | 'events';
 
 export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<StudentScreen>('dashboard');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Handle deep linking from push notifications
   useEffect(() => {
@@ -34,12 +31,10 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
   // --- THE FIX: A robust navigation handler ---
   const handleNavigate = (targetScreen: string) => {
     // This maps different button IDs to the correct screen components
-    if (targetScreen === 'apply' || targetScreen === 'apply-loan') {
-      setCurrentScreen('apply-loan');
-    } else if (targetScreen === 'benefits' || targetScreen === 'apply-benefit') {
-      setCurrentScreen('apply-benefit');
+    if (['apply', 'benefits'].includes(targetScreen)) {
+      setCurrentScreen('apply');
     } else if (targetScreen === 'loan-details') {
-      setCurrentScreen('loans');
+      setCurrentScreen('loans'); // Map the 'loan-details' ID from the nav to the 'loans' screen
     } else {
       setCurrentScreen(targetScreen as StudentScreen);
     }
@@ -51,10 +46,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     switch (currentScreen) {
       case 'dashboard':
         return <StudentDashboard user={user} onNavigate={handleNavigate} />;
-      case 'apply-loan':
-        return <ApplyLoanSupport user={user} onBack={() => handleNavigate('dashboard')} applicationType="loan" />;
-      case 'apply-benefit':
-        return <ApplyLoanSupport user={user} onBack={() => handleNavigate('dashboard')} applicationType="benefit" />;
+      case 'apply':
+        return <ApplyLoanSupport user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'loans':
         return <LoanDetails user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'payment-history':
@@ -67,8 +60,6 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         return <StudentProfile user={user} onBack={() => handleNavigate('dashboard')} onLogout={onLogout} />;
       case 'fund':
         return <StudentFund user={user} onBack={() => handleNavigate('dashboard')} />;
-      case 'disbursements':
-        return <StudentDisbursements user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'news':
         return <News onBack={() => handleNavigate('dashboard')} />;
       case 'events':
@@ -78,137 +69,38 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     }
   };
 
-  const screenTitles: Record<StudentScreen, string> = {
-    dashboard: 'Dashboard',
-    'apply-loan': 'Apply for Loan',
-    'apply-benefit': 'Apply for Benefit',
-    loans: 'Loans',
-    'payment-history': 'Payments',
-    mentorship: 'Mentorship',
-    notifications: 'Notifications',
-    profile: 'Profile',
-    fund: 'Student Fund',
-    disbursements: 'Disbursements',
-    news: 'News',
-    events: 'Events',
-  };
-
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'apply', label: 'Apply', icon: FileText },
-    { id: 'loan-details', label: 'Loans', icon: DollarSign },
-    { id: 'payment-history', label: 'Payments', icon: History },
-    { id: 'fund', label: 'Student Fund', icon: Wallet },
-    { id: 'disbursements', label: 'Disbursements', icon: DollarSign },
-    { id: 'mentorship', label: 'Mentorship', icon: Users },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'events', label: 'Events', icon: Calendar },
-    { id: 'news', label: 'News', icon: FileText },
-  ];
-
   // Your JSX is preserved, but now uses the new `handleNavigate` function
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
-      {/* Mobile header */}
-      <div className="md:hidden w-full fixed top-0 left-0 right-0 z-40">
-        <MobileHeader
-          title={screenTitles[currentScreen]}
-          onMenu={() => setIsMobileMenuOpen(true)}
-          showNotifications={false}
-        />
-      </div>
-
-      {/* Mobile drawer */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-sidebar border-r border-sidebar-border p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <UcuBadgeLogo className="h-9 w-9" />
-                <div>
-                  <h1 className="text-white">Alumni Circle</h1>
-                  <p className="text-sm text-white/85 mt-1">Student Portal</p>
-                </div>
-              </div>
-              <button
-                className="text-white/85 hover:text-white"
-                onClick={() => setIsMobileMenuOpen(false)}
-                aria-label="Close menu"
-              >
-                ✕
-              </button>
-            </div>
-            <nav className="space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      handleNavigate(item.id);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                        ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                        : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-            <div className="mt-4 border-t border-sidebar-border pt-4">
-              <button
-                onClick={() => {
-                  handleNavigate('profile');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  currentScreen === 'profile'
-                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                    : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
-                }`}
-              >
-                <UserIcon className="w-5 h-5" />
-                <span>Profile</span>
-              </button>
-            </div>
-          </aside>
-        </div>
-      )}
-
-      <aside className="hidden md:flex md:flex-col w-64 bg-sidebar border-r border-sidebar-border fixed h-screen">
-        <div className="p-6 border-b border-sidebar-border">
+    <div className="min-h-screen bg-gray-50 flex">
+      <aside className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200 fixed h-screen">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <UcuBadgeLogo className="h-9 w-9" />
-              <div>
-                <h1 className="text-white">Alumni Circle</h1>
-                <p className="text-sm text-white/85 mt-1">Student Portal</p>
-              </div>
+            <div>
+              <h1 className="text-primary">Alumni Aid</h1>
+              <p className="text-sm text-gray-600 mt-1">Student Portal</p>
             </div>
+            <ThemeToggle />
           </div>
         </div>
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-1">
-            {navItems.map((item) => {
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: Home },
+              { id: 'apply', label: 'Apply', icon: FileText },
+              { id: 'loan-details', label: 'Loans', icon: DollarSign },
+              { id: 'payment-history', label: 'Payments', icon: History },
+              { id: 'fund', label: 'Student Fund', icon: Wallet },
+              { id: 'mentorship', label: 'Mentorship', icon: Users },
+              { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'events', label: 'Events', icon: Calendar },
+              { id: 'news', label: 'News', icon: FileText },
+            ].map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleNavigate(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                      : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
                   <Icon className="w-5 h-5" />
                   <span>{item.label}</span>
@@ -217,24 +109,19 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             })}
           </div>
         </nav>
-        <div className="p-4 border-t border-sidebar-border">
-          <button
-            onClick={() => handleNavigate('profile')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              currentScreen === 'profile'
-                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
-            }`}
-          >
+        <div className="p-4 border-t border-gray-200">
+          <button onClick={() => handleNavigate('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === 'profile' ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
             <UserIcon className="w-5 h-5" />
             <span>Profile</span>
           </button>
         </div>
       </aside>
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0 pt-14 md:pt-0">
+      <main className="flex-1 md:ml-64 pb-20 md:pb-0">
         {renderScreen()}
       </main>
-      {/* Mobile bottom nav removed in favor of drawer */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50 shadow-lg">
+        {/* ... (Your mobile nav is fine, just ensure it calls handleNavigate) ... */}
+      </nav>
     </div>
   );
 };
