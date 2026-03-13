@@ -184,35 +184,38 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         </div>
       )}
 
-      <aside className="hidden md:flex md:flex-col w-64 bg-gradient-to-b from-blue-900 to-blue-700 border-r border-sidebar-border fixed h-screen">
-        <div className="p-6 border-b border-blue-800/70">
-          <div className="flex items-center gap-3">
-            <UcuBadgeLogo className="h-9 w-9" />
-            <div className="font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif]">
-              <h1 className="text-sm font-semibold text-white">Alumni Circle</h1>
-              <p className="text-xs text-white/80 mt-1">Student Portal</p>
+      <aside className="hidden md:flex md:flex-col w-64 bg-sidebar border-r border-sidebar-border fixed h-screen">
+        <div className="p-6 border-b border-sidebar-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <UcuBadgeLogo className="h-9 w-9" />
+              <div>
+                <h1 className="text-white">Alumni Circle</h1>
+                <p className="text-sm text-white/85 mt-1">Student Portal</p>
+              </div>
             </div>
           </div>
         </div>
-        <nav className="flex-1 px-3 pt-4 pb-4 overflow-y-auto space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details');
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavigate(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                  isActive
-                    ? 'bg-blue-500/30 text-white shadow-sm'
-                    : 'text-white/85 hover:bg-blue-500/20 hover:text-white'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+        <nav className="flex-1 p-4 overflow-y-auto">
+          <div className="space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigate(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
+                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                      : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </nav>
         <div className="p-4 border-t border-sidebar-border">
           <button
