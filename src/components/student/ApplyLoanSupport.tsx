@@ -699,14 +699,15 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+      <div className="bg-[#0b2a4a] border-b border-[#143b63] p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg">
+          <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-lg text-white" aria-label="Go back" title="Go back">
             <ArrowLeft className="w-5 h-5" />
+            <span className="sr-only">Go back</span>
           </button>
           <div className="flex-1">
-            <h1 className="text-primary">Apply for {applicationType === 'loan' ? 'Student Loan' : 'Student Benefit'}</h1>
-            <p className="text-xs text-gray-600">Step {step} of {totalSteps}</p>
+            <h1 className="text-white">Apply for {applicationType === 'loan' ? 'Student Loan' : 'Student Benefit'}</h1>
+            <p className="text-xs text-white/75">Step {step} of {totalSteps}</p>
           </div>
         </div>
       </div>

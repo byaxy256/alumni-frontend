@@ -162,7 +162,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-br from-primary to-[#1a4d7a] text-white p-6 rounded-b-3xl shadow-lg">
+      <div className="bg-[#0b2a4a] text-white p-6 rounded-b-3xl shadow-lg">
         <div className="max-w-5xl mx-auto flex justify-between items-start mb-6">
           <div>
             <p className="opacity-90 text-sm mb-1">Welcome back,</p>
@@ -171,7 +171,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
           <button onClick={handleViewAllNotifications} className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
             <Bell className="w-6 h-6" />
-            {unreadCount > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-primary"></span>}
+            {unreadCount > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#0b2a4a]"></span>}
           </button>
         </div>
         {activeLoan ? (
