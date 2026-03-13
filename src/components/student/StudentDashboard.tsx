@@ -148,50 +148,50 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Student Loan',
       subtitle: 'Apply for financial aid',
       icon: DollarSign,
-      tileGradient: 'linear-gradient(145deg, #1E4C8F 0%, #2A5CA8 100%)',
-      iconBadge: 'bg-white/20 border-white/40 text-white',
+      tileGradient: 'linear-gradient(145deg, #264A84 0%, #2F5597 100%)',
+      iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
-      subtitleClass: 'text-white/85'
+      subtitleClass: 'text-white/80'
     },
     {
       id: 'loans',
       title: 'My Loans',
       subtitle: 'View loans & payments',
       icon: Wallet,
-      tileGradient: 'linear-gradient(145deg, #7A1E2C 0%, #8B1E3F 100%)',
-      iconBadge: 'bg-white/20 border-white/40 text-white',
+      tileGradient: 'linear-gradient(145deg, #651824 0%, #7A1E2C 100%)',
+      iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
-      subtitleClass: 'text-white/85'
+      subtitleClass: 'text-white/80'
     },
     {
       id: 'benefits',
       title: 'Student Benefit',
       subtitle: 'Emergency support',
       icon: Gift,
-      tileGradient: 'linear-gradient(145deg, #C99700 0%, #D4A017 100%)',
-      iconBadge: 'bg-black/10 border-black/20 text-slate-900',
-      titleClass: 'text-slate-900',
-      subtitleClass: 'text-slate-900/80'
+      tileGradient: 'linear-gradient(145deg, #A98124 0%, #C79A2B 100%)',
+      iconBadge: 'bg-white/18 border-white/35 text-white',
+      titleClass: 'text-white',
+      subtitleClass: 'text-white/80'
     },
     {
       id: 'mentorship',
       title: 'Pick a Mentor',
       subtitle: 'Connect with alumni',
       icon: Users,
-      tileGradient: 'linear-gradient(145deg, #2B5F35 0%, #2F6B3B 100%)',
-      iconBadge: 'bg-white/20 border-white/40 text-white',
+      tileGradient: 'linear-gradient(145deg, #255731 0%, #2F6B3B 100%)',
+      iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
-      subtitleClass: 'text-white/85'
+      subtitleClass: 'text-white/80'
     },
     {
       id: 'news',
       title: 'News',
       subtitle: 'Latest updates',
       icon: Newspaper,
-      tileGradient: 'linear-gradient(145deg, #1E4C8F 0%, #2A5CA8 100%)',
-      iconBadge: 'bg-white/20 border-white/40 text-white',
+      tileGradient: 'linear-gradient(145deg, #2F4E73 0%, #3A5F8A 100%)',
+      iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
-      subtitleClass: 'text-white/85'
+      subtitleClass: 'text-white/80'
     },
   ];
   
@@ -243,7 +243,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 65%)' }} />
                     <div className="relative h-full flex flex-col justify-between">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${a.iconBadge}`}>
-                        <Icon className={`w-6 h-6 ${a.id === 'benefits' ? 'text-slate-900' : 'text-white'}`} />
+                        <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div className="space-y-1">
                         <h3 className={`text-sm mb-1 font-semibold leading-tight ${a.titleClass}`}>{a.title}</h3>
