@@ -143,11 +143,46 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   }, [loans, supportRequests]);
   
   const quickActions = [
-    { id: 'apply', title: 'Student Loan', subtitle: 'Apply for financial aid', icon: DollarSign, color: 'from-blue-500 to-blue-700' },
-    { id: 'loans', title: 'My Loans', subtitle: 'View loans & payments', icon: Wallet, color: 'from-indigo-500 to-indigo-700' },
-    { id: 'benefits', title: 'Student Benefit', subtitle: 'Emergency support', icon: Gift, color: 'from-green-500 to-green-700' },
-    { id: 'mentorship', title: 'Pick a Mentor', subtitle: 'Connect with alumni', icon: Users, color: 'from-purple-500 to-purple-700' },
-    { id: 'news', title: 'News', subtitle: 'Latest updates', icon: Newspaper, color: 'from-orange-500 to-orange-700' },
+    {
+      id: 'apply',
+      title: 'Student Loan',
+      subtitle: 'Apply for financial aid',
+      icon: DollarSign,
+      iconBg: 'bg-[#0b2a4a] dark:bg-[#123d66]',
+      accent: 'from-[#0b2a4a]/20 to-[#0b2a4a]/5 dark:from-[#123d66]/35 dark:to-transparent'
+    },
+    {
+      id: 'loans',
+      title: 'My Loans',
+      subtitle: 'View loans & payments',
+      icon: Wallet,
+      iconBg: 'bg-[#2b3f8f] dark:bg-[#3d58c7]',
+      accent: 'from-[#2b3f8f]/20 to-[#2b3f8f]/5 dark:from-[#3d58c7]/35 dark:to-transparent'
+    },
+    {
+      id: 'benefits',
+      title: 'Student Benefit',
+      subtitle: 'Emergency support',
+      icon: Gift,
+      iconBg: 'bg-[#0f8a5f] dark:bg-[#12a873]',
+      accent: 'from-[#0f8a5f]/20 to-[#0f8a5f]/5 dark:from-[#12a873]/35 dark:to-transparent'
+    },
+    {
+      id: 'mentorship',
+      title: 'Pick a Mentor',
+      subtitle: 'Connect with alumni',
+      icon: Users,
+      iconBg: 'bg-[#7d2d9b] dark:bg-[#9c3dc2]',
+      accent: 'from-[#7d2d9b]/20 to-[#7d2d9b]/5 dark:from-[#9c3dc2]/35 dark:to-transparent'
+    },
+    {
+      id: 'news',
+      title: 'News',
+      subtitle: 'Latest updates',
+      icon: Newspaper,
+      iconBg: 'bg-[#b46a09] dark:bg-[#d88912]',
+      accent: 'from-[#b46a09]/20 to-[#b46a09]/5 dark:from-[#d88912]/35 dark:to-transparent'
+    },
   ];
   
   if (loading) {
@@ -191,13 +226,14 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
               const Icon = a.icon;
               return (
                 <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left">
-                  <Card className="p-5 hover:shadow-xl transition-all duration-300 border-0 bg-white overflow-hidden relative hover:-translate-y-1">
+                  <Card className="p-5 rounded-2xl hover:shadow-xl transition-all duration-300 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden relative hover:-translate-y-1">
+                    <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${a.accent}`} />
                     <div className="relative">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-white bg-gradient-to-br ${a.color}`}>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-white shadow-sm ring-2 ring-white dark:ring-slate-900 ${a.iconBg}`}>
                         <Icon className="w-6 h-6 text-white" />
                       </div>
-                      <h3 className="text-sm text-gray-900 mb-1 font-semibold">{a.title}</h3>
-                      <p className="text-xs text-gray-500">{a.subtitle}</p>
+                      <h3 className="text-sm text-gray-900 dark:text-slate-100 mb-1 font-semibold leading-tight">{a.title}</h3>
+                      <p className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">{a.subtitle}</p>
                     </div>
                   </Card>
                 </button>

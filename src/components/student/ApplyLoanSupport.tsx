@@ -620,6 +620,8 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
               accept="image/*,.pdf"
               onChange={(e) => handleFileUpload('studentId', e)}
               className="hidden"
+              title="Upload Student ID"
+              aria-label="Student ID file upload"
             />
             <Button
               type="button"
@@ -648,26 +650,27 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
               <p className="text-sm">Financial Statement / Proof of Need</p>
               <p className="text-xs text-gray-500">Bank statement, fee statement, or letter explaining financial situation</p>
             </div>
-            {uploadedFiles.financialStatement && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="file"
-              id="financialStatement"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFileUpload('financialStatement', e)}
-              className="hidden"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById('financialStatement')?.click()}
-              className="w-full"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              {uploadedFiles.financialStatement ? 'Change File' : 'Upload File'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                id="financialStatement"
+                accept="image/*,.pdf"
+                onChange={(e) => handleFileUpload('financialStatement', e)}
+                className="hidden"
+                title="Upload Financial Statement or Proof of Need"
+                aria-label="Financial statement file upload"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('financialStatement')?.click()}
+                className="w-full"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {uploadedFiles.financialStatement ? 'Change File' : 'Upload File'}
+              </Button>
+            </div>
           </div>
           {uploadedFiles.financialStatement && (
             <p className="text-xs text-green-600 mt-2">

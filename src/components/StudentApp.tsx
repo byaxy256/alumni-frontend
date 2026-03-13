@@ -71,9 +71,9 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
 
   // Your JSX is preserved, but now uses the new `handleNavigate` function
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <aside className="hidden md:flex md:flex-col w-64 bg-[#0b2a4a] border-r border-[#143b63] fixed h-screen">
-        <div className="p-6 border-b border-[#143b63]">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex">
+      <aside className="hidden md:flex md:flex-col w-64 bg-[#0b2a4a] fixed h-screen shadow-xl">
+        <div className="p-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-white">Alumni Aid</h1>
@@ -109,7 +109,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             })}
           </div>
         </nav>
-        <div className="p-4 border-t border-[#143b63]">
+        <div className="p-4">
           <button onClick={() => handleNavigate('profile')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentScreen === 'profile' ? 'bg-primary text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'}`}>
             <UserIcon className="w-5 h-5" />
             <span>Profile</span>
