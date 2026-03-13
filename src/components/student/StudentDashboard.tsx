@@ -279,8 +279,36 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           })}
         </div>
 
-        {/* Colored thing down: My loans / mentors / applications */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* My Applications (placed directly under quick actions, matching reference layout) */}
+        <div>
+          <h2 className="text-base font-semibold text-foreground mb-3 mt-4">My Applications</h2>
+          <div className="space-y-3">
+            {allApplications.length > 0 ? (
+              allApplications.map((app) => (
+                <Card key={`${app.type}-${app.id}`} className="p-4 bg-card border border-border">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold text-foreground">{app.type} Application</p>
+                      <p className="text-sm text-muted-foreground">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
+                    </div>
+                    <Badge className={`capitalize ${app.status === 'pending' ? 'bg-accent/20 text-accent-foreground' : ''} ${app.status === 'approved' ? 'bg-primary/20 text-primary' : ''} ${app.status === 'rejected' ? 'bg-destructive/20 text-destructive' : ''}`}>
+                      {app.status || 'pending'}
+                    </Badge>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-6 border-2 border-dashed border-border rounded-xl">
+                <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
+                <p className="mt-2 text-sm text-muted-foreground">No submitted applications yet.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Colored tiles: My loans / mentors / applications (small square stats near bottom) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
           <Card className="border-0 text-white bg-gradient-to-r from-[#3f5eb7] to-[#4c70cf] shadow-sm">
             <div className="p-4">
               <p className="text-xs text-white/80">My Loans</p>
@@ -303,7 +331,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
 
         {/* Recent Notifications */}
         <div>
-          <div className="flex justify-between items-center mb-3">
+          <div className="flex justify-between items-center mb-3 mt-6">
             <h2 className="text-base font-semibold text-foreground">Recent Notifications</h2>
             <button onClick={handleViewAllNotifications} className="text-xs text-primary hover:underline flex items-center gap-1">
               View All <ChevronRight className="w-3 h-3" />
@@ -337,34 +365,6 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
               <Card className="p-4 border border-border bg-card text-sm text-muted-foreground text-center">
                 No notifications yet.
               </Card>
-            )}
-          </div>
-        </div>
-
-        {/* My Applications */}
-        <div>
-          <h2 className="text-base font-semibold text-foreground mb-3">My Applications</h2>
-          <div className="space-y-3">
-            {allApplications.length > 0 ? (
-              allApplications.map((app) => (
-                <Card key={`${app.type}-${app.id}`} className="p-4 bg-card border border-border">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-foreground">{app.type} Application</p>
-                      <p className="text-sm text-muted-foreground">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
-                    </div>
-                    <Badge className={`capitalize ${app.status === 'pending' ? 'bg-accent/20 text-accent-foreground' : ''} ${app.status === 'approved' ? 'bg-primary/20 text-primary' : ''} ${app.status === 'rejected' ? 'bg-destructive/20 text-destructive' : ''}`}>
-                      {app.status || 'pending'}
-                    </Badge>
-                  </div>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-6 border-2 border-dashed border-border rounded-xl">
-                <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
-                <p className="mt-2 text-sm text-muted-foreground">No submitted applications yet.</p>
-              </div>
             )}
           </div>
         </div>
