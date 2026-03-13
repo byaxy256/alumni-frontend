@@ -70,13 +70,13 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-card/95 border-b border-border backdrop-blur">
+      <header className="sticky top-0 z-40 w-full bg-sidebar/95 border-b border-sidebar-border backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="w-10 h-10" />
             <div>
-              <h1 className="text-sm text-primary">Alumni Connect Office</h1>
-              <p className="text-xs text-muted-foreground">{user.name}</p>
+              <h1 className="text-sm text-sidebar-foreground">Alumni Connect Office</h1>
+              <p className="text-xs text-sidebar-foreground/75">{user.name}</p>
             </div>
           </div>
 
@@ -84,7 +84,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
           <div className="lg:hidden">
             <DropdownMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-foreground">
+                <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:bg-sidebar-accent">
                   <Menu size={20} />
                 </Button>
               </DropdownMenuTrigger>
@@ -115,7 +115,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-2">
-            <Button variant="ghost" onClick={onLogout}>
+            <Button variant="ghost" onClick={onLogout} className="text-sidebar-foreground hover:bg-sidebar-accent">
               <LogOut size={16} className="mr-2" />
               Logout
             </Button>
@@ -123,7 +123,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:block border-t border-border">
+        <div className="hidden lg:block border-t border-sidebar-border">
           <nav className="px-4 py-2">
             <div className="flex gap-2">
               {navigationItems.map((item) => {
@@ -151,7 +151,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 border-t border-border px-2 py-2 z-50 backdrop-blur">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-sidebar/95 border-t border-sidebar-border px-2 py-2 z-50 backdrop-blur">
         <div className="flex justify-around items-center max-w-lg mx-auto">
           {navigationItems.slice(0, 5).map((item) => {
             const Icon = item.icon;
@@ -160,7 +160,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
               <button
                 key={item.id}
                 onClick={() => setCurrentScreen(item.id as AlumniScreen)}
-                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/80'}`}
               >
                 <Icon size={18} />
                 <span className="text-xs">{item.label.split(' ')[0]}</span>

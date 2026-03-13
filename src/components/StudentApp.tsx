@@ -125,17 +125,17 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             className="absolute inset-0 bg-black/40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border p-4">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-sidebar border-r border-sidebar-border p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <UcuBadgeLogo className="h-9 w-9" />
                 <div>
-                  <h1 className="text-primary">Alumni Circle</h1>
-                  <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
+                  <h1 className="text-sidebar-foreground">Alumni Circle</h1>
+                  <p className="text-sm text-sidebar-foreground/75 mt-1">Student Portal</p>
                 </div>
               </div>
               <button
-                className="text-muted-foreground hover:text-foreground"
+                className="text-sidebar-foreground/75 hover:text-sidebar-foreground"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -154,8 +154,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                        : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -164,7 +164,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 );
               })}
             </nav>
-            <div className="mt-4 border-t border-border pt-4">
+            <div className="mt-4 border-t border-sidebar-border pt-4">
               <button
                 onClick={() => {
                   handleNavigate('profile');
@@ -172,8 +172,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   currentScreen === 'profile'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                    : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 }`}
               >
                 <UserIcon className="w-5 h-5" />
@@ -184,14 +184,14 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         </div>
       )}
 
-      <aside className="hidden md:flex md:flex-col w-64 bg-card border-r border-border fixed h-screen">
-        <div className="p-6 border-b border-border">
+      <aside className="hidden md:flex md:flex-col w-64 bg-sidebar border-r border-sidebar-border fixed h-screen">
+        <div className="p-6 border-b border-sidebar-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-9 w-9" />
               <div>
-                <h1 className="text-primary">Alumni Circle</h1>
-                <p className="text-sm text-muted-foreground mt-1">Student Portal</p>
+                <h1 className="text-sidebar-foreground">Alumni Circle</h1>
+                <p className="text-sm text-sidebar-foreground/75 mt-1">Student Portal</p>
               </div>
             </div>
           </div>
@@ -206,8 +206,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                   onClick={() => handleNavigate(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -217,13 +217,13 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             })}
           </div>
         </nav>
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-sidebar-border">
           <button
             onClick={() => handleNavigate('profile')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
               currentScreen === 'profile'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+                : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
             }`}
           >
             <UserIcon className="w-5 h-5" />
