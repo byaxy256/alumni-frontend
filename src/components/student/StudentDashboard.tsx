@@ -148,8 +148,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Student Loan',
       subtitle: 'Apply for financial aid',
       icon: DollarSign,
-      tileBg: 'from-[#1e5aa8] to-[#0b2a4a]',
-      iconBadge: 'bg-white/20 border-white/40',
+      tileGradient: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+      iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
     },
@@ -158,8 +158,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'My Loans',
       subtitle: 'View loans & payments',
       icon: Wallet,
-      tileBg: 'from-[#6c1f45] to-[#4a1b59]',
-      iconBadge: 'bg-white/20 border-white/40',
+      tileGradient: 'linear-gradient(135deg, #7A1E2C 0%, #6D28D9 100%)',
+      iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
     },
@@ -168,18 +168,18 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Student Benefit',
       subtitle: 'Emergency support',
       icon: Gift,
-      tileBg: 'from-[#d4a92d] to-[#9d6f10]',
-      iconBadge: 'bg-white/20 border-white/40',
-      titleClass: 'text-white',
-      subtitleClass: 'text-white/90'
+      tileGradient: 'linear-gradient(135deg, #D4A017 0%, #B8860B 100%)',
+      iconBadge: 'bg-black/10 border-black/20 text-slate-900',
+      titleClass: 'text-slate-900',
+      subtitleClass: 'text-slate-900/80'
     },
     {
       id: 'mentorship',
       title: 'Pick a Mentor',
       subtitle: 'Connect with alumni',
       icon: Users,
-      tileBg: 'from-[#1f8b4c] to-[#145c33]',
-      iconBadge: 'bg-white/20 border-white/40',
+      tileGradient: 'linear-gradient(135deg, #2F6B3B 0%, #1F4D2A 100%)',
+      iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
     },
@@ -188,8 +188,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'News',
       subtitle: 'Latest updates',
       icon: Newspaper,
-      tileBg: 'from-[#244090] to-[#5b1d43]',
-      iconBadge: 'bg-white/20 border-white/40',
+      tileGradient: 'linear-gradient(135deg, #1D4ED8 0%, #7A1E2C 100%)',
+      iconBadge: 'bg-white/20 border-white/40 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/85'
     },
@@ -229,17 +229,20 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
         )}
       </div>
-      <div className="px-6 -mt-10 pb-6">
+      <div className="relative z-10 px-6 -mt-10 pb-6">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {quickActions.map(a => {
               const Icon = a.icon;
               return (
-                <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left h-full">
-                  <Card className={`p-5 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-white/15 bg-gradient-to-br ${a.tileBg} overflow-hidden relative hover:-translate-y-1 min-h-[146px] h-full`}>
+                <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left h-full relative z-10">
+                  <Card
+                    className="relative z-10 p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-white/15 overflow-hidden hover:-translate-y-1 min-h-[146px] h-full"
+                    style={{ background: a.tileGradient }}
+                  >
                     <div className="relative h-full flex flex-col justify-between">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${a.iconBadge}`}>
-                        <Icon className="w-6 h-6 text-white" />
+                        <Icon className={`w-6 h-6 ${a.id === 'benefits' ? 'text-slate-900' : 'text-white'}`} />
                       </div>
                       <div className="space-y-1">
                         <h3 className={`text-sm mb-1 font-semibold leading-tight ${a.titleClass}`}>{a.title}</h3>
