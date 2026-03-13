@@ -209,6 +209,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       cardClass: 'bg-[#e8efff] border-[#c7d5fb]'
     },
   ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -270,8 +271,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-sm text-foreground mb-1 font-semibold">{a.title}</h3>
-                  <p className="text-xs text-muted-foreground">{a.subtitle}</p>
+                  <h3 className="text-sm text-[#1f2940] dark:text-foreground mb-1 font-semibold">{a.title}</h3>
+                  <p className="text-xs text-[#5f6a86] dark:text-muted-foreground">{a.subtitle}</p>
                 </Card>
               </button>
             );

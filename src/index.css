@@ -3739,11 +3739,11 @@ body[data-scroll-locked] {
   --chart-5: #8db2a8;
   --radius: .6rem;
   --sidebar: #1f2f68;
-  --sidebar-foreground: #e8ecff;
+  --sidebar-foreground: #ffffff;
   --sidebar-primary: #3d57b5;
-  --sidebar-primary-foreground: #f4f7ff;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #2f4391;
-  --sidebar-accent-foreground: #e8ecff;
+  --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #32457f;
   --sidebar-ring: #d6ae63;
   --glass-bg: rgba(249, 250, 254, 0.9);

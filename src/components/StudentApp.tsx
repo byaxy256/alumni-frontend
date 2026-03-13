@@ -130,12 +130,12 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
               <div className="flex items-center gap-3">
                 <UcuBadgeLogo className="h-9 w-9" />
                 <div>
-                  <h1 className="text-sidebar-foreground">Alumni Circle</h1>
-                  <p className="text-sm text-sidebar-foreground/75 mt-1">Student Portal</p>
+                  <h1 className="text-white">Alumni Circle</h1>
+                  <p className="text-sm text-white/85 mt-1">Student Portal</p>
                 </div>
               </div>
               <button
-                className="text-sidebar-foreground/75 hover:text-sidebar-foreground"
+                className="text-white/85 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -155,7 +155,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
                         ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                        : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -173,7 +173,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   currentScreen === 'profile'
                     ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                    : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
                 }`}
               >
                 <UserIcon className="w-5 h-5" />
@@ -190,8 +190,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-9 w-9" />
               <div>
-                <h1 className="text-sidebar-foreground">Alumni Circle</h1>
-                <p className="text-sm text-sidebar-foreground/75 mt-1">Student Portal</p>
+                <h1 className="text-white">Alumni Circle</h1>
+                <p className="text-sm text-white/85 mt-1">Student Portal</p>
               </div>
             </div>
           </div>
@@ -207,7 +207,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentScreen === item.id || (currentScreen === 'loans' && item.id === 'loan-details')
                       ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -223,7 +223,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
               currentScreen === 'profile'
                 ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                : 'text-white/90 hover:bg-sidebar-accent hover:text-white'
             }`}
           >
             <UserIcon className="w-5 h-5" />
