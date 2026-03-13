@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from '../ui/card';
 import type { User } from '../../App';
-import { DollarSign, Gift, Users, Newspaper, Bell, ChevronRight, Loader2, FileText, Wallet } from 'lucide-react';
+import { DollarSign, Gift, Users, Bell, ChevronRight, Loader2, FileText, Wallet } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Badge } from '../ui/badge';
 import { API_BASE } from '../../api';
@@ -148,7 +148,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Student Loan',
       subtitle: 'Apply for financial aid',
       icon: DollarSign,
-      tileGradient: 'linear-gradient(145deg, #264A84 0%, #2F5597 100%)',
+      tileGradient: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)',
       iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/80'
@@ -158,7 +158,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'My Loans',
       subtitle: 'View loans & payments',
       icon: Wallet,
-      tileGradient: 'linear-gradient(145deg, #651824 0%, #7A1E2C 100%)',
+      tileGradient: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)',
       iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/80'
@@ -168,7 +168,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Student Benefit',
       subtitle: 'Emergency support',
       icon: Gift,
-      tileGradient: 'linear-gradient(145deg, #A98124 0%, #C79A2B 100%)',
+      tileGradient: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)',
       iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/80'
@@ -178,17 +178,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       title: 'Pick a Mentor',
       subtitle: 'Connect with alumni',
       icon: Users,
-      tileGradient: 'linear-gradient(145deg, #255731 0%, #2F6B3B 100%)',
-      iconBadge: 'bg-white/18 border-white/35 text-white',
-      titleClass: 'text-white',
-      subtitleClass: 'text-white/80'
-    },
-    {
-      id: 'news',
-      title: 'News',
-      subtitle: 'Latest updates',
-      icon: Newspaper,
-      tileGradient: 'linear-gradient(145deg, #2F4E73 0%, #3A5F8A 100%)',
+      tileGradient: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)',
       iconBadge: 'bg-white/18 border-white/35 text-white',
       titleClass: 'text-white',
       subtitleClass: 'text-white/80'
