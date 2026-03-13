@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from '../ui/card';
 import type { User } from '../../App';
-import { DollarSign, Gift, Users, Newspaper, Bell, ChevronRight, Loader2, FileText, Wallet } from 'lucide-react';
+import { DollarSign, Gift, Users, Newspaper, Bell, ChevronRight, Loader2, FileText, Wallet, Sun, Moon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { Badge } from '../ui/badge';
 import { API_BASE } from '../../api';
@@ -23,6 +23,14 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   const [mentors, setMentors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    document.documentElement.style.colorScheme = next ? 'dark' : 'light';
+  };
 
   // This is the correct, robust data-fetching logic.
   const fetchAll = async () => {
@@ -162,143 +170,160 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   return (
     <>
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-6 py-6">
-        <div className="flex justify-between items-start mb-6">
+
+      {/* ── Coloured Hero Header ── */}
+      <div className="bg-sidebar text-sidebar-foreground px-6 pt-8 pb-14 rounded-b-3xl shadow-lg relative overflow-hidden">
+        {/* subtle pattern blobs */}
+        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute bottom-0 left-8 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
+
+        <div className="relative max-w-5xl mx-auto flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Welcome back, {me?.full_name?.split(' ')[0] || 'Student'}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Student Dashboard</p>
+            <p className="text-sidebar-foreground/75 text-sm mb-1">Welcome back,</p>
+            <h1 className="text-2xl font-semibold">{me?.full_name || 'Student'}</h1>
+            <p className="text-sidebar-foreground/70 text-sm mt-0.5">Student Dashboard</p>
           </div>
-          <button onClick={handleViewAllNotifications} className="relative p-2 rounded-full hover:bg-muted transition">
-            <Bell className="w-6 h-6 text-muted-foreground" />
-            {unreadCount > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full border-2 border-card" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Dark mode toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            {/* Notifications */}
+            <button onClick={handleViewAllNotifications} className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-400 rounded-full border-2 border-sidebar" />
+              )}
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {quickActions.map(a => {
-              const Icon = a.icon;
-              return (
-                <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left">
-                  <Card className="p-5 hover:shadow-lg transition-all border border-border bg-card overflow-hidden relative hover:-translate-y-0.5">
-                    <div className="relative">
-                      <div
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-white"
-                        style={{ backgroundColor: a.iconBg }}
-                      >
-                        <Icon className="w-6 h-6 text-white" />
-                      </div>
-                      <h3 className="text-sm text-foreground mb-1 font-semibold">{a.title}</h3>
-                      <p className="text-xs text-muted-foreground">{a.subtitle}</p>
-                    </div>
-                  </Card>
-                </button>
-              );
-            })}
+        {/* Stat chips inside header */}
+        <div className="relative max-w-5xl mx-auto mt-5 grid grid-cols-3 gap-3">
+          <div className="rounded-xl bg-white/10 border border-white/15 px-4 py-3">
+            <p className="text-xs text-sidebar-foreground/70">Total Applications</p>
+            <p className="text-xl font-bold mt-0.5">{totalApplications}</p>
           </div>
-
-          <div className="mb-6">
-            <h2 className="text-lg text-foreground font-semibold mb-4">Recent Notices</h2>
-            <div className="space-y-2">
-              {notifications.slice(0, 2).map((n) => (
-                <Card key={n.id} className="p-4 border border-border bg-card flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    className="rounded border-border"
-                    readOnly
-                    checked={n.read}
-                    aria-label={n.read ? 'Notice read' : 'Notice unread'}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-foreground">{n.title}</p>
-                    <p className="text-xs text-muted-foreground">{n.time}</p>
-                  </div>
-                </Card>
-              ))}
-              {notifications.length === 0 && (
-                <Card className="p-4 border border-border bg-card text-sm text-muted-foreground">No recent notices.</Card>
-              )}
-            </div>
+          <div className="rounded-xl bg-white/10 border border-white/15 px-4 py-3">
+            <p className="text-xs text-sidebar-foreground/70">Active Loans</p>
+            <p className="text-xl font-bold mt-0.5">{activeLoansCount}</p>
           </div>
-
-          <div className="mb-6">
-            <h2 className="text-lg text-foreground font-semibold mb-4">My Applications</h2>
-            <div className="space-y-3">
-              {allApplications.length > 0 ? (
-                allApplications.map((app) => (
-                  <Card key={`${app.type}-${app.id}`} className="p-4 bg-card border border-border">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-semibold text-foreground">{app.type} Application</p>
-                        <p className="text-sm text-muted-foreground">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
-                      </div>
-                      <Badge className={`capitalize ${app.status === 'pending' ? 'bg-accent/20 text-accent-foreground' : ''} ${app.status === 'approved' ? 'bg-primary/20 text-primary' : ''} ${app.status === 'rejected' ? 'bg-destructive/20 text-destructive' : ''}`}>
-                        {app.status || 'pending'}
-                      </Badge>
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-4 border-2 border-dashed rounded-lg">
-                  <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
-                  <p className="mt-2 text-sm text-muted-foreground">You have no submitted applications.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg text-foreground">Recent Notifications</h2>
-              <button onClick={handleViewAllNotifications} className="text-sm text-primary hover:underline">View All</button>
-            </div>
-            <div className="space-y-3">
-              {notifications.length > 0 ? (
-                notifications.slice(0, 3).map((notification) => (
-                  <Card key={notification.id} onClick={() => handleNotificationClick(notification)} className="p-4 hover:shadow-md transition-shadow cursor-pointer border border-gray-200 bg-white relative">
-                    {!notification.read && <div className="absolute top-4 right-4 w-2 h-2 bg-red-500 rounded-full"></div>}
-                    <div className="flex gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent/20"><Bell className="w-5 h-5 text-accent" /></div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm text-foreground ${!notification.read ? 'font-semibold' : ''}`}>{notification.title}</p>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" />
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-sm text-center text-muted-foreground py-4">No notifications</div>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <Card className="p-4 text-center border border-border" style={{ backgroundColor: 'var(--brand-blue-soft-10)' }}>
-              <p className="text-2xl font-bold" style={{ color: 'var(--brand-blue)' }}>{totalApplications}</p>
-              <p className="text-xs mt-1" style={{ color: 'var(--brand-blue)' }}>Total Applications</p>
-            </Card>
-            <Card className="p-4 text-center border border-border" style={{ backgroundColor: 'var(--accent-soft-20)' }}>
-              <p className="text-2xl font-bold text-primary">{activeLoansCount}</p>
-              <p className="text-xs text-primary mt-1">Active Loans</p>
-            </Card>
-            <Card className="p-4 text-center border border-border" style={{ backgroundColor: 'var(--brand-purple-soft-10)' }}>
-              <p className="text-2xl font-bold" style={{ color: 'var(--brand-purple)' }}>{mentors.length}</p>
-              <p className="text-xs mt-1" style={{ color: 'var(--brand-purple)' }}>Mentors</p>
-            </Card>
+          <div className="rounded-xl bg-white/10 border border-white/15 px-4 py-3">
+            <p className="text-xs text-sidebar-foreground/70">My Mentors</p>
+            <p className="text-xl font-bold mt-0.5">{mentors.length}</p>
           </div>
         </div>
       </div>
 
-      <Dialog open={!!selectedNotification} onOpenChange={(isOpen: any) => !isOpen && setSelectedNotification(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedNotification?.title}</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">{selectedNotification?.time}</DialogDescription>
-          </DialogHeader>
-          <div className="py-4"><p className="text-sm text-foreground">{selectedNotification?.message}</p></div>
-        </DialogContent>
-      </Dialog>
+      {/* ── Body (pulled up to overlap hero bottom) ── */}
+      <div className="max-w-5xl mx-auto px-6 -mt-6 pb-8 space-y-6">
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {quickActions.map(a => {
+            const Icon = a.icon;
+            return (
+              <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left">
+                <Card className="p-5 hover:shadow-lg transition-all border border-border bg-card overflow-hidden relative hover:-translate-y-0.5">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                    style={{ backgroundColor: a.iconBg }}
+                  >
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-sm text-foreground mb-1 font-semibold">{a.title}</h3>
+                  <p className="text-xs text-muted-foreground">{a.subtitle}</p>
+                </Card>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Recent Notifications */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-base font-semibold text-foreground">Recent Notifications</h2>
+            <button onClick={handleViewAllNotifications} className="text-xs text-primary hover:underline flex items-center gap-1">
+              View All <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {notifications.length > 0 ? (
+              notifications.slice(0, 4).map((notification) => (
+                <Card
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className="p-4 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card relative"
+                >
+                  {!notification.read && (
+                    <span className="absolute top-3 right-3 w-2 h-2 bg-destructive rounded-full" />
+                  )}
+                  <div className="flex gap-3 items-start">
+                    <div className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center bg-primary/10">
+                      <Bell className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm text-foreground ${!notification.read ? 'font-semibold' : ''}`}>{notification.title}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{notification.message}</p>
+                      <p className="text-xs text-muted-foreground/70 mt-1">{notification.time}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <Card className="p-4 border border-border bg-card text-sm text-muted-foreground text-center">
+                No notifications yet.
+              </Card>
+            )}
+          </div>
+        </div>
+
+        {/* My Applications */}
+        <div>
+          <h2 className="text-base font-semibold text-foreground mb-3">My Applications</h2>
+          <div className="space-y-3">
+            {allApplications.length > 0 ? (
+              allApplications.map((app) => (
+                <Card key={`${app.type}-${app.id}`} className="p-4 bg-card border border-border">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold text-foreground">{app.type} Application</p>
+                      <p className="text-sm text-muted-foreground">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
+                    </div>
+                    <Badge className={`capitalize ${app.status === 'pending' ? 'bg-accent/20 text-accent-foreground' : ''} ${app.status === 'approved' ? 'bg-primary/20 text-primary' : ''} ${app.status === 'rejected' ? 'bg-destructive/20 text-destructive' : ''}`}>
+                      {app.status || 'pending'}
+                    </Badge>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-6 border-2 border-dashed border-border rounded-xl">
+                <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
+                <p className="mt-2 text-sm text-muted-foreground">No submitted applications yet.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {/* Notification detail dialog */}
+    <Dialog open={!!selectedNotification} onOpenChange={(isOpen: any) => !isOpen && setSelectedNotification(null)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{selectedNotification?.title}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">{selectedNotification?.time}</DialogDescription>
+        </DialogHeader>
+        <div className="py-4"><p className="text-sm text-foreground">{selectedNotification?.message}</p></div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }
