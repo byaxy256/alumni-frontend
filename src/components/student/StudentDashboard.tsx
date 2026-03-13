@@ -224,15 +224,21 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
     <div className="min-h-screen bg-[#f3f5fb] dark:bg-background">
 
       {/* ── Coloured Hero Header ── */}
-      <div className="bg-[#0f3a68] dark:bg-sidebar text-white dark:text-sidebar-foreground px-6 pt-6 pb-4 rounded-b-2xl shadow-lg relative overflow-hidden">
+      <div className="bg-[#0f3a68] dark:bg-sidebar text-white dark:text-sidebar-foreground px-6 pt-7 pb-5 rounded-b-2xl shadow-lg relative overflow-hidden">
 
         <div className="relative max-w-5xl mx-auto flex justify-between items-start">
-          <div>
-            <p className="text-white/80 dark:text-sidebar-foreground/75 text-sm mb-1">Welcome back,</p>
-            <h1 className="text-3xl font-semibold leading-tight">{me?.full_name?.split(' ')[0] || 'Student'}</h1>
-            <p className="text-white/70 dark:text-sidebar-foreground/70 text-sm mt-0.5">{me?.program || 'No program specified'}</p>
+          <div className="font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif]">
+            <p className="text-sm mb-1 text-white/90 dark:text-sidebar-foreground/85 font-medium">
+              Welcome back,
+            </p>
+            <h1 className="text-3xl md:text-[32px] font-semibold leading-tight text-white">
+              {me?.full_name?.split(' ')[0] || 'Student'}
+            </h1>
+            <p className="text-sm mt-1 text-white/85 dark:text-sidebar-foreground/80 font-normal">
+              {me?.program || 'No program specified'}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Dark mode toggle */}
             <button
               onClick={toggleTheme}
@@ -258,28 +264,70 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
       {/* ── Body (pulled up to overlap hero bottom) ── */}
       <div className="max-w-5xl mx-auto px-6 py-6 pb-8 space-y-6">
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Recent Notifications */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-base font-semibold text-foreground">Recent Notifications</h2>
+            <button onClick={handleViewAllNotifications} className="text-xs text-primary hover:underline flex items-center gap-1">
+              View All <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {notifications.length > 0 ? (
+              notifications.slice(0, 4).map((notification) => (
+                <Card
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className="p-4 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card relative"
+                >
+                  {!notification.read && (
+                    <span className="absolute top-3 right-3 w-2 h-2 bg-destructive rounded-full" />
+                  )}
+                  <div className="flex gap-3 items-start">
+                    <div className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center bg-primary/10">
+                      <Bell className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm text-foreground ${!notification.read ? 'font-semibold' : ''}`}>{notification.title}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{notification.message}</p>
+                      <p className="text-xs text-muted-foreground/70 mt-1">{notification.time}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <Card className="p-4 border border-border bg-card text-sm text-muted-foreground text-center">
+                No notifications yet.
+              </Card>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Actions tiles (UCU-themed) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {quickActions.map(a => {
             const Icon = a.icon;
             return (
               <button key={a.id} onClick={() => onNavigate(a.id)} className="group text-left">
-                <Card className={`p-5 hover:shadow-lg transition-all border overflow-hidden relative hover:-translate-y-0.5 ${a.cardClass} dark:bg-card dark:border-border`}>
+                <Card
+                  className={`p-5 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-0 overflow-hidden relative ${a.cardClass}`}
+                >
                   <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 shadow-sm"
                     style={{ backgroundColor: a.iconBg }}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-sm text-[#1f2940] dark:text-foreground mb-1 font-semibold">{a.title}</h3>
-                  <p className="text-xs text-[#5f6a86] dark:text-muted-foreground">{a.subtitle}</p>
+                  <h3 className="text-sm mb-1 font-semibold text-white">{a.title}</h3>
+                  <p className="text-xs text-white/80">{a.subtitle}</p>
                 </Card>
               </button>
             );
           })}
         </div>
 
-        {/* My Applications (placed directly under quick actions, matching reference layout) */}
+        {/* My Applications (placed after tiles, matching reference layout) */}
         <div>
           <h2 className="text-base font-semibold text-foreground mb-3 mt-4">My Applications</h2>
           <div className="space-y-3">
