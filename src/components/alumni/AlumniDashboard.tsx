@@ -114,14 +114,33 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
   const totalDonorValue = donorsBreakdown.reduce((sum, item) => sum + item.value, 0);
 
-  const recentActivities = notifications.slice(0, 6).map((n, idx) => ({
-    id: n.id ?? idx,
-    type: 'notification',
-    user: n.actor ?? 'System',
-    action: n.action ?? 'Notification',
-    target: n.target ?? '',
-    time: n.createdAt ? new Date(n.createdAt).toLocaleString() : 'just now',
-  }));
+  const recentActivities = notifications
+    .map((notification, idx) => {
+      const item = notification as any;
+      const actor = item.actor ?? item.user ?? item.createdBy ?? item.created_by ?? item.sender ?? 'System';
+      const action = item.action ?? item.type ?? item.category ?? 'Notification';
+      const target =
+        item.target ??
+        item.message ??
+        item.title ??
+        item.body ??
+        item.content ??
+        item.text ??
+        item.description ??
+        '';
+      const createdAt = item.createdAt ?? item.created_at ?? item.updatedAt ?? item.updated_at;
+
+      return {
+        id: item.id ?? item._id ?? idx,
+        type: 'notification',
+        user: String(actor || 'System'),
+        action: String(action || 'Notification'),
+        target: String(target || ''),
+        time: createdAt ? new Date(createdAt).toLocaleString() : 'just now',
+      };
+    })
+    .filter((activity) => activity.user || activity.action || activity.target)
+    .slice(0, 6);
 
   // src/components/AlumniDashboard.tsx
 
@@ -410,21 +429,21 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-3 rounded-xl border border-[#355C9A]/20 bg-[#355C9A]/10">
-              <p className="text-xs text-slate-600">Total Revenue</p>
-              <p className="text-lg mt-1 text-[#355C9A]">
+            <div className="p-3 rounded-xl border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+              <p className="text-xs text-white/80">Total Revenue</p>
+              <p className="text-lg mt-1 text-white">
                 {loading ? '...' : formatCompactUGX(totalRaised)}
               </p>
             </div>
-            <div className="p-3 rounded-xl border border-[#8A1F3A]/20 bg-[#8A1F3A]/10">
-              <p className="text-xs text-slate-600">Total Expenses</p>
-              <p className="text-lg mt-1 text-[#8A1F3A]">
+            <div className="p-3 rounded-xl border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
+              <p className="text-xs text-white/80">Total Expenses</p>
+              <p className="text-lg mt-1 text-white">
                 {loading ? '...' : formatCompactUGX(totalDisbursed)}
               </p>
             </div>
-            <div className="p-3 rounded-xl border border-[#C79A2B]/20 bg-[#C79A2B]/12">
-              <p className="text-xs text-slate-600">Available Balance</p>
-              <p className="text-lg mt-1 text-[#9f771d]">
+            <div className="p-3 rounded-xl border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)' }}>
+              <p className="text-xs text-white/80">Available Balance</p>
+              <p className="text-lg mt-1 text-white">
                 {loading ? '...' : formatCompactUGX(totalFundBalance)}
               </p>
             </div>
