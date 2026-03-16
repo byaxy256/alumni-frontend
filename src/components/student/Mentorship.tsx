@@ -5,10 +5,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { ArrowLeft, MessageSquare, Send, UserPlus, Paperclip, Mic, Image, FileText, Video, Loader2, Eye, Star, BriefcaseBusiness, Building2, MapPin, X } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, UserPlus, Paperclip, Mic, Image, FileText, Video, Loader2, Eye, BriefcaseBusiness, Building2, X } from 'lucide-react';
 import { LoadingSpinner } from '../ui/loading-spinner';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
 import type { User } from '../../App';
 import { API_BASE, api } from '../../api';
@@ -69,6 +71,13 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
   const [filterField, setFilterField] = useState<string>('All Fields');
   const [pendingRequests, setPendingRequests] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [mentorApplication, setMentorApplication] = useState({
+    field: '',
+    company: '',
+    experience: '',
+    bio: '',
+  });
+  const [submittingApplication, setSubmittingApplication] = useState(false);
 
 
 
@@ -496,6 +505,42 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
   const selectedMentorUid = selectedMentorProfile ? getMentorUid(selectedMentorProfile) : '';
   const selectedMentorPending = selectedMentorUid ? Boolean(pendingRequests[selectedMentorUid]) : false;
 
+  const handleMentorApplicationSubmit = async () => {
+    if (!mentorApplication.field.trim() || !mentorApplication.company.trim() || !mentorApplication.experience.trim() || !mentorApplication.bio.trim()) {
+      toast.error('Please complete all mentor application fields.');
+      return;
+    }
+
+    if (user.role !== 'alumni') {
+      toast.error('Only alumni can submit mentor applications.');
+      return;
+    }
+
+    try {
+      setSubmittingApplication(true);
+      const token = localStorage.getItem('token') || '';
+      const profilePayload = {
+        meta: {
+          ...(user.meta || {}),
+          wantsToMentor: true,
+          mentorApplication: {
+            ...mentorApplication,
+            submittedAt: new Date().toISOString(),
+            status: 'pending',
+          },
+        },
+      };
+      await api.updateProfile(profilePayload, token);
+      toast.success('Mentor application submitted successfully.');
+      setMentorApplication({ field: '', company: '', experience: '', bio: '' });
+    } catch (error: any) {
+      console.error('Mentor application submit error', error);
+      toast.error(error?.message || 'Failed to submit mentor application.');
+    } finally {
+      setSubmittingApplication(false);
+    }
+  };
+
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
@@ -524,12 +569,12 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
           </div>
         ) : myMentors.length > 0 ? (
           myMentors.map((mentor: MyMentor) => (
-            <Card key={mentor.id} className="border-[#c7d5f1] bg-white">
+            <Card key={mentor.id} className="border-[#bfcff0] bg-gradient-to-br from-white to-[#eef4ff] shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4 mb-4">
-                  <Avatar className="h-12 w-12"><AvatarFallback>{mentor.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
+                  <Avatar className="h-12 w-12 ring-2 ring-[#c8d6f4]"><AvatarFallback>{mentor.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
                   <div>
-                    <p className="font-semibold text-[#1f3f73]">{mentor.name}</p>
+                    <p className="font-semibold text-[#183865] tracking-tight">{mentor.name}</p>
                     <p className="text-xs text-[#4d6388]">{mentor.field || mentor.course || 'General'}</p>
                     <Badge variant="outline" className="mt-1 border-[#bdd0f0] bg-[#edf3ff] text-[#355C9A]">Active</Badge>
                     {/* Show mentee count for this mentor */}
@@ -618,15 +663,15 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               // Only allow undo if there is a pending request (not approved yet)
               const isPending = Boolean(pendingId);
               return (
-                <Card key={mentor.id} className="border-[#d6c8e5] bg-[var(--brand-purple-soft-8)]/70">
+                <Card key={mentor.id} className="border-[#cdb8df] bg-gradient-to-br from-[#f7f1fc] to-[#efe5f8] shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-4">
-                        <Avatar className="h-16 w-16">
+                        <Avatar className="h-16 w-16 ring-2 ring-[#d8c4ea]">
                           <AvatarFallback>{mentor.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-semibold text-[#573c72]">{mentor.name}</p>
+                          <p className="font-semibold text-[#4e3568] tracking-tight">{mentor.name}</p>
                           <p className="text-xs text-[#6f5a85]">{mentor.field} at {mentor.company}</p>
                           <p className="text-xs text-gray-500">{mentor.location}</p>
                           <div className="flex items-center gap-1 text-xs mt-1">
@@ -694,30 +739,93 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
       </section>
       
       <section>
-        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}>
           <h2 className="text-lg font-semibold">Why Get a Mentor?</h2>
           <p className="text-sm text-white/75">Guidance, connections, and practical support from alumni who understand your journey.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
-            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #694a8a 0%, #7f58a0 100%)' }}>
               <CardContent className="p-4">
                 <h3 className="font-semibold text-sm mb-2 text-white">Career Guidance</h3>
                 <p className="text-xs text-white/85">Get personalized advice on your career path from experienced professionals in your field.</p>
               </CardContent>
             </Card>
-            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
+            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #7a4d96 0%, #9460b2 100%)' }}>
               <CardContent className="p-4">
                 <h3 className="font-semibold text-sm mb-2 text-white">Networking</h3>
                 <p className="text-xs text-white/85">Build valuable connections with UCU alumni working in leading companies worldwide.</p>
               </CardContent>
             </Card>
-            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)' }}>
+            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #8452a0 0%, #9b69b6 100%)' }}>
               <CardContent className="p-4">
                 <h3 className="font-semibold text-sm mb-2 text-white">Skill Development</h3>
                 <p className="text-xs text-white/85">Learn industry best practices and develop the skills that matter most for your success.</p>
               </CardContent>
             </Card>
         </div>
+      </section>
+
+      <section>
+        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}>
+          <h2 className="text-lg font-semibold">Alumni Mentor Application</h2>
+          <p className="text-sm text-white/75">Alumni can apply here to join the mentor pool for student support.</p>
+        </div>
+        <Card className="border-[#cfbae3] bg-gradient-to-br from-[#f8f2fc] to-[#efe6f8]">
+          <CardContent className="p-4 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="mentor-field">Field</Label>
+                <Input
+                  id="mentor-field"
+                  placeholder="e.g. Software Engineering"
+                  value={mentorApplication.field}
+                  onChange={(e) => setMentorApplication((prev) => ({ ...prev, field: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="mentor-company">Company/Organization</Label>
+                <Input
+                  id="mentor-company"
+                  placeholder="Where you currently work"
+                  value={mentorApplication.company}
+                  onChange={(e) => setMentorApplication((prev) => ({ ...prev, company: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mentor-exp">Years of Experience</Label>
+              <Input
+                id="mentor-exp"
+                type="number"
+                min={0}
+                placeholder="e.g. 5"
+                value={mentorApplication.experience}
+                onChange={(e) => setMentorApplication((prev) => ({ ...prev, experience: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mentor-bio">Why you want to mentor</Label>
+              <Textarea
+                id="mentor-bio"
+                rows={4}
+                placeholder="Share your motivation and areas you can guide students in"
+                value={mentorApplication.bio}
+                onChange={(e) => setMentorApplication((prev) => ({ ...prev, bio: e.target.value }))}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <p className="text-xs text-[#6f5a85]">Application is saved to your profile for Alumni Office review.</p>
+              <Button
+                onClick={handleMentorApplicationSubmit}
+                disabled={submittingApplication}
+                className="text-white"
+                style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}
+              >
+                {submittingApplication ? 'Submitting...' : 'Submit Mentor Application'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
       </div>
@@ -754,20 +862,6 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                   <p className="text-sm flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-primary" />
                     {selectedMentorProfile.company || 'Not provided'}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-border bg-muted/40 p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Location</p>
-                  <p className="text-sm flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary" />
-                    {selectedMentorProfile.location || 'Not provided'}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-border bg-muted/40 p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Mentor Rating</p>
-                  <p className="text-sm flex items-center gap-2">
-                    <Star className="w-4 h-4 text-accent" />
-                    {selectedMentorProfile.rating?.toFixed?.(1) ?? '4.0'} / 5
                   </p>
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 
 import { useState, useEffect } from 'react';
-import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare, ShoppingBag } from 'lucide-react';
+import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare, ShoppingBag, Wallet } from 'lucide-react';
 import type { User as UserType } from '../App';
 import { AlumniDashboard } from './alumni-user/AlumniDashboard';
 import { AlumniDonations } from './alumni-user/AlumniDonations';
@@ -13,6 +13,7 @@ import { AlumniBenefits } from './alumni-user/AlumniBenefits';
 import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
 import { MentorshipHub } from './alumni-user/MentorshipHub';
+import { AlumniSacco } from './alumni-user/AlumniSacco';
 import { UnifiedNotifications } from './shared/UnifiedNotifications';
 import { AlumniShop } from './shared/AlumniShop';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
@@ -22,12 +23,13 @@ interface AlumniAppProps {
   onLogout: () => void;
 }
 
-type AlumniScreen = 'dashboard' | 'donations' | 'events' | 'connect' | 'news' | 'benefits' | 'chapters' | 'profile' | 'mentorship' | 'notifications' | 'shop';
+type AlumniScreen = 'dashboard' | 'donations' | 'events' | 'connect' | 'news' | 'benefits' | 'chapters' | 'profile' | 'mentorship' | 'notifications' | 'shop' | 'sacco';
 
 // --- IMPROVEMENT 2: Single source of truth for all navigation items ---
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, mobile: true },
     { id: 'donations', label: 'Donations', icon: Heart, mobile: true },
+    { id: 'sacco', label: 'SACCO', icon: Wallet, mobile: true },
     { id: 'events', label: 'Events', icon: Calendar, mobile: false },
     { id: 'connect', label: 'Connect', icon: Users, mobile: true },
     { id: 'mentorship', label: 'Mentorship', icon: MessageSquare, mobile: true },
@@ -84,6 +86,8 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
         return <AlumniProfile user={user} onBack={() => handleNavigate('dashboard')} onLogout={onLogout} />;
       case 'mentorship':
         return <MentorshipHub user={user} onBack={() => handleNavigate('dashboard')} />;
+      case 'sacco':
+        return <AlumniSacco user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'notifications':
         return <UnifiedNotifications user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'shop':
