@@ -81,25 +81,25 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
         <span className="text-sm">Back</span>
       </button>
 
-      <div className="mx-auto flex min-h-screen max-w-[1520px] overflow-hidden rounded-none md:min-h-[92vh] md:rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_20px_90px_rgba(0,0,0,0.45)]">
+      <div className="mx-auto flex min-h-screen max-w-[1640px] overflow-hidden rounded-none md:min-h-[92vh] md:rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_20px_90px_rgba(0,0,0,0.45)]">
         <section
-          className="relative hidden md:flex md:w-[68%] lg:w-[70%]"
+          className="relative hidden md:flex md:w-[80%] lg:w-[81%]"
           style={{
-            backgroundImage: `linear-gradient(180deg, rgba(8,14,28,0.12) 0%, rgba(8,14,28,0.24) 36%, rgba(8,14,28,0.58) 100%), url('${heroImage}')`,
+            backgroundImage: `linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 34%, rgba(8,14,28,0.18) 100%), url('${heroImage}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center center'
           }}
         >
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#06101c]/30 via-transparent to-[#050c17]/24" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-[#050814]/92 via-[#050814]/46 to-transparent" />
-          <div className="pointer-events-none absolute bottom-0 left-0 h-56 w-56 rounded-full bg-[#ef6d3b]/24 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/6 via-transparent to-black/8" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black/28 via-black/10 to-transparent" />
+          <div className="pointer-events-none absolute bottom-0 left-0 h-56 w-56 rounded-full bg-[#ef6d3b]/18 blur-3xl" />
 
-          <div className="relative z-10 flex w-full items-end justify-center px-10 pb-16 text-center text-white lg:px-16 lg:pb-24">
-            <div className="max-w-[760px]" style={{ fontFamily: 'Manrope, sans-serif' }}>
-              <p className="text-lg font-medium tracking-[0.01em] text-white/96 lg:text-[1.4rem]">
+          <div className="relative z-10 flex w-full items-end justify-center px-12 pb-18 text-center lg:px-20 lg:pb-26">
+            <div className="max-w-[860px]" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <p className="text-xl font-semibold tracking-[0.01em] text-black lg:text-[1.5rem]">
                 Uganda Christian University Alumni
               </p>
-              <h2 className="mt-4 text-[3.2rem] font-extrabold leading-[1.02] tracking-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.75)] lg:text-[4.8rem]">
+              <h2 className="mt-4 text-[3.6rem] font-extrabold leading-[1.02] tracking-tight text-black lg:text-[5.2rem]">
                 Connect & Empower
                 <br />
                 Our Alumni Community
@@ -108,11 +108,11 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           </div>
         </section>
 
-        <section className="relative flex w-full items-center justify-center bg-[radial-gradient(120%_100%_at_50%_0%,#2d3e58_0%,#18263b_42%,#101827_100%)] p-6 sm:p-8 md:w-[32%] lg:w-[30%]">
+        <section className="relative flex w-full items-center justify-center bg-[radial-gradient(120%_100%_at_50%_0%,#2d3e58_0%,#18263b_42%,#101827_100%)] p-5 sm:p-6 md:w-[20%] lg:w-[19%]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.05),transparent_30%),radial-gradient(circle_at_82%_82%,rgba(255,255,255,0.04),transparent_24%)]" />
           <div className="pointer-events-none absolute h-[88%] w-[88%] rounded-[36px] border border-white/8 bg-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]" />
 
-          <div className="relative w-full max-w-[460px] rounded-[32px] border border-white/18 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.07))] p-6 text-white backdrop-blur-2xl shadow-[0_24px_70px_rgba(0,0,0,0.46)] sm:p-8 before:pointer-events-none before:absolute before:inset-0 before:rounded-[32px] before:border before:border-white/8">
+          <div className="relative w-full max-w-[430px] rounded-[32px] border border-white/18 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.07))] p-5 text-white backdrop-blur-2xl shadow-[0_24px_70px_rgba(0,0,0,0.46)] sm:p-7 before:pointer-events-none before:absolute before:inset-0 before:rounded-[32px] before:border before:border-white/8">
             <div className="mb-7 flex items-center gap-3">
               <UcuBadgeLogo className="h-8 w-8" />
               <p className="text-[1.7rem] font-semibold tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
