@@ -14,6 +14,14 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Checkbox } from '../ui/checkbox';
 import { API_BASE } from '../../api';
 
+const UPLOAD_BASE = API_BASE.replace(/\/api\/?$/, '');
+function documentFullUrl(att: any): string {
+  const url = att?.url || '';
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${UPLOAD_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
 // --- Type Definitions (Updated to include more details from backend JOIN) ---
 type Application = {
   id: number;
@@ -59,6 +67,7 @@ export default function ApplicationsQueue() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [infoRequestMessage, setInfoRequestMessage] = useState('');
   const [selectedApplications, setSelectedApplications] = useState<number[]>([]);
+  const [documentViewer, setDocumentViewer] = useState<{ url: string; name: string; mimetype?: string } | null>(null);
 
   const fetchApplications = async () => {
     setLoading(true);
@@ -394,18 +403,27 @@ export default function ApplicationsQueue() {
                   }
                   return (
                     <div className="space-y-2 p-3 bg-gray-50 rounded-lg">
-                      {attachments.map((att: any, idx: number) => (
-                        <div key={idx} className="flex items-center justify-between gap-2 text-sm">
-                          <span className="truncate flex-1">
-                            {att.originalname || att.fieldname || `Document ${idx + 1}`}
-                          </span>
-                          {att.url && (
-                            <a href={att.url} target="_blank" rel="noopener noreferrer" className="shrink-0 inline-flex items-center gap-1 text-primary hover:underline">
-                              <ExternalLink className="w-4 h-4" /> View
-                            </a>
-                          )}
-                        </div>
-                      ))}
+                      {attachments.map((att: any, idx: number) => {
+                        const fullUrl = documentFullUrl(att);
+                        const name = att.originalname || att.fieldname || `Document ${idx + 1}`;
+                        const isPdf = (att.mimetype || '').toLowerCase().includes('pdf') || (name || '').toLowerCase().endsWith('.pdf');
+                        return (
+                          <div key={idx} className="flex items-center justify-between gap-2 text-sm">
+                            <span className="truncate flex-1">{name}</span>
+                            {fullUrl && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="shrink-0 text-primary hover:underline"
+                                onClick={() => setDocumentViewer({ url: fullUrl, name, mimetype: att.mimetype })}
+                              >
+                                <Eye className="w-4 h-4 mr-1" /> View
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })()}
@@ -478,6 +496,29 @@ export default function ApplicationsQueue() {
                     <Button onClick={sendInfoRequest}>Send Request</Button>
                 </DialogFooter>
             </DialogContent>
+        )}
+      </Dialog>
+
+      <Dialog open={!!documentViewer} onOpenChange={(open) => !open && setDocumentViewer(null)}>
+        {documentViewer && (
+          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle>{documentViewer.name}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 min-h-0 overflow-auto rounded border bg-muted/30">
+              {(documentViewer.mimetype || '').toLowerCase().includes('pdf') || documentViewer.name.toLowerCase().endsWith('.pdf') ? (
+                <iframe src={documentViewer.url} title={documentViewer.name} className="w-full h-[70vh] border-0" />
+              ) : (
+                <img src={documentViewer.url} alt={documentViewer.name} className="w-full h-auto object-contain max-h-[70vh]" />
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDocumentViewer(null)}>Close</Button>
+              <a href={documentViewer.url} target="_blank" rel="noopener noreferrer">
+                <Button variant="secondary"><ExternalLink className="w-4 h-4 mr-2" /> Open in new tab</Button>
+              </a>
+            </DialogFooter>
+          </DialogContent>
         )}
       </Dialog>
     </div>

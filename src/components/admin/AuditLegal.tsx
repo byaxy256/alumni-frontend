@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Download, FileText, Shield, Search, RefreshCw, ExternalLink } from 'lucide-react';
+import { Download, Shield, Search, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiCall } from '../../api';
 
@@ -21,30 +21,15 @@ interface AuditLog {
   metadata?: Record<string, any>;
 }
 
-interface FinancialStatement {
-  loan_id: string;
-  student_uid: string;
-  student_name: string;
-  email?: string;
-  amount?: number;
-  status?: string;
-  url: string;
-  filename?: string;
-  uploaded_at?: string;
-}
-
 export default function AuditLegal() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [financialStatements, setFinancialStatements] = useState<FinancialStatement[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [statementsLoading, setStatementsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
 
   useEffect(() => {
     loadAuditLogs();
-    loadFinancialStatements();
   }, [actionFilter]);
 
   const loadAuditLogs = async (isRefresh = false) => {
@@ -69,20 +54,6 @@ export default function AuditLegal() {
     } finally {
       setLoading(false);
       setRefreshing(false);
-    }
-  };
-
-  const loadFinancialStatements = async () => {
-    try {
-      setStatementsLoading(true);
-      const token = localStorage.getItem('token');
-      const statements = await apiCall('/admin/financial-statements', 'GET', undefined, token || undefined);
-      setFinancialStatements(statements || []);
-    } catch (err) {
-      console.error('Failed to load financial statements:', err);
-      toast.error('Failed to load financial statements');
-    } finally {
-      setStatementsLoading(false);
     }
   };
 
@@ -157,35 +128,6 @@ export default function AuditLegal() {
     toast.success('Audit logs exported');
   };
 
-  const handleExportStatements = () => {
-    if (!financialStatements.length) {
-      toast.info('No financial statements to export');
-      return;
-    }
-
-    const csvHeader = ['student_name','email','amount','status','uploaded_at','filename','url'];
-    const rows = financialStatements.map(s => [
-      s.student_name,
-      s.email || '',
-      s.amount ? s.amount : '',
-      s.status || '',
-      s.uploaded_at ? formatTimestamp(s.uploaded_at) : '',
-      s.filename || '',
-      s.url
-    ]);
-    const csv = [csvHeader.join(','), ...rows.map(r => r.map(val => `"${String(val).replace(/"/g,'""')}"`).join(','))].join('\n');
-    downloadBlob(csv, 'financial-statements.csv', 'text/csv');
-    toast.success('Financial statements exported');
-  };
-
-  const handleViewStatement = (url: string) => {
-    if (!url) {
-      toast.error('No file URL available');
-      return;
-    }
-    window.open(url, '_blank');
-  };
-
   const downloadBlob = (data: string, filename: string, type: string) => {
     const blob = new Blob([data], { type });
     const url = URL.createObjectURL(blob);
@@ -202,7 +144,7 @@ export default function AuditLegal() {
     <div className="p-4 lg:p-8 space-y-6">
       <div>
         <h1>Audit & Legal Documents</h1>
-        <p className="text-muted-foreground">Immutable activity logs and financial statements from loan applications</p>
+        <p className="text-muted-foreground">Immutable activity logs for all system actions</p>
       </div>
 
       {/* Audit Logs Section */}
@@ -318,99 +260,6 @@ export default function AuditLegal() {
 
           <div className="text-sm text-muted-foreground">
             <p>Total logs: {filteredLogs.length} | All logs are immutable and tamper-proof</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Financial Statements Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Financial Statements
-            </CardTitle>
-            <Button onClick={handleExportStatements} variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Export All
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="overflow-x-auto">
-            {statementsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-muted-foreground">Loading financial statements...</span>
-              </div>
-            ) : financialStatements.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No financial statements found</p>
-                <p className="text-sm">Uploaded statements from loan applications will appear here</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Uploaded</TableHead>
-                    <TableHead>File</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {financialStatements.map((statement) => (
-                    <TableRow key={`${statement.loan_id}-${statement.filename || statement.url}`}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{statement.student_name}</p>
-                          <p className="text-sm text-muted-foreground">{statement.student_uid}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{statement.email || '—'}</TableCell>
-                      <TableCell className="text-sm">{statement.amount ? `UGX ${statement.amount.toLocaleString()}` : '—'}</TableCell>
-                      <TableCell>
-                        <Badge variant={statement.status === 'approved' ? 'default' : 'secondary'} className="capitalize">
-                          {statement.status || 'pending'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{statement.uploaded_at ? formatTimestamp(statement.uploaded_at) : '—'}</TableCell>
-                      <TableCell className="space-x-2 whitespace-nowrap">
-                        {statement.url ? (
-                          <>
-                            <Button size="sm" variant="secondary" onClick={() => handleViewStatement(statement.url)}>
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              View
-                            </Button>
-                            <Button size="sm" variant="outline" asChild>
-                              <a href={statement.url} target="_blank" rel="noreferrer" download>
-                                <Download className="w-4 h-4 mr-2" />
-                                Download
-                              </a>
-                            </Button>
-                          </>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">No file available</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </div>
-
-          <div className="mt-6 p-4 bg-muted rounded-lg space-y-2">
-            <h4>Document Review Notes</h4>
-            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li>Verify uploads match student identity and requested amounts</li>
-              <li>Download files for offline review or attach to case notes</li>
-              <li>All files are stored in secured uploads and surfaced here for auditability</li>
-              <li>Use the audit log above to track who accessed or approved each case</li>
-            </ul>
           </div>
         </CardContent>
       </Card>
