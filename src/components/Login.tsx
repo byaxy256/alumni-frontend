@@ -8,21 +8,12 @@ import { ArrowLeft, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
-// The props interface remains the same. It correctly expects a function from the parent.
 interface LoginProps {
   onLoginSuccess: (user: any, token: string) => void;
   onBack: () => void;
   switchToSignup?: () => void;
 }
 
-/**
- * This rewritten Login component follows a best practice: it is a "dumb" component.
- * Its only job is to gather credentials, send them to the API, and report the result 
- * (success or failure) to its parent component (App.tsx).
- * 
- * It does NOT manage localStorage or the global user state itself. This prevents bugs
- * and ensures App.tsx is the single source of truth for authentication.
- */
 export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginProps) {
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +21,9 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
-  const heroImage = 'https://images.unsplash.com/photo-1523240798132-8757214e76aa?auto=format&fit=crop&w=1800&q=80';
+
+  const heroImage =
+    'https://images.unsplash.com/photo-1523240798132-8757214e76aa?auto=format&fit=crop&w=1800&q=80';
 
   const handleLogin = async () => {
     if (!emailOrPhone || !password) {
@@ -42,22 +35,19 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
       return;
     }
     setLoading(true);
-
     try {
       const credential = emailOrPhone.trim();
-      const normalizedCredential = credential.includes('@') ? credential.toLowerCase() : credential;
+      const normalizedCredential = credential.includes('@')
+        ? credential.toLowerCase()
+        : credential;
       const data = await api.login(normalizedCredential, password, adminSecret || undefined);
       console.log('Login response:', data);
-      
       toast.success('Login successful');
       onLoginSuccess(data.user, data.token);
       setNeedsAdminSecret(false);
-
     } catch (err: any) {
       console.error('Login error', err);
       const errorMsg = err?.message || err?.response?.data?.error || 'Login failed';
-      
-      // Check if this is an admin secret error
       if (errorMsg?.includes('Admin secret required')) {
         setNeedsAdminSecret(true);
         toast.error('Admin secret required to login');
@@ -70,158 +60,275 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   };
 
   return (
-    <div className="min-h-screen bg-[#0a1424] p-0 md:p-4">
+    <div
+      style={{
+        position: 'relative',
+        display: 'flex',
+        minHeight: '100vh',
+        width: '100%',
+        overflow: 'hidden',
+        background: '#0b1a2e',
+        fontFamily: 'Manrope, Inter, system-ui, sans-serif',
+      }}
+    >
+      {/* Back button */}
       <button
         onClick={onBack}
-        className="absolute top-4 left-4 z-20 flex items-center gap-2 rounded-lg bg-black/35 px-3 py-2 text-white backdrop-blur hover:bg-black/50"
-        title="Go back"
         aria-label="Go back"
+        style={{
+          position: 'absolute',
+          top: '1rem',
+          left: '1rem',
+          zIndex: 30,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          padding: '0.45rem 0.85rem',
+          borderRadius: '0.6rem',
+          border: 'none',
+          background: 'rgba(0,0,0,0.45)',
+          color: '#fff',
+          fontSize: '0.85rem',
+          cursor: 'pointer',
+          backdropFilter: 'blur(6px)',
+        }}
       >
-        <ArrowLeft className="w-4 h-4" />
-        <span className="text-sm">Back</span>
+        <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
+        Back
       </button>
 
-      <div className="mx-auto flex min-h-screen max-w-[1640px] overflow-hidden rounded-none md:min-h-[92vh] md:rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_20px_90px_rgba(0,0,0,0.45)]">
-        <section
-          className="relative hidden md:flex md:w-[80%] lg:w-[81%]"
+      {/* LEFT PANEL — hero image (62%, desktop only) */}
+      <div
+        className="login-left"
+        style={{
+          position: 'relative',
+          display: 'none',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          flexShrink: 0,
+        }}
+      >
+        <div
           style={{
-            backgroundImage: `linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 34%, rgba(8,14,28,0.18) 100%), url('${heroImage}')`,
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url('${heroImage}')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center center'
+            backgroundPosition: 'center',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(to bottom, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.62) 100%)',
+          }}
+        />
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 10,
+            marginTop: 'auto',
+            padding: '0 3.5rem 4rem',
+            textAlign: 'center',
           }}
         >
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/6 via-transparent to-black/8" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black/28 via-black/10 to-transparent" />
-          <div className="pointer-events-none absolute bottom-0 left-0 h-56 w-56 rounded-full bg-[#ef6d3b]/18 blur-3xl" />
-
-          <div className="relative z-10 flex w-full items-end justify-center px-12 pb-18 text-center lg:px-20 lg:pb-26">
-            <div className="max-w-[860px]" style={{ fontFamily: 'Manrope, sans-serif' }}>
-              <p className="text-xl font-semibold tracking-[0.01em] text-black lg:text-[1.5rem]">
-                Uganda Christian University Alumni
-              </p>
-              <h2 className="mt-4 text-[3.6rem] font-extrabold leading-[1.02] tracking-tight text-black lg:text-[5.2rem]">
-                Connect & Empower
-                <br />
-                Our Alumni Community
-              </h2>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative flex w-full items-center justify-center bg-[radial-gradient(120%_100%_at_50%_0%,#2d3e58_0%,#18263b_42%,#101827_100%)] p-5 sm:p-6 md:w-[20%] lg:w-[19%]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.05),transparent_30%),radial-gradient(circle_at_82%_82%,rgba(255,255,255,0.04),transparent_24%)]" />
-          <div className="pointer-events-none absolute h-[88%] w-[88%] rounded-[36px] border border-white/8 bg-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]" />
-
-          <div className="relative w-full max-w-[430px] rounded-[32px] border border-white/18 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.07))] p-5 text-white backdrop-blur-2xl shadow-[0_24px_70px_rgba(0,0,0,0.46)] sm:p-7 before:pointer-events-none before:absolute before:inset-0 before:rounded-[32px] before:border before:border-white/8">
-            <div className="mb-7 flex items-center gap-3">
-              <UcuBadgeLogo className="h-8 w-8" />
-              <p className="text-[1.7rem] font-semibold tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                Alumni <span className="font-medium text-white/90">Platform</span>
-              </p>
-            </div>
-
-            <h1 className="text-[2.45rem] font-semibold tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>Welcome Back!</h1>
-            <p className="mt-2 text-[1.05rem] text-white/75">Sign in to your account</p>
-
-            <div className="mt-7 space-y-4">
-              <div>
-                <Label className="mb-2 block text-white/85">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/65" />
-                  <Input
-                    value={emailOrPhone}
-                    onChange={(e) => setEmailOrPhone(e.target.value)}
-                    placeholder="Enter your email"
-                    className="h-12 rounded-xl border-white/20 bg-[#0f1b30]/72 pl-10 text-white placeholder:text-white/45"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="mb-2 block text-white/85">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/65" />
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="h-12 rounded-xl border-white/20 bg-[#0f1b30]/72 pl-10 pr-24 text-white placeholder:text-white/45"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-12 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                  <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/65 hover:text-white/85">
-                    Forgot?
-                  </button>
-                </div>
-              </div>
-
-              {needsAdminSecret && (
-                <div>
-                  <Label className="mb-2 block text-white/85">Admin Secret</Label>
-                  <Input
-                    type="password"
-                    value={adminSecret}
-                    onChange={(e) => setAdminSecret(e.target.value)}
-                    placeholder="Required for first staff login"
-                    className="h-12 rounded-xl border-white/20 bg-[#0f1b30]/72 text-white placeholder:text-white/45"
-                  />
-                </div>
-              )}
-
-              <Button
-                onClick={handleLogin}
-                disabled={loading}
-                className="h-12 w-full rounded-full border-0 bg-gradient-to-r from-[#f06b3b] to-[#f2a72b] text-base font-semibold text-white shadow-[0_8px_24px_rgba(245,128,52,0.45)] hover:brightness-105"
-              >
-                {loading ? 'Signing In...' : 'Sign In'}
-              </Button>
-            </div>
-
-            <div className="my-5 flex items-center gap-3 text-white/65">
-              <div className="h-px flex-1 bg-white/20" />
-              <span>or</span>
-              <div className="h-px flex-1 bg-white/20" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => toast.info('Google sign-in is not configured for this build yet.')}
-                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-[#0f1b30]/65 text-white transition hover:bg-[#172844]"
-              >
-                <span className="text-lg font-semibold leading-none text-[#fbbc05]">G</span>
-                <span className="text-sm">Google</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => toast.info('Apple sign-in is not configured for this build yet.')}
-                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-[#0f1b30]/65 text-white transition hover:bg-[#172844]"
-              >
-                <span className="text-base"></span>
-                <span className="text-sm">Apple</span>
-              </button>
-            </div>
-
-            <p className="mt-6 text-center text-white/75">
-              New to the platform?{' '}
-              <button onClick={switchToSignup} className="font-semibold text-white hover:underline">
-                Create an account
-              </button>
-            </p>
-
-            <div className="mt-6 border-t border-white/15 pt-5 text-center text-xs text-white/55">
-              © 2026 Alumni Platform · Terms · Privacy
-            </div>
-          </div>
-        </section>
+          <p
+            style={{
+              fontSize: '1.05rem',
+              fontWeight: 600,
+              color: '#ffffff',
+              letterSpacing: '0.04em',
+              textShadow: '0 2px 14px rgba(0,0,0,0.85)',
+              marginBottom: '0.9rem',
+            }}
+          >
+            Uganda Christian University Alumni
+          </p>
+          <h1
+            style={{
+              fontSize: 'clamp(2.2rem, 4vw, 4rem)',
+              fontWeight: 800,
+              lineHeight: 1.06,
+              color: '#ffffff',
+              textShadow: '0 4px 28px rgba(0,0,0,0.9)',
+              margin: 0,
+            }}
+          >
+            Connect &amp; Empower
+            <br />
+            Our Alumni Community
+          </h1>
+        </div>
       </div>
+
+      {/* RIGHT PANEL — sign-in form (38%, full width on mobile) */}
+      <div
+        className="login-right"
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflowY: 'auto',
+          padding: '3rem 1.5rem',
+          background:
+            'linear-gradient(160deg, #172643 0%, #0f1d36 55%, #0b1424 100%)',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: '430px' }}>
+
+          {/* Brand */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+            <UcuBadgeLogo style={{ width: '2.5rem', height: '2.5rem' }} />
+            <span style={{ fontSize: '1.45rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
+              Alumni{' '}
+              <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.72)' }}>Platform</span>
+            </span>
+          </div>
+
+          <h2 style={{ fontSize: '2rem', fontWeight: 700, color: '#fff', margin: '0 0 0.2rem' }}>
+            Welcome Back!
+          </h2>
+          <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.8rem' }}>
+            Sign in to your account
+          </p>
+
+          {/* Fields */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+            {/* Email */}
+            <div>
+              <Label style={{ display: 'block', marginBottom: '0.4rem', color: 'rgba(255,255,255,0.78)', fontSize: '0.875rem' }}>
+                Email
+              </Label>
+              <div style={{ position: 'relative' }}>
+                <Mail style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '1rem', height: '1rem', color: 'rgba(255,255,255,0.45)' }} />
+                <Input
+                  value={emailOrPhone}
+                  onChange={(e) => setEmailOrPhone(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                  placeholder="Enter your email"
+                  style={{ height: '3rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.17)', background: 'rgba(12,22,44,0.75)', color: '#fff', paddingLeft: '2.5rem', fontSize: '0.95rem' }}
+                  className="placeholder:text-white/35"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <Label style={{ display: 'block', marginBottom: '0.4rem', color: 'rgba(255,255,255,0.78)', fontSize: '0.875rem' }}>
+                Password
+              </Label>
+              <div style={{ position: 'relative' }}>
+                <Lock style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', width: '1rem', height: '1rem', color: 'rgba(255,255,255,0.45)' }} />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                  placeholder="Enter your password"
+                  style={{ height: '3rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.17)', background: 'rgba(12,22,44,0.75)', color: '#fff', paddingLeft: '2.5rem', paddingRight: '5.5rem', fontSize: '0.95rem' }}
+                  className="placeholder:text-white/35"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{ position: 'absolute', right: '2.8rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)' }}
+                >
+                  {showPassword ? <EyeOff style={{ width: '1rem', height: '1rem' }} /> : <Eye style={{ width: '1rem', height: '1rem' }} />}
+                </button>
+                <button
+                  type="button"
+                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}
+                >
+                  Forgot?
+                </button>
+              </div>
+            </div>
+
+            {/* Admin secret (conditional) */}
+            {needsAdminSecret && (
+              <div>
+                <Label style={{ display: 'block', marginBottom: '0.4rem', color: 'rgba(255,255,255,0.78)', fontSize: '0.875rem' }}>
+                  Admin Secret
+                </Label>
+                <Input
+                  type="password"
+                  value={adminSecret}
+                  onChange={(e) => setAdminSecret(e.target.value)}
+                  placeholder="Required for first staff login"
+                  style={{ height: '3rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.17)', background: 'rgba(12,22,44,0.75)', color: '#fff' }}
+                  className="placeholder:text-white/35"
+                />
+              </div>
+            )}
+
+            {/* Sign In button */}
+            <Button
+              onClick={handleLogin}
+              disabled={loading}
+              style={{ height: '3rem', width: '100%', borderRadius: '9999px', border: 'none', background: 'linear-gradient(90deg,#e8612b 0%,#f0a824 100%)', color: '#fff', fontSize: '1rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 6px 22px rgba(225,90,35,0.42)', marginTop: '0.3rem' }}
+            >
+              {loading ? 'Signing In…' : 'Sign In'}
+            </Button>
+          </div>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '1.4rem 0', color: 'rgba(255,255,255,0.4)' }}>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.16)' }} />
+            <span style={{ fontSize: '0.82rem' }}>or</span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.16)' }} />
+          </div>
+
+          {/* Social buttons */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <button
+              type="button"
+              onClick={() => toast.info('Google sign-in is not configured yet.')}
+              style={{ height: '3rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(12,22,44,0.6)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: 'pointer' }}
+            >
+              <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fbbc05' }}>G</span>
+              Google
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.info('Apple sign-in is not configured yet.')}
+              style={{ height: '3rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(12,22,44,0.6)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.9rem', cursor: 'pointer' }}
+            >
+              <span style={{ fontSize: '1.1rem' }}>&#xf8ff;</span>
+              Apple
+            </button>
+          </div>
+
+          {/* Sign-up */}
+          <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.88rem', color: 'rgba(255,255,255,0.6)' }}>
+            New to the platform?{' '}
+            <button
+              onClick={switchToSignup}
+              style={{ background: 'none', border: 'none', color: '#fff', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+            >
+              Create an account
+            </button>
+          </p>
+
+          {/* Footer */}
+          <p style={{ marginTop: '1.8rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', fontSize: '0.74rem', color: 'rgba(255,255,255,0.35)' }}>
+            © 2026 Alumni Platform · Terms · Privacy
+          </p>
+        </div>
+      </div>
+
+      {/* Responsive CSS: show left panel and fix widths on desktop */}
+      <style>{`
+        @media (min-width: 768px) {
+          .login-left  { display: flex !important; width: 62% !important; }
+          .login-right { width: 38% !important; flex: none !important; min-width: 360px; }
+        }
+      `}</style>
     </div>
   );
 }

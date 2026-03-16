@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { Settings, Users, CreditCard, Shield, LogOut, Home, Menu, X, UserCheck, BarChart3 } from 'lucide-react';
+import { Settings, Users, CreditCard, Shield, LogOut, Home, Menu, X, UserCheck, BarChart3, DollarSign } from 'lucide-react';
 import { Button } from './ui/button';
 import AdminDashboard from './admin/AdminDashboard';
 import AdminReports from './admin/AdminReports';
+import AdminFundRequests from './admin/AdminFundRequests';
 import SystemConfig from './admin/SystemConfig';
 import UserRoleManagement from './admin/UserRoleManagement';
 import DisbursementApproval from './admin/DisbursementApproval';
@@ -13,7 +14,7 @@ import { User } from '../App';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'alumni-approval'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'alumni-approval' | 'fund-requests'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -22,6 +23,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
     { id: 'config' as const, label: 'System Config', icon: Settings },
     { id: 'users' as const, label: 'User Management', icon: Users },
     { id: 'alumni-approval' as const, label: 'Alumni Office Approval', icon: UserCheck },
+    { id: 'fund-requests' as const, label: 'Requested Funds', icon: DollarSign },
     { id: 'disbursements' as const, label: 'Disbursements', icon: CreditCard },
     { id: 'audit' as const, label: 'Audit & Legal', icon: Shield },
   ];
@@ -133,6 +135,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
         {currentView === 'alumni-approval' && <AlumniOfficeApproval />}
         {currentView === 'disbursements' && <DisbursementApproval />}
         {currentView === 'audit' && <AuditLegal />}
+        {currentView === 'fund-requests' && <AdminFundRequests />}
       </main>
     </div>
   );

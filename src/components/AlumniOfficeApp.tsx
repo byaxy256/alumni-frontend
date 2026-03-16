@@ -11,7 +11,7 @@ import Reports from './alumni/Reports';
 import ManageContent from './alumni/ManageContent';
 import type { User } from '../App';
 import { Button } from './ui/button';
-import { LogOut, Menu, Home, FileText, Upload, Mail, FolderOpen, ShoppingBag, BarChart3, Settings2Icon } from 'lucide-react';
+import { LogOut, Menu, Home, FileText, Upload, Mail, FolderOpen, ShoppingBag, BarChart3, Settings2Icon, DollarSign } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,10 +19,9 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
+import { AlumniFundRequest } from './AlumniFundRequest';
 
-
-
-type AlumniScreen = 'dashboard' | 'applications' | 'import' | 'broadcast' | 'projects' | 'merch' | 'footprints' | 'reports' | 'manage-content';
+type AlumniScreen = 'dashboard' | 'applications' | 'import' | 'broadcast' | 'projects' | 'merch' | 'footprints' | 'reports' | 'manage-content' | 'fund-request';
 
 export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<AlumniScreen>('dashboard');
@@ -31,6 +30,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'applications', label: 'Applications', icon: FileText },
+    { id: 'fund-request', label: 'Request Funds', icon: DollarSign },
     { id: 'import', label: 'Import Data', icon: Upload },
     { id: 'broadcast', label: 'Broadcast', icon: Mail },
     { id: 'projects', label: 'Projects', icon: FolderOpen },
@@ -46,6 +46,8 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
         return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as AlumniScreen)} />;
       case 'applications':
         return <ApplicationsQueue />;
+      case 'fund-request':
+        return <AlumniFundRequest user={user} />;
       case 'import':
         return <ImportAssistant />;
       case 'broadcast':

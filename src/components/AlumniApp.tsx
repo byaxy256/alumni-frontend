@@ -2,7 +2,7 @@
 
 
 import { useState, useEffect } from 'react';
-import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare } from 'lucide-react';
+import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSquare, ShoppingBag } from 'lucide-react';
 import type { User as UserType } from '../App';
 import { AlumniDashboard } from './alumni-user/AlumniDashboard';
 import { AlumniDonations } from './alumni-user/AlumniDonations';
@@ -14,6 +14,7 @@ import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
 import { MentorshipHub } from './alumni-user/MentorshipHub';
 import { UnifiedNotifications } from './shared/UnifiedNotifications';
+import { AlumniShop } from './shared/AlumniShop';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
 interface AlumniAppProps {
@@ -21,7 +22,7 @@ interface AlumniAppProps {
   onLogout: () => void;
 }
 
-type AlumniScreen = 'dashboard' | 'donations' | 'events' | 'connect' | 'news' | 'benefits' | 'chapters' | 'profile' | 'mentorship' | 'notifications';
+type AlumniScreen = 'dashboard' | 'donations' | 'events' | 'connect' | 'news' | 'benefits' | 'chapters' | 'profile' | 'mentorship' | 'notifications' | 'shop';
 
 // --- IMPROVEMENT 2: Single source of truth for all navigation items ---
 const navItems = [
@@ -30,6 +31,7 @@ const navItems = [
     { id: 'events', label: 'Events', icon: Calendar, mobile: false },
     { id: 'connect', label: 'Connect', icon: Users, mobile: true },
     { id: 'mentorship', label: 'Mentorship', icon: MessageSquare, mobile: true },
+    { id: 'shop', label: 'Shop', icon: ShoppingBag, mobile: true },
     { id: 'news', label: 'News', icon: Newspaper, mobile: false },
     { id: 'benefits', label: 'Benefits', icon: Gift, mobile: false },
     { id: 'chapters', label: 'Chapters', icon: Award, mobile: false },
@@ -84,6 +86,8 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
         return <MentorshipHub user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'notifications':
         return <UnifiedNotifications user={user} onBack={() => handleNavigate('dashboard')} />;
+      case 'shop':
+        return <AlumniShop title="Alumni Shop" />;
       default:
         return <AlumniDashboard user={user} onNavigate={handleNavigate} />;
     }

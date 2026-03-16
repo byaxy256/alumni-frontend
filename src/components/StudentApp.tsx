@@ -10,10 +10,11 @@ import { StudentFund } from './student/StudentFund';
 import { News } from './student/News';
 import { Events } from './student/Events';
 import type { User } from '../App';
-import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar } from 'lucide-react';
+import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar, ShoppingBag } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
+import { AlumniShop } from './shared/AlumniShop';
 
-type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news' | 'events';
+type StudentScreen = 'dashboard' | 'apply' | 'loans' | 'payment-history' | 'mentorship' | 'notifications' | 'profile' | 'fund' | 'news' | 'events' | 'shop';
 
 export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
   const [currentScreen, setCurrentScreen] = useState<StudentScreen>('dashboard');
@@ -64,6 +65,8 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
         return <News onBack={() => handleNavigate('dashboard')} />;
       case 'events':
         return <Events onBack={() => handleNavigate('dashboard')} />;
+      case 'shop':
+        return <AlumniShop title="Alumni Shop" />;
       default:
         return <StudentDashboard user={user} onNavigate={handleNavigate} />;
     }
@@ -92,6 +95,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
               { id: 'fund', label: 'Student Fund', icon: Wallet },
               { id: 'mentorship', label: 'Mentorship', icon: Users },
               { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'shop', label: 'Shop', icon: ShoppingBag },
               { id: 'events', label: 'Events', icon: Calendar },
               { id: 'news', label: 'News', icon: FileText },
             ].map((item) => {
