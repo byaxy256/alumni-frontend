@@ -701,7 +701,7 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6" style={{ background: 'var(--background)' }}>
       <div className="bg-[#0b2a4a] border-b border-[#143b63] p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
           <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-lg text-white" aria-label="Go back" title="Go back">

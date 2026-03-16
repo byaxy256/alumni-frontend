@@ -196,7 +196,7 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
 
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="bg-[#0b2a4a] text-white p-6 rounded-b-3xl shadow-lg">
         <div className="max-w-5xl mx-auto flex justify-between items-start mb-6">
           <div>
@@ -247,16 +247,16 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
           
           <div className="mb-6">
-            <h2 className="text-lg text-gray-900 font-semibold mb-4">My Applications</h2>
+            <h2 className="text-base font-semibold text-gray-900 mb-3">My Applications</h2>
             <div className="space-y-3">
               {allApplications.length > 0 ? (
                 allApplications.map((app) => (
                   <Card key={`${app.type}-${app.id}`} className="p-4 bg-white">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-semibold text-gray-800">{app.type} Application</p>
-                        <p className="text-sm text-gray-600">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
-                        <p className="text-xs text-gray-400">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
+                        <p className="text-sm font-semibold text-gray-800">{app.type} Application</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
                       </div>
                       <Badge className={(() => {
                         const s = (app.status || 'pending').toLowerCase();
@@ -298,8 +298,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
 
           <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg text-gray-900">Recent Notifications</h2>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-base font-semibold text-gray-900">Recent Notifications</h2>
               <button onClick={handleViewAllNotifications} className="text-sm text-primary hover:underline">View All</button>
             </div>
             <div className="space-y-3">
@@ -310,8 +310,8 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                     <div className="flex gap-3">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-100"><Bell className="w-5 h-5 text-blue-600" /></div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm text-gray-900 ${!notification.read ? 'font-semibold' : ''}`}>{notification.title}</p>
-                        <p className="text-xs text-gray-600 line-clamp-2">{notification.message}</p>
+                        <p className={`text-sm text-gray-800 ${!notification.read ? 'font-semibold' : 'font-medium'}`}>{notification.title}</p>
+                        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notification.message}</p>
                       </div>
                       <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0 mt-1" />
                     </div>
@@ -324,17 +324,17 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <Card className="p-4 text-center border-0 bg-gradient-to-br from-blue-50 to-blue-100">
-              <p className="text-2xl font-bold text-blue-900">{totalApplications}</p>
-              <p className="text-xs text-blue-700 mt-1">Total Applications</p>
+            <Card className="p-4 text-center border-0 bg-white">
+              <p className="text-2xl font-semibold" style={{ color: '#2f5288' }}>{totalApplications}</p>
+              <p className="text-xs font-medium mt-1" style={{ color: '#355C9A' }}>Applications</p>
             </Card>
-            <Card className="p-4 text-center border-0 bg-gradient-to-br from-green-50 to-green-100">
-              <p className="text-2xl font-bold text-green-900">{activeLoansCount}</p>
-              <p className="text-xs text-green-700 mt-1">Active Loans</p>
+            <Card className="p-4 text-center border-0 bg-white">
+              <p className="text-2xl font-semibold" style={{ color: '#356642' }}>{activeLoansCount}</p>
+              <p className="text-xs font-medium mt-1" style={{ color: '#3F7A4A' }}>Active Loans</p>
             </Card>
-            <Card className="p-4 text-center border-0 bg-gradient-to-br from-purple-50 to-purple-100">
-              <p className="text-2xl font-bold text-purple-900">{mentors.length}</p>
-              <p className="text-xs text-purple-700 mt-1">Mentors</p>
+            <Card className="p-4 text-center border-0 bg-white">
+              <p className="text-2xl font-semibold" style={{ color: '#742033' }}>{mentors.length}</p>
+              <p className="text-xs font-medium mt-1" style={{ color: '#8A1F3A' }}>Mentors</p>
             </Card>
           </div>
         </div>

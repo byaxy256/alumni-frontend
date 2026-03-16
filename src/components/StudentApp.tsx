@@ -72,7 +72,7 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
 
   // Your JSX is preserved, but now uses the new `handleNavigate` function
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex">
+    <div className="min-h-screen flex" style={{ background: 'var(--background)' }}>
       <aside className="hidden md:flex md:flex-col w-64 bg-[#0b2a4a] fixed h-screen shadow-xl">
         <div className="p-6">
           <div className="flex items-center justify-between">

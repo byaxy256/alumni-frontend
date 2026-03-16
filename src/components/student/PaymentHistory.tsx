@@ -215,11 +215,11 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
 
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+    <div className="min-h-screen pb-20 md:pb-6" style={{ background: 'var(--background)' }}>
+      <div className="p-4 sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg" title="Go back"><ArrowLeft className="w-5 h-5" /></button>
-          <h1 className="text-primary">Payment History</h1>
+          <button onClick={onBack} className="p-2 hover:bg-white/15 rounded-lg text-white" title="Go back"><ArrowLeft className="w-5 h-5" /></button>
+          <h1 className="text-white">Payment History</h1>
         </div>
       </div>
 

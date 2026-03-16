@@ -3707,12 +3707,12 @@ body[data-scroll-locked] {
 :root {
   --font-size: 16px;
   --font-sans: "Manrope", "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-  --background: #eef0f8;
-  --foreground: #1f2940;
-  --card: #f9fafe;
-  --card-foreground: #1f2940;
-  --popover: #f9fafe;
-  --popover-foreground: #1f2940;
+  --background: #f0f2f9;
+  --foreground: #1a2238;
+  --card: #ffffff;
+  --card-foreground: #1a2238;
+  --popover: #ffffff;
+  --popover-foreground: #1a2238;
   --primary: #3753ad;
   --primary-foreground: #f7f9ff;
   --secondary: #e4e8f4;
@@ -3838,7 +3838,22 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-size: 15px;
   letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Floating card style applied globally */
+[data-slot="card"],
+.card-float {
+  box-shadow: 0 2px 8px rgba(31, 41, 96, 0.08), 0 0 1px rgba(31, 41, 96, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+[data-slot="card"]:hover,
+.card-float:hover {
+  box-shadow: 0 6px 20px rgba(31, 41, 96, 0.13), 0 0 1px rgba(31, 41, 96, 0.08);
 }
 
 #root {

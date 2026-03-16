@@ -302,13 +302,13 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
 
   if (activeChatMentor) {
     return (
-      <div className="flex flex-col min-h-screen bg-gray-50">
-        <header className="bg-white border-b p-4 sticky top-0 z-10">
+      <div className="flex flex-col min-h-screen" style={{ background: 'var(--background)' }}>
+        <header className="p-4 sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
           <div className="max-w-4xl mx-auto flex items-center gap-4">
-            <Button onClick={() => setActiveChatMentor(null)} variant="ghost" size="icon"><ArrowLeft className="w-5 h-5" /></Button>
+            <Button onClick={() => setActiveChatMentor(null)} variant="ghost" size="icon" className="text-white hover:bg-white/15"><ArrowLeft className="w-5 h-5" /></Button>
             <div className="flex items-center gap-3">
               <Avatar><AvatarFallback>{activeChatMentor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback></Avatar>
-              <div><h1 className="font-semibold">{activeChatMentor.name}</h1><p className="text-xs text-green-500">Online</p></div>
+              <div><h1 className="font-semibold text-white">{activeChatMentor.name}</h1><p className="text-xs text-green-300">Online</p></div>
             </div>
           </div>
         </header>
