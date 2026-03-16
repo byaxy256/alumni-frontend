@@ -30,7 +30,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
-  const heroImage = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1800&q=80';
+  const heroImage = 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1800&q=80';
 
   const handleLogin = async () => {
     if (!emailOrPhone || !password) {
@@ -81,26 +81,36 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
         <span className="text-sm">Back</span>
       </button>
 
-      <div className="mx-auto flex min-h-screen max-w-[1380px] overflow-hidden rounded-none md:min-h-[92vh] md:rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_20px_90px_rgba(0,0,0,0.45)]">
+      <div className="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden rounded-none md:min-h-[92vh] md:rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_20px_90px_rgba(0,0,0,0.45)]">
         <section
-          className="relative hidden md:flex md:w-1/2 lg:w-[52%]"
+          className="relative hidden md:flex md:w-[58%] lg:w-[60%]"
           style={{
-            backgroundImage: `linear-gradient(180deg, rgba(8,14,28,0.52) 0%, rgba(8,14,28,0.68) 100%), url('${heroImage}')`,
+            backgroundImage: `linear-gradient(180deg, rgba(8,14,28,0.18) 0%, rgba(8,14,28,0.34) 35%, rgba(8,14,28,0.62) 100%), url('${heroImage}')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundPosition: 'center center'
           }}
         >
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0f172a]/45 via-transparent to-[#0f172a]/35" />
-          <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#ef6d3b]/35 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#09111f]/20 via-transparent to-[#08111d]/10" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-[#08111d]/88 via-[#08111d]/40 to-transparent" />
+          <div className="pointer-events-none absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#ef6d3b]/28 blur-3xl" />
 
-          <div className="relative z-10 mt-auto p-10 lg:p-14 text-white">
-            <h2 className="text-4xl font-semibold leading-tight">Connect & Empower<br />Our Alumni Community</h2>
-            <p className="mt-5 text-lg text-white/85">Access exclusive resources and opportunities for alumni.</p>
+          <div className="relative z-10 mt-auto max-w-[640px] p-10 lg:p-14 text-white">
+            <div className="mb-5 inline-flex rounded-full border border-white/20 bg-black/20 px-4 py-1.5 text-sm text-white/90 backdrop-blur-sm">
+              Uganda Christian University Alumni
+            </div>
+            <h2 className="text-4xl font-semibold leading-[1.08] tracking-tight lg:text-[3.35rem]">
+              Connect & Empower
+              <br />
+              Our Alumni Community
+            </h2>
+            <p className="mt-5 max-w-[560px] text-lg leading-relaxed text-white/92 lg:text-[1.15rem]">
+              Access exclusive resources, mentorship, funding opportunities, and community updates through one secure alumni platform.
+            </p>
           </div>
         </section>
 
-        <section className="relative flex w-full items-center justify-center bg-[radial-gradient(120%_100%_at_50%_0%,#2a3f5f_0%,#172740_42%,#0b1325_100%)] p-6 sm:p-10 md:w-1/2 lg:w-[48%]">
-          <div className="w-full max-w-[510px] rounded-[30px] border border-white/20 bg-white/10 p-6 backdrop-blur-2xl sm:p-8 text-white shadow-[0_18px_60px_rgba(0,0,0,0.38)]">
+        <section className="relative flex w-full items-center justify-center bg-[radial-gradient(120%_100%_at_50%_0%,#2a3f5f_0%,#172740_42%,#0b1325_100%)] p-6 sm:p-8 md:w-[42%] lg:w-[40%]">
+          <div className="w-full max-w-[470px] rounded-[30px] border border-white/20 bg-white/10 p-6 backdrop-blur-2xl sm:p-8 text-white shadow-[0_18px_60px_rgba(0,0,0,0.38)]">
             <div className="mb-7 flex items-center gap-3">
               <UcuBadgeLogo className="h-8 w-8" />
               <p className="text-2xl font-semibold tracking-tight">Alumni <span className="font-medium text-white/90">Platform</span></p>
