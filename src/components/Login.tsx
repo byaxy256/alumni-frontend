@@ -90,20 +90,20 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             backgroundPosition: 'center center'
           }}
         >
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#09111f]/20 via-transparent to-[#08111d]/10" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-[#08111d]/88 via-[#08111d]/40 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#050814]/65 via-[#050814]/35 to-[#02040b]/70" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-[#050814]/95 via-[#050814]/55 to-transparent" />
           <div className="pointer-events-none absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#ef6d3b]/28 blur-3xl" />
 
-          <div className="relative z-10 mt-auto max-w-[640px] p-10 lg:p-14 text-white">
-            <div className="mb-5 inline-flex rounded-full border border-white/20 bg-black/20 px-4 py-1.5 text-sm text-white/90 backdrop-blur-sm">
+          <div className="relative z-10 mt-auto max-w-[640px] p-10 lg:p-14 text-white font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif]">
+            <div className="mb-5 inline-flex rounded-full border border-white/25 bg-black/35 px-4 py-1.5 text-xs md:text-sm text-white/95 backdrop-blur">
               Uganda Christian University Alumni
             </div>
-            <h2 className="text-4xl font-semibold leading-[1.08] tracking-tight lg:text-[3.35rem]">
+            <h2 className="text-3xl md:text-[2.6rem] lg:text-[3.1rem] font-semibold leading-[1.08] tracking-tight text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
               Connect & Empower
               <br />
               Our Alumni Community
             </h2>
-            <p className="mt-5 max-w-[560px] text-lg leading-relaxed text-white/92 lg:text-[1.15rem]">
+            <p className="mt-5 max-w-[560px] text-sm md:text-base lg:text-[1.05rem] leading-relaxed text-white/95 drop-shadow-[0_6px_18px_rgba(0,0,0,0.9)]">
               Access exclusive resources, mentorship, funding opportunities, and community updates through one secure alumni platform.
             </p>
           </div>
