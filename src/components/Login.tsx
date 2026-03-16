@@ -30,7 +30,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
-  const heroImage = 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1800&q=80';
+  const heroImage = 'https://images.unsplash.com/photo-1523240798132-8757214e76aa?auto=format&fit=crop&w=1800&q=80';
 
   const handleLogin = async () => {
     if (!emailOrPhone || !password) {
@@ -81,43 +81,47 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
         <span className="text-sm">Back</span>
       </button>
 
-      <div className="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden rounded-none md:min-h-[92vh] md:rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_20px_90px_rgba(0,0,0,0.45)]">
+      <div className="mx-auto flex min-h-screen max-w-[1520px] overflow-hidden rounded-none md:min-h-[92vh] md:rounded-[28px] border border-white/10 bg-[#111827] shadow-[0_20px_90px_rgba(0,0,0,0.45)]">
         <section
-          className="relative hidden md:flex md:w-[58%] lg:w-[60%]"
+          className="relative hidden md:flex md:w-[68%] lg:w-[70%]"
           style={{
-            backgroundImage: `linear-gradient(180deg, rgba(8,14,28,0.18) 0%, rgba(8,14,28,0.34) 35%, rgba(8,14,28,0.62) 100%), url('${heroImage}')`,
+            backgroundImage: `linear-gradient(180deg, rgba(8,14,28,0.12) 0%, rgba(8,14,28,0.24) 36%, rgba(8,14,28,0.58) 100%), url('${heroImage}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center center'
           }}
         >
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#050814]/65 via-[#050814]/35 to-[#02040b]/70" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-[#050814]/95 via-[#050814]/55 to-transparent" />
-          <div className="pointer-events-none absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#ef6d3b]/28 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#06101c]/30 via-transparent to-[#050c17]/24" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-[#050814]/92 via-[#050814]/46 to-transparent" />
+          <div className="pointer-events-none absolute bottom-0 left-0 h-56 w-56 rounded-full bg-[#ef6d3b]/24 blur-3xl" />
 
-          <div className="relative z-10 mt-auto max-w-[640px] p-10 lg:p-14 text-white font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif]">
-            <div className="mb-5 inline-flex rounded-full border border-white/25 bg-black/35 px-4 py-1.5 text-xs md:text-sm text-white/95 backdrop-blur">
-              Uganda Christian University Alumni
+          <div className="relative z-10 flex w-full items-end justify-center px-10 pb-16 text-center text-white lg:px-16 lg:pb-24">
+            <div className="max-w-[760px]" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <p className="text-lg font-medium tracking-[0.01em] text-white/96 lg:text-[1.4rem]">
+                Uganda Christian University Alumni
+              </p>
+              <h2 className="mt-4 text-[3.2rem] font-extrabold leading-[1.02] tracking-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.75)] lg:text-[4.8rem]">
+                Connect & Empower
+                <br />
+                Our Alumni Community
+              </h2>
             </div>
-            <h2 className="text-3xl md:text-[2.6rem] lg:text-[3.1rem] font-semibold leading-[1.08] tracking-tight text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
-              Connect & Empower
-              <br />
-              Our Alumni Community
-            </h2>
-            <p className="mt-5 max-w-[560px] text-sm md:text-base lg:text-[1.05rem] leading-relaxed text-white/95 drop-shadow-[0_6px_18px_rgba(0,0,0,0.9)]">
-              Access exclusive resources, mentorship, funding opportunities, and community updates through one secure alumni platform.
-            </p>
           </div>
         </section>
 
-        <section className="relative flex w-full items-center justify-center bg-[radial-gradient(120%_100%_at_50%_0%,#2a3f5f_0%,#172740_42%,#0b1325_100%)] p-6 sm:p-8 md:w-[42%] lg:w-[40%]">
-          <div className="w-full max-w-[470px] rounded-[30px] border border-white/20 bg-white/10 p-6 backdrop-blur-2xl sm:p-8 text-white shadow-[0_18px_60px_rgba(0,0,0,0.38)]">
+        <section className="relative flex w-full items-center justify-center bg-[radial-gradient(120%_100%_at_50%_0%,#2d3e58_0%,#18263b_42%,#101827_100%)] p-6 sm:p-8 md:w-[32%] lg:w-[30%]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.05),transparent_30%),radial-gradient(circle_at_82%_82%,rgba(255,255,255,0.04),transparent_24%)]" />
+          <div className="pointer-events-none absolute h-[88%] w-[88%] rounded-[36px] border border-white/8 bg-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]" />
+
+          <div className="relative w-full max-w-[460px] rounded-[32px] border border-white/18 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.07))] p-6 text-white backdrop-blur-2xl shadow-[0_24px_70px_rgba(0,0,0,0.46)] sm:p-8 before:pointer-events-none before:absolute before:inset-0 before:rounded-[32px] before:border before:border-white/8">
             <div className="mb-7 flex items-center gap-3">
               <UcuBadgeLogo className="h-8 w-8" />
-              <p className="text-2xl font-semibold tracking-tight">Alumni <span className="font-medium text-white/90">Platform</span></p>
+              <p className="text-[1.7rem] font-semibold tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                Alumni <span className="font-medium text-white/90">Platform</span>
+              </p>
             </div>
 
-            <h1 className="text-[2.35rem] font-semibold tracking-tight">Welcome Back!</h1>
-            <p className="mt-2 text-base text-white/75">Sign in to your account</p>
+            <h1 className="text-[2.45rem] font-semibold tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>Welcome Back!</h1>
+            <p className="mt-2 text-[1.05rem] text-white/75">Sign in to your account</p>
 
             <div className="mt-7 space-y-4">
               <div>
