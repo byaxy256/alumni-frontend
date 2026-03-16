@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -6,19 +6,41 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Plus, ShoppingBag, Calendar, Users, DollarSign, Package, Ticket, Download, Loader2, Clock } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import {
+  Plus,
+  ShoppingBag,
+  Calendar,
+  Users,
+  Package,
+  Download,
+  Loader2,
+  Clock,
+  Trash2,
+  Pencil,
+  ImagePlus,
+  Link,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { useEffect } from 'react';
 import { API_BASE } from '../../api';
 
-const merchandise = [
-  { id: 1, name: 'UCU Alumni T-Shirt', price: 35000, stock: 45, sold: 123, image: 'tshirt' },
-  { id: 2, name: 'UCU Cap', price: 25000, stock: 78, sold: 89, image: 'cap' },
-  { id: 3, name: 'UCU Hoodie', price: 75000, stock: 12, sold: 34, image: 'hoodie' },
-  { id: 4, name: 'Alumni Mug', price: 15000, stock: 156, sold: 234, image: 'mug' },
-];
+type Product = {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string;
+  stock: number;
+};
 
 const orders = [
   { id: 1, customer: 'Sarah Nakato', items: 'UCU T-Shirt x2, Cap x1', total: 95000, date: '2024-11-03', status: 'completed' },
@@ -28,21 +50,58 @@ const orders = [
 ];
 
 export default function MerchEvents() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [showMerchDialog, setShowMerchDialog] = useState(false);
+  const [showStockDialog, setShowStockDialog] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [stockValue, setStockValue] = useState('');
+  const [savingStock, setSavingStock] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [events, setEvents] = useState<any[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [registrations, setRegistrations] = useState<{ [key: number]: any[] }>({});
   const [loadingReg, setLoadingReg] = useState<number | null>(null);
   const [showRegistrationsModal, setShowRegistrationsModal] = useState(false);
   const [selectedEventForModal, setSelectedEventForModal] = useState<any>(null);
+
+  // Add product form state
+  const [addName, setAddName] = useState('');
+  const [addPrice, setAddPrice] = useState('');
+  const [addStock, setAddStock] = useState('');
+  const [addDescription, setAddDescription] = useState('');
+  const [addImageUrl, setAddImageUrl] = useState('');
+  const [addImageFile, setAddImageFile] = useState<File | null>(null);
+  const [addingProduct, setAddingProduct] = useState(false);
+
   const token = localStorage.getItem('token') || '';
+
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const res = await fetch(`${API_BASE}/merch/products`);
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch products', err);
+      toast.error('Failed to load products');
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoadingEvents(true);
       try {
         const res = await fetch(`${API_BASE}/content/events`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const data = await res.json();
@@ -61,13 +120,12 @@ export default function MerchEvents() {
     setLoadingReg(eventId);
     try {
       const res = await fetch(`${API_BASE}/content/events/${eventId}/registrations`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
-        setRegistrations(prev => ({ ...prev, [eventId]: data.registrations || [] }));
-        // Open modal after fetching
-        const event = events.find(e => e.id === eventId);
+        setRegistrations((prev) => ({ ...prev, [eventId]: data.registrations || [] }));
+        const event = events.find((e) => e.id === eventId);
         setSelectedEventForModal(event);
         setShowRegistrationsModal(true);
       }
@@ -84,50 +142,157 @@ export default function MerchEvents() {
       alert('No registrations to export');
       return;
     }
-
-    // Create CSV
     const headers = ['Name', 'Email', 'Registration Date'];
     const rows = attendees.map((a: any) => [
       a.full_name || 'Unknown',
       a.email || '',
-      a.registered_at ? new Date(a.registered_at).toLocaleDateString() : ''
+      a.registered_at ? new Date(a.registered_at).toLocaleDateString() : '',
     ]);
-
     const csvContent = [
       `Event: ${eventTitle}`,
       `Total Attendees: ${attendees.length}`,
       `Export Date: ${new Date().toLocaleDateString()}`,
       '',
       headers.join(','),
-      ...rows.map(r => r.map((cell: string) => `"${cell}"`).join(','))
+      ...rows.map((r) => r.map((cell: string) => `"${cell}"`).join(',')),
     ].join('\n');
-
-    // Download CSV
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${eventTitle}-attendees.csv`);
+    link.href = URL.createObjectURL(blob);
+    link.download = `${eventTitle}-attendees.csv`;
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
   };
 
-  const handleAddMerch = () => {
-    toast.success('Merchandise item added');
-    setShowMerchDialog(false);
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE}/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Upload failed');
+    }
+    const data = await res.json();
+    if (!data.url) throw new Error('No URL returned from upload');
+    return data.url;
   };
 
-  const formatCurrency = (amount: number) => {
-    return `UGX ${amount.toLocaleString()}`;
+  const handleAddProduct = async () => {
+    const name = addName.trim();
+    const price = Number(addPrice);
+    if (!name || isNaN(price) || price < 0) {
+      toast.error('Name and a valid price are required');
+      return;
+    }
+    setAddingProduct(true);
+    try {
+      let imageUrl = addImageUrl.trim() || undefined;
+      if (addImageFile) {
+        imageUrl = await uploadImage(addImageFile);
+      }
+      const res = await fetch(`${API_BASE}/merch/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name,
+          price,
+          stock: Math.max(0, parseInt(addStock, 10) || 0),
+          description: addDescription.trim() || undefined,
+          imageUrl,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to add product');
+      }
+      toast.success('Product added');
+      setShowMerchDialog(false);
+      setAddName('');
+      setAddPrice('');
+      setAddStock('');
+      setAddDescription('');
+      setAddImageUrl('');
+      setAddImageFile(null);
+      fetchProducts();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to add product');
+    } finally {
+      setAddingProduct(false);
+    }
   };
+
+  const openStockDialog = (product: Product) => {
+    setEditingProduct(product);
+    setStockValue(String(product.stock ?? 0));
+    setShowStockDialog(true);
+  };
+
+  const handleSaveStock = async () => {
+    if (!editingProduct) return;
+    const stock = Math.max(0, parseInt(stockValue, 10) || 0);
+    setSavingStock(true);
+    try {
+      const res = await fetch(`${API_BASE}/merch/products/${editingProduct.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ stock }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to update stock');
+      }
+      toast.success('Stock updated');
+      setShowStockDialog(false);
+      setEditingProduct(null);
+      fetchProducts();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to update stock');
+    } finally {
+      setSavingStock(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm('Remove this product from the store?')) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`${API_BASE}/merch/products/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to remove product');
+      }
+      toast.success('Product removed');
+      fetchProducts();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to remove product');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const formatCurrency = (amount: number) => `UGX ${amount.toLocaleString()}`;
 
   return (
     <div className="p-4 lg:p-8 space-y-6">
       <div>
         <h2>Merchandise & Events</h2>
-        <p className="text-muted-foreground">Manage alumni merchandise sales, events, and event registrations</p>
+        <p className="text-muted-foreground">Manage alumni merchandise, events, and registrations</p>
       </div>
 
       <Tabs defaultValue="merch" className="space-y-4">
@@ -146,74 +311,156 @@ export default function MerchEvents() {
                   Add Product
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Add Merchandise</DialogTitle>
-                  <DialogDescription>Add a new product to the store</DialogDescription>
+                  <DialogTitle>Add Product</DialogTitle>
+                  <DialogDescription>Add a new product to the alumni shop. Image: paste a URL or upload a file.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="productName">Product Name</Label>
-                    <Input id="productName" placeholder="e.g., UCU Alumni T-Shirt" />
+                    <Input
+                      id="productName"
+                      placeholder="e.g. UCU Alumni T-Shirt"
+                      value={addName}
+                      onChange={(e) => setAddName(e.target.value)}
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="price">Price (UGX)</Label>
-                      <Input id="price" type="number" placeholder="0" />
+                      <Input
+                        id="price"
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={addPrice}
+                        onChange={(e) => setAddPrice(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="stock">Initial Stock</Label>
-                      <Input id="stock" type="number" placeholder="0" />
+                      <Input
+                        id="stock"
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={addStock}
+                        onChange={(e) => setAddStock(e.target.value)}
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" placeholder="Product description" />
+                    <Textarea
+                      id="description"
+                      placeholder="Product description"
+                      value={addDescription}
+                      onChange={(e) => setAddDescription(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="image">Product Image URL</Label>
-                    <Input id="image" placeholder="https://..." />
+                    <Label>Product Image</Label>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <Link className="w-4 h-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Image URL (optional)"
+                          value={addImageUrl}
+                          onChange={(e) => setAddImageUrl(e.target.value)}
+                          onFocus={() => setAddImageFile(null)}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <ImagePlus className="w-4 h-4 text-muted-foreground" />
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="cursor-pointer"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            setAddImageFile(f || null);
+                            if (f) setAddImageUrl('');
+                          }}
+                        />
+                        {addImageFile && (
+                          <span className="text-xs text-muted-foreground truncate max-w-[120px]">{addImageFile.name}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={handleAddMerch}>Add Product</Button>
+                  <Button variant="outline" onClick={() => setShowMerchDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddProduct} disabled={addingProduct}>
+                    {addingProduct ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    Add Product
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {merchandise.map((item) => (
-              <Card key={item.id}>
-                <CardHeader>
-                  <div className="w-full h-32 bg-muted rounded-lg flex items-center justify-center mb-4">
-                    <ShoppingBag className="w-12 h-12 text-muted-foreground" />
-                  </div>
-                  <CardTitle className="text-base">{item.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Price:</span>
-                    <span className="text-accent">{formatCurrency(item.price)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Stock:</span>
-                    <Badge variant={item.stock < 20 ? 'destructive' : 'secondary'}>
-                      {item.stock} units
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total Sold:</span>
-                    <span>{item.sold}</span>
-                  </div>
-                  <Button variant="outline" size="sm" className="w-full">
-                    <Package className="w-4 h-4 mr-2" />
-                    Manage Stock
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {loadingProducts ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : products.length === 0 ? (
+            <Card>
+              <CardContent className="py-10 text-center text-muted-foreground">
+                No products yet. Add one to get started.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {products.map((item) => (
+                <Card key={item.id}>
+                  <CardHeader>
+                    <div className="w-full h-32 bg-muted rounded-lg flex items-center justify-center mb-4 overflow-hidden">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <ShoppingBag className="w-12 h-12 text-muted-foreground" />
+                      )}
+                    </div>
+                    <CardTitle className="text-base">{item.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Price:</span>
+                      <span className="text-accent">{formatCurrency(item.price)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Stock:</span>
+                      <Badge variant={item.stock < 20 ? 'destructive' : 'secondary'}>{item.stock} units</Badge>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => openStockDialog(item)}
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Manage Stock
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteProduct(item.id)}
+                        disabled={deletingId === item.id}
+                      >
+                        {deletingId === item.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="registrations" className="space-y-4">
@@ -271,11 +518,10 @@ export default function MerchEvents() {
                             <p className="font-semibold text-lg">{registrations[event.id]?.length || 0}</p>
                           </div>
                         </div>
-
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="flex-1"
                             onClick={() => fetchRegistrations(event.id)}
                             disabled={loadingReg === event.id}
@@ -292,9 +538,9 @@ export default function MerchEvents() {
                               </>
                             )}
                           </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="flex-1"
                             onClick={() => exportRegistrations(event.id, event.title)}
                             disabled={!registrations[event.id] || registrations[event.id].length === 0}
@@ -341,8 +587,7 @@ export default function MerchEvents() {
                       <TableCell>
                         <Badge
                           variant={
-                            order.status === 'completed' ? 'default' :
-                            order.status === 'shipped' ? 'secondary' : 'outline'
+                            order.status === 'completed' ? 'default' : order.status === 'shipped' ? 'secondary' : 'outline'
                           }
                         >
                           {order.status}
@@ -363,16 +608,47 @@ export default function MerchEvents() {
         </TabsContent>
       </Tabs>
 
-      {/* Registrations Modal - Table View */}
+      {/* Stock edit dialog */}
+      <Dialog open={showStockDialog} onOpenChange={setShowStockDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manage Stock</DialogTitle>
+            <DialogDescription>
+              {editingProduct?.name} – set the current stock level.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Stock (units)</Label>
+              <Input
+                type="number"
+                min="0"
+                value={stockValue}
+                onChange={(e) => setStockValue(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStockDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveStock} disabled={savingStock}>
+              {savingStock ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Registrations Modal */}
       <Dialog open={showRegistrationsModal} onOpenChange={setShowRegistrationsModal}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>{selectedEventForModal?.title} - Registrations</DialogTitle>
+            <DialogTitle>{selectedEventForModal?.title} – Registrations</DialogTitle>
             <DialogDescription>
               Total Attendees: {registrations[selectedEventForModal?.id]?.length || 0}
             </DialogDescription>
           </DialogHeader>
-
           <div className="rounded-lg border overflow-hidden">
             <Table>
               <TableHeader>
@@ -403,7 +679,6 @@ export default function MerchEvents() {
               </TableBody>
             </Table>
           </div>
-
           <div className="flex gap-2 justify-end">
             <Button
               variant="outline"
@@ -412,14 +687,18 @@ export default function MerchEvents() {
                   exportRegistrations(selectedEventForModal.id, selectedEventForModal.title);
                 }
               }}
-              disabled={!registrations[selectedEventForModal?.id] || registrations[selectedEventForModal?.id].length === 0}
+              disabled={
+                !registrations[selectedEventForModal?.id] || registrations[selectedEventForModal?.id].length === 0
+              }
             >
               <Download className="w-4 h-4 mr-2" />
               Download CSV
             </Button>
             <Button
               onClick={() => window.print()}
-              disabled={!registrations[selectedEventForModal?.id] || registrations[selectedEventForModal?.id].length === 0}
+              disabled={
+                !registrations[selectedEventForModal?.id] || registrations[selectedEventForModal?.id].length === 0
+              }
             >
               Print
             </Button>

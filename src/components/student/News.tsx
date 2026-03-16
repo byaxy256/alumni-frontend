@@ -14,7 +14,7 @@ type Article = {
   hasImage?: boolean;
 };
 
-export function News({ onBack }: { onBack: () => void }) {
+export function News({ onBack, embedded }: { onBack: () => void; embedded?: boolean }) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -71,10 +71,12 @@ export function News({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="p-4 lg:p-6 space-y-4">
-      <div className="flex items-center gap-4">
-        <Button onClick={onBack} variant="ghost" size="icon"><ArrowLeft /></Button>
-        <h1 className="text-xl font-semibold">News & Updates</h1>
-      </div>
+      {!embedded && (
+        <div className="flex items-center gap-4">
+          <Button onClick={onBack} variant="ghost" size="icon"><ArrowLeft /></Button>
+          <h1 className="text-xl font-semibold">News & Updates</h1>
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-10"><Loader2 className="mx-auto h-8 w-8 animate-spin" /></div>

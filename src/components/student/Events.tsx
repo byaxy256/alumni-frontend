@@ -19,9 +19,10 @@ import { toast } from 'sonner';
 
 interface EventsProps {
   onBack: () => void;
+  embedded?: boolean;
 }
 
-export function Events({ onBack }: EventsProps) {
+export function Events({ onBack, embedded }: EventsProps) {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState<number | null>(null);
@@ -202,18 +203,20 @@ export function Events({ onBack }: EventsProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="p-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-gray-600 mb-4">
-            <ArrowLeft size={20} />
-            <span className="text-sm">Back</span>
-          </button>
-          <div>
-            <h2 className="text-lg">Upcoming Events</h2>
-            <p className="text-sm text-gray-600 mt-1">{events.length} events available</p>
+      {!embedded && (
+        <div className="bg-white border-b sticky top-0 z-10">
+          <div className="p-4">
+            <button onClick={onBack} className="flex items-center gap-2 text-gray-600 mb-4">
+              <ArrowLeft size={20} />
+              <span className="text-sm">Back</span>
+            </button>
+            <div>
+              <h2 className="text-lg">Upcoming Events</h2>
+              <p className="text-sm text-gray-600 mt-1">{events.length} events available</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="p-4 space-y-4 pb-20">
         {loading ? (
