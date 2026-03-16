@@ -55,13 +55,16 @@ export type User = {
 
 
 export default function App() {
+  const forcedScreen = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('screen')
+    : null;
   const [user, setUser] = useState<User | null>(null);
-  const [showLanding, setShowLanding] = useState(true);
-  const [showSignUp, setShowSignUp] = useState(false);
+  const [showLanding, setShowLanding] = useState(forcedScreen !== 'login' && forcedScreen !== 'signup');
+  const [showSignUp, setShowSignUp] = useState(forcedScreen === 'signup');
 
 
 
-  const [showLogin, setShowLogin] = useState(false);
+  const [showLogin, setShowLogin] = useState(forcedScreen === 'login');
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
