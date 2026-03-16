@@ -108,8 +108,8 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   })();
 
   const donorsBreakdown = [
-    { name: 'Active Donors', value: activeDonors, color: 'var(--chart-1)' },
-    { name: 'Other Alumni', value: nonDonorAlumni, color: 'var(--chart-2)' },
+    { name: 'Active Donors', value: activeDonors, color: '#355C9A' },
+    { name: 'Other Alumni', value: nonDonorAlumni, color: '#8A1F3A' },
   ].filter((item) => item.value > 0);
 
   const totalDonorValue = donorsBreakdown.reduce((sum, item) => sum + item.value, 0);
@@ -211,33 +211,33 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <Card>
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
-                <DollarSign size={20} className="text-primary" />
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <DollarSign size={20} className="text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Total Fund Balance</p>
-            <p className="text-lg lg:text-xl mt-1 text-primary">
+            <p className="text-xs text-white/80">Total Fund Balance</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">
               {loading ? 'Updating...' : formatCompactUGX(totalFundBalance)}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                <AlertCircle size={20} className="text-accent" />
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <AlertCircle size={20} className="text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Pending Applications</p>
-            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : pendingApplications}</p>
+            <p className="text-xs text-white/80">Pending Applications</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">{loading ? '...' : pendingApplications}</p>
             <Button
               variant="link"
               size="sm"
-              className="p-0 h-auto mt-2 text-xs text-accent"
+              className="p-0 h-auto mt-2 text-xs text-white/90 hover:text-white"
               onClick={() => onNavigate('applications')}
             >
               Review Now →
@@ -245,46 +245,38 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)' }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: 'color-mix(in oklab, var(--brand-blue) 20%, transparent)' }}
-              >
-                <Users size={20} style={{ color: 'var(--brand-blue)' }} />
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <Users size={20} className="text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Total Alumni</p>
-            <p className="text-lg lg:text-xl mt-1">{loading ? '...' : resolvedTotalAlumni.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-2">{loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}</p>
+            <p className="text-xs text-white/80">Total Alumni</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">{loading ? '...' : resolvedTotalAlumni.toLocaleString()}</p>
+            <p className="text-xs text-white/80 mt-2">{loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)' }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <div
-                className="w-10 h-10 rounded-full"
-                style={{ backgroundColor: 'color-mix(in oklab, var(--brand-purple) 24%, transparent)' }}
-              >
-                <div className="w-full h-full flex items-center justify-center">
-                  <TrendingUp size={20} style={{ color: 'var(--brand-purple)' }} />
-                </div>
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <TrendingUp size={20} className="text-white" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Total Disbursed</p>
-            <p className="text-lg lg:text-xl mt-1">
+            <p className="text-xs text-white/80">Total Disbursed</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">
               {loading ? 'Updating...' : formatCompactUGX(totalDisbursed)}
             </p>
-            <p className="text-xs text-muted-foreground mt-2">Net approved disbursements</p>
+            <p className="text-xs text-white/80 mt-2">Net approved disbursements</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
+        <Card className="border-slate-200/80">
           <CardHeader>
             <CardTitle className="text-base lg:text-lg">Monthly Applications Received</CardTitle>
             <CardDescription>Last 5 months</CardDescription>
@@ -292,17 +284,17 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={monthlyApplications}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(53, 92, 154, 0.14)" />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                 <Tooltip />
-                <Bar dataKey="applications" fill="var(--chart-1)" />
+                <Bar dataKey="applications" fill="#355C9A" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-slate-200/80">
           <CardHeader>
             <CardTitle className="text-base lg:text-lg">Donor Coverage</CardTitle>
             <CardDescription>Active donors vs total alumni</CardDescription>
@@ -356,19 +348,19 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <Button onClick={() => onNavigate('applications')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+            <Button onClick={() => onNavigate('applications')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
               <FileText size={24} />
               <span className="text-xs">Review Applications</span>
             </Button>
-            <Button onClick={() => onNavigate('import')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+            <Button onClick={() => onNavigate('import')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
               <Users size={24} />
               <span className="text-xs">Import Data</span>
             </Button>
-            <Button onClick={() => onNavigate('broadcast')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+            <Button onClick={() => onNavigate('broadcast')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)' }}>
               <TrendingUp size={24} />
               <span className="text-xs">Send Broadcast</span>
             </Button>
-            <Button onClick={() => onNavigate('reports')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+            <Button onClick={() => onNavigate('reports')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)' }}>
               <DollarSign size={24} />
               <span className="text-xs">Generate Report</span>
             </Button>
@@ -411,28 +403,28 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
       </Card>
 
       {/* Financial Totals */}
-      <Card>
+      <Card className="border-slate-200/80">
         <CardHeader>
           <CardTitle className="text-base lg:text-lg">Financial Totals</CardTitle>
           <CardDescription>Current totals from the database</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg border border-primary/20 bg-primary/10">
-              <p className="text-xs text-muted-foreground">Total Revenue</p>
-              <p className="text-lg mt-1 text-primary">
+            <div className="p-3 rounded-xl border border-[#355C9A]/20 bg-[#355C9A]/10">
+              <p className="text-xs text-slate-600">Total Revenue</p>
+              <p className="text-lg mt-1 text-[#355C9A]">
                 {loading ? '...' : formatCompactUGX(totalRaised)}
               </p>
             </div>
-            <div className="p-3 rounded-lg border border-accent/25 bg-accent/15">
-              <p className="text-xs text-muted-foreground">Total Expenses</p>
-              <p className="text-lg mt-1 text-accent">
+            <div className="p-3 rounded-xl border border-[#8A1F3A]/20 bg-[#8A1F3A]/10">
+              <p className="text-xs text-slate-600">Total Expenses</p>
+              <p className="text-lg mt-1 text-[#8A1F3A]">
                 {loading ? '...' : formatCompactUGX(totalDisbursed)}
               </p>
             </div>
-            <div className="p-3 rounded-lg border border-border bg-muted/60">
-              <p className="text-xs text-muted-foreground">Available Balance</p>
-              <p className="text-lg mt-1 text-foreground">
+            <div className="p-3 rounded-xl border border-[#C79A2B]/20 bg-[#C79A2B]/12">
+              <p className="text-xs text-slate-600">Available Balance</p>
+              <p className="text-lg mt-1 text-[#9f771d]">
                 {loading ? '...' : formatCompactUGX(totalFundBalance)}
               </p>
             </div>

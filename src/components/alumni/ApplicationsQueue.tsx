@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
-import { Search, Eye, Check, X, AlertCircle, FileText, Download, Loader2 } from 'lucide-react';
+import { Search, Eye, Check, X, AlertCircle, FileText, Download, Loader2, ExternalLink, Paperclip } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -25,14 +25,26 @@ type Application = {
   documentsRequired?: number;
   amount: number;
   purpose: string;
-  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  status: 'pending' | 'under_review' | 'approved' | 'rejected' | 'info_requested';
   submittedDate: string;
   repaymentPeriod?: number;
   // This will hold the original, raw data for detailed views
   raw: any; 
 };
 
-type RawData = { id: number; student_uid: string; full_name: string; email: string; phone: string; amount_requested: number; created_at: string; status: 'pending' | 'under_review' | 'approved' | 'rejected'; program: string; semester: number; reason?: string; [key: string]: any; };
+type RawData = { id: number; student_uid: string; full_name: string; email: string; phone: string; amount_requested: number; created_at: string; status: string; program: string; semester: number; reason?: string; [key: string]: any; };
+
+function StatusBadge({ status }: { status: Application['status'] }) {
+  const config: Record<string, { label: string; className: string }> = {
+    pending: { label: 'Pending', className: 'bg-amber-100 text-amber-800 border-amber-300' },
+    under_review: { label: 'Under Review', className: 'bg-blue-100 text-blue-800 border-blue-300' },
+    info_requested: { label: 'Info Requested', className: 'bg-orange-100 text-orange-800 border-orange-300' },
+    approved: { label: 'Approved', className: 'bg-green-100 text-green-800 border-green-300' },
+    rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800 border-red-300' },
+  };
+  const { label, className } = config[status] || { label: status, className: 'bg-gray-100 text-gray-800 border-gray-300' };
+  return <Badge variant="outline" className={`text-xs capitalize border ${className}`}>{label}</Badge>;
+}
 
 export default function ApplicationsQueue() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -78,7 +90,7 @@ export default function ApplicationsQueue() {
         documentsRequired: Number(loan.documents_required ?? loan.documentsRequired ?? 2),
         amount: Number(loan.amount_requested),
         purpose: loan.purpose || 'Tuition & other fees',
-        status: loan.status,
+        status: (loan.status === 'info_requested' ? 'info_requested' : loan.status) as Application['status'],
         submittedDate: new Date(loan.created_at).toLocaleDateString(),
         repaymentPeriod: loan.repaymentPeriod,
         raw: loan,
@@ -94,7 +106,7 @@ export default function ApplicationsQueue() {
         documentsRequired: Number(req.documents_required ?? req.documentsRequired ?? 2),
         amount: Number(req.amount_requested),
         purpose: req.reason || 'N/A',
-        status: req.status,
+        status: (req.status === 'info_requested' ? 'info_requested' : req.status) as Application['status'],
         submittedDate: new Date(req.created_at).toLocaleDateString(),
         raw: req,
       }));
@@ -247,6 +259,7 @@ export default function ApplicationsQueue() {
                         <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="under_review">Under Review</SelectItem>
+                        <SelectItem value="info_requested">Info Requested</SelectItem>
                         <SelectItem value="approved">Approved</SelectItem>
                         <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
@@ -271,6 +284,7 @@ export default function ApplicationsQueue() {
                           <Badge style={application.type === 'loan' ? { backgroundColor: 'var(--primary)' } : { backgroundColor: 'var(--accent)' }} className="text-white text-xs capitalize">
                             {application.type}
                           </Badge>
+                          <StatusBadge status={application.status} />
                         </div>
                         <p className="text-xs text-gray-500 mt-1">{application.student.program} - Year {application.student.year}</p>
                         <p className="text-xs text-gray-400">Applied: {application.submittedDate}</p>
@@ -329,12 +343,28 @@ export default function ApplicationsQueue() {
       
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         {selectedApplication && (
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Application Details - {selectedApplication.applicationId}</DialogTitle>
-              <DialogDescription>Submitted on {selectedApplication.submittedDate}</DialogDescription>
+              <DialogTitle className="flex items-center gap-2">
+                Review Application – {selectedApplication.applicationId}
+                <StatusBadge status={selectedApplication.status} />
+              </DialogTitle>
+              <DialogDescription>
+                Submitted {selectedApplication.submittedDate} · {selectedApplication.type === 'loan' ? 'Loan' : 'Support'} · UGX {selectedApplication.amount.toLocaleString()}
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Summary</h4>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded-lg text-sm">
+                  <div><p className="text-xs text-gray-500">Type</p><p className="capitalize">{selectedApplication.type}</p></div>
+                  <div><p className="text-xs text-gray-500">Amount</p><p className="font-medium">UGX {selectedApplication.amount.toLocaleString()}</p></div>
+                  <div className="col-span-2"><p className="text-xs text-gray-500">Purpose</p><p>{selectedApplication.purpose}</p></div>
+                  {selectedApplication.type === 'loan' && selectedApplication.repaymentPeriod && (
+                    <div><p className="text-xs text-gray-500">Repayment</p><p>{selectedApplication.repaymentPeriod} months</p></div>
+                  )}
+                </div>
+              </div>
               <div>
                 <h4 className="text-sm font-semibold mb-2">Student Information</h4>
                 <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg text-sm">
@@ -342,17 +372,55 @@ export default function ApplicationsQueue() {
                   <div><p className="text-xs text-gray-500">Access Number</p><p>{selectedApplication.student.id}</p></div>
                   <div><p className="text-xs text-gray-500">Program</p><p>{selectedApplication.student.program}</p></div>
                   <div><p className="text-xs text-gray-500">Year</p><p>Year {selectedApplication.student.year}</p></div>
-                  <div><p className="text-xs text-gray-500">Email</p><p className="text-xs">{selectedApplication.student.email}</p></div>
+                  <div><p className="text-xs text-gray-500">Email</p><p className="text-xs break-all">{selectedApplication.student.email}</p></div>
                   <div><p className="text-xs text-gray-500">Phone</p><p className="text-xs">{selectedApplication.student.phone}</p></div>
-                  {selectedApplication.guarantor && (
+                  {selectedApplication.guarantor?.name && (
                     <div className="col-span-2 mt-2">
                       <p className="text-xs text-gray-500">Guarantor</p>
-                      <p className="text-sm">{selectedApplication.guarantor.name} {selectedApplication.guarantor.relation ? `(${selectedApplication.guarantor.relation})` : ''} {selectedApplication.guarantor.phone ? `- ${selectedApplication.guarantor.phone}` : ''}</p>
+                      <p className="text-sm">{selectedApplication.guarantor.name} {selectedApplication.guarantor.relation ? `(${selectedApplication.guarantor.relation})` : ''} {selectedApplication.guarantor.phone ? `– ${selectedApplication.guarantor.phone}` : ''}</p>
                     </div>
                   )}
                 </div>
               </div>
-              {/* Other sections can be added here, using data from `selectedApplication.raw` */}
+              <div>
+                <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Paperclip className="w-4 h-4" />
+                  Documents ({selectedApplication.documentsCount ?? 0}/{selectedApplication.documentsRequired ?? 2})
+                </h4>
+                {(() => {
+                  const attachments = selectedApplication.raw?.attachments || [];
+                  if (attachments.length === 0) {
+                    return <p className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">No documents attached.</p>;
+                  }
+                  return (
+                    <div className="space-y-2 p-3 bg-gray-50 rounded-lg">
+                      {attachments.map((att: any, idx: number) => (
+                        <div key={idx} className="flex items-center justify-between gap-2 text-sm">
+                          <span className="truncate flex-1">
+                            {att.originalname || att.fieldname || `Document ${idx + 1}`}
+                          </span>
+                          {att.url && (
+                            <a href={att.url} target="_blank" rel="noopener noreferrer" className="shrink-0 inline-flex items-center gap-1 text-primary hover:underline">
+                              <ExternalLink className="w-4 h-4" /> View
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+              <div className="flex flex-wrap gap-2 pt-2 border-t">
+                <Button size="sm" onClick={() => { setShowApproveDialog(true); setIsDetailsDialogOpen(false); setSelectedApplication(selectedApplication); }} style={{ backgroundColor: 'var(--accent)' }}>
+                  <Check size={16} className="mr-2" /> Approve
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { setShowRejectDialog(true); setIsDetailsDialogOpen(false); setSelectedApplication(selectedApplication); }}>
+                  <X size={16} className="mr-2" /> Reject
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { setShowRequestInfoDialog(true); setIsDetailsDialogOpen(false); setSelectedApplication(selectedApplication); }}>
+                  <AlertCircle size={16} className="mr-2" /> Request info
+                </Button>
+              </div>
             </div>
           </DialogContent>
         )}

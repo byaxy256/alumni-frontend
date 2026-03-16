@@ -258,8 +258,32 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                         <p className="text-sm text-gray-600">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
                         <p className="text-xs text-gray-400">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
                       </div>
-                      <Badge className={`capitalize ${app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''} ${app.status === 'approved' ? 'bg-green-100 text-green-800' : ''} ${app.status === 'rejected' ? 'bg-red-100 text-red-800' : ''}`}>
-                        {app.status || 'pending'}
+                      <Badge className={(() => {
+                        const s = (app.status || 'pending').toLowerCase();
+                        const map: Record<string, string> = {
+                          pending: 'bg-amber-100 text-amber-800 border border-amber-300',
+                          under_review: 'bg-blue-100 text-blue-800 border border-blue-300',
+                          info_requested: 'bg-orange-100 text-orange-800 border border-orange-300',
+                          approved: 'bg-green-100 text-green-800 border border-green-300',
+                          rejected: 'bg-red-100 text-red-800 border border-red-300',
+                          active: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+                          paid: 'bg-slate-100 text-slate-700 border border-slate-300',
+                        };
+                        return map[s] || 'bg-gray-100 text-gray-800 border border-gray-300';
+                      })()}>
+                        {(() => {
+                          const s = (app.status || 'pending').toLowerCase();
+                          const labels: Record<string, string> = {
+                            pending: 'Pending',
+                            under_review: 'Under review',
+                            info_requested: 'Info requested',
+                            approved: 'Approved',
+                            rejected: 'Rejected',
+                            active: 'Active',
+                            paid: 'Paid',
+                          };
+                          return labels[s] || s;
+                        })()}
                       </Badge>
                     </div>
                   </Card>
