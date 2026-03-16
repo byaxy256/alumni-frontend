@@ -14,22 +14,22 @@ export function EventsAndNews({ onBack }: EventsAndNewsProps) {
   const [tab, setTab] = useState<'events' | 'news'>('events');
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      <div className="bg-white dark:bg-card border-b border-border sticky top-0 z-10">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      <div className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
         <div className="p-4">
-          <Button onClick={onBack} variant="ghost" size="sm" className="gap-2 mb-2">
+          <Button onClick={onBack} variant="ghost" size="sm" className="gap-2 mb-2 text-white hover:bg-white/15 hover:text-white">
             <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
-          <h1 className="text-xl font-semibold text-foreground">Events & News</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Join events and read the latest updates</p>
+          <h1 className="text-xl font-semibold text-white">Events & News</h1>
+          <p className="text-sm text-white/75 mt-0.5">Join events and read the latest updates</p>
           <Tabs value={tab} onValueChange={(v) => setTab(v as 'events' | 'news')} className="mt-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="events" className="gap-2">
+            <TabsList className="grid w-full grid-cols-2 bg-white/12 border border-white/15">
+              <TabsTrigger value="events" className="gap-2 text-white/85 data-[state=active]:bg-white data-[state=active]:text-[#0b2a4a]">
                 <Calendar className="w-4 h-4" />
                 Events
               </TabsTrigger>
-              <TabsTrigger value="news" className="gap-2">
+              <TabsTrigger value="news" className="gap-2 text-white/85 data-[state=active]:bg-white data-[state=active]:text-[#0b2a4a]">
                 <Newspaper className="w-4 h-4" />
                 News
               </TabsTrigger>

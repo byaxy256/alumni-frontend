@@ -498,33 +498,40 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
 
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
-    <div className="p-4 lg:p-6 space-y-8">
-      <div className="flex items-center gap-4">
-        <Button onClick={onBack} variant="ghost" size="icon"><ArrowLeft className="w-5 h-5" /></Button>
-        <div>
-          <h1 className="text-xl font-semibold">Mentorship</h1>
-          <p className="text-sm text-gray-500">Connect with UCU alumni for guidance and support</p>
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      <div className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+        <div className="p-4 lg:px-6 lg:py-5 flex items-center gap-4">
+          <Button onClick={onBack} variant="ghost" size="icon" className="text-white hover:bg-white/15 hover:text-white"><ArrowLeft className="w-5 h-5" /></Button>
+          <div>
+            <h1 className="text-xl font-semibold text-white">Mentorship</h1>
+            <p className="text-sm text-white/75">Connect with UCU alumni for guidance and support</p>
+          </div>
         </div>
       </div>
+
+      <div className="p-4 lg:p-6 space-y-8">
 
 
 
       <section>
-        <h2 className="text-lg font-semibold mb-4">My Mentors</h2>
+        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+          <h2 className="text-lg font-semibold">My Mentors</h2>
+          <p className="text-sm text-white/75">Your active mentor connections and conversations.</p>
+        </div>
         {myMentorsLoading ? (
           <div className="flex items-center justify-center p-8">
             <LoadingSpinner size={24} label="Loading your mentors..." />
           </div>
         ) : myMentors.length > 0 ? (
           myMentors.map((mentor: MyMentor) => (
-            <Card key={mentor.id} className="bg-green-50 border-green-200">
+            <Card key={mentor.id} className="border-[#c7d5f1] bg-white">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="h-12 w-12"><AvatarFallback>{mentor.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
                   <div>
                     <p className="font-semibold">{mentor.name}</p>
                     <p className="text-xs text-gray-600">{mentor.field || mentor.course || 'General'}</p>
-                    <Badge variant="outline" className="mt-1 bg-white">Active</Badge>
+                    <Badge variant="outline" className="mt-1 border-[#bdd0f0] bg-[#edf3ff] text-[#355C9A]">Active</Badge>
                     {/* Show mentee count for this mentor */}
                     <p className="text-xs text-gray-500 mt-1">Mentees: {mentor.mentees ?? 0}</p>
                   </div>
@@ -560,7 +567,10 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold mb-4">Available Mentors</h2>
+        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}>
+          <h2 className="text-lg font-semibold">Available Mentors</h2>
+          <p className="text-sm text-white/75">Browse alumni ready to guide you, ask questions, and open doors.</p>
+        </div>
         
         {/* Search and Filter Controls */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -608,7 +618,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               // Only allow undo if there is a pending request (not approved yet)
               const isPending = Boolean(pendingId);
               return (
-                <Card key={mentor.id}>
+                <Card key={mentor.id} className="border-[#d6c8e5] bg-[var(--brand-purple-soft-8)]/70">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-4">
@@ -624,24 +634,26 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                           </div>
                         </div>
                       </div>
-                      <Badge variant={mentor.status === 'available' ? 'default' : 'secondary'} className={mentor.status === 'available' ? 'bg-green-500 text-white' : ''}>
+                      <Badge variant="outline" className={mentor.status === 'available' ? 'border-[#c7b2db] bg-[#efe8f6] text-[#785493]' : 'border-gray-300 bg-white/80 text-gray-600'}>
                         {mentor.status === 'available' ? 'Available' : 'Unavailable'}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-600 my-3">{mentor.bio}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs">{exp}</Badge>)}
+                      {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs border-[#d8c9e8] bg-white/80 text-[#6f4f8a]">{exp}</Badge>)}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="flex flex-wrap gap-2 items-center">
                       <Button
                         variant="outline"
+                        className="border-[#cdbad9] bg-white/80 text-[#6f4f8a] hover:bg-[#efe8f6] hover:text-[#5c4275]"
                         onClick={() => setSelectedMentorProfile(mentor)}
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         View Details
                       </Button>
                       <Button
-                        className="w-full"
+                        variant="outline"
+                        className="border-[#cdbad9] bg-white/80 text-[#6f4f8a] hover:border-[#c79a2b] hover:bg-[#c79a2b] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
                         disabled={mentor.status === 'unavailable' || isPending}
                         onClick={() => handleRequestMentor(mentor)}
                       >
@@ -656,7 +668,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     {isPending && (
                       <Button
                         variant="outline"
-                        className="w-full mt-2"
+                        className="mt-2 border-[#d7c8e6] bg-white/80 text-[#6f4f8a] hover:bg-[#efe8f6]"
                         onClick={() => handleUndoRequest(mentor)}
                       >
                         Undo Request
@@ -682,28 +694,33 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
       </section>
       
       <section>
-        <h2 className="text-lg font-semibold mb-4">Why Get a Mentor?</h2>
+        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+          <h2 className="text-lg font-semibold">Why Get a Mentor?</h2>
+          <p className="text-sm text-white/75">Guidance, connections, and practical support from alumni who understand your journey.</p>
+        </div>
         <div className="grid md:grid-cols-3 gap-4">
-            <Card>
+            <Card className="border-[#c9d5ef] bg-[#edf3ff]">
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm mb-2">Career Guidance</h3>
+                <h3 className="font-semibold text-sm mb-2 text-[#355C9A]">Career Guidance</h3>
                 <p className="text-xs text-gray-600">Get personalized advice on your career path from experienced professionals in your field.</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-[#dfc88f] bg-[#f6edd8]">
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm mb-2">Networking</h3>
+                <h3 className="font-semibold text-sm mb-2 text-[#a77a2f]">Networking</h3>
                 <p className="text-xs text-gray-600">Build valuable connections with UCU alumni working in leading companies worldwide.</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-[#d6c8e5] bg-[#f2edf7]">
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm mb-2">Skill Development</h3>
+                <h3 className="font-semibold text-sm mb-2 text-[#7a5696]">Skill Development</h3>
                 <p className="text-xs text-gray-600">Learn industry best practices and develop the skills that matter most for your success.</p>
               </CardContent>
             </Card>
         </div>
       </section>
+
+      </div>
 
       {selectedMentorProfile && (
         <div className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-4">
@@ -801,6 +818,8 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                   Close
                 </Button>
                 <Button
+                  variant="outline"
+                  className="border-[#cdbad9] bg-white text-[#6f4f8a] hover:border-[#c79a2b] hover:bg-[#c79a2b] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
                   disabled={selectedMentorProfile.status === 'unavailable' || selectedMentorPending}
                   onClick={async () => {
                     await handleRequestMentor(selectedMentorProfile);

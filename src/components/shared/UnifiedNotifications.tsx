@@ -181,29 +181,29 @@ export function UnifiedNotifications({ onBack }: UnifiedNotificationsProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b sticky top-0 z-10">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      <div className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
         <div className="p-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-gray-600 mb-4">
+          <button onClick={onBack} className="flex items-center gap-2 text-white/90 mb-4 hover:text-white">
             <ArrowLeft size={20} />
             <span className="text-sm">Back</span>
           </button>
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">Notifications</h2>
-              <p className="text-xs text-gray-500 mt-1">
+              <h2 className="text-lg font-semibold text-white">Notifications</h2>
+              <p className="text-xs text-white/70 mt-1">
                 {notifications.filter((n) => !n.read).length} unread
               </p>
             </div>
             {notifications.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleMarkAllRead}>
+              <Button variant="ghost" size="sm" onClick={handleMarkAllRead} className="text-white hover:bg-white/15 hover:text-white">
                 Mark all read
               </Button>
             )}

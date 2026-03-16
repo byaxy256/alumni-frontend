@@ -14,6 +14,26 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID as string,
 };
 
+// Required for Firebase Installations / Messaging (avoids "Missing App configuration value: appId")
+// Vite inlines these at BUILD time — on Render, set all VITE_FIREBASE_* vars and redeploy so the build sees them.
+function hasValidFirebaseConfig(): boolean {
+  const { apiKey, projectId, appId, messagingSenderId } = firebaseConfig;
+  const ok = !!(apiKey && projectId && appId && messagingSenderId);
+  if (!ok && typeof console !== 'undefined' && console.warn) {
+    const missing = [
+      !apiKey && 'VITE_FIREBASE_API_KEY',
+      !projectId && 'VITE_FIREBASE_PROJECT_ID',
+      !appId && 'VITE_FIREBASE_APP_ID',
+      !messagingSenderId && 'VITE_FIREBASE_MESSAGING_SENDER_ID',
+    ].filter(Boolean);
+    console.warn(
+      'Firebase push disabled: missing env (set in Render Environment and redeploy):',
+      missing.join(', ')
+    );
+  }
+  return ok;
+}
+
 // Ensure VAPID key is present and trimmed (common cause of InvalidAccessError)
 const rawVapidKey = (import.meta.env.VITE_FIREBASE_VAPID_KEY as string | undefined)?.trim();
 const vapidKey = rawVapidKey && rawVapidKey.replace(/^"|"$/g, '');
@@ -21,8 +41,10 @@ const vapidKey = rawVapidKey && rawVapidKey.replace(/^"|"$/g, '');
 let messaging: Messaging | null = null;
 
 function ensureFirebaseApp() {
-  if (!firebaseConfig.apiKey) {
-    console.warn('Firebase config missing; push notifications disabled.');
+  if (!hasValidFirebaseConfig()) {
+    console.warn(
+      'Firebase config incomplete (need VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID, VITE_FIREBASE_MESSAGING_SENDER_ID). Push notifications disabled.'
+    );
     return null;
   }
   if (!getApps().length) {
@@ -34,6 +56,10 @@ function ensureFirebaseApp() {
 export async function initPushNotifications(user: User | null) {
   try {
     if (!user) return;
+    if (!hasValidFirebaseConfig()) {
+      console.warn('Firebase config incomplete; push notifications disabled.');
+      return;
+    }
     const supported = await isSupported();
     if (!supported) {
       console.warn('Push messaging not supported in this browser.');
