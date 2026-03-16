@@ -324,17 +324,17 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <Card className="p-4 text-center border-0 bg-white">
-              <p className="text-2xl font-semibold" style={{ color: '#2f5288' }}>{totalApplications}</p>
-              <p className="text-xs font-medium mt-1" style={{ color: '#355C9A' }}>Applications</p>
+            <Card className="p-4 text-center border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+              <p className="text-2xl font-semibold text-white">{totalApplications}</p>
+              <p className="text-xs font-medium mt-1 text-white/80">Applications</p>
             </Card>
-            <Card className="p-4 text-center border-0 bg-white">
-              <p className="text-2xl font-semibold" style={{ color: '#356642' }}>{activeLoansCount}</p>
-              <p className="text-xs font-medium mt-1" style={{ color: '#3F7A4A' }}>Active Loans</p>
+            <Card className="p-4 text-center border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)' }}>
+              <p className="text-2xl font-semibold text-white">{activeLoansCount}</p>
+              <p className="text-xs font-medium mt-1 text-white/80">Active Loans</p>
             </Card>
-            <Card className="p-4 text-center border-0 bg-white">
-              <p className="text-2xl font-semibold" style={{ color: '#742033' }}>{mentors.length}</p>
-              <p className="text-xs font-medium mt-1" style={{ color: '#8A1F3A' }}>Mentors</p>
+            <Card className="p-4 text-center border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
+              <p className="text-2xl font-semibold text-white">{mentors.length}</p>
+              <p className="text-xs font-medium mt-1 text-white/80">Mentors</p>
             </Card>
           </div>
         </div>

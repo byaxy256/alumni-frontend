@@ -222,14 +222,14 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b sticky top-0 z-10">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      <div className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
         <div className="p-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-gray-600 mb-4">
+          <button onClick={onBack} className="flex items-center gap-2 text-white/90 mb-4 hover:text-white">
             <ArrowLeft size={20} /><span className="text-sm">Back</span>
           </button>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg">Loan Details</h2>
+            <h2 className="text-lg text-white">Loan Details</h2>
             {activeLoan && (
               <Badge style={{ backgroundColor: 'var(--accent)' }} className="text-white capitalize">
                 {activeLoan.status}
@@ -281,11 +281,11 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-blue-500">
+          <Card className="border-l-4" style={{ borderLeftColor: '#1a4d7a' }}>
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Calendar size={20} className="text-blue-600" />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#e8effc' }}>
+                  <Calendar size={20} style={{ color: '#1a4d7a' }} />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm">Next Chop Deduction</p>
@@ -303,7 +303,7 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
           <div className="grid grid-cols-2 gap-3">
             <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
               <DialogTrigger asChild>
-                <Button className="w-full" style={{ backgroundColor: 'var(--primary)' }}>
+                <Button className="w-full" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)' }}>
                   <DollarSign size={16} className="mr-2" /> Make Payment
                 </Button>
               </DialogTrigger>

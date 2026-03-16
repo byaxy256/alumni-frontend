@@ -717,7 +717,7 @@ export function ApplyLoanSupport({ user, onBack }: ApplyLoanSupportProps) {
 
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-6">
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-2 bg-[#0b2a4a]/15 [&_[data-slot=progress-indicator]]:bg-[#1a4d7a]" />
         </div>
 
         <Card className="p-6">

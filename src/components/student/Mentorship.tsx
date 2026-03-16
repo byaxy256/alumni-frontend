@@ -302,7 +302,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
 
   if (activeChatMentor) {
     return (
-      <div className="flex flex-col min-h-screen" style={{ background: 'var(--background)' }}>
+      <div className="flex flex-col min-h-screen bg-background">
         <header className="p-4 sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
           <div className="max-w-4xl mx-auto flex items-center gap-4">
             <Button onClick={() => setActiveChatMentor(null)} variant="ghost" size="icon" className="text-white hover:bg-white/15"><ArrowLeft className="w-5 h-5" /></Button>
@@ -312,16 +312,16 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 space-y-4">
+        <main className="flex-1 overflow-y-auto p-4 space-y-4 chat-area-bg">
             {messages.length === 0 ? (
-                <div className="text-center text-sm text-gray-500 py-10">
+                <div className="text-center text-sm text-muted-foreground py-10">
                     <p>This is the beginning of your conversation with {activeChatMentor.name}.</p>
                     <p>Send a message to get started!</p>
                 </div>
             ) : (
                 messages.map(msg => (
                     <div key={msg.id} className={`flex items-end gap-2 ${msg.sender_id === user.uid ? 'justify-end' : ''}`}>
-                        <div className={`max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.sender_id === user.uid ? 'bg-primary text-white rounded-br-none' : 'bg-white rounded-bl-none border'}`}>
+                        <div className={`max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.sender_id === user.uid ? 'chat-bubble-out rounded-br-none' : 'bg-card text-card-foreground rounded-bl-none border border-border shadow-sm'}`}>
                             <p className="text-sm">{msg.message_text}</p>
                             <p className="text-xs opacity-70 mt-1 text-right">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
@@ -330,11 +330,11 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
             )}
             <div ref={messagesEndRef} />
         </main>
-        <footer className="bg-white border-t p-4 sticky bottom-0">
+        <footer className="bg-card border-t border-border p-4 sticky bottom-0">
           <div className="max-w-4xl mx-auto">
             {/* Attachment preview */}
             {showAttachments && (
-              <div className="mb-3 p-3 border-2 border-dashed border-gray-300 rounded-lg">
+              <div className="mb-3 p-3 border-2 border-dashed border-border rounded-lg">
                 <div className="flex items-center gap-4">
                   <Button
                     variant="outline"
@@ -529,20 +529,20 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="h-12 w-12"><AvatarFallback>{mentor.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
                   <div>
-                    <p className="font-semibold">{mentor.name}</p>
-                    <p className="text-xs text-gray-600">{mentor.field || mentor.course || 'General'}</p>
+                    <p className="font-semibold text-[#1f3f73]">{mentor.name}</p>
+                    <p className="text-xs text-[#4d6388]">{mentor.field || mentor.course || 'General'}</p>
                     <Badge variant="outline" className="mt-1 border-[#bdd0f0] bg-[#edf3ff] text-[#355C9A]">Active</Badge>
                     {/* Show mentee count for this mentor */}
                     <p className="text-xs text-gray-500 mt-1">Mentees: {mentor.mentees ?? 0}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                    <Button className="flex-1" onClick={() => handleOpenChat(mentor)}>
+                    <Button className="flex-1 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }} onClick={() => handleOpenChat(mentor)}>
                         <MessageSquare className="w-4 h-4 mr-2"/> Message
                     </Button>
                     <Button
                       variant="outline"
-                      className="flex-1"
+                      className="flex-1 border-[#c6d5f2] bg-[#f4f8ff] text-[#355C9A] hover:bg-[#e6efff]"
                       onClick={() => setSelectedMentorProfile(mentor)}
                     >
                       <Eye className="w-4 h-4 mr-2" /> View Details
@@ -626,8 +626,8 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                           <AvatarFallback>{mentor.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-semibold">{mentor.name}</p>
-                          <p className="text-xs text-gray-600">{mentor.field} at {mentor.company}</p>
+                          <p className="font-semibold text-[#573c72]">{mentor.name}</p>
+                          <p className="text-xs text-[#6f5a85]">{mentor.field} at {mentor.company}</p>
                           <p className="text-xs text-gray-500">{mentor.location}</p>
                           <div className="flex items-center gap-1 text-xs mt-1">
                             <span>{mentor.mentees} mentees · {mentor.experience} years exp · Class of {mentor.classOf}</span>
@@ -645,7 +645,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     <div className="flex flex-wrap gap-2 items-center">
                       <Button
                         variant="outline"
-                        className="border-[#cdbad9] bg-white/80 text-[#6f4f8a] hover:bg-[#efe8f6] hover:text-[#5c4275]"
+                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:bg-[#efe8f6] hover:text-[#5c4275]"
                         onClick={() => setSelectedMentorProfile(mentor)}
                       >
                         <Eye className="w-4 h-4 mr-2" />
@@ -653,7 +653,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                       </Button>
                       <Button
                         variant="outline"
-                        className="border-[#cdbad9] bg-white/80 text-[#6f4f8a] hover:border-[#c79a2b] hover:bg-[#c79a2b] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:border-[#c79a2b] hover:bg-[#c79a2b] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
                         disabled={mentor.status === 'unavailable' || isPending}
                         onClick={() => handleRequestMentor(mentor)}
                       >
@@ -699,22 +699,22 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
           <p className="text-sm text-white/75">Guidance, connections, and practical support from alumni who understand your journey.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
-            <Card className="border-[#c9d5ef] bg-[#edf3ff]">
+            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm mb-2 text-[#355C9A]">Career Guidance</h3>
-                <p className="text-xs text-gray-600">Get personalized advice on your career path from experienced professionals in your field.</p>
+                <h3 className="font-semibold text-sm mb-2 text-white">Career Guidance</h3>
+                <p className="text-xs text-white/85">Get personalized advice on your career path from experienced professionals in your field.</p>
               </CardContent>
             </Card>
-            <Card className="border-[#dfc88f] bg-[#f6edd8]">
+            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm mb-2 text-[#a77a2f]">Networking</h3>
-                <p className="text-xs text-gray-600">Build valuable connections with UCU alumni working in leading companies worldwide.</p>
+                <h3 className="font-semibold text-sm mb-2 text-white">Networking</h3>
+                <p className="text-xs text-white/85">Build valuable connections with UCU alumni working in leading companies worldwide.</p>
               </CardContent>
             </Card>
-            <Card className="border-[#d6c8e5] bg-[#f2edf7]">
+            <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)' }}>
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm mb-2 text-[#7a5696]">Skill Development</h3>
-                <p className="text-xs text-gray-600">Learn industry best practices and develop the skills that matter most for your success.</p>
+                <h3 className="font-semibold text-sm mb-2 text-white">Skill Development</h3>
+                <p className="text-xs text-white/85">Learn industry best practices and develop the skills that matter most for your success.</p>
               </CardContent>
             </Card>
         </div>

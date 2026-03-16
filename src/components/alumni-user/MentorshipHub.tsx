@@ -499,7 +499,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
       case 'delivered':
         return <CheckCheck className="w-4 h-4 text-white/70" />;
       case 'read':
-        return <CheckCheck className="w-4 h-4 text-blue-300" />;
+        return <CheckCheck className="w-4 h-4 text-white/90" />;
       default:
         return null;
     }
@@ -515,14 +515,14 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
 
         <div className="max-w-6xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg" title="Go back">
+          <button onClick={onBack} className="p-2 hover:bg-muted rounded-lg text-foreground" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-primary flex-1">Mentorship Hub</h1>
+          <h1 className="flex-1 font-semibold text-foreground" style={{ color: 'var(--chat-header-blue)' }}>Mentorship Hub</h1>
           {selectedStudent && (
             <button
               onClick={() => setShowSearch(!showSearch)}
@@ -540,8 +540,8 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
 
           {/* Requests & Mentees List */}
-          <div className="border-r border-gray-200 bg-white overflow-y-auto">
-            <div className="p-4 border-b border-gray-200">
+          <div className="border-r border-border bg-card overflow-y-auto">
+            <div className="p-4 border-b border-border">
               <div className="flex gap-2 mb-3">
                 <Button
                   variant={activeTab === 'requests' ? 'default' : 'outline'}
@@ -592,7 +592,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                       >
                         <div className="flex items-start gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-primary/10 text-primary">
+                            <AvatarFallback className="text-white" style={{ backgroundColor: 'var(--chat-header-blue)' }}>
                               {request.name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
@@ -654,14 +654,14 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                     <div key={mentee.id} className="border-b border-gray-200">
                       <button
                         onClick={() => handleStudentSelect(mentee.uid || mentee.id)}
-                        className={`w-full p-4 text-left hover:bg-gray-50 transition ${
-                          selectedStudent === (mentee.uid || mentee.id) ? 'bg-blue-50' : ''
+                        className={`w-full p-4 text-left hover:bg-muted/70 transition ${
+                          selectedStudent === (mentee.uid || mentee.id) ? 'bg-[var(--chat-header-blue)]/10' : ''
                         }`}
                       >
                         <div className="flex items-start gap-3">
                           <div className="relative">
                             <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-primary/10 text-primary">
+                              <AvatarFallback className="text-white" style={{ backgroundColor: 'var(--chat-header-blue)' }}>
                                 {mentee.name.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
@@ -681,7 +681,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                                 )}
                               </div>
                               {mentee.unread > 0 && (
-                                <Badge className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center flex-shrink-0 p-0">
+                                <Badge className="w-5 h-5 rounded-full text-white text-xs flex items-center justify-center flex-shrink-0 p-0" style={{ backgroundColor: 'var(--chat-header-blue)' }}>
                                   {mentee.unread > 99 ? '99+' : mentee.unread}
                                 </Badge>
                               )}
@@ -724,13 +724,13 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
 
           {/* Chat Area */}
-          <div className="md:col-span-2 flex flex-col bg-white">
+          <div className="md:col-span-2 flex flex-col bg-card">
             {selectedStudent ? (
               <>
-                <div className="p-4 border-b border-gray-200">
+                <div className="p-4 border-b border-border">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary/10 text-primary">
+                      <AvatarFallback className="text-white" style={{ backgroundColor: 'var(--chat-header-blue)' }}>
                         {mentees.find(m => (m.uid || m.id) === selectedStudent)?.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
@@ -758,7 +758,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
                 {/* Chat Search Bar */}
                 {showSearch && (
-                  <div className="p-4 border-b border-gray-200 bg-gray-50">
+                  <div className="p-4 border-b border-border bg-muted/50">
                     <Input
                       placeholder="Search in conversation..."
                       value={searchQuery}
@@ -768,10 +768,10 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                   </div>
                 )}
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 chat-area-bg">
                   {messages.length === 0 ? (
-                    <div className="text-center text-sm text-gray-500 py-10">
-                      <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <div className="text-center text-sm text-muted-foreground py-10">
+                      <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
                       <p>No messages yet. Start the conversation!</p>
                     </div>
                   ) : (
@@ -790,16 +790,16 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                             <div className="relative">
                               {/* Reply indicator */}
                               {msg.reply_to && (
-                                <div className="mb-1 ml-2 p-2 bg-gray-100 rounded-lg border-l-2 border-primary max-w-xs">
-                                  <p className="text-xs text-gray-500">Replying to message</p>
+                                <div className="mb-1 ml-2 p-2 rounded-lg border-l-2 max-w-xs bg-muted/80" style={{ borderColor: 'var(--chat-header-blue)' }}>
+                                  <p className="text-xs text-muted-foreground">Replying to message</p>
                                 </div>
                               )}
                               
                               <div
                                 className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl relative ${
                                   isMe
-                                    ? 'bg-primary text-white rounded-br-sm'
-                                    : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+                                    ? 'chat-bubble-out rounded-br-sm'
+                                    : 'bg-card text-card-foreground rounded-bl-sm border border-border shadow-sm'
                                 }`}
                               >
                                 {/* Attachment display */}
@@ -832,7 +832,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
                                 <p className="text-sm whitespace-pre-wrap">{msg.message_text}</p>
                                 
-                                <div className={`flex items-center justify-between mt-1 ${isMe ? 'text-white/70' : 'text-gray-500'}`}>
+                                <div className={`flex items-center justify-between mt-1 ${isMe ? 'text-white/70' : 'text-muted-foreground'}`}>
                                   <span className="text-xs">
                                     {new Date(msg.created_at).toLocaleTimeString([], { 
                                       hour: '2-digit', 
@@ -872,14 +872,15 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
                 {/* Reply indicator */}
                 {replyingTo && (
-                  <div className="px-4 py-2 bg-blue-50 border-l-4 border-primary">
+                  <div className="px-4 py-2 border-l-4 bg-muted/70" style={{ borderColor: 'var(--chat-header-blue)' }}>
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-blue-800">Replying to: {replyingTo.message_text.substring(0, 50)}...</p>
+                      <p className="text-sm text-foreground">Replying to: {replyingTo.message_text.substring(0, 50)}...</p>
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         onClick={() => setReplyingTo(null)}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-foreground hover:opacity-80"
+                        style={{ color: 'var(--chat-header-blue)' }}
                       >
                         ×
                       </Button>
@@ -887,10 +888,10 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                   </div>
                 )}
 
-                <div className="p-4 border-t border-gray-200">
+                <div className="p-4 border-t border-border">
                   {/* Attachment preview */}
                   {showAttachments && (
-                    <div className="mb-3 p-3 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div className="mb-3 p-3 border-2 border-dashed border-border rounded-lg">
                       <div className="flex items-center gap-4">
                         <Button
                           variant="outline"
@@ -988,9 +989,9 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-400">
+              <div className="flex-1 flex items-center justify-center chat-area-bg text-muted-foreground">
                 <div className="text-center">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
+                  <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p className="text-lg font-medium mb-2">Welcome to Mentorship Hub</p>
                   <p>Select a mentee from the list to start chatting</p>
                 </div>
@@ -1066,7 +1067,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                 {/* Avatar and Name */}
                 <div className="flex flex-col items-center text-center">
                   <Avatar className="h-20 w-20 mb-3">
-                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                    <AvatarFallback className="text-white text-xl" style={{ backgroundColor: 'var(--chat-header-blue)' }}>
                       {viewingProfile.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>

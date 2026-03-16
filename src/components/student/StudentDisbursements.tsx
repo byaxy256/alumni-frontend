@@ -150,7 +150,7 @@ export function StudentDisbursements({ user, onBack }: StudentDisbursementsProps
       </div>
 
       <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <Card className="p-6 bg-gradient-to-br from-primary to-[#1a4d7a] text-white">
+        <Card className="p-6 text-white" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)' }}>
           <h2 className="text-lg mb-4">Disbursement Summary</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>

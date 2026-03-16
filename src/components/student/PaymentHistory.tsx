@@ -225,7 +225,7 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
 
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {activeLoan ? (
-          <Card className="p-6 bg-gradient-to-br from-primary to-[#1a4d7a] text-white">
+          <Card className="p-6 text-white" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)' }}>
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="text-sm opacity-90">Outstanding Loan Balance</p>
@@ -247,7 +247,7 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center p-3 bg-yellow-50 rounded-lg"><Smartphone className="w-8 h-8 mx-auto mb-2 text-yellow-600" /><p className="text-xs">MTN Money</p></div>
             <div className="text-center p-3 bg-red-50 rounded-lg"><Smartphone className="w-8 h-8 mx-auto mb-2 text-red-600" /><p className="text-xs">Airtel Money</p></div>
-            <div className="text-center p-3 bg-blue-50 rounded-lg"><Building2 className="w-8 h-8 mx-auto mb-2 text-blue-600" /><p className="text-xs">Bank Transfer</p></div>
+            <div className="text-center p-3 rounded-lg" style={{ background: '#e8effc' }}><Building2 className="w-8 h-8 mx-auto mb-2" style={{ color: '#1a4d7a' }} /><p className="text-xs" style={{ color: '#1a4d7a' }}>Bank Transfer</p></div>
           </div>
         </Card>
 
@@ -367,7 +367,7 @@ export function PaymentHistory({ user, onBack }: { user: User; onBack: () => voi
               </RadioGroup>
             </div>
             {paymentMethod === 'bank' && (
-              <div className="bg-blue-50 p-4 rounded-lg text-sm border border-blue-200">
+              <div className="p-4 rounded-lg text-sm border" style={{ background: '#eef3ff', borderColor: '#c7d7f4' }}>
                 <p className="mb-2 font-semibold">Please transfer the amount to:</p>
                 <p><strong>Account Name:</strong> UCU Alumni Fund</p>
                 <p><strong>Account Number:</strong> 1234567890</p>
