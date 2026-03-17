@@ -1,14 +1,14 @@
 
 import { useState } from 'react';
-import AlumniDashboard from './alumni/AlumniDashboard';
-import ApplicationsQueue from './alumni/ApplicationsQueue';
-import ImportAssistant from './alumni/ImportAssistant';
-import BroadcastEmail from './alumni/BroadcastEmail';
-import ProjectManagement from './alumni/ProjectManagement';
-import MerchEvents from './alumni/MerchEvents';
-import Footprints from './alumni/Footprints';
-import Reports from './alumni/Reports';
-import ManageContent from './alumni/ManageContent';
+import AlumniDashboard from './alumni_office_staff/AlumniDashboard';
+import ApplicationsQueue from './alumni_office_staff/ApplicationsQueue';
+import ImportAssistant from './alumni_office_staff/ImportAssistant';
+import BroadcastEmail from './alumni_office_staff/BroadcastEmail';
+import ProjectManagement from './alumni_office_staff/ProjectManagement';
+import MerchEvents from './alumni_office_staff/MerchEvents';
+import Footprints from './alumni_office_staff/Footprints';
+import Reports from './alumni_office_staff/Reports';
+import ManageContent from './alumni_office_staff/ManageContent';
 import type { User } from '../App';
 import { Button } from './ui/button';
 import { LogOut, Menu, Home, FileText, Upload, Mail, FolderOpen, ShoppingBag, BarChart3, Settings2Icon, DollarSign } from 'lucide-react';

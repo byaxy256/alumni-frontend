@@ -4128,35 +4128,60 @@ body {
 .from-red-500 { background-color: var(--primary) !important; }
 .from-pink-500 { background-color: var(--brand-purple) !important; }
 
-/* Chat / messaging: header blue (same as app headers) and WhatsApp-style backgrounds */
+/* Chat / messaging: header blue (same as app headers) and soft, modern backgrounds */
 :root {
   --chat-header-blue: #0b2a4a;
   --chat-header-blue-light: #1a4d7a;
   --chat-bubble-out: #0b2a4a;
-  --chat-bubble-out-border: #0d3258;
+  --chat-bubble-out-border: rgba(7, 25, 48, 0.4);
+  --chat-bubble-out-shadow: 0 8px 16px rgba(7, 25, 48, 0.22);
+  --chat-bubble-in: #ffffff;
+  --chat-bubble-in-border: rgba(148, 163, 184, 0.25);
 }
 .dark {
   --chat-header-blue: #1a4d7a;
   --chat-header-blue-light: #2a6a9e;
   --chat-bubble-out: #1a4d7a;
-  --chat-bubble-out-border: #256394;
+  --chat-bubble-out-border: rgba(10, 37, 64, 0.65);
+  --chat-bubble-out-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  --chat-bubble-in: rgba(23, 30, 58, 0.98);
+  --chat-bubble-in-border: rgba(148, 163, 184, 0.18);
 }
 
-/* WhatsApp-style chat area background (light) */
+/* Soft chat area background with blurred shapes */
 .chat-area-bg {
-  background-color: #e5ddd5;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4c4b0' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  position: relative;
+  background: radial-gradient(circle at top left, rgba(125, 159, 246, 0.18), transparent 55%),
+              radial-gradient(circle at bottom right, rgba(214, 174, 99, 0.16), transparent 55%),
+              linear-gradient(135deg, #f6f7fc 0%, #edf1fb 100%);
 }
 .dark .chat-area-bg {
-  background-color: #0b141a;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a2630' fill-opacity='0.5'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background: radial-gradient(circle at top left, rgba(125, 159, 246, 0.16), transparent 55%),
+              radial-gradient(circle at bottom right, rgba(224, 190, 121, 0.14), transparent 55%),
+              linear-gradient(135deg, #121729 0%, #151c34 100%);
 }
 
 /* Outgoing message bubble using header blue */
 .chat-bubble-out {
   background: linear-gradient(135deg, var(--chat-header-blue) 0%, var(--chat-header-blue-light) 100%) !important;
   color: #fff !important;
-  border: none;
+  border-radius: 1.4rem !important;
+  border: 1px solid var(--chat-bubble-out-border);
+  box-shadow: var(--chat-bubble-out-shadow);
+}
+
+/* Incoming message bubble (soft white / navy, with compact meta) */
+.chat-bubble-in {
+  background-color: var(--chat-bubble-in);
+  border-radius: 1.4rem !important;
+  border: 1px solid var(--chat-bubble-in-border);
+  box-shadow: 0 6px 10px rgba(15, 23, 42, 0.06);
+}
+
+.chat-bubble-meta {
+  font-size: 0.68rem;
+  opacity: 0.7;
+  white-space: nowrap;
 }
 
 html {
