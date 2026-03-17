@@ -6,9 +6,8 @@ import { Home, Heart, Calendar, Users, Newspaper, Gift, Award, User, MessageSqua
 import type { User as UserType } from '../App';
 import { AlumniDashboard } from './alumni-user/AlumniDashboard';
 import { AlumniDonations } from './alumni-user/AlumniDonations';
-import { AlumniEvents } from './alumni-user/AlumniEvents';
+import { AlumniEventsAndNews } from './alumni-user/AlumniEventsAndNews';
 import { AlumniConnect } from './alumni-user/AlumniConnect';
-import { AlumniNews } from './alumni-user/AlumniNews';
 import { AlumniBenefits } from './alumni-user/AlumniBenefits';
 import { AlumniChapters } from './alumni-user/AlumniChapters';
 import { AlumniProfile } from './alumni-user/AlumniProfile';
@@ -23,18 +22,17 @@ interface AlumniAppProps {
   onLogout: () => void;
 }
 
-type AlumniScreen = 'dashboard' | 'donations' | 'events' | 'connect' | 'news' | 'benefits' | 'chapters' | 'profile' | 'mentorship' | 'notifications' | 'shop' | 'sacco';
+type AlumniScreen = 'dashboard' | 'donations' | 'eventsNews' | 'connect' | 'benefits' | 'chapters' | 'profile' | 'mentorship' | 'notifications' | 'shop' | 'sacco';
 
 // --- IMPROVEMENT 2: Single source of truth for all navigation items ---
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, mobile: true },
     { id: 'donations', label: 'Donations', icon: Heart, mobile: true },
     { id: 'sacco', label: 'SACCO', icon: Wallet, mobile: true },
-    { id: 'events', label: 'Events', icon: Calendar, mobile: false },
+    { id: 'eventsNews', label: 'News & Events', icon: Calendar, mobile: false },
     { id: 'connect', label: 'Connect', icon: Users, mobile: true },
     { id: 'mentorship', label: 'Mentorship', icon: MessageSquare, mobile: true },
     { id: 'shop', label: 'Shop', icon: ShoppingBag, mobile: true },
-    { id: 'news', label: 'News', icon: Newspaper, mobile: false },
     { id: 'benefits', label: 'Benefits', icon: Gift, mobile: false },
     { id: 'chapters', label: 'Chapters', icon: Award, mobile: false },
 ];
@@ -73,12 +71,10 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
         return <AlumniDashboard user={user} onNavigate={handleNavigate} />;
       case 'donations':
         return <AlumniDonations user={user} onBack={() => handleNavigate('dashboard')} onNavigate={handleNavigate} />;
-      case 'events':
-        return <AlumniEvents user={user} onBack={() => handleNavigate('dashboard')} />;
+      case 'eventsNews':
+        return <AlumniEventsAndNews onBack={() => handleNavigate('dashboard')} />;
       case 'connect':
         return <AlumniConnect user={user} onBack={() => handleNavigate('dashboard')} />;
-      case 'news':
-        return <AlumniNews user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'benefits':
         return <AlumniBenefits user={user} onBack={() => handleNavigate('dashboard')} />;
       case 'chapters':
@@ -102,19 +98,19 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       {/* Sidebar Navigation */}
-      <aside className={`hidden md:flex md:flex-col bg-sidebar border-r border-sidebar-border fixed h-screen transition-all duration-300 z-50 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
+      <aside className={`hidden md:flex md:flex-col bg-sidebar border-r border-sidebar-border fixed h-screen transition-all duration-300 z-50 text-white ${sidebarOpen ? 'w-64' : 'w-20'}`}>
 
         <div className={`p-4 border-b border-sidebar-border flex items-center ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
           <div className={`flex items-center gap-3 ${sidebarOpen ? 'block' : 'hidden'}`}>
             <UcuBadgeLogo className="h-9 w-9" />
             <div>
-              <h1 className="text-sidebar-foreground text-sm">Alumni Connect</h1>
-              <p className="text-xs text-sidebar-foreground/75 mt-0.5">Alumni Portal</p>
+              <h1 className="text-white text-sm">Alumni Connect</h1>
+              <p className="text-xs text-white/80 mt-0.5">Alumni Portal</p>
             </div>
           </div>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            className="p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
             aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -131,8 +127,8 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
                   onClick={() => handleNavigate(item.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors justify-start ${
                     currentScreen === item.id
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      ? 'bg-white/15 text-white'
+                      : 'text-white/80 hover:bg-white/10 hover:text-white'
                   } ${!sidebarOpen ? 'justify-center px-0' : ''}`}
                   title={!sidebarOpen ? item.label : undefined}
                 >
@@ -149,8 +145,8 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
             onClick={() => handleNavigate('profile')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors justify-start ${
               currentScreen === 'profile'
-                ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                ? 'bg-white/15 text-white'
+                : 'text-white/80 hover:bg-white/10 hover:text-white'
             } ${!sidebarOpen ? 'justify-center px-0' : ''}`}
             title={!sidebarOpen ? "Profile" : undefined}
           >

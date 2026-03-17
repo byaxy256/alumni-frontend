@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
-import { api, API_BASE } from '../../api';
+import { API_BASE } from '../../api';
 import { toast } from 'sonner';
 
 
@@ -41,6 +41,8 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
     studentsHelped: 0,
     currentYear: 0,
   });
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
 
   const displayName = user.full_name || user.name || 'Alumni';
   const displayCourse = user.course || user.meta?.course || user.meta?.field || 'Alumni';
@@ -51,15 +53,60 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
     const loadStudents = async () => {
       try {
         const token = localStorage.getItem('token') || '';
-        // Get user's field from meta
         const userField = user.meta?.field || 'General';
-        const students = await api.getStudentsByField(userField, token);
-        setStudentsInField(students);
+        const res = await fetch(`${API_BASE}/mentors/students-by-field?field=${encodeURIComponent(userField)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const students = await res.json();
+          setStudentsInField(Array.isArray(students) ? students : []);
+        } else {
+          setStudentsInField([]);
+        }
       } catch (error) {
         console.error('Error loading students:', error);
         setStudentsInField([]);
       } finally {
         setLoadingStudents(false);
+      }
+    };
+
+    const fetchUpcomingEvents = async () => {
+      try {
+        setLoadingEvents(true);
+        const res = await fetch(`${API_BASE}/content/events?audience=alumni`, { cache: 'no-store' as RequestCache });
+        if (!res.ok) throw new Error('Failed to fetch events');
+        const raw = await res.json();
+        const items = Array.isArray(raw) ? raw : raw?.content || [];
+        const mapped = items.map((it: any) => ({
+          id: it.id,
+          title: it.title,
+          dateRaw: it.date || it.created_at || it.createdAt || null,
+          dateLabel: it.date ? new Date(it.date).toLocaleDateString() : '',
+          location: it.location || '',
+          attendees: it.attendees || 0,
+        }));
+        // Keep only future-ish events first; fallback to as-is
+        const now = Date.now();
+        const sorted = mapped
+          .slice()
+          .sort((a: any, b: any) => {
+            const ta = a.dateRaw ? new Date(a.dateRaw).getTime() : now + 999999999;
+            const tb = b.dateRaw ? new Date(b.dateRaw).getTime() : now + 999999999;
+            return ta - tb;
+          })
+          .filter((e: any) => {
+            if (!e.dateRaw) return true;
+            const t = new Date(e.dateRaw).getTime();
+            return Number.isFinite(t) ? t >= now - 24 * 60 * 60 * 1000 : true;
+          })
+          .slice(0, 2);
+        setUpcomingEvents(sorted);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        setUpcomingEvents([]);
+      } finally {
+        setLoadingEvents(false);
       }
     };
 
@@ -80,6 +127,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
 
     loadStudents();
     fetchDonationStats();
+    fetchUpcomingEvents();
 
     // Real-time notification polling every 5 seconds
     const notificationInterval = setInterval(async () => {
@@ -163,23 +211,6 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       icon: Gift,
       iconBg: 'var(--indigo-mix)',
       action: () => onNavigate('benefits')
-    },
-  ];
-
-  const upcomingEvents = [
-    {
-      id: '1',
-      title: 'Class of 2020 Reunion',
-      date: 'Dec 15, 2025',
-      location: 'UCU Main Campus',
-      attendees: 45,
-    },
-    {
-      id: '2',
-      title: 'Alumni Networking Dinner',
-      date: 'Jan 10, 2026',
-      location: 'Serena Hotel',
-      attendees: 120,
     },
   ];
 
@@ -288,36 +319,48 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg text-gray-900">Upcoming Events</h2>
               <button 
-                onClick={() => onNavigate('events')}
+                onClick={() => onNavigate('eventsNews')}
                 className="text-sm text-primary hover:underline"
               >
                 View All
               </button>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
-              {upcomingEvents.map((event) => (
-                <Card
-                  key={event.id}
-                  className="p-5 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card"
-                  onClick={() => onNavigate('events')}
-                >
-                  <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-accent flex flex-col items-center justify-center text-primary flex-shrink-0">
-                      <span className="text-sm">{event.date.split(' ')[1]}</span>
-                      <span className="text-xs opacity-80">{event.date.split(' ')[0]}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm text-gray-900 mb-1">{event.title}</h3>
-                      <p className="text-xs text-gray-600 mb-2">{event.location}</p>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">{event.attendees} attending</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              {loadingEvents ? (
+                <Card className="p-5 border border-border bg-card md:col-span-2">
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                   </div>
                 </Card>
-              ))}
+              ) : upcomingEvents.length === 0 ? (
+                <Card className="p-5 border border-border bg-card md:col-span-2">
+                  <p className="text-sm text-muted-foreground">No upcoming events.</p>
+                </Card>
+              ) : (
+                upcomingEvents.map((event) => (
+                  <Card
+                    key={event.id}
+                    className="p-5 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card"
+                    onClick={() => onNavigate('eventsNews')}
+                  >
+                    <div className="flex gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-accent flex flex-col items-center justify-center text-primary flex-shrink-0">
+                        <span className="text-xs opacity-80">Date</span>
+                        <span className="text-xs text-center px-1 leading-tight">{event.dateLabel || 'TBA'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm text-gray-900 mb-1">{event.title}</h3>
+                        <p className="text-xs text-gray-600 mb-2">{event.location || 'Location TBA'}</p>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">{event.attendees} registered</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    </div>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
 

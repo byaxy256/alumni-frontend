@@ -87,6 +87,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [requestsLoading, setRequestsLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -333,12 +334,17 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   useEffect(() => {
     loadPendingRequests();
     loadMentees();
-    // Removed auto-refresh - user can manually refresh when needed
+    const poll = setInterval(() => {
+      loadPendingRequests();
+      loadMentees();
+    }, 10000);
+    return () => clearInterval(poll);
   }, []);
 
   // Load messages when a student is selected (use UID)
   const loadMessages = async (studentUid: string, isPoll: boolean = false) => {
     try {
+      if (!isPoll) setMessagesLoading(true);
       const token = localStorage.getItem('token') || '';
       const response = await fetch(`${API_BASE}/chat/${studentUid}`, {
         headers: {
@@ -366,14 +372,10 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
     } catch (error) {
       console.error('Error loading messages:', error);
       toast.error('Failed to load messages');
-      // Set mock messages as fallback
-      const mockMessages: Message[] = [
-        { id: 1, sender_id: studentUid, message_text: 'Hello! Thank you for being my mentor.', created_at: new Date(Date.now() - 3600000).toISOString() },
-        { id: 2, sender_id: user.uid, message_text: 'Happy to help! How can I assist you today?', created_at: new Date(Date.now() - 3500000).toISOString() },
-        { id: 3, sender_id: studentUid, message_text: 'I\'m struggling with my final year project. Can you give me some advice?', created_at: new Date(Date.now() - 3400000).toISOString() },
-      ];
-      setMessages(mockMessages);
-      lastMessageCountRef.current = mockMessages.length;
+      if (!isPoll) setMessages([]);
+    }
+    finally {
+      if (!isPoll) setMessagesLoading(false);
     }
   };
 
@@ -880,7 +882,11 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                 )}
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 chat-area-bg">
-                  {messages.length === 0 ? (
+                  {messagesLoading ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : messages.length === 0 ? (
                     <div className="text-center text-sm text-muted-foreground py-10">
                       <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
                       <p>No messages yet. Start the conversation!</p>

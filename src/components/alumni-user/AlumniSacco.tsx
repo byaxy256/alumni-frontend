@@ -252,29 +252,33 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
       {!enrolled && !showEnrollForm && (
         <Card>
           <CardHeader>
-            <CardTitle>Join SACCO</CardTitle>
+            <CardTitle>SACCO Savings</CardTitle>
             <CardDescription>
-              Save regularly with money chopped from your phone or via bank. Optional — you choose the amount and frequency.
+              Choose how you want to save: enroll for scheduled savings, or save at will whenever you want.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
-              <li>Set your own amount and frequency (daily, weekly or monthly)</li>
-              <li>Pay via MTN Mobile Money (deducted from your phone) or bank transfer</li>
-              <li>Track your savings and contribution history</li>
-              <li>Opt out anytime</li>
-            </ul>
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => setShowEnrollForm(true)} className="gap-2">
-                <Plus className="w-4 h-4" /> Join SACCO
+                <Plus className="w-4 h-4" /> Enroll (scheduled)
               </Button>
               <Button
                 variant="outline"
                 onClick={() => { setShowContributeForm(true); setContributeAmount(''); setContributePhone(''); }}
                 className="gap-2"
               >
-                <Plus className="w-4 h-4" /> Add savings
+                <Plus className="w-4 h-4" /> Save at will
               </Button>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-lg border border-border p-3">
+                <p className="text-sm font-medium mb-1">Enroll (scheduled)</p>
+                <p className="text-xs text-muted-foreground">Set an amount + frequency (daily/weekly/monthly). We’ll remind/auto-deduct based on method.</p>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <p className="text-sm font-medium mb-1">Save at will</p>
+                <p className="text-xs text-muted-foreground">Deposit any time you want (mobile money chop or bank), without enrolling.</p>
+              </div>
             </div>
           </CardContent>
         </Card>
