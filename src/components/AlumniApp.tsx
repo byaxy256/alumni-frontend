@@ -168,7 +168,7 @@ export const AlumniApp = ({ user, onLogout }: AlumniAppProps) => {
       {/* Mobile Bottom Navigation with Blue Header */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-2 py-2 z-50 shadow-lg backdrop-blur">
         {/* Mobile Header Bar with Sidebar Toggle */}
-        <div className="fixed top-0 left-0 right-0 md:hidden bg-[#0b2a4a] text-white p-3 flex items-center justify-between z-40 shadow-md rounded-b-2xl">
+        <div className="fixed top-0 left-0 right-0 md:hidden bg-[var(--brand-blue)] text-white p-3 flex items-center justify-between z-40 shadow-md rounded-b-2xl">
           <div className="flex items-center gap-2">
             <UcuBadgeLogo className="h-7 w-7" />
             <div>

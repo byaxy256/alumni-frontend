@@ -4148,17 +4148,15 @@ body {
   --chat-bubble-in-border: rgba(148, 163, 184, 0.18);
 }
 
-/* Soft chat area background with blurred shapes */
+/* WhatsApp-style chat area: solid colour + repeated icon pattern (chat bubbles / dots) */
 .chat-area-bg {
   position: relative;
-  background: radial-gradient(circle at top left, rgba(125, 159, 246, 0.18), transparent 55%),
-              radial-gradient(circle at bottom right, rgba(214, 174, 99, 0.16), transparent 55%),
-              linear-gradient(135deg, #f6f7fc 0%, #edf1fb 100%);
+  background-color: #e5ddd5;
+  background-image: url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 12c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 14c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 14c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4z' fill='%23d4c4b0' fill-opacity='0.4'/%3E%3Ccircle cx='14' cy='14' r='3' fill='%23d4c4b0' fill-opacity='0.3'/%3E%3Ccircle cx='42' cy='42' r='3' fill='%23d4c4b0' fill-opacity='0.3'/%3E%3C/svg%3E");
 }
 .dark .chat-area-bg {
-  background: radial-gradient(circle at top left, rgba(125, 159, 246, 0.16), transparent 55%),
-              radial-gradient(circle at bottom right, rgba(224, 190, 121, 0.14), transparent 55%),
-              linear-gradient(135deg, #121729 0%, #151c34 100%);
+  background-color: #0a0e14;
+  background-image: url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 12c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 14c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 14c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4z' fill='%231a2630' fill-opacity='0.5'/%3E%3Ccircle cx='14' cy='14' r='3' fill='%231a2630' fill-opacity='0.4'/%3E%3Ccircle cx='42' cy='42' r='3' fill='%231a2630' fill-opacity='0.4'/%3E%3C/svg%3E");
 }
 
 /* Outgoing message bubble using header blue */

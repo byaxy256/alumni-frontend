@@ -1,5 +1,8 @@
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import type { User } from '../../App';
@@ -19,7 +22,7 @@ import {
   FileText,
   Video} from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { API_BASE } from '../../api';
+import { API_BASE, api } from '../../api';
 import { toast } from 'sonner';
 import { EmojiPicker } from '../ui/emoji-picker';
 
@@ -99,6 +102,47 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const lastMessageCountRef = useRef<number>(0);
   const peerParamRef = useRef<string | null>(new URLSearchParams(window.location.search).get('peer'));
+
+  const [mentorApplication, setMentorApplication] = useState({
+    field: (user.meta?.field as string) || '',
+    company: (user.meta?.company as string) || '',
+    experience: String((user.meta?.mentorApplication as any)?.experience || ''),
+    bio: String((user.meta?.mentorApplication as any)?.bio || ''),
+  });
+  const [submittingApplication, setSubmittingApplication] = useState(false);
+  const [mentorApplicationStatus, setMentorApplicationStatus] = useState<any>(user.meta?.mentorApplication || null);
+
+  const hasMentorApplication = Boolean(mentorApplicationStatus?.submittedAt);
+
+  const handleMentorApplicationSubmit = async () => {
+    if (!mentorApplication.field.trim() || !mentorApplication.company.trim() || !mentorApplication.experience.trim() || !mentorApplication.bio.trim()) {
+      toast.error('Please complete all mentor application fields.');
+      return;
+    }
+
+    try {
+      setSubmittingApplication(true);
+      const token = localStorage.getItem('token') || '';
+      const payload = {
+        ...(user.meta || {}),
+        wantsToMentor: true,
+        mentorApplication: {
+          ...mentorApplication,
+          submittedAt: new Date().toISOString(),
+          status: 'pending',
+        },
+      };
+
+      await api.updateProfile({ meta: payload }, token);
+      setMentorApplicationStatus(payload.mentorApplication);
+      toast.success('Mentor application submitted successfully.');
+    } catch (error: any) {
+      console.error('Mentor application submit error', error);
+      toast.error(error?.message || 'Failed to submit mentor application.');
+    } finally {
+      setSubmittingApplication(false);
+    }
+  };
 
 
   // Load pending requests from API
@@ -542,6 +586,71 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
           {/* Requests & Mentees List */}
           <div className="border-r border-border bg-card overflow-y-auto">
             <div className="p-4 border-b border-border">
+              <Card className="mb-4">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Apply to Become a Mentor</CardTitle>
+                  <CardDescription>Submit your profile for Alumni Office review.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {hasMentorApplication && (
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                      Application submitted on {new Date(mentorApplicationStatus.submittedAt).toLocaleDateString()} • Status: {mentorApplicationStatus.status || 'pending'}
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="mentor-field">Field</Label>
+                    <Input
+                      id="mentor-field"
+                      placeholder="e.g. Software Engineering"
+                      value={mentorApplication.field}
+                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, field: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="mentor-company">Company/Organization</Label>
+                    <Input
+                      id="mentor-company"
+                      placeholder="Where you currently work"
+                      value={mentorApplication.company}
+                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, company: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="mentor-exp">Years of Experience</Label>
+                    <Input
+                      id="mentor-exp"
+                      type="number"
+                      min={0}
+                      placeholder="e.g. 5"
+                      value={mentorApplication.experience}
+                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, experience: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="mentor-bio">Why you want to mentor</Label>
+                    <Textarea
+                      id="mentor-bio"
+                      rows={4}
+                      placeholder="Share your motivation and areas you can guide students in"
+                      value={mentorApplication.bio}
+                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, bio: e.target.value }))}
+                    />
+                  </div>
+
+                  <Button
+                    onClick={handleMentorApplicationSubmit}
+                    disabled={submittingApplication}
+                    className="w-full"
+                  >
+                    {submittingApplication ? 'Submitting...' : hasMentorApplication ? 'Update Mentor Application' : 'Submit Mentor Application'}
+                  </Button>
+                </CardContent>
+              </Card>
+
               <div className="flex gap-2 mb-3">
                 <Button
                   variant={activeTab === 'requests' ? 'default' : 'outline'}

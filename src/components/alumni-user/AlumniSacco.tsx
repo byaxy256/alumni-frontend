@@ -60,7 +60,7 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
   const [enrollBankName, setEnrollBankName] = useState('');
   const [enrollBankAccount, setEnrollBankAccount] = useState('');
   const [enrollAmount, setEnrollAmount] = useState('');
-  const [enrollFreq, setEnrollFreq] = useState<'weekly' | 'monthly'>('monthly');
+  const [enrollFreq, setEnrollFreq] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
   // Contribute form
   const [contributeMethod, setContributeMethod] = useState<'mobile' | 'bank'>('mobile');
@@ -259,14 +259,23 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
           </CardHeader>
           <CardContent className="space-y-4">
             <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
-              <li>Set your own amount and frequency (weekly or monthly)</li>
+              <li>Set your own amount and frequency (daily, weekly or monthly)</li>
               <li>Pay via MTN Mobile Money (deducted from your phone) or bank transfer</li>
               <li>Track your savings and contribution history</li>
               <li>Opt out anytime</li>
             </ul>
-            <Button onClick={() => setShowEnrollForm(true)} className="gap-2">
-              <Plus className="w-4 h-4" /> Join SACCO
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={() => setShowEnrollForm(true)} className="gap-2">
+                <Plus className="w-4 h-4" /> Join SACCO
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => { setShowContributeForm(true); setContributeAmount(''); setContributePhone(''); }}
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add savings
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -316,7 +325,11 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
               </div>
               <div>
                 <Label>Frequency</Label>
-                <RadioGroup value={enrollFreq} onValueChange={(v) => setEnrollFreq(v as 'weekly' | 'monthly')} className="flex gap-4 mt-2">
+                <RadioGroup value={enrollFreq} onValueChange={(v) => setEnrollFreq(v as 'daily' | 'weekly' | 'monthly')} className="flex flex-wrap gap-4 mt-2">
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="daily" id="ef-daily" />
+                    <Label htmlFor="ef-daily" className="font-normal">Daily</Label>
+                  </div>
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="weekly" id="ef-weekly" />
                     <Label htmlFor="ef-weekly" className="font-normal">Weekly</Label>
@@ -330,6 +343,56 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
               <div className="flex gap-2">
                 <Button type="submit" disabled={enrolling}>{enrolling ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enroll'}</Button>
                 <Button type="button" variant="outline" onClick={() => setShowEnrollForm(false)}>Cancel</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {showContributeForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{enrolled ? 'One-time contribution' : 'Add savings'}</CardTitle>
+            <CardDescription>
+              Add to your SACCO savings via mobile money (chopped from your phone) or bank.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleContribute} className="space-y-4">
+              <div>
+                <Label>Method</Label>
+                <RadioGroup value={contributeMethod} onValueChange={(v) => setContributeMethod(v as 'mobile' | 'bank')} className="flex gap-4 mt-2">
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="mobile" id="cm-mobile" />
+                    <Label htmlFor="cm-mobile" className="font-normal flex items-center gap-1"><Smartphone className="w-4 h-4" /> Mobile (chop from phone)</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="bank" id="cm-bank" />
+                    <Label htmlFor="cm-bank" className="font-normal flex items-center gap-1"><Building2 className="w-4 h-4" /> Bank</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              {contributeMethod === 'mobile' && (
+                <div>
+                  <Label>MTN Mobile Money number</Label>
+                  <Input placeholder="07XXXXXXXX" value={contributePhone} onChange={(e) => setContributePhone(e.target.value)} className="mt-1" />
+                </div>
+              )}
+              <div>
+                <Label>Amount (UGX)</Label>
+                <Input type="number" min="1000" placeholder="e.g. 50000" value={contributeAmount} onChange={(e) => setContributeAmount(e.target.value)} className="mt-1" />
+              </div>
+              {contributeMethod === 'bank' && (
+                <div className="rounded-lg bg-muted/50 p-3 text-sm">
+                  <p className="font-medium mb-1">Bank details</p>
+                  <p>{BANK_DETAILS.bank_name} · {BANK_DETAILS.branch}</p>
+                  <p>Account: {BANK_DETAILS.account_name} — {BANK_DETAILS.account_number}</p>
+                  <p className="text-muted-foreground mt-1">Use your transaction reference when transferring.</p>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button type="submit" disabled={contributing}>{contributing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit'}</Button>
+                <Button type="button" variant="outline" onClick={() => setShowContributeForm(false)}>Cancel</Button>
               </div>
             </form>
           </CardContent>
@@ -359,55 +422,6 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
               </div>
             </CardContent>
           </Card>
-
-          {showContributeForm && (
-            <Card>
-              <CardHeader>
-                <CardTitle>One-time contribution</CardTitle>
-                <CardDescription>Add to your SACCO savings via mobile money (chopped from your phone) or bank.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleContribute} className="space-y-4">
-                  <div>
-                    <Label>Method</Label>
-                    <RadioGroup value={contributeMethod} onValueChange={(v) => setContributeMethod(v as 'mobile' | 'bank')} className="flex gap-4 mt-2">
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="mobile" id="cm-mobile" />
-                        <Label htmlFor="cm-mobile" className="font-normal flex items-center gap-1"><Smartphone className="w-4 h-4" /> Mobile (chop from phone)</Label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="bank" id="cm-bank" />
-                        <Label htmlFor="cm-bank" className="font-normal flex items-center gap-1"><Building2 className="w-4 h-4" /> Bank</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  {contributeMethod === 'mobile' && (
-                    <div>
-                      <Label>MTN Mobile Money number</Label>
-                      <Input placeholder="07XXXXXXXX" value={contributePhone} onChange={(e) => setContributePhone(e.target.value)} className="mt-1" />
-                    </div>
-                  )}
-                  <div>
-                    <Label>Amount (UGX)</Label>
-                    <Input type="number" min="1000" placeholder="e.g. 50000" value={contributeAmount} onChange={(e) => setContributeAmount(e.target.value)} className="mt-1" />
-                  </div>
-                  {contributeMethod === 'bank' && (
-                    <div className="rounded-lg bg-muted/50 p-3 text-sm">
-                      <p className="font-medium mb-1">Bank details</p>
-                      <p>{BANK_DETAILS.bank_name} · {BANK_DETAILS.branch}</p>
-                      <p>Account: {BANK_DETAILS.account_name} — {BANK_DETAILS.account_number}</p>
-                      <p className="text-muted-foreground mt-1">Use your transaction reference when transferring.</p>
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    <Button type="submit" disabled={contributing}>{contributing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit'}</Button>
-                    <Button type="button" variant="outline" onClick={() => setShowContributeForm(false)}>Cancel</Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          )}
-
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Contribution history</CardTitle>
@@ -434,6 +448,30 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
             </CardContent>
           </Card>
         </>
+      )}
+
+      {!enrolled && data && data.contributions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Contribution history</CardTitle>
+            <CardDescription>Recent SACCO contributions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {data.contributions.map((c) => (
+                <li key={c._id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div className="flex items-center gap-2">
+                    {c.status === 'completed' ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <span className="w-4 h-4 rounded-full bg-muted" />}
+                    <span className="text-sm">UGX {c.amount.toLocaleString()} · {c.method}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(c.created_at).toLocaleDateString()} {c.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       )}
 
       {enrolled && data?.contributions.length === 0 && !showContributeForm && (

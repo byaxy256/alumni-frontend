@@ -24,22 +24,20 @@ export function EventsAndNews({ onBack }: EventsAndNewsProps) {
           <h1 className="text-xl font-semibold text-white">Events & News</h1>
           <p className="text-sm text-white/75 mt-0.5">Join events and read the latest updates</p>
           <Tabs value={tab} onValueChange={(v) => setTab(v as 'events' | 'news')} className="mt-4">
-            <TabsList className="grid w-full grid-cols-2 bg-white/12 border border-white/15 rounded-xl p-1">
+            <TabsList className="h-auto w-full justify-start gap-6 rounded-none border-b border-white/25 bg-transparent p-0 shadow-none">
               <TabsTrigger
                 value="events"
-                className={`gap-2 rounded-lg transition-all ${tab === 'events' ? 'bg-white/22 text-white shadow-sm' : 'text-purple-200 hover:text-white hover:bg-white/10'}`}
+                className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-0 pb-2.5 pt-0 text-white/85 shadow-none hover:text-white data-[state=active]:border-white data-[state=active]:text-white data-[state=active]:shadow-none"
               >
                 <Calendar className="w-4 h-4" />
                 Events
-                <span className={`ml-1 h-1.5 w-1.5 rounded-full ${tab === 'events' ? 'bg-white' : 'bg-transparent'}`} />
               </TabsTrigger>
               <TabsTrigger
                 value="news"
-                className={`gap-2 rounded-lg transition-all ${tab === 'news' ? 'bg-white/22 text-white shadow-sm' : 'text-purple-200 hover:text-white hover:bg-white/10'}`}
+                className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-0 pb-2.5 pt-0 text-white/85 shadow-none hover:text-white data-[state=active]:border-white data-[state=active]:text-white data-[state=active]:shadow-none"
               >
                 <Newspaper className="w-4 h-4" />
                 News
-                <span className={`ml-1 h-1.5 w-1.5 rounded-full ${tab === 'news' ? 'bg-white' : 'bg-transparent'}`} />
               </TabsTrigger>
             </TabsList>
           </Tabs>
