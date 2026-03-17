@@ -2,8 +2,6 @@
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import type { User } from '../../App';
 import { 
@@ -24,7 +22,7 @@ import {
 } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
-import { api, API_BASE } from '../../api';
+import { API_BASE } from '../../api';
 import { toast } from 'sonner';
 
 
@@ -38,72 +36,77 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   const [studentsInField, setStudentsInField] = useState<any[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [mentorApplication, setMentorApplication] = useState({
-    field: (user.meta?.field as string) || '',
-    company: (user.meta?.company as string) || '',
-    experience: '',
-    bio: '',
-  });
-  const [submittingApplication, setSubmittingApplication] = useState(false);
   const [donationStats, setDonationStats] = useState({
     totalDonated: 0,
     studentsHelped: 0,
     currentYear: 0,
   });
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
 
   const displayName = user.full_name || user.name || 'Alumni';
   const displayCourse = user.course || user.meta?.course || user.meta?.field || 'Alumni';
   const displayGradYear = user.graduationYear || user.meta?.graduationYear || user.meta?.graduation_year || 'N/A';
-  const existingMentorApplication = user.meta?.mentorApplication as any;
-  const hasMentorApplication = Boolean(existingMentorApplication?.submittedAt);
-
-  const handleMentorApplicationSubmit = async () => {
-    if (!mentorApplication.field.trim() || !mentorApplication.company.trim() || !mentorApplication.experience.trim() || !mentorApplication.bio.trim()) {
-      toast.error('Please complete all mentor application fields.');
-      return;
-    }
-
-    try {
-      setSubmittingApplication(true);
-      const token = localStorage.getItem('token') || '';
-      await api.updateProfile(
-        {
-          meta: {
-            ...(user.meta || {}),
-            wantsToMentor: true,
-            mentorApplication: {
-              ...mentorApplication,
-              submittedAt: new Date().toISOString(),
-              status: 'pending',
-            },
-          },
-        },
-        token
-      );
-      toast.success('Mentor application submitted successfully.');
-      setMentorApplication((prev) => ({ ...prev, experience: '', bio: '' }));
-    } catch (error: any) {
-      console.error('Mentor application submit error', error);
-      toast.error(error?.message || 'Failed to submit mentor application.');
-    } finally {
-      setSubmittingApplication(false);
-    }
-  };
 
   // Load students in the same field as the alumni
   useEffect(() => {
     const loadStudents = async () => {
       try {
         const token = localStorage.getItem('token') || '';
-        // Get user's field from meta
         const userField = user.meta?.field || 'General';
-        const students = await api.getStudentsByField(userField, token);
-        setStudentsInField(students);
+        const res = await fetch(`${API_BASE}/mentors/students-by-field?field=${encodeURIComponent(userField)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const students = await res.json();
+          setStudentsInField(Array.isArray(students) ? students : []);
+        } else {
+          setStudentsInField([]);
+        }
       } catch (error) {
         console.error('Error loading students:', error);
         setStudentsInField([]);
       } finally {
         setLoadingStudents(false);
+      }
+    };
+
+    const fetchUpcomingEvents = async () => {
+      try {
+        setLoadingEvents(true);
+        const res = await fetch(`${API_BASE}/content/events?audience=alumni`, { cache: 'no-store' as RequestCache });
+        if (!res.ok) throw new Error('Failed to fetch events');
+        const raw = await res.json();
+        const items = Array.isArray(raw) ? raw : raw?.content || [];
+        const mapped = items.map((it: any) => ({
+          id: it.id,
+          title: it.title,
+          dateRaw: it.date || it.created_at || it.createdAt || null,
+          dateLabel: it.date ? new Date(it.date).toLocaleDateString() : '',
+          location: it.location || '',
+          attendees: it.attendees || 0,
+        }));
+        // Keep only future-ish events first; fallback to as-is
+        const now = Date.now();
+        const sorted = mapped
+          .slice()
+          .sort((a: any, b: any) => {
+            const ta = a.dateRaw ? new Date(a.dateRaw).getTime() : now + 999999999;
+            const tb = b.dateRaw ? new Date(b.dateRaw).getTime() : now + 999999999;
+            return ta - tb;
+          })
+          .filter((e: any) => {
+            if (!e.dateRaw) return true;
+            const t = new Date(e.dateRaw).getTime();
+            return Number.isFinite(t) ? t >= now - 24 * 60 * 60 * 1000 : true;
+          })
+          .slice(0, 2);
+        setUpcomingEvents(sorted);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        setUpcomingEvents([]);
+      } finally {
+        setLoadingEvents(false);
       }
     };
 
@@ -124,6 +127,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
 
     loadStudents();
     fetchDonationStats();
+    fetchUpcomingEvents();
 
     // Real-time notification polling every 5 seconds
     const notificationInterval = setInterval(async () => {
@@ -210,27 +214,10 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
     },
   ];
 
-  const upcomingEvents = [
-    {
-      id: '1',
-      title: 'Class of 2020 Reunion',
-      date: 'Dec 15, 2025',
-      location: 'UCU Main Campus',
-      attendees: 45,
-    },
-    {
-      id: '2',
-      title: 'Alumni Networking Dinner',
-      date: 'Jan 10, 2026',
-      location: 'Serena Hotel',
-      attendees: 120,
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-6">
       {/* Hero Section */}
-      <div className="bg-primary text-white p-6 md:p-8">
+      <div className="bg-[var(--brand-blue)] text-white p-6 md:p-8 rounded-b-3xl shadow-lg">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 flex justify-between items-start">
             <div className="flex items-start gap-3">
@@ -332,36 +319,48 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg text-gray-900">Upcoming Events</h2>
               <button 
-                onClick={() => onNavigate('events')}
+                onClick={() => onNavigate('eventsNews')}
                 className="text-sm text-primary hover:underline"
               >
                 View All
               </button>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
-              {upcomingEvents.map((event) => (
-                <Card
-                  key={event.id}
-                  className="p-5 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card"
-                  onClick={() => onNavigate('events')}
-                >
-                  <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-accent flex flex-col items-center justify-center text-primary flex-shrink-0">
-                      <span className="text-sm">{event.date.split(' ')[1]}</span>
-                      <span className="text-xs opacity-80">{event.date.split(' ')[0]}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm text-gray-900 mb-1">{event.title}</h3>
-                      <p className="text-xs text-gray-600 mb-2">{event.location}</p>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">{event.attendees} attending</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              {loadingEvents ? (
+                <Card className="p-5 border border-border bg-card md:col-span-2">
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                   </div>
                 </Card>
-              ))}
+              ) : upcomingEvents.length === 0 ? (
+                <Card className="p-5 border border-border bg-card md:col-span-2">
+                  <p className="text-sm text-muted-foreground">No upcoming events.</p>
+                </Card>
+              ) : (
+                upcomingEvents.map((event) => (
+                  <Card
+                    key={event.id}
+                    className="p-5 hover:shadow-md transition-shadow cursor-pointer border border-border bg-card"
+                    onClick={() => onNavigate('eventsNews')}
+                  >
+                    <div className="flex gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-accent flex flex-col items-center justify-center text-primary flex-shrink-0">
+                        <span className="text-xs opacity-80">Date</span>
+                        <span className="text-xs text-center px-1 leading-tight">{event.dateLabel || 'TBA'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm text-gray-900 mb-1">{event.title}</h3>
+                        <p className="text-xs text-gray-600 mb-2">{event.location || 'Location TBA'}</p>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">{event.attendees} registered</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    </div>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
 
@@ -399,78 +398,6 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
               className="w-full border-border text-foreground hover:bg-muted"
             >
               Mentorship Hub
-            </Button>
-          </Card>
-
-          <Card className="p-5 bg-card border border-border mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg text-foreground">Apply to Become a Mentor</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Submit your profile for Alumni Office review.
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--brand-purple)' }}>
-                <Award className="w-6 h-6 text-white" />
-              </div>
-            </div>
-
-            {hasMentorApplication && (
-              <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                Application submitted on {new Date(existingMentorApplication.submittedAt).toLocaleDateString()} • Status: {existingMentorApplication.status || 'pending'}
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="space-y-2">
-                <Label htmlFor="mentor-field">Field</Label>
-                <Input
-                  id="mentor-field"
-                  placeholder="e.g. Software Engineering"
-                  value={mentorApplication.field}
-                  onChange={(e) => setMentorApplication((prev) => ({ ...prev, field: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="mentor-company">Company/Organization</Label>
-                <Input
-                  id="mentor-company"
-                  placeholder="Where you currently work"
-                  value={mentorApplication.company}
-                  onChange={(e) => setMentorApplication((prev) => ({ ...prev, company: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2 mb-4">
-              <Label htmlFor="mentor-exp">Years of Experience</Label>
-              <Input
-                id="mentor-exp"
-                type="number"
-                min={0}
-                placeholder="e.g. 5"
-                value={mentorApplication.experience}
-                onChange={(e) => setMentorApplication((prev) => ({ ...prev, experience: e.target.value }))}
-              />
-            </div>
-
-            <div className="space-y-2 mb-4">
-              <Label htmlFor="mentor-bio">Why you want to mentor</Label>
-              <Textarea
-                id="mentor-bio"
-                rows={4}
-                placeholder="Share your motivation and areas you can guide students in"
-                value={mentorApplication.bio}
-                onChange={(e) => setMentorApplication((prev) => ({ ...prev, bio: e.target.value }))}
-              />
-            </div>
-
-            <Button
-              onClick={handleMentorApplicationSubmit}
-              disabled={submittingApplication}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              {submittingApplication ? 'Submitting...' : hasMentorApplication ? 'Update Mentor Application' : 'Submit Mentor Application'}
             </Button>
           </Card>
 
