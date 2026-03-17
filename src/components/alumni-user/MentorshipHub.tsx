@@ -735,16 +735,18 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">{mentees.find(m => (m.uid || m.id) === selectedStudent)?.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{mentees.find(m => (m.uid || m.id) === selectedStudent)?.name}</p>
+                        {mentees.find(m => (m.uid || m.id) === selectedStudent)?.isOnline && (
+                          <span className="w-2.5 h-2.5 rounded-full bg-green-500 border border-white/80" />
+                        )}
+                      </div>
                       <p className="text-xs text-gray-600">
                         {mentees.find(m => (m.uid || m.id) === selectedStudent)?.course}
                       </p>
                       <div className="flex items-center gap-1 mt-1">
                         {mentees.find(m => (m.uid || m.id) === selectedStudent)?.isOnline ? (
-                          <>
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <p className="text-xs text-green-600">Online</p>
-                          </>
+                          <p className="text-xs text-green-600">Online</p>
                         ) : (
                           <p className="text-xs text-gray-400">
                             {mentees.find(m => (m.uid || m.id) === selectedStudent)?.lastSeen || 'Offline'}
@@ -781,6 +783,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                       )
                       .map((msg) => {
                         const isMe = msg.sender_id === user.uid;
+                        const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                         return (
                           <div
                             key={msg.id}
@@ -799,7 +802,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                                 className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl relative ${
                                   isMe
                                     ? 'chat-bubble-out rounded-br-sm'
-                                    : 'bg-card text-card-foreground rounded-bl-sm border border-border shadow-sm'
+                                    : 'chat-bubble-in rounded-bl-sm text-card-foreground'
                                 }`}
                               >
                                 {/* Attachment display */}
@@ -830,18 +833,13 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                                   </div>
                                 )}
 
-                                <p className="text-sm whitespace-pre-wrap">{msg.message_text}</p>
-                                
-                                <div className={`flex items-center justify-between mt-1 ${isMe ? 'text-white/70' : 'text-muted-foreground'}`}>
-                                  <span className="text-xs">
-                                    {new Date(msg.created_at).toLocaleTimeString([], { 
-                                      hour: '2-digit', 
-                                      minute: '2-digit' 
-                                    })}
-                                    {msg.is_edited && ' (edited)'}
+                                <div className="flex items-end gap-2 mt-0.5">
+                                  <span className="text-sm whitespace-pre-wrap break-words leading-snug">{msg.message_text}</span>
+                                  <span className={`chat-bubble-meta ${isMe ? 'text-white/80' : 'text-muted-foreground'}`}>
+                                    {time}{msg.is_edited && ' · edited'}
                                   </span>
                                   {isMe && msg.status && (
-                                    <div className="ml-2">
+                                    <div className="ml-1">
                                       {getMessageStatusIcon(msg.status)}
                                     </div>
                                   )}

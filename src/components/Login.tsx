@@ -182,7 +182,9 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
 
           {/* Brand */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-            <UcuBadgeLogo style={{ width: '2.5rem', height: '2.5rem' }} />
+            <span style={{ width: '2.5rem', height: '2.5rem', display: 'inline-block' }}>
+              <UcuBadgeLogo />
+            </span>
             <span style={{ fontSize: '1.45rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
               Alumni{' '}
               <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.72)' }}>Platform</span>

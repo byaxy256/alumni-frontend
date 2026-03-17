@@ -16,7 +16,7 @@ interface Loan {
   id: number;
   amount_requested: number;
   outstanding_balance: number;
-  status: 'pending' | 'approved' | 'rejected' | 'active' | 'paid';
+  status: 'pending' | 'approved' | 'rejected' | 'active' | 'overdue' | 'paid';
   created_at: string;
   repaymentPeriod?: number;
   chopConsented?: boolean;
@@ -30,13 +30,14 @@ interface Payment {
 }
 
 interface RepaymentItem {
-  status: 'paid' | 'upcoming';
+  status: 'paid' | 'upcoming' | 'overdue';
   month: string;
   date: string;
   amount: number;
 }
 
 export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; }) {
+  const REPAYMENT_MONTHS = 3;
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [mobileMoneyNumber, setMobileMoneyNumber] = useState('');
@@ -72,12 +73,15 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
         }
         setActiveLoan(firstActiveLoan);
 
+        let successfulPaymentsCount = 0;
+
         // Fetch payment history for the active loan
         try {
           const historyRes = await fetch(`${API_BASE}/payments/loan/${firstActiveLoan.id}`, { headers, cache: 'no-cache' });
           if (historyRes.ok) {
             const history: Payment[] = await historyRes.json();
             setPaymentHistory(history || []);
+            successfulPaymentsCount = (history || []).filter((payment) => payment.status === 'SUCCESSFUL').length;
           } else {
             setPaymentHistory([]);
           }
@@ -87,18 +91,25 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
 
         // Build a 3-month repayment schedule
         const schedule: RepaymentItem[] = [];
-        const REPAYMENT_MONTHS = 3;
         if (firstActiveLoan.amount_requested > 0) {
           const installmentAmount = Math.ceil(firstActiveLoan.amount_requested / REPAYMENT_MONTHS);
-          const startDate = new Date();
+          const startDate = firstActiveLoan.created_at ? new Date(firstActiveLoan.created_at) : new Date();
+          const now = new Date();
           for (let i = 1; i <= REPAYMENT_MONTHS; i++) {
             const dueDate = new Date(startDate);
             dueDate.setMonth(startDate.getMonth() + i);
+            const installmentStatus: RepaymentItem['status'] =
+              i <= successfulPaymentsCount
+                ? 'paid'
+                : now > dueDate && Number(firstActiveLoan.outstanding_balance ?? 0) > 0
+                  ? 'overdue'
+                  : 'upcoming';
+
             schedule.push({
               month: `Installment ${i}`,
               date: `Due by ${dueDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`,
               amount: installmentAmount,
-              status: 'upcoming',
+              status: installmentStatus,
             });
           }
         }
@@ -221,6 +232,23 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
     );
   }
 
+  const finalDueDate = activeLoan
+    ? (() => {
+        const dueDate = new Date(activeLoan.created_at);
+        dueDate.setMonth(dueDate.getMonth() + REPAYMENT_MONTHS);
+        return dueDate;
+      })()
+    : null;
+
+  const isLoanOverdue = Boolean(
+    activeLoan &&
+      finalDueDate &&
+      Number(activeLoan.outstanding_balance ?? 0) > 0 &&
+      new Date() > finalDueDate
+  );
+
+  const displayLoanStatus = isLoanOverdue ? 'overdue' : activeLoan?.status;
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
@@ -231,8 +259,11 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
           <div className="flex items-center justify-between">
             <h2 className="text-lg text-white">Loan Details</h2>
             {activeLoan && (
-              <Badge style={{ backgroundColor: 'var(--accent)' }} className="text-white capitalize">
-                {activeLoan.status}
+              <Badge
+                className="text-white capitalize"
+                style={{ backgroundColor: isLoanOverdue ? '#dc2626' : 'var(--accent)' }}
+              >
+                {displayLoanStatus}
               </Badge>
             )}
           </div>
@@ -288,15 +319,55 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
                   <Calendar size={20} style={{ color: '#1a4d7a' }} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm">Next Chop Deduction</p>
+                  <p className="text-sm">Repayment Deadline</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Automatic deductions are scheduled. You will be notified before each payment.
+                    Full repayment is expected within {REPAYMENT_MONTHS} months from loan approval.
+                    {finalDueDate && ` Final due date: ${finalDueDate.toLocaleDateString('en-GB')}.`}
                   </p>
                   <Badge variant="outline" className="mt-2 text-xs">
-                    {activeLoan.chopConsented ? 'Consent Given' : 'Pending Consent'}
+                    {isLoanOverdue
+                      ? 'Overdue - Immediate Payment Required'
+                      : activeLoan.chopConsented
+                        ? 'Consent Given'
+                        : 'Pending Consent'}
                   </Badge>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">3-Month Repayment Schedule</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {repaymentSchedule.length > 0 ? (
+                repaymentSchedule.map((item) => (
+                  <div key={item.month} className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
+                    <div>
+                      <p className="text-sm font-medium">{item.month}</p>
+                      <p className="text-xs text-gray-500">{item.date}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">UGX {Number(item.amount).toLocaleString()}</p>
+                      <Badge
+                        variant="outline"
+                        className={`mt-1 text-xs capitalize ${
+                          item.status === 'paid'
+                            ? 'border-green-300 bg-green-50 text-green-700'
+                            : item.status === 'overdue'
+                              ? 'border-red-300 bg-red-50 text-red-700'
+                              : 'border-amber-300 bg-amber-50 text-amber-700'
+                        }`}
+                      >
+                        {item.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">Repayment schedule is not available.</p>
+              )}
             </CardContent>
           </Card>
 

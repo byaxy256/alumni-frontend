@@ -1,6 +1,9 @@
 
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import type { User } from '../../App';
 import { 
@@ -35,6 +38,13 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   const [studentsInField, setStudentsInField] = useState<any[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mentorApplication, setMentorApplication] = useState({
+    field: (user.meta?.field as string) || '',
+    company: (user.meta?.company as string) || '',
+    experience: '',
+    bio: '',
+  });
+  const [submittingApplication, setSubmittingApplication] = useState(false);
   const [donationStats, setDonationStats] = useState({
     totalDonated: 0,
     studentsHelped: 0,
@@ -44,6 +54,41 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   const displayName = user.full_name || user.name || 'Alumni';
   const displayCourse = user.course || user.meta?.course || user.meta?.field || 'Alumni';
   const displayGradYear = user.graduationYear || user.meta?.graduationYear || user.meta?.graduation_year || 'N/A';
+  const existingMentorApplication = user.meta?.mentorApplication as any;
+  const hasMentorApplication = Boolean(existingMentorApplication?.submittedAt);
+
+  const handleMentorApplicationSubmit = async () => {
+    if (!mentorApplication.field.trim() || !mentorApplication.company.trim() || !mentorApplication.experience.trim() || !mentorApplication.bio.trim()) {
+      toast.error('Please complete all mentor application fields.');
+      return;
+    }
+
+    try {
+      setSubmittingApplication(true);
+      const token = localStorage.getItem('token') || '';
+      await api.updateProfile(
+        {
+          meta: {
+            ...(user.meta || {}),
+            wantsToMentor: true,
+            mentorApplication: {
+              ...mentorApplication,
+              submittedAt: new Date().toISOString(),
+              status: 'pending',
+            },
+          },
+        },
+        token
+      );
+      toast.success('Mentor application submitted successfully.');
+      setMentorApplication((prev) => ({ ...prev, experience: '', bio: '' }));
+    } catch (error: any) {
+      console.error('Mentor application submit error', error);
+      toast.error(error?.message || 'Failed to submit mentor application.');
+    } finally {
+      setSubmittingApplication(false);
+    }
+  };
 
   // Load students in the same field as the alumni
   useEffect(() => {
@@ -354,6 +399,78 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
               className="w-full border-border text-foreground hover:bg-muted"
             >
               Mentorship Hub
+            </Button>
+          </Card>
+
+          <Card className="p-5 bg-card border border-border mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg text-foreground">Apply to Become a Mentor</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Submit your profile for Alumni Office review.
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--brand-purple)' }}>
+                <Award className="w-6 h-6 text-white" />
+              </div>
+            </div>
+
+            {hasMentorApplication && (
+              <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                Application submitted on {new Date(existingMentorApplication.submittedAt).toLocaleDateString()} • Status: {existingMentorApplication.status || 'pending'}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="space-y-2">
+                <Label htmlFor="mentor-field">Field</Label>
+                <Input
+                  id="mentor-field"
+                  placeholder="e.g. Software Engineering"
+                  value={mentorApplication.field}
+                  onChange={(e) => setMentorApplication((prev) => ({ ...prev, field: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="mentor-company">Company/Organization</Label>
+                <Input
+                  id="mentor-company"
+                  placeholder="Where you currently work"
+                  value={mentorApplication.company}
+                  onChange={(e) => setMentorApplication((prev) => ({ ...prev, company: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="mentor-exp">Years of Experience</Label>
+              <Input
+                id="mentor-exp"
+                type="number"
+                min={0}
+                placeholder="e.g. 5"
+                value={mentorApplication.experience}
+                onChange={(e) => setMentorApplication((prev) => ({ ...prev, experience: e.target.value }))}
+              />
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="mentor-bio">Why you want to mentor</Label>
+              <Textarea
+                id="mentor-bio"
+                rows={4}
+                placeholder="Share your motivation and areas you can guide students in"
+                value={mentorApplication.bio}
+                onChange={(e) => setMentorApplication((prev) => ({ ...prev, bio: e.target.value }))}
+              />
+            </div>
+
+            <Button
+              onClick={handleMentorApplicationSubmit}
+              disabled={submittingApplication}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              {submittingApplication ? 'Submitting...' : hasMentorApplication ? 'Update Mentor Application' : 'Submit Mentor Application'}
             </Button>
           </Card>
 
