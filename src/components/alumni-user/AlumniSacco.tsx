@@ -137,8 +137,6 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         return;
       }
     }
-      return;
-    }
     if (enrollMethod === 'bank' && (!enrollBankName || !enrollBankAccount)) {
       toast.error('Enter bank name and account number');
       return;
