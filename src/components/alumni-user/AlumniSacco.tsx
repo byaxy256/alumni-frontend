@@ -157,8 +157,10 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         }),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Enrollment failed');
+        const text = await res.text().catch(() => '');
+        let err: any = {};
+        try { err = text ? JSON.parse(text) : {}; } catch { err = {}; }
+        throw new Error(err.error || err.message || text || `Enrollment failed (HTTP ${res.status})`);
       }
       toast.success('You are now enrolled in SACCO');
       setShowEnrollForm(false);
@@ -199,12 +201,23 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         }),
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || 'Contribution failed');
+      if (!res.ok) throw new Error(json.error || json.message || `Contribution failed (HTTP ${res.status})`);
 
       if (contributeMethod === 'bank') {
         toast.success('Use the bank details below to complete your payment. Quote reference: ' + (json.transaction_ref || ''));
         setShowContributeForm(false);
         fetchSacco();
+        return;
+      }
+
+      // BACKWARD COMPAT: older backend used to return transaction_id + need_pin directly.
+      if (json.need_pin && json.transaction_id) {
+        setPendingTxId(String(json.transaction_id));
+        setPendingPayAmount(amount);
+        setPendingPayPhone(msisdn);
+        setPendingPayProvider('mtn');
+        setShowContributeForm(false);
+        toast.info('Enter your PIN to complete the payment');
         return;
       }
 
