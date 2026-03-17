@@ -185,7 +185,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-6">
       {/* Hero Section */}
-      <div className="bg-primary text-white p-6 md:p-8">
+      <div className="bg-[#0b2a4a] text-white p-6 md:p-8 rounded-b-3xl shadow-lg">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 flex justify-between items-start">
             <div className="flex items-start gap-3">
