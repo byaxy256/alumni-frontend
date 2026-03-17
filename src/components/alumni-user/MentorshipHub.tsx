@@ -583,17 +583,23 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
+      <div
+        className="p-4 sticky top-0 z-10"
+        style={{
+          background: 'linear-gradient(135deg, #2f5288 0%, #355C9A 100%)',
+          borderBottom: '1px solid rgba(255,255,255,0.12)'
+        }}
+      >
 
         <div className="max-w-6xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-muted rounded-lg text-foreground" title="Go back">
+          <button onClick={onBack} className="p-2 hover:bg-white/15 rounded-lg text-white" title="Go back">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="flex-1 font-semibold text-foreground" style={{ color: 'var(--chat-header-blue)' }}>Mentorship Hub</h1>
+          <h1 className="flex-1 font-semibold text-white">Mentorship Hub</h1>
           {selectedStudent && (
             <button
               onClick={() => setShowSearch(!showSearch)}
-              className="p-2 hover:bg-gray-100 rounded-lg"
+              className="p-2 hover:bg-white/15 rounded-lg text-white"
               title="Search students"
             >
               <Search className="w-5 h-5" />

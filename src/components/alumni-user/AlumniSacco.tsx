@@ -130,8 +130,13 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
       toast.error('Enter a valid amount');
       return;
     }
-    if (enrollMethod === 'mobile' && (!enrollPhone || enrollPhone.replace(/\D/g, '').length < 9)) {
-      toast.error('Enter a valid mobile number');
+    if (enrollMethod === 'mobile') {
+      const digits = enrollPhone.replace(/\D/g, '');
+      if (!digits || digits.length < 10) {
+        toast.error('Enter a valid phone number (e.g. 07XXXXXXXX)');
+        return;
+      }
+    }
       return;
     }
     if (enrollMethod === 'bank' && (!enrollBankName || !enrollBankAccount)) {
@@ -146,7 +151,7 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           contribution_method: enrollMethod,
-          mobile_phone: enrollMethod === 'mobile' ? enrollPhone : undefined,
+          mobile_phone: enrollMethod === 'mobile' ? normalizeUgMsisdn(enrollPhone) : undefined,
           bank_name: enrollMethod === 'bank' ? enrollBankName : undefined,
           bank_account: enrollMethod === 'bank' ? enrollBankAccount : undefined,
           amount_per_cycle: amount,
@@ -174,13 +179,17 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
       toast.error('Enter a valid amount');
       return;
     }
-    if (contributeMethod === 'mobile' && (!contributePhone || contributePhone.replace(/\D/g, '').length < 9)) {
-      toast.error('Enter a valid mobile number');
-      return;
+    if (contributeMethod === 'mobile') {
+      const digits = contributePhone.replace(/\D/g, '');
+      if (!digits || digits.length < 10) {
+        toast.error('Enter a valid phone number (e.g. 07XXXXXXXX)');
+        return;
+      }
     }
     setContributing(true);
     try {
       const token = localStorage.getItem('token');
+      const msisdn = contributeMethod === 'mobile' ? normalizeUgMsisdn(contributePhone) : '';
       // Step 1: Create contribution record (pending)
       const res = await fetch(`${API_BASE}/sacco/contribute`, {
         method: 'POST',
@@ -188,7 +197,7 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         body: JSON.stringify({
           amount,
           method: contributeMethod,
-          phone: contributeMethod === 'mobile' ? contributePhone : undefined,
+          phone: contributeMethod === 'mobile' ? msisdn : undefined,
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -205,7 +214,6 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
       const contributionId = json.contribution_id as string | undefined;
       if (!contributionId) throw new Error('Missing contribution id');
       const provider: 'mtn' | 'airtel' = 'mtn';
-      const msisdn = normalizeUgMsisdn(contributePhone);
 
       const initRes = await fetch(`${API_BASE}/payments/initiate`, {
         method: 'POST',

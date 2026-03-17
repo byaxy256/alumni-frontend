@@ -267,7 +267,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           </div>
 
           {/* Donation Impact Card */}
-          <Card className="border-white/20 p-5 text-white" style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}>
+          <Card className="border-white/20 p-5 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="p-2 rounded-full bg-white/20">
                 <TrendingUp className="w-5 h-5 text-white" />

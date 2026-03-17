@@ -8,16 +8,22 @@ interface AlumniChaptersProps {
 export function AlumniChapters({ onBack }: AlumniChaptersProps) {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+      <div
+        className="p-4 sticky top-0 z-10"
+        style={{
+          background: 'linear-gradient(135deg, #2f5288 0%, #355C9A 100%)',
+          borderBottom: '1px solid rgba(255,255,255,0.12)'
+        }}
+      >
         <div className="max-w-4xl mx-auto flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-white/15 rounded-lg text-white"
             aria-label="Go back"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-white" />
           </button>
-          <h1 className="text-primary">Alumni Chapters</h1>
+          <h1 className="text-white">Alumni Chapters</h1>
         </div>
       </div>
 
