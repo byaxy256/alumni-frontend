@@ -4135,8 +4135,8 @@ body {
   --chat-bubble-out: #0b2a4a;
   --chat-bubble-out-border: rgba(7, 25, 48, 0.4);
   --chat-bubble-out-shadow: 0 8px 16px rgba(7, 25, 48, 0.22);
-  --chat-bubble-in: rgba(255, 255, 255, 0.92);
-  --chat-bubble-in-border: rgba(15, 23, 42, 0.06);
+  --chat-bubble-in: #ffffff;
+  --chat-bubble-in-border: rgba(148, 163, 184, 0.25);
 }
 .dark {
   --chat-header-blue: #1a4d7a;
@@ -4151,9 +4151,9 @@ body {
 /* Soft chat area background with blurred shapes */
 .chat-area-bg {
   position: relative;
-  background: radial-gradient(circle at top left, rgba(63, 94, 183, 0.12), transparent 55%),
-              radial-gradient(circle at bottom right, rgba(214, 174, 99, 0.12), transparent 55%),
-              linear-gradient(135deg, #f5f7ff 0%, #eef1fb 100%);
+  background: radial-gradient(circle at top left, rgba(125, 159, 246, 0.18), transparent 55%),
+              radial-gradient(circle at bottom right, rgba(214, 174, 99, 0.16), transparent 55%),
+              linear-gradient(135deg, #f6f7fc 0%, #edf1fb 100%);
 }
 .dark .chat-area-bg {
   background: radial-gradient(circle at top left, rgba(125, 159, 246, 0.16), transparent 55%),
@@ -4168,6 +4168,20 @@ body {
   border-radius: 1.4rem !important;
   border: 1px solid var(--chat-bubble-out-border);
   box-shadow: var(--chat-bubble-out-shadow);
+}
+
+/* Incoming message bubble (soft white / navy, with compact meta) */
+.chat-bubble-in {
+  background-color: var(--chat-bubble-in);
+  border-radius: 1.4rem !important;
+  border: 1px solid var(--chat-bubble-in-border);
+  box-shadow: 0 6px 10px rgba(15, 23, 42, 0.06);
+}
+
+.chat-bubble-meta {
+  font-size: 0.68rem;
+  opacity: 0.7;
+  white-space: nowrap;
 }
 
 html {

@@ -304,13 +304,19 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <header className="p-4 sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-          <div className="max-w-4xl mx-auto flex items-center gap-4">
-            <Button onClick={() => setActiveChatMentor(null)} variant="ghost" size="icon" className="text-white hover:bg-white/15"><ArrowLeft className="w-5 h-5" /></Button>
-            <div className="flex items-center gap-3">
-              <Avatar><AvatarFallback>{activeChatMentor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback></Avatar>
-              <div><h1 className="font-semibold text-white">{activeChatMentor.name}</h1><p className="text-xs text-green-300">Online</p></div>
+            <div className="max-w-4xl mx-auto flex items-center gap-4">
+              <Button onClick={() => setActiveChatMentor(null)} variant="ghost" size="icon" className="text-white hover:bg-white/15"><ArrowLeft className="w-5 h-5" /></Button>
+              <div className="flex items-center gap-3">
+                <Avatar><AvatarFallback>{activeChatMentor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback></Avatar>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="font-semibold text-white">{activeChatMentor.name}</h1>
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-400 border border-white/80" />
+                  </div>
+                  <p className="text-xs text-green-200/90">Online</p>
+                </div>
+              </div>
             </div>
-          </div>
         </header>
         <main className="flex-1 overflow-y-auto p-4 space-y-4 chat-area-bg">
             {messages.length === 0 ? (
@@ -319,14 +325,20 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     <p>Send a message to get started!</p>
                 </div>
             ) : (
-                messages.map(msg => (
-                    <div key={msg.id} className={`flex items-end gap-2 ${msg.sender_id === user.uid ? 'justify-end' : ''}`}>
-                        <div className={`max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.sender_id === user.uid ? 'chat-bubble-out rounded-br-none' : 'bg-card text-card-foreground rounded-bl-none border border-border shadow-sm'}`}>
-                            <p className="text-sm">{msg.message_text}</p>
-                            <p className="text-xs opacity-70 mt-1 text-right">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                messages.map(msg => {
+                  const isMe = msg.sender_id === user.uid;
+                  const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  return (
+                    <div key={msg.id} className={`flex items-end gap-2 ${isMe ? 'justify-end' : ''}`}>
+                      <div className={`max-w-xs lg:max-w-md px-3 py-2 rounded-2xl ${isMe ? 'chat-bubble-out rounded-br-none' : 'chat-bubble-in rounded-bl-none text-card-foreground'}`}>
+                        <div className="flex items-end gap-2">
+                          <span className="text-sm leading-snug break-words">{msg.message_text}</span>
+                          <span className="chat-bubble-meta self-end">{time}</span>
                         </div>
+                      </div>
                     </div>
-                ))
+                  );
+                })
             )}
             <div ref={messagesEndRef} />
         </main>
@@ -542,7 +554,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     </Button>
                     <Button
                       variant="outline"
-                      className="flex-1 border-[#c6d5f2] bg-[#f4f8ff] text-[#355C9A] hover:bg-[#e6efff]"
+                      className="flex-1 border-[#c6d5f2] bg-[#f4f8ff] text-[#355C9A] hover:border-[#355C9A] hover:bg-[#355C9A] hover:text-white"
                       onClick={() => setSelectedMentorProfile(mentor)}
                     >
                       <Eye className="w-4 h-4 mr-2" /> View Details
@@ -567,7 +579,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
       </section>
 
       <section>
-        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}>
+        <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
           <h2 className="text-lg font-semibold">Available Mentors</h2>
           <p className="text-sm text-white/75">Browse alumni ready to guide you, ask questions, and open doors.</p>
         </div>
@@ -579,7 +591,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               placeholder="Search mentors by name, company, or expertise..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full"
+              className="w-full border-[#bdd0f0] focus-visible:ring-[#355C9A]"
             />
           </div>
           <div className="sm:w-48">
@@ -587,7 +599,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               aria-label="Filter mentors by field"
               value={filterField}
               onChange={(e) => setFilterField(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="w-full px-3 py-2 border border-[#bdd0f0] rounded-md text-sm bg-[#edf3ff] text-[#355C9A] focus:outline-none focus:ring-2 focus:ring-[#355C9A]/40"
             >
               <option value="All Fields">All Fields</option>
               <option value="Software Engineering">Software Engineering</option>
@@ -599,6 +611,27 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               <option value="Design">Design</option>
             </select>
           </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {['All Fields', 'Software Engineering', 'Data Science', 'Finance'].map((field) => {
+            const isActiveField = filterField === field;
+            return (
+              <button
+                key={field}
+                type="button"
+                onClick={() => setFilterField(field)}
+                className={`px-3 py-1.5 rounded-full text-xs transition-colors ${
+                  isActiveField
+                    ? 'text-white shadow-sm'
+                    : 'bg-white border border-[#bdd0f0] text-[#355C9A] hover:bg-[#e6efff]'
+                }`}
+                style={isActiveField ? { background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' } : undefined}
+              >
+                {field}
+              </button>
+            );
+          })}
         </div>
 
         {/* Filtered mentors display */}
@@ -640,12 +673,12 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     </div>
                     <p className="text-sm text-gray-600 my-3">{mentor.bio}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs border-[#d8c9e8] bg-white/80 text-[#6f4f8a]">{exp}</Badge>)}
+                      {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs border-[#cdb8df] bg-[#f5eefb] text-[#6f4f8a] hover:bg-[#eadcf7]">{exp}</Badge>)}
                     </div>
                     <div className="flex flex-wrap gap-2 items-center">
                       <Button
                         variant="outline"
-                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:bg-[#efe8f6] hover:text-[#5c4275]"
+                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:border-[#845aa7] hover:bg-[#845aa7] hover:text-white"
                         onClick={() => setSelectedMentorProfile(mentor)}
                       >
                         <Eye className="w-4 h-4 mr-2" />
@@ -653,7 +686,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                       </Button>
                       <Button
                         variant="outline"
-                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:border-[#c79a2b] hover:bg-[#c79a2b] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:border-[#3f7a4a] hover:bg-[#3f7a4a] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
                         disabled={mentor.status === 'unavailable' || isPending}
                         onClick={() => handleRequestMentor(mentor)}
                       >
@@ -668,7 +701,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     {isPending && (
                       <Button
                         variant="outline"
-                        className="mt-2 border-[#d7c8e6] bg-white/80 text-[#6f4f8a] hover:bg-[#efe8f6]"
+                        className="mt-2 border-[#d7c8e6] bg-white/80 text-[#6f4f8a] hover:border-[#b1882a] hover:bg-[#b1882a] hover:text-white"
                         onClick={() => handleUndoRequest(mentor)}
                       >
                         Undo Request
@@ -693,13 +726,13 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
         </div>
       </section>
       
-      <section>
+      <section className="mt-12">
         <div className="mb-4 rounded-2xl px-4 py-3 text-white shadow-sm" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
           <h2 className="text-lg font-semibold">Why Get a Mentor?</h2>
           <p className="text-sm text-white/75">Guidance, connections, and practical support from alumni who understand your journey.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-            <Card className="border-white/20 text-white h-full" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+            <Card className="border-white/20 text-white h-full" style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}>
               <CardContent className="p-5 h-full flex flex-col justify-between min-h-[150px]">
                 <h3 className="font-semibold text-sm mb-2 text-white">Career Guidance</h3>
                 <p className="text-xs text-white/85">Get personalized advice on your career path from experienced professionals in your field.</p>
@@ -805,7 +838,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                 </Button>
                 <Button
                   variant="outline"
-                  className="border-[#cdbad9] bg-white text-[#6f4f8a] hover:border-[#c79a2b] hover:bg-[#c79a2b] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+                  className="border-[#cdbad9] bg-white text-[#6f4f8a] hover:border-[#3f7a4a] hover:bg-[#3f7a4a] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
                   disabled={selectedMentorProfile.status === 'unavailable' || selectedMentorPending}
                   onClick={async () => {
                     await handleRequestMentor(selectedMentorProfile);
@@ -822,7 +855,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               {selectedMentorPending && (
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full border-[#d7c8e6] bg-white/80 text-[#6f4f8a] hover:border-[#b1882a] hover:bg-[#b1882a] hover:text-white"
                   onClick={async () => {
                     await handleUndoRequest(selectedMentorProfile);
                   }}
