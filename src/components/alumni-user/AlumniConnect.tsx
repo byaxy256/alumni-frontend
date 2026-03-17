@@ -7,9 +7,9 @@ interface AlumniConnectProps {
 }
 export function AlumniConnect({ onBack }: AlumniConnectProps) {
   const classes = [
-    { id: '2025-may', name: 'Class of 2025 - May Intake', members: 198 },
-    { id: '2024-sep', name: 'Class of 2024 - September Intake', members: 230 },
-    { id: '2024-may', name: 'Class of 2024 - May Intake', members: 210 },
+    { id: '2025-may', name: 'Class of 2025 - May Intake', members: 198, whatsappUrl: '' },
+    { id: '2024-sep', name: 'Class of 2024 - September Intake', members: 230, whatsappUrl: '' },
+    { id: '2024-may', name: 'Class of 2024 - May Intake', members: 210, whatsappUrl: '' },
   ];
 
   return (
@@ -36,7 +36,18 @@ export function AlumniConnect({ onBack }: AlumniConnectProps) {
                   <p className="text-sm text-gray-600">{cls.members} members</p>
                 </div>
               </div>
-              <Button>Join</Button>
+              <div className="mt-4">
+                <Button
+                  disabled={!cls.whatsappUrl}
+                  onClick={() => {
+                    if (!cls.whatsappUrl) return;
+                    window.open(cls.whatsappUrl, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="w-full"
+                >
+                  {cls.whatsappUrl ? 'Join WhatsApp group' : 'WhatsApp link needed'}
+                </Button>
+              </div>
           </Card>
         ))}
       </div>

@@ -58,6 +58,7 @@ export function AlumniDonations({ user, onBack, onNavigate }: AlumniDonationsPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingTransactionRef, setPendingTransactionRef] = useState<string | null>(null);
   const [showPinSetupPrompt, setShowPinSetupPrompt] = useState(false);
+  const [downloadingDonationId, setDownloadingDonationId] = useState<string | null>(null);
 
   const fetchDonationStats = async () => {
     try {
@@ -134,6 +135,34 @@ export function AlumniDonations({ user, onBack, onNavigate }: AlumniDonationsPro
 
   const sanitizePhoneNumber = (value: string) => {
     return value.replace(/\D/g, '').slice(0, 10);
+  };
+
+  const downloadDonationReceipt = async (donationId: string) => {
+    try {
+      const token = localStorage.getItem('token') || '';
+      if (!token) throw new Error('Missing auth token');
+      setDownloadingDonationId(donationId);
+      const res = await fetch(`${API_BASE}/donations/${donationId}/receipt`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Could not download donation receipt.');
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `donation-receipt-${donationId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(err.message || 'Failed to download receipt');
+    } finally {
+      setDownloadingDonationId(null);
+    }
   };
 
   const handleProceedToPayment = async () => {
@@ -593,6 +622,18 @@ export function AlumniDonations({ user, onBack, onNavigate }: AlumniDonationsPro
                           })}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{paymentMethodDisplay}</p>
+                        {donation.payment_status === 'completed' && (
+                          <div className="mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={downloadingDonationId === donation._id}
+                              onClick={() => downloadDonationReceipt(donation._id)}
+                            >
+                              {downloadingDonationId === donation._id ? 'Downloading…' : 'Download receipt'}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-lg">UGX {donation.amount.toLocaleString()}</p>

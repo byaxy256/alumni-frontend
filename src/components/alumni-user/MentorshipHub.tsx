@@ -107,7 +107,15 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   const [mentorApplication, setMentorApplication] = useState({
     field: (user.meta?.field as string) || '',
     company: (user.meta?.company as string) || '',
+    roleTitle: String((user.meta?.mentorApplication as any)?.roleTitle || ''),
     experience: String((user.meta?.mentorApplication as any)?.experience || ''),
+    location: String((user.meta?.mentorApplication as any)?.location || ''),
+    languages: String((user.meta?.mentorApplication as any)?.languages || ''),
+    expertise: String((user.meta?.mentorApplication as any)?.expertise || ''),
+    mentorshipTopics: String((user.meta?.mentorApplication as any)?.mentorshipTopics || ''),
+    availability: String((user.meta?.mentorApplication as any)?.availability || ''),
+    preferredMode: String((user.meta?.mentorApplication as any)?.preferredMode || ''),
+    linkedinUrl: String((user.meta?.mentorApplication as any)?.linkedinUrl || ''),
     bio: String((user.meta?.mentorApplication as any)?.bio || ''),
   });
   const [submittingApplication, setSubmittingApplication] = useState(false);
@@ -116,8 +124,21 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
   const hasMentorApplication = Boolean(mentorApplicationStatus?.submittedAt);
 
   const handleMentorApplicationSubmit = async () => {
-    if (!mentorApplication.field.trim() || !mentorApplication.company.trim() || !mentorApplication.experience.trim() || !mentorApplication.bio.trim()) {
-      toast.error('Please complete all mentor application fields.');
+    if (hasMentorApplication) return;
+    const required = [
+      mentorApplication.field,
+      mentorApplication.company,
+      mentorApplication.roleTitle,
+      mentorApplication.experience,
+      mentorApplication.location,
+      mentorApplication.expertise,
+      mentorApplication.mentorshipTopics,
+      mentorApplication.availability,
+      mentorApplication.preferredMode,
+      mentorApplication.bio,
+    ];
+    if (required.some((v) => !String(v || '').trim())) {
+      toast.error('Please complete all required mentor application fields.');
       return;
     }
 
@@ -594,62 +615,177 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                   <CardDescription>Submit your profile for Alumni Office review.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {hasMentorApplication && (
-                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                      Application submitted on {new Date(mentorApplicationStatus.submittedAt).toLocaleDateString()} • Status: {mentorApplicationStatus.status || 'pending'}
+                  {hasMentorApplication ? (
+                    <div className="space-y-3">
+                      <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                        Application submitted on {new Date(mentorApplicationStatus.submittedAt).toLocaleDateString()} • Status: {mentorApplicationStatus.status || 'pending'}
+                      </div>
+
+                      <div className="rounded-lg border border-border p-3 text-sm space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Field</span>
+                          <span className="font-medium">{mentorApplicationStatus.field || '—'}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Company</span>
+                          <span className="font-medium text-right">{mentorApplicationStatus.company || '—'}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Role</span>
+                          <span className="font-medium text-right">{mentorApplicationStatus.roleTitle || '—'}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Experience</span>
+                          <span className="font-medium">{mentorApplicationStatus.experience || '—'} yrs</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Location</span>
+                          <span className="font-medium text-right">{mentorApplicationStatus.location || '—'}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">Preferred mode</span>
+                          <span className="font-medium text-right">{mentorApplicationStatus.preferredMode || '—'}</span>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground">
+                        Your application is under review by the Alumni Office. You’ll be notified once it’s approved.
+                      </p>
                     </div>
+                  ) : (
+                    <>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-field">Field (required)</Label>
+                        <Input
+                          id="mentor-field"
+                          placeholder="e.g. Software Engineering"
+                          value={mentorApplication.field}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, field: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-company">Company/Organization (required)</Label>
+                        <Input
+                          id="mentor-company"
+                          placeholder="Where you currently work"
+                          value={mentorApplication.company}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, company: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-role">Current role/title (required)</Label>
+                        <Input
+                          id="mentor-role"
+                          placeholder="e.g. Product Designer, Software Engineer"
+                          value={mentorApplication.roleTitle}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, roleTitle: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-exp">Years of experience (required)</Label>
+                        <Input
+                          id="mentor-exp"
+                          type="number"
+                          min={0}
+                          placeholder="e.g. 5"
+                          value={mentorApplication.experience}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, experience: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-location">Location (required)</Label>
+                        <Input
+                          id="mentor-location"
+                          placeholder="e.g. Kampala, Uganda"
+                          value={mentorApplication.location}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, location: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-languages">Languages (optional)</Label>
+                        <Input
+                          id="mentor-languages"
+                          placeholder="e.g. English, Luganda"
+                          value={mentorApplication.languages}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, languages: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-expertise">Expertise/skills (required)</Label>
+                        <Input
+                          id="mentor-expertise"
+                          placeholder="e.g. React, Career guidance, Data analysis (comma-separated)"
+                          value={mentorApplication.expertise}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, expertise: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-topics">Mentorship topics you can help with (required)</Label>
+                        <Input
+                          id="mentor-topics"
+                          placeholder="e.g. Final year project, internships, CV review (comma-separated)"
+                          value={mentorApplication.mentorshipTopics}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, mentorshipTopics: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-availability">Availability (required)</Label>
+                        <Input
+                          id="mentor-availability"
+                          placeholder="e.g. Weeknights 7–9pm, Sat mornings"
+                          value={mentorApplication.availability}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, availability: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-mode">Preferred mentorship mode (required)</Label>
+                        <Input
+                          id="mentor-mode"
+                          placeholder="e.g. Chat + calls, In-person, Video"
+                          value={mentorApplication.preferredMode}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, preferredMode: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-linkedin">LinkedIn profile (optional)</Label>
+                        <Input
+                          id="mentor-linkedin"
+                          placeholder="https://linkedin.com/in/yourname"
+                          value={mentorApplication.linkedinUrl}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, linkedinUrl: e.target.value }))}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="mentor-bio">Short mentor bio (required)</Label>
+                        <Textarea
+                          id="mentor-bio"
+                          rows={4}
+                          placeholder="A short intro students will read before requesting you as a mentor"
+                          value={mentorApplication.bio}
+                          onChange={(e) => setMentorApplication((prev) => ({ ...prev, bio: e.target.value }))}
+                        />
+                      </div>
+
+                      <Button
+                        onClick={handleMentorApplicationSubmit}
+                        disabled={submittingApplication}
+                        className="w-full"
+                      >
+                        {submittingApplication ? 'Submitting...' : 'Submit Mentor Application'}
+                      </Button>
+                    </>
                   )}
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="mentor-field">Field</Label>
-                    <Input
-                      id="mentor-field"
-                      placeholder="e.g. Software Engineering"
-                      value={mentorApplication.field}
-                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, field: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="mentor-company">Company/Organization</Label>
-                    <Input
-                      id="mentor-company"
-                      placeholder="Where you currently work"
-                      value={mentorApplication.company}
-                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, company: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="mentor-exp">Years of Experience</Label>
-                    <Input
-                      id="mentor-exp"
-                      type="number"
-                      min={0}
-                      placeholder="e.g. 5"
-                      value={mentorApplication.experience}
-                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, experience: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="mentor-bio">Why you want to mentor</Label>
-                    <Textarea
-                      id="mentor-bio"
-                      rows={4}
-                      placeholder="Share your motivation and areas you can guide students in"
-                      value={mentorApplication.bio}
-                      onChange={(e) => setMentorApplication((prev) => ({ ...prev, bio: e.target.value }))}
-                    />
-                  </div>
-
-                  <Button
-                    onClick={handleMentorApplicationSubmit}
-                    disabled={submittingApplication}
-                    className="w-full"
-                  >
-                    {submittingApplication ? 'Submitting...' : hasMentorApplication ? 'Update Mentor Application' : 'Submit Mentor Application'}
-                  </Button>
                 </CardContent>
               </Card>
 

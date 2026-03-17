@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { ArrowLeft, Calendar, MapPin, Users, Clock, Loader2 } from 'lucide-react';
 import { ImageWithFallback } from '../figma_image/ImageWithFallback';
-import { API_BASE } from '../../api';
+import { API_BASE, api } from '../../api';
 import {
   Dialog,
   DialogContent,
@@ -28,8 +28,8 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
   const [registered, setRegistered] = useState<Set<number>>(new Set());
   const [showPayment, setShowPayment] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState('mtn');
-  const [accessNumber, setAccessNumber] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'mtn'>('mtn');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   // PIN prompt state — same pattern as LoanDetails / PaymentHistory
   const [showPINPrompt, setShowPINPrompt] = useState(false);
@@ -38,12 +38,13 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') || '' : '';
 
-  const sanitizeAccessNumber = (value: string) => {
-    const upper = value.toUpperCase();
-    const letter = upper[0];
-    if (letter !== 'A' && letter !== 'B') return '';
-    const digits = upper.slice(1).replace(/\D/g, '').slice(0, 5);
-    return `${letter}${digits}`;
+  const sanitizePhone = (value: string) => value.replace(/\D/g, '').slice(0, 12);
+  const normalizeUgMsisdn = (value: string) => {
+    const digits = String(value || '').replace(/\D/g, '');
+    if (digits.startsWith('256') && digits.length >= 12) return digits.slice(0, 12);
+    if (digits.startsWith('0') && digits.length >= 10) return `256${digits.slice(-9)}`;
+    if (digits.length === 9) return `256${digits}`;
+    return digits;
   };
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
           id: it.id,
           title: it.title,
           date: it.date ? new Date(it.date).toLocaleDateString() : '',
+          dateRaw: it.date || it.event_date || null,
           time: it.time || '',
           location: it.location || '',
           description: it.description || it.content || '',
@@ -66,7 +68,35 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
           category: it.category || 'Event',
           status: 'upcoming',
         }));
-        setEvents(mapped);
+
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const expired = mapped.filter((event: any) => {
+          if (!event.dateRaw) return false;
+          const when = new Date(event.dateRaw);
+          return Number.isFinite(when.getTime()) && when < todayStart;
+        });
+
+        if (expired.length > 0 && token) {
+          await Promise.allSettled(
+            expired.map((event: any) => api.deleteContent('events', String(event.id), token))
+          );
+        }
+
+        const upcoming = mapped
+          .filter((event: any) => {
+            if (!event.dateRaw) return true;
+            const when = new Date(event.dateRaw);
+            return Number.isFinite(when.getTime()) ? when >= todayStart : true;
+          })
+          .sort((a: any, b: any) => {
+            const ta = a.dateRaw ? new Date(a.dateRaw).getTime() : Number.MAX_SAFE_INTEGER;
+            const tb = b.dateRaw ? new Date(b.dateRaw).getTime() : Number.MAX_SAFE_INTEGER;
+            return ta - tb;
+          });
+
+        setEvents(upcoming);
       } catch (err) {
         console.error(err);
       } finally {
@@ -119,14 +149,14 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
     if (!selectedEvent) { toast.error('No event selected. Please try again.'); return; }
     if (!token) { toast.error('Please log in to continue.'); return; }
 
-    const accessPattern = /^[AB]\d{5}$/;
-    if (!accessPattern.test(accessNumber)) {
-      toast.error('Access number must be in format A12345 or B12345.');
+    if (phoneNumber.length < 10) {
+      toast.error('Please enter a valid phone number.');
       return;
     }
 
     setRegistering(selectedEvent.id);
     try {
+      const msisdn = normalizeUgMsisdn(phoneNumber);
       const res = await fetch(`${API_BASE}/payments/initiate`, {
         method: 'POST',
         headers: {
@@ -136,7 +166,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
         body: JSON.stringify({
           amount: selectedEvent.registrationFee,
           provider: paymentMethod,
-          phone: accessNumber,
+          phone: msisdn,
           eventId: selectedEvent.id,
         }),
       });
@@ -208,7 +238,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
       setPendingTransactionId(null);
       setPendingEventId(null);
       setSelectedEvent(null);
-      setAccessNumber('');
+      setPhoneNumber('');
     }
   };
 
@@ -337,34 +367,25 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
                       <input
                         type="radio" name="payment" value="mtn"
                         checked={paymentMethod === 'mtn'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        onChange={() => setPaymentMethod('mtn')}
                         className="w-4 h-4"
                       />
                       <span className="font-medium">MTN Mobile Money</span>
                     </label>
-                    <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                      <input
-                        type="radio" name="payment" value="airtel"
-                        checked={paymentMethod === 'airtel'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-4 h-4"
-                      />
-                      <span className="font-medium">Airtel Money</span>
-                    </label>
+                    <p className="text-xs text-gray-500">Airtel payments are not supported yet.</p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="accessNumber">Access Number</Label>
+                  <Label htmlFor="phoneNumber">Phone number</Label>
                   <Input
-                    id="accessNumber"
-                    type="text"
-                    placeholder="A12345 or B12345"
-                    value={accessNumber}
-                    onChange={(e) => setAccessNumber(sanitizeAccessNumber(e.target.value))}
-                    maxLength={6}
+                    id="phoneNumber"
+                    type="tel"
+                    placeholder="07XXXXXXXX or 2567XXXXXXXX"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(sanitizePhone(e.target.value))}
                   />
-                  <p className="text-xs text-gray-500">Format: A or B followed by 5 digits</p>
+                  <p className="text-xs text-gray-500">We’ll send an MTN Mobile Money prompt to this number.</p>
                 </div>
 
                 <div className="flex gap-2 sticky bottom-0 bg-background pt-2">
@@ -375,7 +396,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
                     style={{ backgroundColor: 'var(--accent)' }}
                     className="flex-1"
                     onClick={handlePaymentSubmit}
-                    disabled={registering === selectedEvent.id || !accessNumber}
+                    disabled={registering === selectedEvent.id || !phoneNumber}
                   >
                     {registering === selectedEvent.id ? (
                       <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
@@ -393,15 +414,15 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
       {/* PIN Prompt — same component used by loan payments */}
       {showPINPrompt && pendingTransactionId && (
         <PaymentPINPrompt
-          phoneNumber={accessNumber}
+          phoneNumber={phoneNumber}
           amount={selectedEvent?.registrationFee ?? 0}
-          provider={paymentMethod as 'mtn' | 'airtel'}
+          provider={'mtn'}
           onSuccess={handlePINSuccess}
           onCancel={() => {
             setShowPINPrompt(false);
             setPendingTransactionId(null);
             setPendingEventId(null);
-            setAccessNumber('');
+            setPhoneNumber('');
             toast.info('Payment cancelled.');
           }}
         />

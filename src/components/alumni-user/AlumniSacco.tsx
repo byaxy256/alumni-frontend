@@ -9,6 +9,7 @@ import type { User } from '../../App';
 import { API_BASE } from '../../api';
 import { toast } from 'sonner';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { PaymentPINPrompt } from '../student/PaymentPINPrompt';
 
 interface SaccoEnrollment {
   _id: string;
@@ -53,6 +54,10 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
   const [showEnrollForm, setShowEnrollForm] = useState(false);
   const [showContributeForm, setShowContributeForm] = useState(false);
   const [pendingTxId, setPendingTxId] = useState<string | null>(null);
+  const [pendingPayAmount, setPendingPayAmount] = useState<number>(0);
+  const [pendingPayPhone, setPendingPayPhone] = useState<string>('');
+  const [pendingPayProvider, setPendingPayProvider] = useState<'mtn' | 'airtel'>('mtn');
+  const [pendingReceiptPaymentId, setPendingReceiptPaymentId] = useState<string | null>(null);
 
   // Enroll form
   const [enrollMethod, setEnrollMethod] = useState<'mobile' | 'bank'>('mobile');
@@ -66,6 +71,38 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
   const [contributeMethod, setContributeMethod] = useState<'mobile' | 'bank'>('mobile');
   const [contributePhone, setContributePhone] = useState('');
   const [contributeAmount, setContributeAmount] = useState('');
+
+  const normalizeUgMsisdn = (value: string) => {
+    const digits = String(value || '').replace(/\D/g, '');
+    if (digits.startsWith('256') && digits.length >= 12) return digits.slice(0, 12);
+    if (digits.startsWith('0') && digits.length >= 10) return `256${digits.slice(-9)}`;
+    if (digits.length === 9) return `256${digits}`;
+    return digits;
+  };
+
+  const downloadReceipt = async (paymentId: string) => {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const res = await fetch(`${API_BASE}/payments/${paymentId}/receipt`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to download receipt');
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receipt-${paymentId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to download receipt');
+    }
+  };
 
   const fetchSacco = async () => {
     try {
@@ -144,6 +181,7 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
     setContributing(true);
     try {
       const token = localStorage.getItem('token');
+      // Step 1: Create contribution record (pending)
       const res = await fetch(`${API_BASE}/sacco/contribute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -156,18 +194,39 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || 'Contribution failed');
 
-      if (contributeMethod === 'mobile' && json.need_pin && json.transaction_id) {
-        setPendingTxId(json.transaction_id);
-        toast.info('Enter your PIN on your phone to complete the payment');
-        setShowContributeForm(false);
-      } else if (contributeMethod === 'bank') {
+      if (contributeMethod === 'bank') {
         toast.success('Use the bank details below to complete your payment. Quote reference: ' + (json.transaction_ref || ''));
         setShowContributeForm(false);
         fetchSacco();
-      } else {
-        toast.success('Contribution initiated');
-        fetchSacco();
+        return;
       }
+
+      // Step 2: Initiate payment using /api/payments/initiate (student-style flow)
+      const contributionId = json.contribution_id as string | undefined;
+      if (!contributionId) throw new Error('Missing contribution id');
+      const provider: 'mtn' | 'airtel' = 'mtn';
+      const msisdn = normalizeUgMsisdn(contributePhone);
+
+      const initRes = await fetch(`${API_BASE}/payments/initiate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          amount,
+          phone: msisdn,
+          provider,
+          saccoContributionId: contributionId,
+        }),
+      });
+      const initJson = await initRes.json().catch(() => ({}));
+      if (!initRes.ok) throw new Error(initJson.error || 'Failed to initiate payment');
+      if (!initJson.transaction_id) throw new Error('Missing transaction id');
+
+      setPendingTxId(initJson.transaction_id);
+      setPendingPayAmount(amount);
+      setPendingPayPhone(msisdn);
+      setPendingPayProvider(provider);
+      setShowContributeForm(false);
+      toast.info('Enter your PIN to complete the payment');
     } catch (err: any) {
       toast.error(err.message || 'Contribution failed');
     } finally {
@@ -185,6 +244,8 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         body: JSON.stringify({ transactionId: pendingTxId }),
       });
       if (res.ok) {
+        const json = await res.json().catch(() => ({}));
+        if (json.paymentId) setPendingReceiptPaymentId(String(json.paymentId));
         toast.success('Payment confirmed');
         setPendingTxId(null);
         fetchSacco();
@@ -237,16 +298,29 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         </div>
       </div>
 
-      {pendingTxId && (
+      {pendingReceiptPaymentId && (
         <Card className="border-2 border-primary/30">
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground mb-2">Complete the payment on your phone with your PIN, then click below.</p>
+            <p className="text-sm text-muted-foreground mb-3">Receipt is ready.</p>
             <div className="flex gap-2">
-              <Button onClick={handleConfirmPayment}>I&apos;ve completed the payment</Button>
-              <Button variant="outline" onClick={() => setPendingTxId(null)}>Cancel</Button>
+              <Button onClick={() => downloadReceipt(pendingReceiptPaymentId)}>Download receipt</Button>
+              <Button variant="outline" onClick={() => setPendingReceiptPaymentId(null)}>Close</Button>
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {pendingTxId && (
+        <PaymentPINPrompt
+          phoneNumber={pendingPayPhone}
+          amount={pendingPayAmount}
+          provider={pendingPayProvider}
+          onSuccess={handleConfirmPayment}
+          onCancel={() => {
+            setPendingTxId(null);
+            toast.info('Payment cancelled.');
+          }}
+        />
       )}
 
       {!enrolled && !showEnrollForm && (

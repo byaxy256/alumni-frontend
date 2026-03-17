@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
-import { API_BASE } from '../../api';
+import { API_BASE, api } from '../../api';
 import { toast } from 'sonner';
 
 
@@ -74,6 +74,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
     const fetchUpcomingEvents = async () => {
       try {
         setLoadingEvents(true);
+        const token = localStorage.getItem('token') || '';
         const res = await fetch(`${API_BASE}/content/events?audience=alumni`, { cache: 'no-store' as RequestCache });
         if (!res.ok) throw new Error('Failed to fetch events');
         const raw = await res.json();
@@ -86,19 +87,33 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           location: it.location || '',
           attendees: it.attendees || 0,
         }));
-        // Keep only future-ish events first; fallback to as-is
-        const now = Date.now();
+
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const expired = mapped.filter((event: any) => {
+          if (!event.dateRaw) return false;
+          const when = new Date(event.dateRaw);
+          return Number.isFinite(when.getTime()) && when < todayStart;
+        });
+
+        if (expired.length > 0 && token) {
+          await Promise.allSettled(
+            expired.map((event: any) => api.deleteContent('events', String(event.id), token))
+          );
+        }
+
         const sorted = mapped
           .slice()
           .sort((a: any, b: any) => {
-            const ta = a.dateRaw ? new Date(a.dateRaw).getTime() : now + 999999999;
-            const tb = b.dateRaw ? new Date(b.dateRaw).getTime() : now + 999999999;
+            const ta = a.dateRaw ? new Date(a.dateRaw).getTime() : Number.MAX_SAFE_INTEGER;
+            const tb = b.dateRaw ? new Date(b.dateRaw).getTime() : Number.MAX_SAFE_INTEGER;
             return ta - tb;
           })
           .filter((e: any) => {
             if (!e.dateRaw) return true;
             const t = new Date(e.dateRaw).getTime();
-            return Number.isFinite(t) ? t >= now - 24 * 60 * 60 * 1000 : true;
+            return Number.isFinite(t) ? t >= todayStart.getTime() : true;
           })
           .slice(0, 2);
         setUpcomingEvents(sorted);
@@ -169,7 +184,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Make a Donation',
       subtitle: 'Support current students',
       icon: Heart,
-      iconBg: 'var(--primary)',
+      iconBg: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)',
       action: () => onNavigate('donations')
     },
     {
@@ -177,7 +192,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Mentor Students',
       subtitle: 'Share your experience',
       icon: MessageSquare,
-      iconBg: 'var(--brand-purple)',
+      iconBg: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)',
       action: () => onNavigate('mentorship')
     },
     {
@@ -185,7 +200,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Upcoming Events',
       subtitle: 'Reunions & networking',
       icon: Calendar,
-      iconBg: 'var(--brand-blue)',
+      iconBg: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)',
       action: () => onNavigate('events')
     },
     {
@@ -193,7 +208,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Alumni Network',
       subtitle: 'Connect with classmates',
       icon: Users,
-      iconBg: 'var(--accent-primary-mix)',
+      iconBg: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)',
       action: () => onNavigate('connect')
     },
     {
@@ -201,7 +216,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'UCU News',
       subtitle: 'Latest updates',
       icon: Newspaper,
-      iconBg: 'var(--accent-primary-mix)',
+      iconBg: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)',
       action: () => onNavigate('news')
     },
     {
@@ -209,7 +224,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
       title: 'Alumni Benefits',
       subtitle: 'Exclusive perks',
       icon: Gift,
-      iconBg: 'var(--indigo-mix)',
+      iconBg: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)',
       action: () => onNavigate('benefits')
     },
   ];
@@ -217,7 +232,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-6">
       {/* Hero Section */}
-      <div className="bg-[var(--brand-blue)] text-white p-6 md:p-8 rounded-b-3xl shadow-lg">
+      <div className="text-white p-6 md:p-8 rounded-b-3xl shadow-lg" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)' }}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 flex justify-between items-start">
             <div className="flex items-start gap-3">
@@ -252,32 +267,32 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           </div>
 
           {/* Donation Impact Card */}
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-5">
+          <Card className="border-white/20 p-5 text-white" style={{ background: 'linear-gradient(145deg, #6d4e8f 0%, #845aa7 100%)' }}>
             <div className="flex items-center gap-2 mb-4">
               <div className="p-2 rounded-full bg-white/20">
-                <TrendingUp className="w-5 h-5" />
+                <TrendingUp className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-lg">Your Impact</h2>
+              <h2 className="text-lg text-white">Your Impact</h2>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <p className="text-xs opacity-80">Total Donated</p>
-                <p className="text-xl mt-1">UGX {donationStats.totalDonated.toLocaleString()}</p>
+                <p className="text-xs text-white/80">Total Donated</p>
+                <p className="text-xl mt-1 text-white">UGX {donationStats.totalDonated.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-xs opacity-80">Students Helped</p>
-                <p className="text-xl mt-1">{donationStats.studentsHelped}</p>
+                <p className="text-xs text-white/80">Students Helped</p>
+                <p className="text-xl mt-1 text-white">{donationStats.studentsHelped}</p>
               </div>
               <div>
-                <p className="text-xs opacity-80">This Year</p>
-                <p className="text-xl mt-1">UGX {donationStats.currentYear.toLocaleString()}</p>
+                <p className="text-xs text-white/80">This Year</p>
+                <p className="text-xl mt-1 text-white">UGX {donationStats.currentYear.toLocaleString()}</p>
               </div>
             </div>
             <Button
               onClick={() => onNavigate('donations')}
-              className="w-full mt-4 bg-accent hover:bg-accent/90"
+              className="w-full mt-4 bg-white/15 border border-white/25 text-white hover:bg-white/25"
             >
-              <Heart className="w-4 h-4 mr-2" />
+              <Heart className="w-4 h-4 mr-2 text-white" />
               Donate Now
             </Button>
           </Card>
@@ -300,7 +315,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
                     <div className="relative">
                       <div
                         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform"
-                        style={{ backgroundColor: action.iconBg }}
+                        style={{ background: action.iconBg }}
                       >
                         <Icon className="w-6 h-6 text-white" />
                       </div>
@@ -317,7 +332,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           {/* Upcoming Events */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg text-gray-900">Upcoming Events</h2>
+              <h2 className="text-lg text-white px-4 py-2 rounded-xl" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>Upcoming Events</h2>
               <button 
                 onClick={() => onNavigate('eventsNews')}
                 className="text-sm text-primary hover:underline"
@@ -369,7 +384,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           <Card className="p-5 bg-card border border-border mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg text-foreground">Mentorship Program</h3>
+                <h3 className="text-lg text-white px-4 py-2 rounded-xl inline-block" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>Mentorship Program</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   Currently mentoring 3 students
                 </p>
@@ -405,7 +420,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           <Card className="p-5 bg-card border border-border">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg text-foreground">Students in Your Field</h3>
+                <h3 className="text-lg text-white px-4 py-2 rounded-xl inline-block" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>Students in Your Field</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {user.meta?.field || 'General'} students looking for mentorship
                 </p>

@@ -511,7 +511,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
   // --- YOUR ENTIRE ORIGINAL JSX IS PRESERVED AND RESTORED BELOW ---
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <div className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+      <div className="sticky top-0 z-10" style={{ background: 'linear-gradient(135deg, #2f5288 0%, #355C9A 100%)', borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
         <div className="p-4 lg:px-6 lg:py-5 flex items-center gap-4">
           <Button onClick={onBack} variant="ghost" size="icon" className="text-white hover:bg-white/15 hover:text-white"><ArrowLeft className="w-5 h-5" /></Button>
           <div>
@@ -536,7 +536,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
           </div>
         ) : myMentors.length > 0 ? (
           myMentors.map((mentor: MyMentor) => (
-            <Card key={mentor.id} className="border-[#bfcff0] bg-gradient-to-br from-white to-[#eef4ff] shadow-sm">
+            <Card key={mentor.id} className="border-[#bdd0f0] bg-white shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="h-12 w-12 ring-2 ring-[#c8d6f4]"><AvatarFallback>{mentor.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
@@ -651,34 +651,34 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               // Only allow undo if there is a pending request (not approved yet)
               const isPending = Boolean(pendingId);
               return (
-                <Card key={mentor.id} className="border-[#cdb8df] bg-gradient-to-br from-[#f7f1fc] to-[#efe5f8] shadow-sm">
+                <Card key={mentor.id} className="border-[#bdd0f0] bg-white shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-4">
-                        <Avatar className="h-16 w-16 ring-2 ring-[#d8c4ea]">
+                        <Avatar className="h-16 w-16 ring-2 ring-[#c8d6f4]">
                           <AvatarFallback>{mentor.name.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-semibold text-[#4e3568] tracking-tight">{mentor.name}</p>
-                          <p className="text-xs text-[#6f5a85]">{mentor.field} at {mentor.company}</p>
+                          <p className="font-semibold text-[#183865] tracking-tight">{mentor.name}</p>
+                          <p className="text-xs text-[#4d6388]">{mentor.field} at {mentor.company}</p>
                           <p className="text-xs text-gray-500">{mentor.location}</p>
                           <div className="flex items-center gap-1 text-xs mt-1">
                             <span>{mentor.mentees} mentees · {mentor.experience} years exp · Class of {mentor.classOf}</span>
                           </div>
                         </div>
                       </div>
-                      <Badge variant="outline" className={mentor.status === 'available' ? 'border-[#c7b2db] bg-[#efe8f6] text-[#785493]' : 'border-gray-300 bg-white/80 text-gray-600'}>
+                      <Badge variant="outline" className={mentor.status === 'available' ? 'border-[#bdd0f0] bg-[#edf3ff] text-[#355C9A]' : 'border-gray-300 bg-white/80 text-gray-600'}>
                         {mentor.status === 'available' ? 'Available' : 'Unavailable'}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-600 my-3">{mentor.bio}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs border-[#cdb8df] bg-[#f5eefb] text-[#6f4f8a] hover:bg-[#eadcf7]">{exp}</Badge>)}
+                      {mentor.expertise.map(exp => <Badge key={exp} variant="secondary" className="text-xs border-[#bdd0f0] bg-[#edf3ff] text-[#355C9A] hover:bg-[#e1ecff]">{exp}</Badge>)}
                     </div>
                     <div className="flex flex-wrap gap-2 items-center">
                       <Button
                         variant="outline"
-                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:border-[#845aa7] hover:bg-[#845aa7] hover:text-white"
+                        className="border-[#bdd0f0] bg-[#edf3ff] text-[#355C9A] hover:border-[#355C9A] hover:bg-[#355C9A] hover:text-white"
                         onClick={() => setSelectedMentorProfile(mentor)}
                       >
                         <Eye className="w-4 h-4 mr-2" />
@@ -686,7 +686,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                       </Button>
                       <Button
                         variant="outline"
-                        className="border-[#cdbad9] bg-[#f7f2fb] text-[#6f4f8a] hover:border-[#3f7a4a] hover:bg-[#3f7a4a] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+                        className="border-[#bdd0f0] bg-[#edf3ff] text-[#355C9A] hover:border-[#3f7a4a] hover:bg-[#3f7a4a] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
                         disabled={mentor.status === 'unavailable' || isPending}
                         onClick={() => handleRequestMentor(mentor)}
                       >
@@ -701,7 +701,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                     {isPending && (
                       <Button
                         variant="outline"
-                        className="mt-2 border-[#d7c8e6] bg-white/80 text-[#6f4f8a] hover:border-[#b1882a] hover:bg-[#b1882a] hover:text-white"
+                        className="mt-2 border-[#bdd0f0] bg-white text-[#355C9A] hover:border-[#b1882a] hover:bg-[#b1882a] hover:text-white"
                         onClick={() => handleUndoRequest(mentor)}
                       >
                         Undo Request
@@ -838,7 +838,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                 </Button>
                 <Button
                   variant="outline"
-                  className="border-[#cdbad9] bg-white text-[#6f4f8a] hover:border-[#3f7a4a] hover:bg-[#3f7a4a] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+                  className="border-[#bdd0f0] bg-white text-[#355C9A] hover:border-[#3f7a4a] hover:bg-[#3f7a4a] hover:text-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
                   disabled={selectedMentorProfile.status === 'unavailable' || selectedMentorPending}
                   onClick={async () => {
                     await handleRequestMentor(selectedMentorProfile);
@@ -855,7 +855,7 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
               {selectedMentorPending && (
                 <Button
                   variant="outline"
-                  className="w-full border-[#d7c8e6] bg-white/80 text-[#6f4f8a] hover:border-[#b1882a] hover:bg-[#b1882a] hover:text-white"
+                  className="w-full border-[#bdd0f0] bg-white text-[#355C9A] hover:border-[#b1882a] hover:bg-[#b1882a] hover:text-white"
                   onClick={async () => {
                     await handleUndoRequest(selectedMentorProfile);
                   }}
