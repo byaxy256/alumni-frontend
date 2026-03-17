@@ -232,7 +232,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-6">
       {/* Hero Section */}
-      <div className="text-white p-6 md:p-8 rounded-b-3xl shadow-lg" style={{ background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4d7a 100%)' }}>
+      <div className="text-white p-6 md:p-8 rounded-b-3xl shadow-lg" style={{ background: '#0b2a4a' }}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 flex justify-between items-start">
             <div className="flex items-start gap-3">
@@ -332,7 +332,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           {/* Upcoming Events */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg text-white px-4 py-2 rounded-xl" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>Upcoming Events</h2>
+              <h2 className="text-lg text-white px-4 py-2 rounded-xl" style={{ background: '#0b2a4a' }}>Upcoming Events</h2>
               <button 
                 onClick={() => onNavigate('eventsNews')}
                 className="text-sm text-primary hover:underline"
@@ -384,7 +384,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           <Card className="p-5 bg-card border border-border mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg text-white px-4 py-2 rounded-xl inline-block" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>Mentorship Program</h3>
+                <h3 className="text-lg text-white px-4 py-2 rounded-xl inline-block" style={{ background: '#0b2a4a' }}>Mentorship Program</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   Currently mentoring 3 students
                 </p>
@@ -420,7 +420,7 @@ export function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
           <Card className="p-5 bg-card border border-border">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg text-white px-4 py-2 rounded-xl inline-block" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>Students in Your Field</h3>
+                <h3 className="text-lg text-white px-4 py-2 rounded-xl inline-block" style={{ background: '#0b2a4a' }}>Students in Your Field</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {user.meta?.field || 'General'} students looking for mentorship
                 </p>
