@@ -3,9 +3,9 @@
 // src/api.ts
 import axios from 'axios';
 
-// Use environment variable for API URL, fallback to localhost for development
+// Use environment variable for API URL, fallback to Render backend
 const API_URL: string | undefined = import.meta.env.VITE_API_URL;
-const DEFAULT_API_BASE = 'http://localhost:4000/api';
+const DEFAULT_API_BASE = 'https://alumni-backend-mupt.onrender.com/api';
 export const API_BASE = API_URL ? `${API_URL}/api` : DEFAULT_API_BASE;
 
 // Simple axios helper for ad-hoc calls
