@@ -236,7 +236,7 @@ export default function ApplicationsQueue() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <div className="bg-[#0b2a4a] text-white border-b border-black/30 sticky top-0 z-10">
         <div className="p-4 lg:p-6">
             <div className="flex items-center justify-between mb-4">
@@ -261,10 +261,10 @@ export default function ApplicationsQueue() {
                     <Input placeholder="Search by name, ID, type (loan/support)..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
                 </div>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-full lg:w-[180px]">
+                    <SelectTrigger className="w-full lg:w-[180px] bg-black text-white border-white/15">
                         <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-black text-white border-white/15">
                         <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="under_review">Under Review</SelectItem>

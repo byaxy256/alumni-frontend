@@ -221,7 +221,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     <div className="min-h-screen bg-background">
       {/* Blue Header Section */}
       <div className="bg-[#0b2a4a] text-white p-6 rounded-none shadow-lg mb-6">
-        <div className="max-w-6xl mx-auto">
+        <div>
           <div className="flex items-center gap-3 mb-4">
             <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />
             <div>

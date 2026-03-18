@@ -73,7 +73,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
     <div className="min-h-screen bg-[var(--brand-blue-soft-10)] text-foreground">
       {/* Header */}
       <header
-        className="sticky top-0 z-40 w-full border-b border-black/30 text-white shadow-sm"
+        className="sticky top-0 z-40 w-full border-b border-black/60 text-white shadow-none"
         style={{ backgroundColor: '#8A1F3A' }}
       >
         <div className="flex items-center justify-between px-4 py-3">
@@ -146,8 +146,8 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                     size="sm"
                     className={
                       isActive
-                        ? 'rounded-full bg-[#0b2a4a] text-white shadow-sm hover:bg-[#0b2a4a]/90'
-                        : 'rounded-full text-white/90 hover:bg-black/10 hover:text-white'
+                        ? 'rounded-full bg-[#0b2a4a] text-white shadow-sm'
+                        : 'rounded-full text-white/90'
                     }
                     onClick={() => setCurrentScreen(item.id as AlumniScreen)}
                   >
@@ -179,7 +179,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                 key={item.id}
                 onClick={() => setCurrentScreen(item.id as AlumniScreen)}
                 className={`flex flex-col items-center gap-1 px-3 py-2 rounded-full transition ${
-                  isActive ? 'bg-[#0b2a4a] text-white shadow-sm' : 'text-white/85 hover:bg-black/10'
+                  isActive ? 'bg-[#0b2a4a] text-white shadow-sm' : 'text-white/85'
                 }`}
               >
                 <Icon size={18} />
