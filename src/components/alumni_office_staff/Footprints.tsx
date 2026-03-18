@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Search, Filter, Download, Shield, Activity } from 'lucide-react';
+import { Search, Download, Shield, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Firestore

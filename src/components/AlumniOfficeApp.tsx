@@ -73,8 +73,8 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
     <div className="min-h-screen bg-[var(--brand-purple-soft-10)] text-foreground">
       {/* Header */}
       <header
-        className="sticky top-0 z-40 w-full border-b border-white/15 backdrop-blur text-white shadow-sm"
-        style={{ backgroundColor: 'var(--brand-purple)' }}
+        className="sticky top-0 z-40 w-full border-b border-black/30 text-white shadow-sm"
+        style={{ backgroundColor: '#8A1F3A' }}
       >
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
@@ -97,12 +97,12 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                   <Menu size={20} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-[var(--brand-purple)] border-white/20 text-white">
+              <DropdownMenuContent align="end" className="w-56 border-black/30 text-white" style={{ backgroundColor: '#8A1F3A' }}>
                 {navigationItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <DropdownMenuItem
-                      className="focus:bg-white/15 focus:text-white"
+                      className="focus:bg-black/15 focus:text-white"
                       key={item.id}
                       onClick={() => {
                         setCurrentScreen(item.id as AlumniScreen);
@@ -114,7 +114,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                     </DropdownMenuItem>
                   );
                 })}
-                <DropdownMenuItem className="focus:bg-white/15 focus:text-white" onClick={onLogout}>
+                <DropdownMenuItem className="focus:bg-black/15 focus:text-white" onClick={onLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
@@ -133,7 +133,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:block border-t border-white/15">
+        <div className="hidden lg:block border-t border-black/30">
           <nav className="px-4 py-2">
             <div className="flex gap-2">
               {navigationItems.map((item) => {
@@ -144,7 +144,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                     key={item.id}
                     variant="ghost"
                     size="sm"
-                    className={isActive ? 'bg-white/20 text-white hover:bg-white/25' : 'text-white/90 hover:bg-white/15 hover:text-white'}
+                    className={isActive ? 'bg-black/15 text-white hover:bg-black/20' : 'text-white/90 hover:bg-black/10 hover:text-white'}
                     onClick={() => setCurrentScreen(item.id as AlumniScreen)}
                   >
                     <Icon size={16} className="mr-2" />

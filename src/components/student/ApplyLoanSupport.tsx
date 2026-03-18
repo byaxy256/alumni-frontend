@@ -7,7 +7,7 @@ import { Textarea } from '../ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Progress } from '../ui/progress';
-import { ArrowLeft, Upload, CheckCircle2, AlertCircle, Download } from 'lucide-react';
+import { ArrowLeft, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { User } from '../../App';
 import {
