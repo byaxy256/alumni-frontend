@@ -70,7 +70,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   };
 
   return (
-    <div className="min-h-screen bg-[var(--brand-purple-soft-10)] text-foreground">
+    <div className="min-h-screen bg-[var(--brand-blue-soft-10)] text-foreground">
       {/* Header */}
       <header
         className="sticky top-0 z-40 w-full border-b border-black/30 text-white shadow-sm"

@@ -237,7 +237,7 @@ export default function ApplicationsQueue() {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-[var(--brand-purple)] text-white border-b border-white/15 sticky top-0 z-10">
+      <div className="bg-[#0b2a4a] text-white border-b border-black/30 sticky top-0 z-10">
         <div className="p-4 lg:p-6">
             <div className="flex items-center justify-between mb-4">
                 <div>

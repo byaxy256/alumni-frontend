@@ -17,11 +17,11 @@ export function AlumniProfile({ user, onBack, onLogout }: AlumniProfileProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
-      <div className="bg-[var(--brand-purple)] text-white border-b border-white/15 p-4 sticky top-0 z-10">
+      <div className="bg-[#0b2a4a] text-white border-b border-black/30 p-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
           <button
             onClick={onBack}
-            className="md:hidden p-2 hover:bg-white/15 rounded-lg"
+            className="md:hidden p-2 hover:bg-black/10 rounded-lg"
             title="Go back"
             aria-label="Go back"
           >

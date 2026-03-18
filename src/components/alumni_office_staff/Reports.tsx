@@ -276,7 +276,7 @@ export default function Reports() {
       fromCauses.push({
         name: 'Loan Repayments',
         value: Number(summary.incomeBreakdown.loanRepayments),
-        color: 'var(--brand-purple)',
+        color: 'var(--brand-blue)',
       });
     }
 
