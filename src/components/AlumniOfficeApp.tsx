@@ -70,14 +70,14 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-[var(--brand-purple-soft-10)] text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full bg-[#2f5288]/95 border-b border-white/15 backdrop-blur text-white shadow-sm">
+      <header className="sticky top-0 z-40 w-full border-b border-white/15 backdrop-blur text-white shadow-sm bg-[var(--brand-purple)]/95">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="w-10 h-10" />
             <div>
-              <h1 className="text-sm text-white">Alumni Connect Office</h1>
+              <h1 className="text-sm text-white">Alumni Circle Office Staff</h1>
               <p className="text-xs text-white/80">{user.name}</p>
             </div>
           </div>
@@ -86,11 +86,15 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
           <div className="lg:hidden">
             <DropdownMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-[var(--brand-purple)] hover:bg-white/15">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-white/90 text-[var(--brand-purple)] hover:bg-white"
+                >
                   <Menu size={20} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-[#2f5288] border-white/20 text-white">
+              <DropdownMenuContent align="end" className="w-56 bg-[var(--brand-purple)] border-white/20 text-white">
                 {navigationItems.map((item) => {
                   const Icon = item.icon;
                   return (
