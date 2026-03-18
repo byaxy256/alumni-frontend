@@ -72,7 +72,10 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
   return (
     <div className="min-h-screen bg-[var(--brand-purple-soft-10)] text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-white/15 backdrop-blur text-white shadow-sm bg-[var(--brand-purple)]/95">
+      <header
+        className="sticky top-0 z-40 w-full border-b border-white/15 backdrop-blur text-white shadow-sm"
+        style={{ backgroundColor: 'var(--brand-purple)' }}
+      >
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="w-10 h-10" />
