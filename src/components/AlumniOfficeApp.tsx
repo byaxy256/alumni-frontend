@@ -86,7 +86,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
           <div className="lg:hidden">
             <DropdownMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/15">
+                <Button variant="ghost" size="icon" className="text-[var(--brand-purple)] hover:bg-white/15">
                   <Menu size={20} />
                 </Button>
               </DropdownMenuTrigger>
