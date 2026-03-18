@@ -92,7 +92,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="bg-white/90 text-[var(--brand-purple)] hover:bg-white"
+                  className="bg-black/20 text-white hover:bg-black/30"
                 >
                   <Menu size={20} />
                 </Button>
@@ -125,7 +125,7 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-2">
-            <Button variant="ghost" onClick={onLogout} className="text-white hover:bg-white/15">
+            <Button variant="ghost" onClick={onLogout} className="text-white hover:bg-black/15">
               <LogOut size={16} className="mr-2" />
               Logout
             </Button>
@@ -144,7 +144,11 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
                     key={item.id}
                     variant="ghost"
                     size="sm"
-                    className={isActive ? 'bg-black/15 text-white hover:bg-black/20' : 'text-white/90 hover:bg-black/10 hover:text-white'}
+                    className={
+                      isActive
+                        ? 'rounded-full bg-[#0b2a4a] text-white shadow-sm hover:bg-[#0b2a4a]/90'
+                        : 'rounded-full text-white/90 hover:bg-black/10 hover:text-white'
+                    }
                     onClick={() => setCurrentScreen(item.id as AlumniScreen)}
                   >
                     <Icon size={16} className="mr-2" />
@@ -162,7 +166,10 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#2f5288]/95 border-t border-white/15 px-2 py-2 z-50 backdrop-blur text-white">
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 border-t border-black/30 px-2 py-2 z-50 text-white"
+        style={{ backgroundColor: '#8A1F3A' }}
+      >
         <div className="flex justify-around items-center max-w-lg mx-auto">
           {navigationItems.slice(0, 5).map((item) => {
             const Icon = item.icon;
@@ -171,7 +178,9 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
               <button
                 key={item.id}
                 onClick={() => setCurrentScreen(item.id as AlumniScreen)}
-                className={`flex flex-col items-center gap-1 p-2 ${isActive ? 'text-white' : 'text-white/80'}`}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-full transition ${
+                  isActive ? 'bg-[#0b2a4a] text-white shadow-sm' : 'text-white/85 hover:bg-black/10'
+                }`}
               >
                 <Icon size={18} />
                 <span className="text-xs">{item.label.split(' ')[0]}</span>
