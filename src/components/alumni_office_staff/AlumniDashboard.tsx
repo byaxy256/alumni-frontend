@@ -222,12 +222,9 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
       {/* Blue Header Section */}
       <div className="bg-[#0b2a4a] text-white p-6 rounded-none shadow-lg mb-6">
         <div>
-          <div className="flex items-center gap-3 mb-4">
-            <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />
-            <div>
-              <h2 className="text-2xl font-semibold">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
-              <p className="text-sm opacity-80 mt-1">Here's what's happening with the Alumni Fund</p>
-            </div>
+          <div className="mb-4">
+            <h2 className="text-2xl font-semibold">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
+            <p className="text-sm opacity-80 mt-1">Here's what's happening with the Alumni Fund</p>
           </div>
         </div>
       </div>
