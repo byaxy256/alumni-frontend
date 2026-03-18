@@ -218,14 +218,9 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--brand-purple-soft-10)]">
-      {/* Purple Header Section */}
-      <div
-        className="text-white p-6 rounded-b-3xl shadow-lg mb-6"
-        style={{
-          background: 'linear-gradient(135deg, var(--brand-purple) 0%, color-mix(in oklab, var(--brand-purple) 70%, black) 100%)',
-        }}
-      >
+    <div className="min-h-screen bg-background">
+      {/* Blue Header Section */}
+      <div className="bg-[#0b2a4a] text-white p-6 rounded-b-3xl shadow-lg mb-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />

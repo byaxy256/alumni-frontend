@@ -237,12 +237,12 @@ export default function ApplicationsQueue() {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-[var(--brand-purple)] text-white border-b border-white/15 sticky top-0 z-10">
         <div className="p-4 lg:p-6">
             <div className="flex items-center justify-between mb-4">
                 <div>
-                    <h2 className="text-lg lg:text-xl">Applications Queue</h2>
-                    <p className="text-xs text-gray-500 mt-1">{filteredApplications.length} applications matching filters</p>
+                    <h2 className="text-lg lg:text-xl text-white">Applications Queue</h2>
+                    <p className="text-xs text-white/80 mt-1">{filteredApplications.length} applications matching filters</p>
                 </div>
                 {selectedApplications.length > 0 && (
                 <div className="flex gap-2">
