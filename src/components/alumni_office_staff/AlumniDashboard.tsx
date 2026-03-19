@@ -16,6 +16,9 @@ type Loan = {
   id: string;
   amount?: number;
   disbursedAmount?: number;
+  amount_disbursed?: number;
+  approved_amount?: number;
+  amount_requested?: number;
   status?: string;
   createdAt?: string;
   // other fields...
@@ -24,6 +27,10 @@ type Loan = {
 type SupportRequest = {
   id: string;
   amountRequested?: number;
+  amount_requested?: number;
+  approved_amount?: number;
+  disbursedAmount?: number;
+  amount?: number;
   status?: string;
   createdAt?: string;
   // other fields...
@@ -71,6 +78,27 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
   const totalRaised = Number(donationStats.totalRaised || 0);
   const totalDisbursed = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
+  const isDisbursedStatus = (status: string) => {
+    const s = (status || '').toLowerCase();
+    return ['approved', 'active', 'paid', 'disbursed'].includes(s);
+  };
+  const getMoney = (item: any) =>
+    Number(
+      item?.disbursedAmount ??
+      item?.amount_disbursed ??
+      item?.approved_amount ??
+      item?.amountRequested ??
+      item?.amount_requested ??
+      item?.amount ??
+      0
+    );
+  const totalLoansDisbursed = loans
+    .filter((loan) => isDisbursedStatus(String(loan.status || '')))
+    .reduce((sum, loan) => sum + getMoney(loan), 0);
+  const totalSupportDisbursed = supportRequests
+    .filter((request) => isDisbursedStatus(String(request.status || '')))
+    .reduce((sum, request) => sum + getMoney(request), 0);
+  const totalProgramDisbursed = totalLoansDisbursed + totalSupportDisbursed;
   const totalFundBalance = totalRaised - totalDisbursed;
   const activeDonors = Number(donationStats.donorCount || 0);
   const resolvedTotalAlumni = Math.max(totalAlumni, activeDonors);
@@ -293,6 +321,28 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
               {loading ? 'Updating...' : formatCompactUGX(totalDisbursed)}
             </p>
             <p className="text-xs text-white/80 mt-2">Net approved disbursements</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Accountability totals for disbursements */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <Card className="border border-slate-200/80">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Loans Disbursed (Total)</p>
+            <p className="text-xl mt-1 text-[#0b2a4a]">{loading ? 'Updating...' : formatCompactUGX(totalLoansDisbursed)}</p>
+          </CardContent>
+        </Card>
+        <Card className="border border-slate-200/80">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Support Disbursed (Total)</p>
+            <p className="text-xl mt-1 text-[#0b2a4a]">{loading ? 'Updating...' : formatCompactUGX(totalSupportDisbursed)}</p>
+          </CardContent>
+        </Card>
+        <Card className="border border-slate-200/80 bg-slate-50/70">
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground">Loans + Support Disbursed</p>
+            <p className="text-xl mt-1 text-[#0b2a4a]">{loading ? 'Updating...' : formatCompactUGX(totalProgramDisbursed)}</p>
           </CardContent>
         </Card>
       </div>

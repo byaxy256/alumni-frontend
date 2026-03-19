@@ -4,6 +4,7 @@ import { AlertCircle, TrendingUp, Users, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { UcuBadgeLogo } from '../UcuBadgeLogo';
+import { API_BASE } from '../../api';
 
 interface LoanMetric {
   status: string;
@@ -17,9 +18,21 @@ interface OverdueStudent {
   daysSincePayment: number;
 }
 
+interface FinancialRecord {
+  amount?: number;
+  amount_requested?: number;
+  approved_amount?: number;
+  disbursedAmount?: number;
+  amount_disbursed?: number;
+  amountRequested?: number;
+  status?: string;
+}
+
 export default function AlumniOfficeOperations() {
   const [loanMetrics, setLoanMetrics] = useState<LoanMetric[]>([]);
   const [overdueList, setOverdueList] = useState<OverdueStudent[]>([]);
+  const [loanRecords, setLoanRecords] = useState<FinancialRecord[]>([]);
+  const [supportRecords, setSupportRecords] = useState<FinancialRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,18 +44,23 @@ export default function AlumniOfficeOperations() {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      // Load simple metrics for operations
-      const response = await fetch('http://localhost:4000/api/reports/operational-summary', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const headers = { Authorization: `Bearer ${token}` };
+      const [summaryRes, loansRes, supportRes] = await Promise.all([
+        fetch(`${API_BASE}/reports/operational-summary`, { headers }),
+        fetch(`${API_BASE}/loans`, { headers }),
+        fetch(`${API_BASE}/support`, { headers }),
+      ]);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (summaryRes.ok) {
+        const data = await summaryRes.json();
         setLoanMetrics(data.loanMetrics || []);
         setOverdueList(data.overdueList || []);
+      } else {
+        setLoanMetrics([]);
+        setOverdueList([]);
       }
+      setLoanRecords(loansRes.ok ? await loansRes.json() : []);
+      setSupportRecords(supportRes.ok ? await supportRes.json() : []);
     } catch (error) {
       console.error('Error loading operational data:', error);
     } finally {
@@ -53,6 +71,32 @@ export default function AlumniOfficeOperations() {
   const formatCurrency = (amount: number) => {
     return `UGX ${(amount / 1000000).toFixed(1)}M`;
   };
+
+  const isDisbursedStatus = (status: string) => {
+    const s = (status || '').toLowerCase();
+    return ['approved', 'active', 'paid', 'disbursed'].includes(s);
+  };
+
+  const getAmount = (item: FinancialRecord) =>
+    Number(
+      item.disbursedAmount ??
+      item.amount_disbursed ??
+      item.approved_amount ??
+      item.amountRequested ??
+      item.amount_requested ??
+      item.amount ??
+      0
+    );
+
+  const loansDisbursedTotal = loanRecords
+    .filter((loan) => isDisbursedStatus(String(loan.status || '')))
+    .reduce((sum, loan) => sum + getAmount(loan), 0);
+
+  const supportDisbursedTotal = supportRecords
+    .filter((request) => isDisbursedStatus(String(request.status || '')))
+    .reduce((sum, request) => sum + getAmount(request), 0);
+
+  const combinedDisbursedTotal = loansDisbursedTotal + supportDisbursedTotal;
 
   // Sample data for operational view
   const activeLoansData = [
@@ -122,6 +166,34 @@ export default function AlumniOfficeOperations() {
               <p className="text-sm text-muted-foreground">Month Repayments</p>
               <p className="text-2xl text-green-600 font-bold">UGX 45.2M</p>
               <p className="text-sm text-green-600">+18% from last month</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Accountability totals */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Loans Disbursed (Total)</p>
+              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(loansDisbursedTotal)}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Support Disbursed (Total)</p>
+              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(supportDisbursedTotal)}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Loans + Support Disbursed</p>
+              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(combinedDisbursedTotal)}</p>
             </div>
           </CardContent>
         </Card>
