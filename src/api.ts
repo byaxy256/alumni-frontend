@@ -60,6 +60,48 @@ export const api = {
     return res.json();
   },
 
+  async requestLogin2FA(credential: string, adminSecret?: string) {
+    const res = await fetch(`${API_BASE}/auth/login/2fa/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(adminSecret && { 'x-admin-secret': adminSecret }),
+      },
+      body: JSON.stringify({ credential, adminSecret }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({} as any));
+      const err: any = new Error(error.error || error.message || 'Failed to request 2FA code');
+      err.status = res.status;
+      throw err;
+    }
+
+    return res.json();
+  },
+
+  async loginWith2FA(credential: string, password: string, twoFactorCode: string, adminSecret?: string) {
+    const res = await fetch(`${API_BASE}/auth/login/2fa/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(adminSecret && { 'x-admin-secret': adminSecret }),
+      },
+      body: JSON.stringify({ credential, password, twoFactorCode, adminSecret }),
+    });
+
+    if (res.status === 404) {
+      return this.login(credential, password, adminSecret);
+    }
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({} as any));
+      throw new Error(error.error || error.message || '2FA verification failed');
+    }
+
+    return res.json();
+  },
+
   async getLoans(userId: string, token: string) {
     const res = await fetch(`${API_BASE}/loans?userId=${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
