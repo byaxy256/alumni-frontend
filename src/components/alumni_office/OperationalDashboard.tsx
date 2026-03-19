@@ -28,11 +28,18 @@ interface FinancialRecord {
   status?: string;
 }
 
+interface DisbursementRecord {
+  original_amount?: number;
+  deduction_amount?: number;
+  net_amount?: number;
+}
+
 export default function AlumniOfficeOperations() {
   const [loanMetrics, setLoanMetrics] = useState<LoanMetric[]>([]);
   const [overdueList, setOverdueList] = useState<OverdueStudent[]>([]);
   const [loanRecords, setLoanRecords] = useState<FinancialRecord[]>([]);
   const [supportRecords, setSupportRecords] = useState<FinancialRecord[]>([]);
+  const [disbursementRecords, setDisbursementRecords] = useState<DisbursementRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,10 +52,11 @@ export default function AlumniOfficeOperations() {
       const token = localStorage.getItem('token');
       
       const headers = { Authorization: `Bearer ${token}` };
-      const [summaryRes, loansRes, supportRes] = await Promise.all([
+      const [summaryRes, loansRes, supportRes, disburseRes] = await Promise.all([
         fetch(`${API_BASE}/reports/operational-summary`, { headers }),
         fetch(`${API_BASE}/loans`, { headers }),
         fetch(`${API_BASE}/support`, { headers }),
+        fetch(`${API_BASE}/disburse`, { headers }),
       ]);
 
       if (summaryRes.ok) {
@@ -61,6 +69,7 @@ export default function AlumniOfficeOperations() {
       }
       setLoanRecords(loansRes.ok ? await loansRes.json() : []);
       setSupportRecords(supportRes.ok ? await supportRes.json() : []);
+      setDisbursementRecords(disburseRes.ok ? await disburseRes.json() : []);
     } catch (error) {
       console.error('Error loading operational data:', error);
     } finally {
@@ -97,6 +106,9 @@ export default function AlumniOfficeOperations() {
     .reduce((sum, request) => sum + getAmount(request), 0);
 
   const combinedDisbursedTotal = loansDisbursedTotal + supportDisbursedTotal;
+  const grossApprovedTotal = disbursementRecords.reduce((sum, d) => sum + Number(d.original_amount || d.net_amount || 0), 0);
+  const automatedDeductionsTotal = disbursementRecords.reduce((sum, d) => sum + Number(d.deduction_amount || 0), 0);
+  const netPaidOutTotal = disbursementRecords.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
 
   // Sample data for operational view
   const activeLoansData = [
@@ -171,29 +183,32 @@ export default function AlumniOfficeOperations() {
         </Card>
       </div>
 
-      {/* Accountability totals */}
+      {/* Accountability totals (Power BI style KPIs) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="h-1.5 bg-[#0b2a4a]" />
           <CardContent className="p-6">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Loans Disbursed (Total)</p>
-              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(loansDisbursedTotal)}</p>
+              <p className="text-sm text-muted-foreground">Gross Approved (Before Deductions)</p>
+              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(grossApprovedTotal)}</p>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="h-1.5 bg-[#8A1F3A]" />
           <CardContent className="p-6">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Support Disbursed (Total)</p>
-              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(supportDisbursedTotal)}</p>
+              <p className="text-sm text-muted-foreground">Automated Deductions</p>
+              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(automatedDeductionsTotal)}</p>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="h-1.5 bg-[#356642]" />
           <CardContent className="p-6">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Loans + Support Disbursed</p>
-              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(combinedDisbursedTotal)}</p>
+              <p className="text-sm text-muted-foreground">Total Paid Out (Net Disbursed)</p>
+              <p className="text-2xl text-primary font-bold">{loading ? 'Updating...' : formatCurrency(netPaidOutTotal)}</p>
             </div>
           </CardContent>
         </Card>

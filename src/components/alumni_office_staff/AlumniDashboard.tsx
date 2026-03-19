@@ -78,6 +78,9 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
 
   const totalRaised = Number(donationStats.totalRaised || 0);
   const totalDisbursed = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
+  const grossApprovedTotal = disbursements.reduce((sum, d) => sum + Number(d.original_amount || d.net_amount || 0), 0);
+  const automatedDeductionsTotal = disbursements.reduce((sum, d) => sum + Number(d.deduction_amount || 0), 0);
+  const netPaidOutTotal = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
   const isDisbursedStatus = (status: string) => {
     const s = (status || '').toLowerCase();
     return ['approved', 'active', 'paid', 'disbursed'].includes(s);
@@ -325,24 +328,30 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         </Card>
       </div>
 
-      {/* Accountability totals for disbursements */}
+      {/* Accountability totals (Power BI style KPIs) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Card className="border border-slate-200/80">
+        <Card className="border border-slate-200/80 overflow-hidden">
+          <div className="h-1.5 bg-[#0b2a4a]" />
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Loans Disbursed (Total)</p>
-            <p className="text-xl mt-1 text-[#0b2a4a]">{loading ? 'Updating...' : formatCompactUGX(totalLoansDisbursed)}</p>
+            <p className="text-xs text-muted-foreground">Gross Approved (Before Deductions)</p>
+            <p className="text-2xl mt-1 text-[#0b2a4a]">{loading ? 'Updating...' : formatCompactUGX(grossApprovedTotal)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Approved principal before any automated deductions.</p>
           </CardContent>
         </Card>
-        <Card className="border border-slate-200/80">
+        <Card className="border border-slate-200/80 overflow-hidden">
+          <div className="h-1.5 bg-[#8A1F3A]" />
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Support Disbursed (Total)</p>
-            <p className="text-xl mt-1 text-[#0b2a4a]">{loading ? 'Updating...' : formatCompactUGX(totalSupportDisbursed)}</p>
+            <p className="text-xs text-muted-foreground">Automated Deductions</p>
+            <p className="text-2xl mt-1 text-[#8A1F3A]">{loading ? 'Updating...' : formatCompactUGX(automatedDeductionsTotal)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Total amount automatically deducted before payout.</p>
           </CardContent>
         </Card>
-        <Card className="border border-slate-200/80 bg-slate-50/70">
+        <Card className="border border-slate-200/80 overflow-hidden">
+          <div className="h-1.5 bg-[#356642]" />
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Loans + Support Disbursed</p>
-            <p className="text-xl mt-1 text-[#0b2a4a]">{loading ? 'Updating...' : formatCompactUGX(totalProgramDisbursed)}</p>
+            <p className="text-xs text-muted-foreground">Total Paid Out (Net Disbursed)</p>
+            <p className="text-2xl mt-1 text-[#356642]">{loading ? 'Updating...' : formatCompactUGX(netPaidOutTotal)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Actual money sent to beneficiaries after deductions.</p>
           </CardContent>
         </Card>
       </div>
