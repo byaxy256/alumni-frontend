@@ -4,7 +4,7 @@ import { api } from '../api';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { ArrowLeft, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
@@ -19,11 +19,18 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [password, setPassword] = useState('');
   const [adminSecret, setAdminSecret] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
+  const [pendingLogin, setPendingLogin] = useState<{
+    credential: string;
+    password: string;
+    adminSecret?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
 
   const heroImage =
-    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=2200&q=80';
+    'https://images.unsplash.com/photo-1523240798132-8757214e76aa?auto=format&fit=crop&w=2000&q=80';
 
   const handleCredentialStep = async () => {
     if (!emailOrPhone || !password) {
@@ -41,33 +48,28 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
       ? credential.toLowerCase()
       : credential;
 
-    // 2FA temporarily disabled (on hold):
-    // login immediately without requesting/verifying a 2FA code.
+    setPendingLogin({
+      credential: normalizedCredential,
+      password,
+      adminSecret: adminSecret || undefined,
+    });
+
+    setStep('twoFactor');
+    setTwoFactorCode('');
+
     try {
-      setLoading(true);
-      const data = await api.login(
-        normalizedCredential,
-        password,
-        adminSecret || undefined
-      );
-      toast.success('Login successful');
-      onLoginSuccess(data.user, data.token);
-      setNeedsAdminSecret(false);
+      await api.requestLogin2FA(normalizedCredential, adminSecret || undefined);
+      toast.success('2FA code sent. Enter it to continue.');
     } catch (err: any) {
-      console.error('Login error', err);
-      const errorMsg = err?.message || err?.response?.data?.error || 'Login failed';
-      if (errorMsg?.includes('Admin secret required')) {
-        setNeedsAdminSecret(true);
-        toast.error('Admin secret required to login');
+      if (err?.status === 404) {
+        toast.info('Enter your authentication code to continue.');
       } else {
-        toast.error(errorMsg);
+        const errorMsg = err?.message || 'Proceed with your 2FA code.';
+        toast.info(errorMsg);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
-  /* 2FA disabled on hold: verification handler intentionally unused.
   const handle2FAVerification = async () => {
     if (!pendingLogin) {
       toast.error('Please enter your credentials first');
@@ -109,11 +111,16 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
       setLoading(false);
     }
   };
-  */
 
   const handlePasswordKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       void handleCredentialStep();
+    }
+  };
+
+  const handleCodeKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      void handle2FAVerification();
     }
   };
 
@@ -151,7 +158,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             position: 'absolute',
             inset: 0,
             width: '62%',
-            backgroundImage: `url('${heroImage}')`,
+            backgroundImage: `linear-gradient(to bottom, rgba(10,17,28,0.15), rgba(10,17,28,0.55)), url('${heroImage}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -160,9 +167,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           style={{
             position: 'absolute',
             inset: 0,
-            width: '38%',
-            right: 0,
-            background: '#1f3c6d',
+            background: 'linear-gradient(90deg, rgba(6,14,24,0.16) 0%, rgba(7,16,28,0.5) 38%, rgba(9,18,30,0.9) 63%, rgba(9,18,30,1) 100%)',
           }}
         />
       </div>
@@ -172,7 +177,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: `url('${heroImage}')`,
+            backgroundImage: `linear-gradient(180deg, rgba(8,15,24,0.55), rgba(8,15,24,0.9)), url('${heroImage}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -191,20 +196,14 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
         }}
       >
         <div
-          className="hidden lg:flex"
+          className="hidden lg:block"
           style={{
             position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: '62%',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            padding: '0 3rem',
+            left: '5.5%',
+            bottom: '10%',
+            maxWidth: '37rem',
           }}
         >
-          <div style={{ maxWidth: '38rem' }}>
           <p
             style={{
               fontSize: '3.35rem',
@@ -232,7 +231,6 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           >
             Access exclusive resources and opportunities for alumni.
           </p>
-          </div>
         </div>
 
         <div
@@ -241,7 +239,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             maxWidth: '33rem',
             borderRadius: '2rem',
             border: '1px solid rgba(255,255,255,0.14)',
-            background: 'rgba(28, 62, 112, 0.92)',
+            background: 'linear-gradient(170deg, rgba(36,50,75,0.9) 0%, rgba(20,31,50,0.92) 58%, rgba(17,27,44,0.94) 100%)',
             boxShadow: '0 24px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1)',
             backdropFilter: 'blur(14px)',
             padding: '2rem 1.6rem 1.45rem',
@@ -254,7 +252,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             </span>
             <span style={{ fontSize: '1.95rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
               Alumni{' '}
-              <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.84)' }}>Circle</span>
+              <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.84)' }}>Platform</span>
             </span>
           </div>
 
@@ -262,10 +260,11 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             Welcome Back!
           </h2>
           <p style={{ fontSize: '1.12rem', color: 'rgba(255,255,255,0.72)', marginBottom: '1.35rem' }}>
-            Sign in to your account
+            {step === 'credentials' ? 'Sign in to your account' : 'Enter your 2FA verification code'}
           </p>
 
-          <>
+          {step === 'credentials' ? (
+            <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 <div>
                   <Label style={{ display: 'block', marginBottom: '0.38rem', color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem' }}>
@@ -296,22 +295,20 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
                       onChange={(event) => setPassword(event.target.value)}
                       onKeyDown={handlePasswordKeyDown}
                       placeholder="Enter your password"
-                      style={{ height: '3.25rem', borderRadius: '0.82rem', border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(10,18,33,0.65)', color: '#fff', paddingLeft: '2.65rem', paddingRight: '3.2rem', fontSize: '1rem' }}
+                      style={{ height: '3.25rem', borderRadius: '0.82rem', border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(10,18,33,0.65)', color: '#fff', paddingLeft: '2.65rem', paddingRight: '6.1rem', fontSize: '1rem' }}
                       className="placeholder:text-white/35"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((value) => !value)}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      style={{ position: 'absolute', right: '0.84rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.62)' }}
+                      style={{ position: 'absolute', right: '2.95rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.62)' }}
                     >
                       {showPassword ? <EyeOff style={{ width: '1rem', height: '1rem' }} /> : <Eye style={{ width: '1rem', height: '1rem' }} />}
                     </button>
-                  </div>
-                  <div style={{ marginTop: '0.35rem', textAlign: 'right' }}>
                     <button
                       type="button"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.76rem', color: 'rgba(255,255,255,0.72)' }}
+                      style={{ position: 'absolute', right: '0.84rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.76rem', color: 'rgba(255,255,255,0.58)' }}
                     >
                       Forgot Password?
                     </button>
@@ -339,11 +336,51 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
               <Button
                 onClick={handleCredentialStep}
                 disabled={loading}
-                style={{ height: '3.15rem', width: '100%', borderRadius: '9999px', border: 'none', background: '#f07a2a', color: '#fff', fontSize: '1.7rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 10px 30px rgba(236,120,44,0.4)', marginTop: '0.95rem' }}
+                style={{ height: '3.15rem', width: '100%', borderRadius: '9999px', border: 'none', background: 'linear-gradient(90deg,#f35d2f 0%,#f8b52f 100%)', color: '#fff', fontSize: '1.7rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 10px 30px rgba(236,120,44,0.4)', marginTop: '0.95rem' }}
               >
                 Continue
               </Button>
-          </>
+            </>
+          ) : (
+            <>
+              <div style={{ marginBottom: '0.6rem' }}>
+                <Label style={{ display: 'block', marginBottom: '0.45rem', color: 'rgba(255,255,255,0.84)', fontSize: '0.95rem' }}>
+                  Verification Code
+                </Label>
+                <div style={{ position: 'relative' }}>
+                  <ShieldCheck style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', width: '1rem', height: '1rem', color: 'rgba(255,255,255,0.55)' }} />
+                  <Input
+                    value={twoFactorCode}
+                    onChange={(event) => setTwoFactorCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                    onKeyDown={handleCodeKeyDown}
+                    inputMode="numeric"
+                    placeholder="Enter 6-digit code"
+                    style={{ height: '3.25rem', borderRadius: '0.82rem', border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(10,18,33,0.65)', color: '#fff', paddingLeft: '2.65rem', letterSpacing: '0.22em', fontSize: '1.05rem' }}
+                    className="placeholder:text-white/35"
+                  />
+                </div>
+                <p style={{ marginTop: '0.6rem', fontSize: '0.83rem', color: 'rgba(255,255,255,0.62)' }}>
+                  Enter the code from your authenticator app or email.
+                </p>
+              </div>
+
+              <Button
+                onClick={handle2FAVerification}
+                disabled={loading}
+                style={{ height: '3.15rem', width: '100%', borderRadius: '9999px', border: 'none', background: 'linear-gradient(90deg,#f35d2f 0%,#f8b52f 100%)', color: '#fff', fontSize: '1.3rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 10px 30px rgba(236,120,44,0.4)', marginTop: '0.45rem' }}
+              >
+                {loading ? 'Verifying…' : 'Sign In'}
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => setStep('credentials')}
+                style={{ marginTop: '0.7rem', width: '100%', background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+              >
+                Back to credentials
+              </button>
+            </>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', margin: '1.15rem 0 1rem', color: 'rgba(255,255,255,0.4)' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.16)' }} />
@@ -380,7 +417,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           </p>
 
           <p style={{ marginTop: '1.1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.12)', textAlign: 'center', fontSize: '0.84rem', color: 'rgba(255,255,255,0.45)' }}>
-            © 2026 Alumni Circle · Terms · Privacy
+            © 2026 Alumni Platform · Terms · Privacy
           </p>
         </div>
       </div>
