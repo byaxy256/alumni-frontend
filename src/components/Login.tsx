@@ -1,10 +1,11 @@
 // src/components/Login.tsx
 import { useState, type KeyboardEvent } from 'react';
 import { api } from '../api';
+import { isFirebaseAuthConfigured, signInWithGoogleIdToken } from '../firebaseClient';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { ArrowLeft, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
@@ -19,14 +20,8 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [password, setPassword] = useState('');
   const [adminSecret, setAdminSecret] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
-  const [pendingLogin, setPendingLogin] = useState<{
-    credential: string;
-    password: string;
-    adminSecret?: string;
-  } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
 
   const heroImage =
@@ -48,61 +43,22 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
       ? credential.toLowerCase()
       : credential;
 
-    setPendingLogin({
-      credential: normalizedCredential,
-      password,
-      adminSecret: adminSecret || undefined,
-    });
-
-    setStep('twoFactor');
-    setTwoFactorCode('');
-
-    try {
-      await api.requestLogin2FA(normalizedCredential, adminSecret || undefined);
-      toast.success('2FA code sent. Enter it to continue.');
-    } catch (err: any) {
-      if (err?.status === 404) {
-        toast.info('Enter your authentication code to continue.');
-      } else {
-        const errorMsg = err?.message || 'Proceed with your 2FA code.';
-        toast.info(errorMsg);
-      }
-    }
-  };
-
-  const handle2FAVerification = async () => {
-    if (!pendingLogin) {
-      toast.error('Please enter your credentials first');
-      setStep('credentials');
-      return;
-    }
-
-    if (!/^\d{6}$/.test(twoFactorCode.trim())) {
-      toast.error('Enter a valid 6-digit verification code');
-      return;
-    }
-
+    // 2FA is on hold for now; proceed with direct login.
     setLoading(true);
     try {
-      const data = await api.loginWith2FA(
-        pendingLogin.credential,
-        pendingLogin.password,
-        twoFactorCode.trim(),
-        pendingLogin.adminSecret
+      const data = await api.login(
+        normalizedCredential,
+        password,
+        adminSecret || undefined
       );
-
       toast.success('Login successful');
       onLoginSuccess(data.user, data.token);
       setNeedsAdminSecret(false);
-      setStep('credentials');
-      setPendingLogin(null);
-      setTwoFactorCode('');
     } catch (err: any) {
       console.error('Login error', err);
       const errorMsg = err?.message || err?.response?.data?.error || 'Login failed';
       if (errorMsg?.includes('Admin secret required')) {
         setNeedsAdminSecret(true);
-        setStep('credentials');
         toast.error('Admin secret required to login');
       } else {
         toast.error(errorMsg);
@@ -118,9 +74,26 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
     }
   };
 
-  const handleCodeKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      void handle2FAVerification();
+  const handleGoogleSignIn = async () => {
+    if (!isFirebaseAuthConfigured()) {
+      toast.error(
+        'Google sign-in needs Firebase web config. Set VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID in the frontend build, enable Google in Firebase Console → Authentication → Sign-in method, then redeploy.'
+      );
+      return;
+    }
+    setGoogleLoading(true);
+    try {
+      const idToken = await signInWithGoogleIdToken();
+      const data = await api.loginWithGoogle(idToken);
+      toast.success('Signed in with Google');
+      onLoginSuccess(data.user, data.token);
+    } catch (err: unknown) {
+      console.error('Google sign-in error', err);
+      const msg =
+        err instanceof Error ? err.message : typeof err === 'string' ? err : 'Google sign-in failed';
+      toast.error(msg);
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -158,7 +131,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             position: 'absolute',
             inset: 0,
             width: '62%',
-            backgroundImage: `linear-gradient(to bottom, rgba(10,17,28,0.15), rgba(10,17,28,0.55)), url('${heroImage}')`,
+            backgroundImage: `url('${heroImage}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -167,7 +140,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(90deg, rgba(6,14,24,0.16) 0%, rgba(7,16,28,0.5) 38%, rgba(9,18,30,0.9) 63%, rgba(9,18,30,1) 100%)',
+            background: 'rgba(9,18,30,0.86)',
           }}
         />
       </div>
@@ -177,7 +150,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: `linear-gradient(180deg, rgba(8,15,24,0.55), rgba(8,15,24,0.9)), url('${heroImage}')`,
+            backgroundImage: `url('${heroImage}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -239,7 +212,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             maxWidth: '33rem',
             borderRadius: '2rem',
             border: '1px solid rgba(255,255,255,0.14)',
-            background: 'linear-gradient(170deg, rgba(36,50,75,0.9) 0%, rgba(20,31,50,0.92) 58%, rgba(17,27,44,0.94) 100%)',
+            background: 'rgba(24,37,59,0.93)',
             boxShadow: '0 24px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1)',
             backdropFilter: 'blur(14px)',
             padding: '2rem 1.6rem 1.45rem',
@@ -260,11 +233,10 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             Welcome Back!
           </h2>
           <p style={{ fontSize: '1.12rem', color: 'rgba(255,255,255,0.72)', marginBottom: '1.35rem' }}>
-            {step === 'credentials' ? 'Sign in to your account' : 'Enter your 2FA verification code'}
+            Sign in to your account
           </p>
 
-          {step === 'credentials' ? (
-            <>
+          <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 <div>
                   <Label style={{ display: 'block', marginBottom: '0.38rem', color: 'rgba(255,255,255,0.85)', fontSize: '0.95rem' }}>
@@ -336,51 +308,11 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
               <Button
                 onClick={handleCredentialStep}
                 disabled={loading}
-                style={{ height: '3.15rem', width: '100%', borderRadius: '9999px', border: 'none', background: 'linear-gradient(90deg,#f35d2f 0%,#f8b52f 100%)', color: '#fff', fontSize: '1.7rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 10px 30px rgba(236,120,44,0.4)', marginTop: '0.95rem' }}
+                style={{ height: '3.15rem', width: '100%', borderRadius: '9999px', border: 'none', background: '#f07a2a', color: '#fff', fontSize: '1.7rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 10px 30px rgba(236,120,44,0.4)', marginTop: '0.95rem' }}
               >
-                Continue
+                {loading ? 'Signing In…' : 'Sign In'}
               </Button>
-            </>
-          ) : (
-            <>
-              <div style={{ marginBottom: '0.6rem' }}>
-                <Label style={{ display: 'block', marginBottom: '0.45rem', color: 'rgba(255,255,255,0.84)', fontSize: '0.95rem' }}>
-                  Verification Code
-                </Label>
-                <div style={{ position: 'relative' }}>
-                  <ShieldCheck style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', width: '1rem', height: '1rem', color: 'rgba(255,255,255,0.55)' }} />
-                  <Input
-                    value={twoFactorCode}
-                    onChange={(event) => setTwoFactorCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
-                    onKeyDown={handleCodeKeyDown}
-                    inputMode="numeric"
-                    placeholder="Enter 6-digit code"
-                    style={{ height: '3.25rem', borderRadius: '0.82rem', border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(10,18,33,0.65)', color: '#fff', paddingLeft: '2.65rem', letterSpacing: '0.22em', fontSize: '1.05rem' }}
-                    className="placeholder:text-white/35"
-                  />
-                </div>
-                <p style={{ marginTop: '0.6rem', fontSize: '0.83rem', color: 'rgba(255,255,255,0.62)' }}>
-                  Enter the code from your authenticator app or email.
-                </p>
-              </div>
-
-              <Button
-                onClick={handle2FAVerification}
-                disabled={loading}
-                style={{ height: '3.15rem', width: '100%', borderRadius: '9999px', border: 'none', background: 'linear-gradient(90deg,#f35d2f 0%,#f8b52f 100%)', color: '#fff', fontSize: '1.3rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 10px 30px rgba(236,120,44,0.4)', marginTop: '0.45rem' }}
-              >
-                {loading ? 'Verifying…' : 'Sign In'}
-              </Button>
-
-              <button
-                type="button"
-                onClick={() => setStep('credentials')}
-                style={{ marginTop: '0.7rem', width: '100%', background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: '3px' }}
-              >
-                Back to credentials
-              </button>
-            </>
-          )}
+          </>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', margin: '1.15rem 0 1rem', color: 'rgba(255,255,255,0.4)' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.16)' }} />
@@ -391,8 +323,23 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           <div>
             <button
               type="button"
-              onClick={() => toast.info('Google sign-in is not configured yet.')}
-              style={{ height: '3.15rem', width: '100%', borderRadius: '0.82rem', border: '1px solid rgba(255,255,255,0.22)', background: 'rgba(10,18,33,0.55)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '1.02rem', cursor: 'pointer' }}
+              onClick={() => void handleGoogleSignIn()}
+              disabled={googleLoading || loading}
+              style={{
+                height: '3.15rem',
+                width: '100%',
+                borderRadius: '0.82rem',
+                border: '1px solid rgba(255,255,255,0.22)',
+                background: 'rgba(10,18,33,0.55)',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.75rem',
+                fontSize: '1.02rem',
+                cursor: googleLoading || loading ? 'not-allowed' : 'pointer',
+                opacity: googleLoading || loading ? 0.75 : 1,
+              }}
             >
               <span style={{ width: '1.15rem', height: '1.15rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden="true">
@@ -402,7 +349,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
                   <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.05 12.05 0 0 1-4.084 5.539l6.19 5.238C36.971 39.17 44 34 44 24c0-1.341-.138-2.651-.389-3.917Z" />
                 </svg>
               </span>
-              Continue with Google
+              {googleLoading ? 'Connecting…' : 'Continue with Google'}
             </button>
           </div>
 

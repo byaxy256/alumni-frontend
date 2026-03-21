@@ -102,6 +102,27 @@ export const api = {
     return res.json();
   },
 
+  /**
+   * Exchange Firebase Google ID token for app JWT (backend: POST /api/auth/google).
+   * Optional requestedRole helps new users sign up as student vs alumni when the backend supports it.
+   */
+  async loginWithGoogle(idToken: string, requestedRole?: 'student' | 'alumni') {
+    const res = await fetch(`${API_BASE}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken, requestedRole }),
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({} as any));
+      throw new Error(error.error || error.message || 'Google sign-in failed');
+    }
+    return res.json() as Promise<{
+      success: boolean;
+      token: string;
+      user: any;
+    }>;
+  },
+
   async getLoans(userId: string, token: string) {
     const res = await fetch(`${API_BASE}/loans?userId=${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
