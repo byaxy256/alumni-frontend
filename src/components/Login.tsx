@@ -25,7 +25,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
 
   const heroImage =
-    'https://images.unsplash.com/photo-1523240798132-8757214e76aa?auto=format&fit=crop&w=2200&q=80';
+    'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=2400&q=80';
 
   const handleCredentialStep = async () => {
     if (!emailOrPhone || !password) {
@@ -132,11 +132,12 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             top: 0,
             left: 0,
             bottom: 0,
-            width: '62%',
+            width: '64%',
             backgroundImage: `url('${heroImage}')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center center',
+            backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
+            filter: 'brightness(0.88)',
           }}
         />
         <div
@@ -145,7 +146,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             top: 0,
             right: 0,
             bottom: 0,
-            width: '38%',
+            width: '36%',
             background: '#1f3c6d',
           }}
         />
