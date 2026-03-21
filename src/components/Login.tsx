@@ -140,7 +140,9 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(9,18,30,0.86)',
+            width: '38%',
+            right: 0,
+            background: '#1f3c6d',
           }}
         />
       </div>
@@ -212,9 +214,8 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             maxWidth: '33rem',
             borderRadius: '2rem',
             border: '1px solid rgba(255,255,255,0.14)',
-            background: 'rgba(24,37,59,0.93)',
+            background: '#2a446c',
             boxShadow: '0 24px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(14px)',
             padding: '2rem 1.6rem 1.45rem',
             marginRight: '0',
           }}
