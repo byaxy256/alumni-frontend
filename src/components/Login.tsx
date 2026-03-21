@@ -25,7 +25,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
 
   const heroImage =
-    'https://images.unsplash.com/photo-1523240798132-8757214e76aa?auto=format&fit=crop&w=2000&q=80';
+    '/login-hero.jpg';
 
   const handleCredentialStep = async () => {
     if (!emailOrPhone || !password) {
@@ -176,12 +176,12 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
             position: 'absolute',
             left: '5.5%',
             bottom: '10%',
-            maxWidth: '37rem',
+            maxWidth: '30rem',
           }}
         >
           <p
             style={{
-              fontSize: '3.35rem',
+              fontSize: '3rem',
               fontWeight: 700,
               color: '#ffffff',
               lineHeight: 1.12,
