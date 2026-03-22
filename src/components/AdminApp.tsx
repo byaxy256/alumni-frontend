@@ -55,7 +55,9 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
                   onClick={() => setCurrentView(item.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentView === item.id
-                      ? 'bg-white/20 text-white shadow-sm font-medium'
+                      ? item.id === 'fund-requests'
+                        ? 'bg-[#0b2a4a] text-white shadow-sm font-medium'
+                        : 'bg-white/20 text-white shadow-sm font-medium'
                       : 'text-white/90 hover:bg-white/10 hover:text-white'
                   }`}
                 >

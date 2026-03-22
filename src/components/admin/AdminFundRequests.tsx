@@ -87,8 +87,8 @@ export default function AdminFundRequests() {
         </Button>
       </div>
 
-      <Card className="bg-white border-gray-200">
-        <CardHeader className="bg-gradient-to-r from-[var(--brand-blue)] to-[#0b2a4a] border-b border-black/10">
+      <Card className="bg-gradient-to-br from-blue-50 to-blue-100/80 border-blue-200 shadow-sm">
+        <CardHeader className="bg-gradient-to-r from-[#0b2a4a] to-[#355C9A] border-b border-blue-900/20">
           <CardTitle className="text-white text-xl">Fund Requests</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -109,7 +109,7 @@ export default function AdminFundRequests() {
                 const isRejected = req.status?.toLowerCase() === 'rejected';
 
                 return (
-                  <Card key={req.id} className="border border-gray-200 bg-gradient-to-br from-white to-gray-50 hover:shadow-md transition-shadow">
+                  <Card key={req.id} className="border border-blue-200 bg-gradient-to-br from-blue-50 to-white hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-3">
@@ -155,7 +155,7 @@ export default function AdminFundRequests() {
                         </div>
 
                         {req.notes && (
-                          <p className="text-sm text-gray-600 bg-gray-100 p-2 rounded border border-gray-200">
+                          <p className="text-sm text-gray-700 bg-blue-100/70 p-2 rounded border border-blue-200">
                             {req.notes}
                           </p>
                         )}
