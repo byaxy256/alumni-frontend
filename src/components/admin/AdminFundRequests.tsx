@@ -93,8 +93,17 @@ export default function AdminFundRequests() {
         </Button>
       </div>
 
-      <Card className="!bg-[#0b2a4a] !text-white !border-[#355C9A] shadow-sm">
-        <CardHeader className="bg-gradient-to-r from-[#091f37] to-[#2d4d81] border-b border-blue-200/20">
+      <Card
+        className="!text-white shadow-sm"
+        style={{ backgroundColor: '#0b2a4a', borderColor: '#355C9A' }}
+      >
+        <CardHeader
+          className="border-b"
+          style={{
+            background: 'linear-gradient(90deg, #091f37 0%, #2d4d81 100%)',
+            borderColor: 'rgba(191, 219, 254, 0.25)',
+          }}
+        >
           <CardTitle className="text-white text-xl">Fund Requests</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -115,7 +124,11 @@ export default function AdminFundRequests() {
                 const isRejected = req.status?.toLowerCase() === 'rejected';
 
                 return (
-                  <Card key={req.id} className="!bg-[#1f4a83] !text-white !border-[#6f95c8] hover:shadow-md transition-shadow">
+                  <Card
+                    key={req.id}
+                    className="!text-white hover:shadow-md transition-shadow"
+                    style={{ backgroundColor: '#1f4a83', borderColor: '#6f95c8' }}
+                  >
                     <CardContent className="p-4">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-3">
