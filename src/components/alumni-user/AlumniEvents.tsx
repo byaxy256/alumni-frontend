@@ -243,6 +243,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
   };
 
   return (
+
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="p-4">
@@ -257,7 +258,7 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
         </div>
       </div>
 
-      <div className="p-4 space-y-4 pb-20">
+      <div className="p-4 flex flex-col gap-6 pb-20">
         {loading ? (
           <div className="text-center py-10">
             <Loader2 className="mx-auto h-8 w-8 animate-spin" />
@@ -265,68 +266,85 @@ export function AlumniEvents({ onBack }: AlumniEventsProps) {
         ) : events.length === 0 ? (
           <Card className="p-6 text-center text-gray-600">No upcoming events</Card>
         ) : (
-          events.map((event) => (
-            <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative h-48 bg-gray-200">
-                {event.hasImage ? (
-                  <ImageWithFallback
-                    src={`${API_BASE}/content/events/${event.id}/image`}
-                    alt={event.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : null}
-                <div className="absolute top-3 right-3">
-                  <Badge className="bg-accent text-accent-foreground">{event.category}</Badge>
+          events.map((event, idx) => {
+            // Color palette for cards
+            const colors = [
+              'bg-gradient-to-r from-blue-100 to-blue-200',
+              'bg-gradient-to-r from-pink-100 to-pink-200',
+              'bg-gradient-to-r from-green-100 to-green-200',
+              'bg-gradient-to-r from-yellow-100 to-yellow-200',
+              'bg-gradient-to-r from-purple-100 to-purple-200',
+              'bg-gradient-to-r from-orange-100 to-orange-200',
+            ];
+            const cardColor = colors[idx % colors.length];
+            return (
+              <div
+                key={event.id}
+                className={`rounded-2xl shadow-md flex flex-row overflow-hidden ${cardColor}`}
+                style={{ minHeight: 180 }}
+              >
+                {/* Image section */}
+                <div className="w-48 min-w-[8rem] h-full flex items-center justify-center bg-gray-200">
+                  {event.hasImage ? (
+                    <ImageWithFallback
+                      src={`${API_BASE}/content/events/${event.id}/image`}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
+                      <Calendar className="w-12 h-12" />
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-lg mb-2">{event.title}</h3>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="w-4 h-4" /><span>{event.date}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Clock className="w-4 h-4" /><span>{event.time}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4" /><span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Users className="w-4 h-4" /><span>{event.attendees} registered</span>
-                  </div>
-                </div>
-
-                <p className="text-sm text-gray-700 mb-4">{event.description}</p>
-
-                <div className="flex items-center justify-between pt-4 border-t">
+                {/* Details section */}
+                <div className="flex-1 p-6 flex flex-col justify-between">
                   <div>
-                    <p className="text-xs text-gray-500">Registration Fee</p>
-                    <p className="text-base" style={{ color: 'var(--primary)' }}>
-                      {event.registrationFee === 0
-                        ? 'Free'
-                        : `UGX ${event.registrationFee.toLocaleString()}`}
-                    </p>
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">{event.title}</h3>
+                    <div className="flex flex-wrap gap-4 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4" /><span>{event.date}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Clock className="w-4 h-4" /><span>{event.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <MapPin className="w-4 h-4" /><span>{event.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Users className="w-4 h-4" /><span>{event.attendees} registered</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-2 line-clamp-3">{event.description}</p>
                   </div>
-                  <Button
-                    style={{ backgroundColor: 'var(--accent)' }}
-                    onClick={() => handleRegister(event.id, event.registrationFee)}
-                    disabled={registering === event.id || registered.has(event.id)}
-                    className="flex gap-2"
-                  >
-                    {registering === event.id ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" />Registering...</>
-                    ) : registered.has(event.id) ? (
-                      '✓ Registered'
-                    ) : (
-                      'Register Now'
-                    )}
-                  </Button>
+                  <div className="flex items-center justify-between pt-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Registration Fee</p>
+                      <p className="text-base font-semibold" style={{ color: 'var(--primary)' }}>
+                        {event.registrationFee === 0
+                          ? 'Free'
+                          : `UGX ${event.registrationFee.toLocaleString()}`}
+                      </p>
+                    </div>
+                    <Button
+                      style={{ backgroundColor: 'var(--accent)' }}
+                      onClick={() => handleRegister(event.id, event.registrationFee)}
+                      disabled={registering === event.id || registered.has(event.id)}
+                      className="flex gap-2"
+                    >
+                      {registering === event.id ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" />Registering...</>
+                      ) : registered.has(event.id) ? (
+                        '✓ Registered'
+                      ) : (
+                        'Register Now'
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </Card>
-          ))
+            );
+          })
         )}
       </div>
 
