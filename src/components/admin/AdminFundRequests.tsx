@@ -94,11 +94,11 @@ export default function AdminFundRequests() {
       </div>
 
       <Card
-        className="!text-white shadow-sm"
+        className="!text-white shadow-sm overflow-hidden rounded-2xl"
         style={{ backgroundColor: '#0b2a4a', borderColor: '#355C9A' }}
       >
         <CardHeader
-          className="border-b"
+          className="border-b pb-5"
           style={{
             background: 'linear-gradient(90deg, #091f37 0%, #2d4d81 100%)',
             borderColor: 'rgba(191, 219, 254, 0.25)',
@@ -106,7 +106,7 @@ export default function AdminFundRequests() {
         >
           <CardTitle className="text-white text-xl">Fund Requests</CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 pb-6 bg-[#10355f]">
           {loading ? (
             <div className="flex items-center gap-2 text-white/90 text-base">
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -117,7 +117,7 @@ export default function AdminFundRequests() {
           ) : requests.length === 0 ? (
             <p className="text-base text-white/80">No fund requests have been submitted yet.</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {requests.map((req) => {
                 const isPending = !req.status || req.status.toLowerCase() === 'pending';
                 const isApproved = req.status?.toLowerCase() === 'approved';
@@ -126,10 +126,10 @@ export default function AdminFundRequests() {
                 return (
                   <Card
                     key={req.id}
-                    className="!text-white hover:shadow-md transition-shadow"
+                    className="!text-white hover:shadow-md transition-shadow rounded-xl overflow-hidden"
                     style={{ backgroundColor: '#1f4a83', borderColor: '#6f95c8' }}
                   >
-                    <CardContent className="p-4">
+                    <CardContent className="p-5">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
@@ -174,7 +174,7 @@ export default function AdminFundRequests() {
                         </div>
 
                         {req.notes && (
-                          <p className="text-sm text-white bg-[#16365e] p-2 rounded border border-blue-200/20">
+                          <p className="text-sm text-white bg-[#16365e] p-3 rounded-lg border border-blue-200/20">
                             {req.notes}
                           </p>
                         )}
