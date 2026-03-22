@@ -64,10 +64,10 @@ export function AlumniFundRequest({ user }: AlumniFundRequestProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid gap-4 md:grid-cols-2">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <Label className="mb-1.5 block">Requested amount (UGX)</Label>
+                <Label className="mb-2.5 block">Requested amount (UGX)</Label>
                 <Input
                   type="number"
                   min="0"
@@ -79,7 +79,7 @@ export function AlumniFundRequest({ user }: AlumniFundRequestProps) {
                 />
               </div>
               <div>
-                <Label className="mb-1.5 block">Needed by (optional)</Label>
+                <Label className="mb-2.5 block">Needed by (optional)</Label>
                 <Input
                   type="date"
                   value={neededBy}
@@ -90,7 +90,7 @@ export function AlumniFundRequest({ user }: AlumniFundRequestProps) {
             </div>
 
             <div>
-              <Label className="mb-1.5 block">Purpose</Label>
+              <Label className="mb-2.5 block">Purpose</Label>
               <Input
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
@@ -100,7 +100,7 @@ export function AlumniFundRequest({ user }: AlumniFundRequestProps) {
             </div>
 
             <div>
-              <Label className="mb-1.5 block">Details for the admin (optional)</Label>
+              <Label className="mb-2.5 block">Details for the admin (optional)</Label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -109,7 +109,7 @@ export function AlumniFundRequest({ user }: AlumniFundRequestProps) {
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center justify-between pt-4 mt-4">
               <p className="text-xs text-muted-foreground">
                 Request will be submitted as <span className="font-medium">{user.name}</span>.
               </p>

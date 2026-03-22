@@ -16,9 +16,19 @@ import { API_BASE } from '../../api';
 
 const UPLOAD_BASE = API_BASE.replace(/\/api\/?$/, '');
 function documentFullUrl(att: any): string {
-  const url = att?.url || '';
+  const url = att?.viewUrl || att?.view_url || att?.url || att?.storage_path || '';
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
+      const parsed = new URL(url);
+      if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+        return `${UPLOAD_BASE}${parsed.pathname}`;
+      }
+    } catch {
+      return url;
+    }
+    return url;
+  }
   return `${UPLOAD_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 

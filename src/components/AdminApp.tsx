@@ -29,28 +29,28 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[var(--brand-blue-soft-10)] text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col bg-sidebar">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col bg-white border-r border-black/10">
         <div className="flex flex-col flex-1 min-h-0">
 
-          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 bg-primary border-b border-sidebar-border">
+          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 border-b border-black/10" style={{ backgroundColor: '#8A1F3A' }}>
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-8 w-8" />
-              <h1 className="text-sidebar-foreground">Alumni connect Admin</h1>
+              <h1 className="text-white font-semibold">Alumni Admin</h1>
             </div>
           </div>
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className="flex-1 px-3 py-6 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   onClick={() => setCurrentView(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm ${
                     currentView === item.id
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      ? 'bg-blue-100 text-blue-700 font-medium'
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -59,11 +59,11 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
               );
             })}
           </nav>
-          <div className="flex-shrink-0 p-4 border-t border-sidebar-border">
+          <div className="flex-shrink-0 p-4 border-t border-black/10">
             <Button
               onClick={onLogout}
               variant="ghost"
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+              className="w-full justify-start text-gray-700 hover:bg-gray-100 text-sm"
             >
               <LogOut className="w-5 h-5 mr-3" />
               Logout
@@ -73,17 +73,17 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-primary border-b border-border z-40">
+      <div className="lg:hidden fixed top-0 left-0 right-0 border-b border-black/10 z-40 shadow-sm" style={{ backgroundColor: '#8A1F3A' }}>
         <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="h-8 w-8" />
-            <h1 className="text-primary-foreground">Alumni connect Admin</h1>
+            <h1 className="text-white font-semibold text-sm">Alumni Admin</h1>
           </div>
           <Button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             variant="ghost"
             size="icon"
-            className="text-primary-foreground"
+            className="text-white hover:bg-white/20"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </Button>
@@ -92,8 +92,8 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-30 bg-sidebar pt-16">
-          <nav className="p-4 space-y-2">
+        <div className="lg:hidden fixed inset-0 z-30 bg-white pt-16">
+          <nav className="p-3 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -103,10 +103,10 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
                     setCurrentView(item.id);
                     setMobileMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm ${
                     currentView === item.id
-                      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      ? 'bg-blue-100 text-blue-700 font-medium'
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -117,7 +117,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
             <Button
               onClick={onLogout}
               variant="ghost"
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent mt-4"
+              className="w-full justify-start text-gray-700 hover:bg-gray-100 text-sm mt-4"
             >
               <LogOut className="w-5 h-5 mr-3" />
               Logout

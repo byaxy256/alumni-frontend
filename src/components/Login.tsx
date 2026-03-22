@@ -261,7 +261,7 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
               letterSpacing: '-0.02em',
               textShadow: '0 8px 36px rgba(0,0,0,0.45)',
               marginBottom: '1.2rem',
-              marginTop: 0,
+              marginTop: '-4rem',
             }}
           >
             Connect &amp; Empower

@@ -162,6 +162,12 @@ export const api = {
       return apiCall(`/content/${type}`, 'GET', undefined, token);
     },
 
+    /** Staff: all items including drafts (requires admin / alumni_office token). */
+    async getContentAdmin(type: 'news' | 'events', token?: string) {
+      const segment = type === 'news' ? 'news' : 'events';
+      return apiCall(`/content/admin/${segment}`, 'GET', undefined, token);
+    },
+
     async createContent(type: 'news' | 'events', data: any, token?: string) {
       return apiCall(`/content/${type}`, 'POST', data, token);
     },

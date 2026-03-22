@@ -1,8 +1,4 @@
-
-
-
-
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -11,7 +7,7 @@ import { Textarea } from '../ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
-import { Plus, Edit2, Trash2, Calendar, MapPin, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, MapPin, AlertCircle, Newspaper, ImageIcon, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -31,24 +27,51 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog';
-import { useRealtime } from '../../hooks/useRealtime';
-import { apiCall, API_BASE } from '../../api';
+import { api, apiCall, API_BASE } from '../../api';
 
 import { ContentItem, ContentFormData } from '../../types/content';
-import { 
-  getFutureDateString
-} from '../../utils/validation';
 
-// Extracted FormContent OUTSIDE the main component to prevent re-rendering issues
+function getApiOrigin(): string {
+  return API_BASE.replace(/\/api\/?$/, '');
+}
+
+/** Resolve image URL for list / preview: disk path, absolute URL, or /image fallback. */
+function getContentImageSrc(
+  item: { id: string; hasImage?: boolean; imageUrl?: string },
+  kind: 'news' | 'events',
+  refreshKey: number
+): string | null {
+  if (item.imageUrl && typeof item.imageUrl === 'string') {
+    const u = item.imageUrl.trim();
+    if (u.startsWith('http')) return `${u}${u.includes('?') ? '&' : '?'}v=${refreshKey}`;
+    if (u.startsWith('/')) return `${getApiOrigin()}${u}?v=${refreshKey}`;
+  }
+  if (item.hasImage && item.id) {
+    return `${API_BASE}/content/${kind}/${item.id}/image?v=${refreshKey}`;
+  }
+  return null;
+}
+
 interface FormContentProps {
   activeTab: 'news' | 'event';
   formData: ContentFormData;
   setFormData: (data: ContentFormData) => void;
   imageFile: File | null;
   setImageFile: (file: File | null) => void;
+  /** Current image from server when editing (no new file chosen yet). */
+  existingImageUrl?: string | null;
 }
 
-function FormContent({ activeTab, formData, setFormData, imageFile, setImageFile }: FormContentProps) {
+function FormContent({
+  activeTab,
+  formData,
+  setFormData,
+  imageFile,
+  setImageFile,
+  existingImageUrl,
+}: FormContentProps) {
+  const previewSrc = imageFile ? URL.createObjectURL(imageFile) : existingImageUrl || null;
+
   return (
     <div className="space-y-4">
       <div>
@@ -148,7 +171,7 @@ function FormContent({ activeTab, formData, setFormData, imageFile, setImageFile
         <Switch
           id="published"
           checked={formData.published}
-          onCheckedChange={(checked: any) => setFormData({ ...formData, published: checked })}
+          onCheckedChange={(checked: boolean) => setFormData({ ...formData, published: checked })}
         />
       </div>
 
@@ -159,7 +182,7 @@ function FormContent({ activeTab, formData, setFormData, imageFile, setImageFile
           title="Select audience for content"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
           value={formData.audience}
-          onChange={(e) => setFormData({ ...formData, audience: e.target.value as any })}
+          onChange={(e) => setFormData({ ...formData, audience: e.target.value as ContentFormData['audience'] })}
         >
           <option value="both">Both (Students & Alumni)</option>
           <option value="students">Students</option>
@@ -180,9 +203,9 @@ function FormContent({ activeTab, formData, setFormData, imageFile, setImageFile
             setImageFile(file);
           }}
         />
-        {imageFile && (
-          <div className="mt-3 rounded-lg overflow-hidden bg-gray-100 w-40 h-40">
-            <img src={URL.createObjectURL(imageFile)} alt="preview" className="w-full h-full object-cover" />
+        {previewSrc && (
+          <div className="mt-3 rounded-xl overflow-hidden bg-gray-100 w-full max-w-md aspect-video border border-gray-200 shadow-inner">
+            <img src={previewSrc} alt="Preview" className="w-full h-full object-cover" />
           </div>
         )}
       </div>
@@ -202,9 +225,14 @@ export default function ContentManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(false);
+  const [listLoading, setListLoading] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [refreshStamp, setRefreshStamp] = useState(0);
-  
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const [news, setNews] = useState<ContentItem[]>([]);
+  const [events, setEvents] = useState<ContentItem[]>([]);
+
   const [formData, setFormData] = useState<ContentFormData>({
     title: '',
     description: '',
@@ -217,72 +245,41 @@ export default function ContentManagement() {
     audience: 'both',
   });
 
+  const [editExistingImageUrl, setEditExistingImageUrl] = useState<string | null>(null);
 
-  // Mock data for when backend is not available (using current dates)
-  const mockNews: ContentItem[] = [
-    {
-      id: '1',
-      title: 'Welcome to Alumni Circle',
-      description: 'Get started with our new alumni management platform designed to connect and empower our graduate community.',
-      content: 'This comprehensive platform will revolutionize how alumni stay connected, share opportunities, and support each other. Explore the new features including mentorship programs, event management, and career networking tools.',
-      published: true,
-      type: 'news',
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-    },
-    {
-      id: '2',
-      title: '2025 Alumni Scholarship Program',
-      description: 'Applications now open for merit-based scholarships supporting outstanding graduate students',
-      content: 'We are excited to announce the 2025 Alumni Circle Scholarship Program. This program provides financial support to deserving graduate students based on academic achievement, community involvement, and potential for impact.',
-      published: true,
-      type: 'news',
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-    },
-  ];
+  const loadAll = useCallback(async () => {
+    if (!token) {
+      setListLoading(false);
+      return;
+    }
+    setLoadError(null);
+    try {
+      const [newsRes, eventsRes] = await Promise.all([
+        api.getContentAdmin('news', token),
+        api.getContentAdmin('events', token),
+      ]);
+      const n = (newsRes as { content?: unknown[] })?.content;
+      const e = (eventsRes as { content?: unknown[] })?.content;
+      setNews(Array.isArray(n) ? n.map((item: any) => ({ ...item, type: 'news' as const })) : []);
+      setEvents(Array.isArray(e) ? e.map((item: any) => ({ ...item, type: 'event' as const })) : []);
+    } catch (err) {
+      console.error(err);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load content');
+      setNews([]);
+      setEvents([]);
+    } finally {
+      setListLoading(false);
+    }
+  }, [token]);
 
-  const mockEvents: ContentItem[] = [
-    {
-      id: '1',
-      title: 'Annual Alumni Networking Summit 2025',
-      description: 'Connect with fellow alumni and industry leaders at our premier annual event',
-      date: getFutureDateString(30), // 30 days from now
-      time: '18:00',
-      location: 'University Grand Auditorium',
-      published: true,
-      type: 'event',
-      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-    },
-    {
-      id: '2',
-      title: 'Tech Career Development Workshop',
-      description: 'Learn from industry professionals about advancing your career in technology',
-      date: getFutureDateString(14), // 14 days from now
-      time: '14:00',
-      location: 'Innovation Hub Conference Room',
-      published: false,
-      type: 'event',
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    },
-  ];
+  useEffect(() => {
+    void loadAll();
+  }, [loadAll]);
 
-
-  // Fetch news and events with real-time updates
-  const { data: newsData, refetch: refetchNews, error: newsError } = useRealtime<{ content: any[] }>('/content/news', 5000, token);
-  const { data: eventsData, refetch: refetchEvents, error: eventsError } = useRealtime<{ content: any[] }>('/content/events', 5000, token);
-
-  // Use real data when available; fall back per feed independently
-  const rawNews: any[] = Array.isArray(newsData) ? (newsData as any[]) : ((newsData as any)?.content || []);
-  const rawEvents: any[] = Array.isArray(eventsData) ? (eventsData as any[]) : ((eventsData as any)?.content || []);
-
-  const news = rawNews.length
-    ? rawNews.map((item: any) => ({ ...item, type: 'news' as const }))
-    : mockNews;
-  const events = rawEvents.length
-    ? rawEvents.map((item: any) => ({ ...item, type: 'event' as const }))
-    : mockEvents;
-
-  // Show backend server warning only if there's an actual error (not empty data)
-  const hasServerError = newsError || eventsError;
+  useEffect(() => {
+    const id = window.setInterval(() => void loadAll(), 8000);
+    return () => window.clearInterval(id);
+  }, [loadAll]);
 
   const resetForm = useCallback(() => {
     setFormData({
@@ -297,6 +294,7 @@ export default function ContentManagement() {
       audience: 'both',
     });
     setImageFile(null);
+    setEditExistingImageUrl(null);
   }, []);
 
   const handleCreate = () => {
@@ -304,10 +302,10 @@ export default function ContentManagement() {
     setShowCreateDialog(true);
   };
 
-  const toDateInput = (val: any): string => {
+  const toDateInput = (val: unknown): string => {
     if (!val) return '';
     try {
-      const d = typeof val === 'string' ? new Date(val) : val;
+      const d = typeof val === 'string' ? new Date(val) : (val as Date);
       if (isNaN(d.getTime())) return '';
       return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
     } catch {
@@ -315,12 +313,11 @@ export default function ContentManagement() {
     }
   };
 
-  const toTimeInput = (val: any): string => {
+  const toTimeInput = (val: unknown): string => {
     if (!val) return '';
-    // Expect HH:mm
-    if (/^\d{2}:\d{2}$/.test(val)) return val;
+    if (/^\d{2}:\d{2}$/.test(String(val))) return String(val);
     try {
-      const d = typeof val === 'string' ? new Date(`1970-01-01T${val}`) : val;
+      const d = new Date(`1970-01-01T${val}`);
       if (isNaN(d.getTime())) return '';
       const h = String(d.getHours()).padStart(2, '0');
       const m = String(d.getMinutes()).padStart(2, '0');
@@ -330,8 +327,9 @@ export default function ContentManagement() {
     }
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: ContentItem) => {
     setSelectedItem(item);
+    setActiveTab(item.type === 'news' ? 'news' : 'event');
     setFormData({
       title: item.title || '',
       description: item.description || '',
@@ -341,12 +339,16 @@ export default function ContentManagement() {
       location: item.location || '',
       registrationFee: item.registrationFee || 0,
       published: item.published ?? true,
-      audience: (item.audience as any) || 'both',
+      audience: (item.audience as ContentFormData['audience']) || 'both',
     });
+    setImageFile(null);
+    const kind = item.type === 'news' ? 'news' : 'events';
+    const url = getContentImageSrc(item, kind, refreshStamp + 1);
+    setEditExistingImageUrl(url);
     setShowEditDialog(true);
   };
 
-  const handleDelete = (item: any) => {
+  const handleDelete = (item: ContentItem) => {
     setSelectedItem(item);
     setShowDeleteDialog(true);
   };
@@ -376,16 +378,16 @@ export default function ContentManagement() {
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
-      if (!res.ok) throw new Error('Failed to create content');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any).error || 'Failed to create content');
+      }
 
       toast.success(`${activeTab === 'news' ? 'News' : 'Event'} created successfully!`);
       setShowCreateDialog(false);
       resetForm();
-      
-      // Refetch both lists to ensure immediate UI sync and image availability
-      refetchNews();
-      refetchEvents();
       setRefreshStamp((s) => s + 1);
+      await loadAll();
     } catch (error) {
       console.error('Create content error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create content');
@@ -396,7 +398,7 @@ export default function ContentManagement() {
 
   const submitEdit = async () => {
     if (!selectedItem) return;
-    
+
     setLoading(true);
     try {
       const segment = selectedItem.type === 'news' ? 'news' : 'events';
@@ -422,17 +424,17 @@ export default function ContentManagement() {
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
-      if (!res.ok) throw new Error('Failed to update content');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any).error || 'Failed to update content');
+      }
 
-      toast.success(`${activeTab === 'news' ? 'News' : 'Event'} updated successfully!`);
+      toast.success(`${selectedItem.type === 'news' ? 'News' : 'Event'} updated successfully!`);
       setShowEditDialog(false);
       setSelectedItem(null);
       resetForm();
-      
-      // Refetch both lists to ensure immediate UI sync and image availability
-      refetchNews();
-      refetchEvents();
       setRefreshStamp((s) => s + 1);
+      await loadAll();
     } catch (error) {
       console.error('Update content error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update content');
@@ -443,21 +445,17 @@ export default function ContentManagement() {
 
   const confirmDelete = async () => {
     if (!selectedItem) return;
-    
+
     setLoading(true);
     try {
       const segment = selectedItem.type === 'news' ? 'news' : 'events';
-
       await apiCall(`/content/${segment}/${selectedItem.id}`, 'DELETE', undefined, token);
 
-      toast.success(`${activeTab === 'news' ? 'News' : 'Event'} deleted successfully!`);
+      toast.success(`${selectedItem.type === 'news' ? 'News' : 'Event'} deleted successfully!`);
       setShowDeleteDialog(false);
       setSelectedItem(null);
-      
-      // Refetch both lists to ensure immediate UI sync
-      refetchNews();
-      refetchEvents();
       setRefreshStamp((s) => s + 1);
+      await loadAll();
     } catch (error) {
       console.error('Delete content error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to delete content');
@@ -466,14 +464,12 @@ export default function ContentManagement() {
     }
   };
 
-  const togglePublish = async (item: any) => {
+  const togglePublish = async (item: ContentItem) => {
     try {
       const segment = item.type === 'news' ? 'news' : 'events';
       await apiCall(`/content/${segment}/${item.id}`, 'PUT', { published: !item.published }, token);
       toast.success('Content updated');
-      // Refetch both lists to ensure immediate UI sync
-      refetchNews();
-      refetchEvents();
+      await loadAll();
       setRefreshStamp((s) => s + 1);
     } catch (error) {
       console.error('Toggle publish error:', error);
@@ -481,143 +477,171 @@ export default function ContentManagement() {
     }
   };
 
-  const ContentCard = ({ item, type }: { item: any; type: 'news' | 'event' }) => (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
-        <div className="flex gap-4 p-4">
-          {/* Thumbnail or Icon */}
-          <div className="flex-shrink-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-            {item.hasImage ? (
-              <img
-                src={(item.imageUrl ? `${item.imageUrl}?ts=${refreshStamp}` : `${API_BASE}/content/${type === 'event' ? 'events' : 'news'}/${item.id}/image?ts=${refreshStamp}`)}
-                alt={item.title}
-                className="w-full h-full object-cover rounded-lg"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            ) : (
-              <Calendar className="w-16 h-16 text-blue-300" />
-            )}
-          </div>
+  const formTabForEdit = selectedItem?.type === 'event' ? 'event' : 'news';
 
-          {/* Content */}
-          <div className="flex-grow">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-xs text-gray-600 mt-0.5">
-                  {type === 'event' ? `${item.date} at ${item.time || 'TBD'}` : 'News Article'}
-                </p>
-              </div>
-              <Badge variant={item.published ? 'default' : 'outline'}>
-                {item.published ? 'Published' : 'Draft'}
-              </Badge>
+  const ContentCard = ({ item, type }: { item: ContentItem; type: 'news' | 'event' }) => {
+    const kind = type === 'news' ? 'news' : 'events';
+    const imgSrc = getContentImageSrc(item, kind, refreshStamp);
+    const dateLabel =
+      type === 'event'
+        ? `${item.date || '—'}${item.time ? ` · ${item.time}` : ''}`
+        : item.createdAt
+          ? new Date(item.createdAt).toLocaleDateString()
+          : '';
+
+    return (
+      <Card className="group overflow-hidden border-0 shadow-lg bg-white ring-1 ring-black/5 hover:ring-[#0b2a4a]/25 transition-all rounded-2xl">
+        <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
+              <ImageIcon className="w-12 h-12 opacity-40" />
+              <span className="text-xs font-medium">No image</span>
             </div>
-
-            <p className="text-sm text-gray-700 line-clamp-2">{item.description}</p>
-
-            {type === 'event' && item.location && (
-              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {item.location}
-              </p>
-            )}
-
-            <div className="flex items-center gap-2 mb-2">
-              <Button size="sm" variant="outline" onClick={() => togglePublish(item)}>
-                {item.published ? 'Unpublish' : 'Publish'}
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
-                <Edit2 className="w-3 h-3 mr-1" />
-                Edit
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleDelete(item)}>
-                <Trash2 className="w-3 h-3 mr-1" />
-                Delete
-              </Button>
-            </div>
-            
-            {/* Content History */}
-            <div className="text-xs text-gray-500">
-              <span>Created: {new Date(item.createdAt).toLocaleDateString()}</span>
-              {item.updatedAt && (
-                <span className="ml-2">• Updated: {new Date(item.updatedAt).toLocaleDateString()}</span>
-              )}
-            </div>
+          )}
+          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+            <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
+              {item.published ? 'Published' : 'Draft'}
+            </Badge>
+            <Badge variant="secondary" className="bg-black/50 text-white border-0">
+              {type === 'news' ? 'News' : 'Event'}
+            </Badge>
           </div>
         </div>
-      </CardContent>
-    </Card>
-  );
+        <CardContent className="p-4 space-y-3">
+          <div>
+            <h3 className="font-bold text-lg text-[#0b2a4a] leading-snug line-clamp-2">{item.title}</h3>
+            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+              {type === 'event' ? <Calendar className="w-3.5 h-3.5 shrink-0" /> : <Newspaper className="w-3.5 h-3.5 shrink-0" />}
+              {dateLabel}
+            </p>
+          </div>
+          <p className="text-sm text-slate-600 line-clamp-2">{item.description}</p>
+          {type === 'event' && item.location && (
+            <p className="text-xs text-slate-500 flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              {item.location}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button size="sm" variant="secondary" className="rounded-full" onClick={() => void togglePublish(item)}>
+              {item.published ? 'Unpublish' : 'Publish'}
+            </Button>
+            <Button size="sm" variant="outline" className="rounded-full border-[#0b2a4a]/30" onClick={() => handleEdit(item)}>
+              <Edit2 className="w-3.5 h-3.5 mr-1" />
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full text-red-700 border-red-200 hover:bg-red-50"
+              onClick={() => handleDelete(item)}
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1" />
+              Delete
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-primary">Content Management</h2>
-          <p className="text-sm text-gray-600">
-            Manage news and events displayed to students and alumni
+      <div
+        className="rounded-2xl overflow-hidden shadow-xl border border-black/10"
+        style={{
+          background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4a7a 45%, #8A1F3A 100%)',
+        }}
+      >
+        <div className="px-6 py-8 text-white">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Content Studio</h2>
+          <p className="text-sm text-white/85 mt-2 max-w-2xl">
+            Create and manage news and events for students and alumni. Only items you save in the database appear here — no demo data.
           </p>
         </div>
       </div>
 
-      {/* Backend Server Warning */}
-      {hasServerError && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+      {loadError && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-medium text-amber-800">Backend Server Not Available</h3>
-            <p className="text-sm text-amber-700 mt-1">
-              The backend server is not running. Using demo data for demonstration. 
-              Your changes will not be saved until the server is started.
-            </p>
+            <h3 className="text-sm font-medium text-amber-900">Could not load content</h3>
+            <p className="text-sm text-amber-800 mt-1">{loadError}</p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => void loadAll()}>
+              Retry
+            </Button>
           </div>
         </div>
       )}
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'news' | 'event')}>
-        <TabsList>
-          <TabsTrigger value="news">News ({news.length})</TabsTrigger>
-          <TabsTrigger value="event">Events ({events.length})</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="news" className="space-y-4">
-          <Button onClick={handleCreate}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <TabsList className="bg-slate-100/90 p-1 rounded-xl">
+            <TabsTrigger value="news" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
+              News ({news.length})
+            </TabsTrigger>
+            <TabsTrigger value="event" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
+              Events ({events.length})
+            </TabsTrigger>
+          </TabsList>
+          <Button
+            onClick={handleCreate}
+            className="rounded-full bg-[#f07a2a] hover:bg-[#e06a20] text-white font-semibold shadow-md"
+          >
             <Plus className="w-4 h-4 mr-2" />
-            Create News Article
+            {activeTab === 'news' ? 'New article' : 'New event'}
           </Button>
+        </div>
 
-          {news.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center text-gray-500">
-                No news articles yet. Create your first one!
+        <TabsContent value="news" className="mt-6 space-y-4">
+          {listLoading ? (
+            <div className="flex items-center justify-center py-20 text-slate-500 gap-2">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              Loading news…
+            </div>
+          ) : news.length === 0 ? (
+            <Card className="border-dashed border-2 bg-slate-50/80">
+              <CardContent className="p-12 text-center text-slate-600">
+                <Newspaper className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+                <p className="font-medium">No news yet</p>
+                <p className="text-sm mt-1">Create your first article — it will show up here with your cover image.</p>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
-              {news.map((item: any) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {news.map((item) => (
                 <ContentCard key={item.id} item={item} type="news" />
               ))}
             </div>
           )}
         </TabsContent>
 
-        <TabsContent value="event" className="space-y-4">
-          <Button onClick={handleCreate}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Event
-          </Button>
-
-          {events.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center text-gray-500">
-                No events yet. Create your first one!
+        <TabsContent value="event" className="mt-6 space-y-4">
+          {listLoading ? (
+            <div className="flex items-center justify-center py-20 text-slate-500 gap-2">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              Loading events…
+            </div>
+          ) : events.length === 0 ? (
+            <Card className="border-dashed border-2 bg-slate-50/80">
+              <CardContent className="p-12 text-center text-slate-600">
+                <Calendar className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+                <p className="font-medium">No events yet</p>
+                <p className="text-sm mt-1">Add an event and upload an image — it will display as a large card preview.</p>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
-              {events.map((item: any) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {events.map((item) => (
                 <ContentCard key={item.id} item={item} type="event" />
               ))}
             </div>
@@ -625,70 +649,94 @@ export default function ContentManagement() {
         </TabsContent>
       </Tabs>
 
-      {/* Create Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: '90dvh', height: '90dvh', overflow: 'hidden' }}>
           <DialogHeader className="flex-shrink-0">
             <DialogTitle>Create {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
-            <DialogDescription>
-              Fill in the details below. Published items will be visible to all users immediately.
-            </DialogDescription>
+            <DialogDescription>Published items appear on student and alumni dashboards (per audience).</DialogDescription>
           </DialogHeader>
 
-          <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', minHeight: 0, paddingRight: '4px', paddingBottom: '8px' }}>
-            <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
+          <div
+            style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', minHeight: 0, paddingRight: '4px', paddingBottom: '8px' }}
+          >
+            <FormContent
+              activeTab={activeTab}
+              formData={formData}
+              setFormData={setFormData}
+              imageFile={imageFile}
+              setImageFile={setImageFile}
+              existingImageUrl={null}
+            />
           </div>
 
           <DialogFooter className="flex-shrink-0 border-t pt-4 bg-background">
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={submitCreate} disabled={loading || !formData.title || !formData.description}>
+            <Button
+              className="bg-[#0b2a4a] hover:bg-[#0b2a4a]/90"
+              onClick={() => void submitCreate()}
+              disabled={loading || !formData.title || !formData.description}
+            >
               {loading ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: '90dvh', height: '90dvh', overflow: 'hidden' }}>
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle>Edit {activeTab === 'news' ? 'News Article' : 'Event'}</DialogTitle>
-            <DialogDescription>
-              Update the content details below.
-            </DialogDescription>
+            <DialogTitle>Edit {selectedItem?.type === 'event' ? 'Event' : 'News Article'}</DialogTitle>
+            <DialogDescription>Update details or replace the image. Saving refreshes the gallery.</DialogDescription>
           </DialogHeader>
 
-          <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', minHeight: 0, paddingRight: '4px', paddingBottom: '8px' }}>
-            <FormContent activeTab={activeTab} formData={formData} setFormData={setFormData} imageFile={imageFile} setImageFile={setImageFile} />
+          <div
+            style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', minHeight: 0, paddingRight: '4px', paddingBottom: '8px' }}
+          >
+            <FormContent
+              activeTab={formTabForEdit === 'event' ? 'event' : 'news'}
+              formData={formData}
+              setFormData={setFormData}
+              imageFile={imageFile}
+              setImageFile={setImageFile}
+              existingImageUrl={imageFile ? null : editExistingImageUrl}
+            />
           </div>
 
           <DialogFooter className="flex-shrink-0 border-t pt-4 bg-background">
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={submitEdit} disabled={loading || !formData.title || !formData.description}>
-              {loading ? 'Saving...' : 'Save Changes'}
+            <Button
+              className="bg-[#0b2a4a] hover:bg-[#0b2a4a]/90"
+              onClick={() => void submitEdit()}
+              disabled={loading || !formData.title || !formData.description}
+            >
+              {loading ? 'Saving...' : 'Save changes'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {activeTab === 'news' ? 'News Article' : 'Event'}?</AlertDialogTitle>
+            <AlertDialogTitle>Delete {selectedItem?.type === 'event' ? 'event' : 'news article'}?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The content will be permanently removed from the system.
+              This removes the item from the database permanently. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={loading}>
+            <Button
+              type="button"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => void confirmDelete()}
+              disabled={loading}
+            >
               {loading ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

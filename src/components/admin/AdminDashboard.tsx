@@ -193,7 +193,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="p-4 lg:p-8 space-y-6">
+    <div className="p-4 lg:p-8 space-y-6 bg-[var(--brand-blue-soft-10)] min-h-screen">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />
