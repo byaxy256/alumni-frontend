@@ -77,30 +77,30 @@ export default function AdminFundRequests() {
     <div className="p-4 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Requested Funds</h1>
-          <p className="text-gray-600 text-sm mt-1">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Requested Funds</h1>
+          <p className="text-muted-foreground text-base mt-1.5">
             Review and approve/reject funding requests from the alumni office
           </p>
         </div>
-        <Button onClick={loadRequests} variant="outline" disabled={loading}>
+        <Button onClick={loadRequests} variant="outline" disabled={loading} className="text-sm">
           Refresh
         </Button>
       </div>
 
       <Card className="bg-white border-gray-200">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-          <CardTitle className="text-gray-900">Fund requests</CardTitle>
+        <CardHeader className="bg-gradient-to-r from-[var(--brand-blue)] to-[#0b2a4a] border-b border-black/10">
+          <CardTitle className="text-white text-xl">Fund Requests</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           {loading ? (
-            <div className="flex items-center gap-2 text-gray-600 text-sm">
+            <div className="flex items-center gap-2 text-gray-600 text-base">
               <Loader2 className="w-4 h-4 animate-spin" />
               Loading fund requests...
             </div>
           ) : error ? (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-base text-red-600">{error}</p>
           ) : requests.length === 0 ? (
-            <p className="text-sm text-gray-500">No fund requests have been submitted yet.</p>
+            <p className="text-base text-gray-500">No fund requests have been submitted yet.</p>
           ) : (
             <div className="space-y-3">
               {requests.map((req) => {
@@ -114,15 +114,15 @@ export default function AdminFundRequests() {
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
-                            <p className="font-semibold text-gray-900">
+                            <p className="text-base font-semibold text-gray-900">
                               {req.purpose || 'Funding request'}
                             </p>
-                            <p className="text-xs text-gray-600 mt-1">
+                            <p className="text-sm text-gray-600 mt-1">
                               Requested by <span className="font-medium">{req.requestedByName || 'Alumni Office'}</span>
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-lg font-bold text-blue-600">
+                            <p className="text-xl font-bold text-blue-600">
                               UGX {Number(req.amount || 0).toLocaleString()}
                             </p>
                           </div>
@@ -146,7 +146,7 @@ export default function AdminFundRequests() {
                           )}
                         </div>
 
-                        <div className="text-xs text-gray-500">
+                        <div className="text-sm text-gray-500">
                           {req.neededBy
                             ? `Needed by ${new Date(req.neededBy).toLocaleDateString()}`
                             : req.createdAt
@@ -155,7 +155,7 @@ export default function AdminFundRequests() {
                         </div>
 
                         {req.notes && (
-                          <p className="text-xs text-gray-600 bg-gray-100 p-2 rounded border border-gray-200">
+                          <p className="text-sm text-gray-600 bg-gray-100 p-2 rounded border border-gray-200">
                             {req.notes}
                           </p>
                         )}

@@ -31,42 +31,42 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
   return (
     <div className="min-h-screen bg-[var(--brand-blue-soft-10)] text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col bg-white border-r border-black/10">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col border-r border-black/20 text-white" style={{ backgroundColor: '#8A1F3A' }}>
         <div className="flex flex-col flex-1 min-h-0">
 
-          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 border-b border-black/10" style={{ backgroundColor: '#8A1F3A' }}>
+          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 border-b border-black/20" style={{ backgroundColor: '#8A1F3A' }}>
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-8 w-8" />
               <h1 className="text-white font-semibold">Alumni Admin</h1>
             </div>
           </div>
-          <nav className="flex-1 px-3 py-6 space-y-1">
+          <nav className="flex-1 px-4 py-6 space-y-1.5">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   onClick={() => setCurrentView(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentView === item.id
-                      ? 'bg-blue-100 text-blue-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-white/20 text-white shadow-sm font-medium'
+                      : 'text-white/90 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  <span className="text-sm">{item.label}</span>
                 </button>
               );
             })}
           </nav>
-          <div className="flex-shrink-0 p-4 border-t border-black/10">
+          <div className="flex-shrink-0 p-4 border-t border-black/20">
             <Button
               onClick={onLogout}
               variant="ghost"
-              className="w-full justify-start text-gray-700 hover:bg-gray-100 text-sm"
+              className="w-full justify-start text-white hover:bg-white/10"
             >
               <LogOut className="w-5 h-5 mr-3" />
-              Logout
+              <span className="text-sm">Logout</span>
             </Button>
           </div>
         </div>
@@ -92,8 +92,8 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-30 bg-white pt-16">
-          <nav className="p-3 space-y-1">
+        <div className="lg:hidden fixed inset-0 z-30 pt-16 text-white" style={{ backgroundColor: '#8A1F3A' }}>
+          <nav className="p-4 space-y-1.5">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -103,24 +103,24 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
                     setCurrentView(item.id);
                     setMobileMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     currentView === item.id
-                      ? 'bg-blue-100 text-blue-700 font-medium'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-[#0b2a4a] text-white shadow-sm font-medium'
+                      : 'text-white/90 hover:bg-black/15 hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  <span className="text-sm">{item.label}</span>
                 </button>
               );
             })}
             <Button
               onClick={onLogout}
               variant="ghost"
-              className="w-full justify-start text-gray-700 hover:bg-gray-100 text-sm mt-4"
+              className="w-full justify-start text-white hover:bg-black/15 mt-4"
             >
               <LogOut className="w-5 h-5 mr-3" />
-              Logout
+              <span className="text-sm">Logout</span>
             </Button>
           </nav>
         </div>
