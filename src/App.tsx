@@ -4,6 +4,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import LandingPage from './components/LandingPage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import ResetPassword from './components/ResetPassword';
 import { StudentApp } from './components/StudentApp';
 import { AlumniApp } from './components/AlumniApp';
 
@@ -65,6 +66,10 @@ export default function App() {
 
 
   const [showLogin, setShowLogin] = useState(forcedScreen === 'login');
+  const [passwordResetToken, setPasswordResetToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return new URLSearchParams(window.location.search).get('reset_token');
+  });
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -263,6 +268,40 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <LoadingSpinner size={64} label="Checking authentication..." />
       </div>
+    );
+  }
+
+  const clearResetTokenFromUrl = () => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('reset_token');
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch {
+      window.history.replaceState({}, '', '/');
+    }
+    setPasswordResetToken(null);
+  };
+
+  if (passwordResetToken && !user) {
+    return (
+      <>
+        <ResetPassword
+          token={passwordResetToken}
+          onSuccess={() => {
+            clearResetTokenFromUrl();
+            setShowLogin(true);
+            setShowLanding(false);
+            setShowSignUp(false);
+          }}
+          onBack={() => {
+            clearResetTokenFromUrl();
+            setShowLogin(true);
+            setShowLanding(false);
+            setShowSignUp(false);
+          }}
+        />
+        <Toaster />
+      </>
     );
   }
 

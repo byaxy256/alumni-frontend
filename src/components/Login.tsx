@@ -1,7 +1,8 @@
 // src/components/Login.tsx
-import { useState, type KeyboardEvent } from 'react';
+import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
 import { api } from '../api';
 import { isFirebaseAuthConfigured, signInWithGoogleIdToken } from '../firebaseClient';
+import { isGisConfigured, mountGoogleSignInButton } from '../googleIdentity';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -23,6 +24,19 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [needsAdminSecret, setNeedsAdminSecret] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSending, setForgotSending] = useState(false);
+  const googleBtnContainerRef = useRef<HTMLDivElement>(null);
+
+  const completeGoogleLogin = useCallback(
+    async (idToken: string) => {
+      const data = await api.loginWithGoogle(idToken);
+      toast.success('Signed in with Google');
+      onLoginSuccess(data.user, data.token);
+    },
+    [onLoginSuccess]
+  );
 
   const heroImage =
     'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=2400&q=80';
@@ -74,19 +88,18 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  /** Fallback when GIS is not used: Firebase Auth popup (requires Firebase Authentication enabled). */
+  const handleGoogleSignInFirebase = async () => {
     if (!isFirebaseAuthConfigured()) {
       toast.error(
-        'Google sign-in needs Firebase web config. Set VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID in the frontend build, enable Google in Firebase Console → Authentication → Sign-in method, then redeploy.'
+        'Add VITE_GOOGLE_OAUTH_CLIENT_ID (recommended) or full Firebase web config. Set GOOGLE_OAUTH_CLIENT_ID on the server to the same Web client ID.'
       );
       return;
     }
     setGoogleLoading(true);
     try {
       const idToken = await signInWithGoogleIdToken();
-      const data = await api.loginWithGoogle(idToken);
-      toast.success('Signed in with Google');
-      onLoginSuccess(data.user, data.token);
+      await completeGoogleLogin(idToken);
     } catch (err: unknown) {
       console.error('Google sign-in error', err);
       const msg =
@@ -94,6 +107,61 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
       toast.error(msg);
     } finally {
       setGoogleLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isGisConfigured() || !googleBtnContainerRef.current) return;
+    const el = googleBtnContainerRef.current;
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        cleanup = await mountGoogleSignInButton(el, async (credential) => {
+          setGoogleLoading(true);
+          try {
+            await completeGoogleLogin(credential);
+          } catch (err: unknown) {
+            console.error('Google sign-in error', err);
+            const msg =
+              err instanceof Error ? err.message : typeof err === 'string' ? err : 'Google sign-in failed';
+            toast.error(msg);
+          } finally {
+            setGoogleLoading(false);
+          }
+        });
+      } catch (e) {
+        if (!cancelled) {
+          console.error(e);
+          toast.error('Could not load Google Sign-In. Check VITE_GOOGLE_OAUTH_CLIENT_ID and authorized JavaScript origins.');
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, [completeGoogleLogin]);
+
+  const handleForgotSubmit = async () => {
+    const raw = (forgotEmail || emailOrPhone).trim();
+    if (!raw || !raw.includes('@')) {
+      toast.error('Enter your account email address');
+      return;
+    }
+    setForgotSending(true);
+    try {
+      const res = await api.requestPasswordReset(raw.toLowerCase());
+      toast.success(res.message || 'Check your email for reset instructions.');
+      setForgotOpen(false);
+      setForgotEmail('');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Request failed';
+      toast.error(msg);
+    } finally {
+      setForgotSending(false);
     }
   };
 
@@ -273,22 +341,28 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
                       onChange={(event) => setPassword(event.target.value)}
                       onKeyDown={handlePasswordKeyDown}
                       placeholder="Enter your password"
-                      style={{ height: '3.25rem', borderRadius: '0.82rem', border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(10,18,33,0.65)', color: '#fff', paddingLeft: '2.65rem', paddingRight: '6.1rem', fontSize: '1rem' }}
+                      style={{ height: '3.25rem', borderRadius: '0.82rem', border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(10,18,33,0.65)', color: '#fff', paddingLeft: '2.65rem', paddingRight: '3.2rem', fontSize: '1rem' }}
                       className="placeholder:text-white/35"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((value) => !value)}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      style={{ position: 'absolute', right: '2.95rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.62)' }}
+                      style={{ position: 'absolute', right: '0.84rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.62)' }}
                     >
                       {showPassword ? <EyeOff style={{ width: '1rem', height: '1rem' }} /> : <Eye style={{ width: '1rem', height: '1rem' }} />}
                     </button>
+                  </div>
+                  <div style={{ marginTop: '0.45rem', textAlign: 'right' }}>
                     <button
                       type="button"
-                      style={{ position: 'absolute', right: '0.84rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.76rem', color: 'rgba(255,255,255,0.58)' }}
+                      onClick={() => {
+                        setForgotEmail(emailOrPhone.includes('@') ? emailOrPhone.trim() : '');
+                        setForgotOpen(true);
+                      }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.82rem', color: 'rgba(255,255,255,0.78)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
                     >
-                      Forgot Password?
+                      Forgot password?
                     </button>
                   </div>
                 </div>
@@ -327,36 +401,68 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           </div>
 
           <div>
-            <button
-              type="button"
-              onClick={() => void handleGoogleSignIn()}
-              disabled={googleLoading || loading}
-              style={{
-                height: '3.15rem',
-                width: '100%',
-                borderRadius: '0.82rem',
-                border: '1px solid rgba(255,255,255,0.22)',
-                background: 'rgba(10,18,33,0.55)',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.75rem',
-                fontSize: '1.02rem',
-                cursor: googleLoading || loading ? 'not-allowed' : 'pointer',
-                opacity: googleLoading || loading ? 0.75 : 1,
-              }}
-            >
-              <span style={{ width: '1.15rem', height: '1.15rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden="true">
-                  <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.651 32.657 29.24 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.851 1.154 7.966 3.034l5.657-5.657C34.067 6.054 29.292 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.651-.389-3.917Z" />
-                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.851 1.154 7.966 3.034l5.657-5.657C34.067 6.054 29.292 4 24 4c-7.682 0-14.361 4.337-17.694 10.691Z" />
-                  <path fill="#4CAF50" d="M24 44c5.19 0 9.881-1.989 13.409-5.223l-6.19-5.238C29.147 35.091 26.715 36 24 36c-5.219 0-9.617-3.317-11.283-7.946l-6.522 5.025C9.497 39.556 16.227 44 24 44Z" />
-                  <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.05 12.05 0 0 1-4.084 5.539l6.19 5.238C36.971 39.17 44 34 44 24c0-1.341-.138-2.651-.389-3.917Z" />
-                </svg>
-              </span>
-              {googleLoading ? 'Connecting…' : 'Continue with Google'}
-            </button>
+            {isGisConfigured() ? (
+              <div style={{ position: 'relative', minHeight: '3.15rem' }}>
+                {googleLoading && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      zIndex: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'rgba(10,18,33,0.65)',
+                      borderRadius: '0.82rem',
+                      fontSize: '0.95rem',
+                      color: 'rgba(255,255,255,0.9)',
+                    }}
+                  >
+                    Signing in…
+                  </div>
+                )}
+                <div ref={googleBtnContainerRef} style={{ width: '100%' }} />
+                <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', textAlign: 'center' }}>
+                  Uses Google Identity Services. Add your site to Google Cloud OAuth client authorized origins.
+                </p>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => void handleGoogleSignInFirebase()}
+                  disabled={googleLoading || loading}
+                  style={{
+                    height: '3.15rem',
+                    width: '100%',
+                    borderRadius: '0.82rem',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    background: 'rgba(10,18,33,0.55)',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.75rem',
+                    fontSize: '1.02rem',
+                    cursor: googleLoading || loading ? 'not-allowed' : 'pointer',
+                    opacity: googleLoading || loading ? 0.75 : 1,
+                  }}
+                >
+                  <span style={{ width: '1.15rem', height: '1.15rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden="true">
+                      <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.651 32.657 29.24 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.851 1.154 7.966 3.034l5.657-5.657C34.067 6.054 29.292 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.651-.389-3.917Z" />
+                      <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.851 1.154 7.966 3.034l5.657-5.657C34.067 6.054 29.292 4 24 4c-7.682 0-14.361 4.337-17.694 10.691Z" />
+                      <path fill="#4CAF50" d="M24 44c5.19 0 9.881-1.989 13.409-5.223l-6.19-5.238C29.147 35.091 26.715 36 24 36c-5.219 0-9.617-3.317-11.283-7.946l-6.522 5.025C9.497 39.556 16.227 44 24 44Z" />
+                      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.05 12.05 0 0 1-4.084 5.539l6.19 5.238C36.971 39.17 44 34 44 24c0-1.341-.138-2.651-.389-3.917Z" />
+                    </svg>
+                  </span>
+                  {googleLoading ? 'Connecting…' : 'Continue with Google (Firebase)'}
+                </button>
+                <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', textAlign: 'center' }}>
+                  Tip: set <code style={{ color: 'rgba(255,255,255,0.65)' }}>VITE_GOOGLE_OAUTH_CLIENT_ID</code> to avoid Firebase Auth errors.
+                </p>
+              </>
+            )}
           </div>
 
           <p style={{ marginTop: '1rem', textAlign: 'center', fontSize: '1rem', color: 'rgba(255,255,255,0.72)' }}>
@@ -374,6 +480,99 @@ export default function Login({ onLoginSuccess, onBack, switchToSignup }: LoginP
           </p>
         </div>
       </div>
+
+      {forgotOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="forgot-password-title"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 60,
+            background: 'rgba(0,0,0,0.72)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+          }}
+          onClick={() => !forgotSending && setForgotOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'rgba(24,37,59,0.98)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              maxWidth: '24rem',
+              width: '100%',
+              border: '1px solid rgba(255,255,255,0.18)',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
+            }}
+          >
+            <h3 id="forgot-password-title" style={{ margin: '0 0 0.5rem', fontSize: '1.25rem', fontWeight: 700, color: '#fff' }}>
+              Reset password
+            </h3>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.88rem', color: 'rgba(255,255,255,0.72)' }}>
+              Enter your account email. We&apos;ll send a link to set a new password if the account exists.
+            </p>
+            <Label style={{ display: 'block', marginBottom: '0.35rem', color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem' }}>
+              Email
+            </Label>
+            <Input
+              type="email"
+              value={forgotEmail}
+              onChange={(e) => setForgotEmail(e.target.value)}
+              placeholder="you@example.com"
+              style={{
+                height: '2.85rem',
+                borderRadius: '0.75rem',
+                border: '1px solid rgba(255,255,255,0.16)',
+                background: 'rgba(10,18,33,0.65)',
+                color: '#fff',
+                fontSize: '1rem',
+                marginBottom: '1rem',
+              }}
+              className="placeholder:text-white/35"
+            />
+            <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                disabled={forgotSending}
+                onClick={() => setForgotOpen(false)}
+                style={{
+                  padding: '0.55rem 1rem',
+                  borderRadius: '9999px',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  background: 'transparent',
+                  color: '#fff',
+                  cursor: forgotSending ? 'not-allowed' : 'pointer',
+                  fontSize: '0.9rem',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={forgotSending}
+                onClick={() => void handleForgotSubmit()}
+                style={{
+                  padding: '0.55rem 1.15rem',
+                  borderRadius: '9999px',
+                  border: 'none',
+                  background: '#f07a2a',
+                  color: '#fff',
+                  fontWeight: 700,
+                  cursor: forgotSending ? 'not-allowed' : 'pointer',
+                  fontSize: '0.9rem',
+                }}
+              >
+                {forgotSending ? 'Sending…' : 'Send reset link'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

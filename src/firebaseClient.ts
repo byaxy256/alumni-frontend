@@ -55,6 +55,11 @@ export async function signInWithGoogleIdToken(): Promise<string> {
         'This domain is not authorized for Google sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.'
       );
     }
+    if (code === 'auth/configuration-not-found') {
+      throw new Error(
+        'Firebase Authentication is not enabled for this Firebase project (or the web app is misconfigured). Use Google Sign-In with VITE_GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_ID instead, or open Firebase Console → Authentication → Get started, enable Email/Password and Google, then redeploy.'
+      );
+    }
     throw err instanceof Error ? err : new Error('Google sign-in failed');
   }
 }

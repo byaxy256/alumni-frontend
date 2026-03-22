@@ -123,6 +123,28 @@ export const api = {
     }>;
   },
 
+  async requestPasswordReset(email: string) {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) throw new Error(data.error || data.message || 'Request failed');
+    return data as { success: boolean; message?: string };
+  },
+
+  async resetPasswordWithToken(token: string, newPassword: string) {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, newPassword }),
+    });
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) throw new Error(data.error || data.message || 'Reset failed');
+    return data as { success: boolean; message?: string };
+  },
+
   async getLoans(userId: string, token: string) {
     const res = await fetch(`${API_BASE}/loans?userId=${userId}`, {
       headers: { Authorization: `Bearer ${token}` },

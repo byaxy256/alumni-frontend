@@ -172,7 +172,6 @@ export default function MerchEvents() {
     formData.append('file', file);
     const res = await fetch(`${API_BASE}/upload`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
     if (!res.ok) {
