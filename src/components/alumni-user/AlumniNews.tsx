@@ -11,7 +11,20 @@ type AlumniArticle = {
   content: string;
   created_at: string;
   hasImage?: boolean;
+  imageUrl?: string;
+  updatedAt?: string;
 };
+
+function resolveNewsImageSrc(article: AlumniArticle): string | null {
+  if (article.imageUrl && typeof article.imageUrl === 'string') {
+    return article.imageUrl;
+  }
+  if (article.hasImage) {
+    const stamp = article.updatedAt || article.created_at || '';
+    return `${API_BASE}/content/news/${article.id}/image${stamp ? `?v=${encodeURIComponent(stamp)}` : ''}`;
+  }
+  return null;
+}
 
 interface AlumniNewsProps {
   onBack: () => void;
@@ -37,7 +50,9 @@ export function AlumniNews({ onBack }: AlumniNewsProps) {
           title: item.title,
           content: item.content ?? item.description ?? '',
           created_at: item.created_at ?? item.createdAt ?? new Date().toISOString(),
-          hasImage: !!item.hasImage,
+          hasImage: !!(item.hasImage || item.imageUrl || item.image_url || item.image_data),
+          imageUrl: typeof item.imageUrl === 'string' ? item.imageUrl : undefined,
+          updatedAt: item.updated_at ?? item.updatedAt,
         }));
 
         setArticles(mapped);
@@ -62,10 +77,10 @@ export function AlumniNews({ onBack }: AlumniNewsProps) {
           <h1 className="text-xl font-semibold">Article</h1>
         </div>
 
-        {selectedArticle.hasImage ? (
+        {resolveNewsImageSrc(selectedArticle) ? (
           <div className="w-full h-80 overflow-hidden rounded-lg bg-gray-100">
             <ImageWithFallback
-              src={`${API_BASE}/content/news/${selectedArticle.id}/image`}
+              src={resolveNewsImageSrc(selectedArticle)!}
               alt={selectedArticle.title}
               className="w-full h-full object-cover"
             />
@@ -104,39 +119,43 @@ export function AlumniNews({ onBack }: AlumniNewsProps) {
         articles.map((article) => (
           <Card
             key={article.id}
-            className="cursor-pointer transition hover:shadow-md"
+            className="cursor-pointer transition hover:shadow-md overflow-hidden"
             onClick={() => setSelectedArticle(article)}
           >
-            {article.hasImage ? (
-              <div className="w-full h-48 overflow-hidden bg-gray-100">
-                <ImageWithFallback
-                  src={`${API_BASE}/content/news/${article.id}/image`}
-                  alt={article.title}
-                  className="w-full h-full object-cover"
-                />
+            <div className="flex flex-col md:flex-row">
+              <div className="md:w-72 md:min-w-[18rem] h-52 md:h-auto bg-gray-100 overflow-hidden">
+                {resolveNewsImageSrc(article) ? (
+                  <ImageWithFallback
+                    src={resolveNewsImageSrc(article)!}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
               </div>
-            ) : null}
 
-            <CardHeader>
-              <CardTitle>{article.title}</CardTitle>
-              <CardDescription>
-                Published on {new Date(article.created_at).toLocaleDateString()}
-              </CardDescription>
-            </CardHeader>
+              <div className="flex-1">
+                <CardHeader>
+                  <CardTitle>{article.title}</CardTitle>
+                  <CardDescription>
+                    Published on {new Date(article.created_at).toLocaleDateString()}
+                  </CardDescription>
+                </CardHeader>
 
-            <CardContent>
-              <p className="line-clamp-3 whitespace-pre-wrap">{article.content}</p>
-              <Button
-                variant="link"
-                className="px-0"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setSelectedArticle(article);
-                }}
-              >
-                Read more
-              </Button>
-            </CardContent>
+                <CardContent>
+                  <p className="line-clamp-3 whitespace-pre-wrap">{article.content}</p>
+                  <Button
+                    variant="link"
+                    className="px-0"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedArticle(article);
+                    }}
+                  >
+                    Read more
+                  </Button>
+                </CardContent>
+              </div>
+            </div>
           </Card>
         ))
       ) : (

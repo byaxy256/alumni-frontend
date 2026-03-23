@@ -19,7 +19,6 @@ import {
 } from '../ui/dialog';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -481,6 +480,7 @@ export default function ContentManagement() {
 
   const ContentCard = ({ item, type }: { item: ContentItem; type: 'news' | 'event' }) => {
     const kind = type === 'news' ? 'news' : 'events';
+    const isNews = type === 'news';
     const imgSrc = getContentImageSrc(item, kind, refreshStamp);
     const dateLabel =
       type === 'event'
@@ -491,65 +491,87 @@ export default function ContentManagement() {
 
     return (
       <Card className="group overflow-hidden border-0 shadow-lg bg-white ring-1 ring-black/5 hover:ring-[#0b2a4a]/25 transition-all rounded-2xl">
-        <div className="relative aspect-[16/10] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
-          {imgSrc ? (
-            <img
-              src={imgSrc}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
-              <ImageIcon className="w-12 h-12 opacity-40" />
-              <span className="text-xs font-medium">No image</span>
+        <div className={isNews ? 'flex flex-col md:flex-row' : ''}>
+          <div
+            className={
+              isNews
+                ? 'relative h-52 md:h-auto md:w-72 md:min-w-[18rem] bg-slate-100 overflow-hidden'
+                : 'relative aspect-[16/10] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden'
+            }
+          >
+            {imgSrc ? (
+              <img
+                src={imgSrc}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
+                <ImageIcon className="w-12 h-12 opacity-40" />
+                <span className="text-xs font-medium">No image</span>
+              </div>
+            )}
+            {!isNews && (
+              <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
+                  {item.published ? 'Published' : 'Draft'}
+                </Badge>
+                <Badge variant="secondary" className="bg-black/50 text-white border-0">
+                  Event
+                </Badge>
+              </div>
+            )}
+          </div>
+
+          <CardContent className="p-4 space-y-3 flex-1">
+            {isNews && (
+              <div className="flex flex-wrap gap-2">
+                <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
+                  {item.published ? 'Published' : 'Draft'}
+                </Badge>
+                <Badge variant="secondary" className="bg-[#0b2a4a]/90 text-white border-0">
+                  News
+                </Badge>
+              </div>
+            )}
+
+            <div>
+              <h3 className="font-bold text-lg text-[#0b2a4a] leading-snug line-clamp-2">{item.title}</h3>
+              <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+                {type === 'event' ? <Calendar className="w-3.5 h-3.5 shrink-0" /> : <Newspaper className="w-3.5 h-3.5 shrink-0" />}
+                {dateLabel}
+              </p>
             </div>
-          )}
-          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-            <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
-              {item.published ? 'Published' : 'Draft'}
-            </Badge>
-            <Badge variant="secondary" className="bg-black/50 text-white border-0">
-              {type === 'news' ? 'News' : 'Event'}
-            </Badge>
-          </div>
+            <p className="text-sm text-slate-600 line-clamp-3">{item.description}</p>
+            {type === 'event' && item.location && (
+              <p className="text-xs text-slate-500 flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                {item.location}
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Button size="sm" variant="secondary" className="rounded-full" onClick={() => void togglePublish(item)}>
+                {item.published ? 'Unpublish' : 'Publish'}
+              </Button>
+              <Button size="sm" variant="outline" className="rounded-full border-[#0b2a4a]/30" onClick={() => handleEdit(item)}>
+                <Edit2 className="w-3.5 h-3.5 mr-1" />
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full text-red-700 border-red-200 hover:bg-red-50"
+                onClick={() => handleDelete(item)}
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1" />
+                Delete
+              </Button>
+            </div>
+          </CardContent>
         </div>
-        <CardContent className="p-4 space-y-3">
-          <div>
-            <h3 className="font-bold text-lg text-[#0b2a4a] leading-snug line-clamp-2">{item.title}</h3>
-            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-              {type === 'event' ? <Calendar className="w-3.5 h-3.5 shrink-0" /> : <Newspaper className="w-3.5 h-3.5 shrink-0" />}
-              {dateLabel}
-            </p>
-          </div>
-          <p className="text-sm text-slate-600 line-clamp-2">{item.description}</p>
-          {type === 'event' && item.location && (
-            <p className="text-xs text-slate-500 flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 shrink-0" />
-              {item.location}
-            </p>
-          )}
-          <div className="flex flex-wrap gap-2 pt-1">
-            <Button size="sm" variant="secondary" className="rounded-full" onClick={() => void togglePublish(item)}>
-              {item.published ? 'Unpublish' : 'Publish'}
-            </Button>
-            <Button size="sm" variant="outline" className="rounded-full border-[#0b2a4a]/30" onClick={() => handleEdit(item)}>
-              <Edit2 className="w-3.5 h-3.5 mr-1" />
-              Edit
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-full text-red-700 border-red-200 hover:bg-red-50"
-              onClick={() => handleDelete(item)}
-            >
-              <Trash2 className="w-3.5 h-3.5 mr-1" />
-              Delete
-            </Button>
-          </div>
-        </CardContent>
       </Card>
     );
   };
@@ -557,9 +579,9 @@ export default function ContentManagement() {
   return (
     <div className="space-y-6">
       <div
-        className="rounded-2xl overflow-hidden shadow-xl border border-black/10"
+        className="overflow-hidden border-b border-black/10 shadow-md -mt-px"
         style={{
-          background: 'linear-gradient(135deg, #0b2a4a 0%, #1a4a7a 45%, #8A1F3A 100%)',
+          backgroundColor: '#0b2a4a',
         }}
       >
         <div className="px-6 py-8 text-white">
@@ -617,7 +639,7 @@ export default function ContentManagement() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className="space-y-4">
               {news.map((item) => (
                 <ContentCard key={item.id} item={item} type="news" />
               ))}

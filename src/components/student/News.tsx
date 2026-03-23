@@ -12,7 +12,20 @@ type Article = {
   content: string;
   created_at: string;
   hasImage?: boolean;
+  imageUrl?: string;
+  updatedAt?: string;
 };
+
+function resolveNewsImageSrc(article: Article): string | null {
+  if (article.imageUrl && typeof article.imageUrl === 'string') {
+    return article.imageUrl;
+  }
+  if (article.hasImage) {
+    const stamp = article.updatedAt || article.created_at || '';
+    return `${API_BASE}/content/news/${article.id}/image${stamp ? `?v=${encodeURIComponent(stamp)}` : ''}`;
+  }
+  return null;
+}
 
 export function News({ onBack, embedded }: { onBack: () => void; embedded?: boolean }) {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -32,7 +45,9 @@ export function News({ onBack, embedded }: { onBack: () => void; embedded?: bool
           title: it.title,
           content: it.content ?? it.description ?? '',
           created_at: it.created_at ?? it.createdAt ?? new Date().toISOString(),
-          hasImage: !!it.hasImage,
+          hasImage: !!(it.hasImage || it.imageUrl || it.image_url || it.image_data),
+          imageUrl: typeof it.imageUrl === 'string' ? it.imageUrl : undefined,
+          updatedAt: it.updated_at ?? it.updatedAt,
         }));
         setArticles(mapped);
       } catch (err) {
@@ -51,9 +66,9 @@ export function News({ onBack, embedded }: { onBack: () => void; embedded?: bool
           <Button onClick={() => { setIsDetailView(false); setSelectedArticle(null); }} variant="ghost" size="icon"><ArrowLeft /></Button>
           <h1 className="text-xl font-semibold">Article</h1>
         </div>
-        {selectedArticle.hasImage ? (
+        {resolveNewsImageSrc(selectedArticle) ? (
           <div className="w-full h-80 overflow-hidden rounded-lg bg-gray-100 mb-4">
-            <ImageWithFallback src={`${API_BASE}/content/news/${selectedArticle.id}/image`} alt={selectedArticle.title} className="w-full h-full object-cover" />
+            <ImageWithFallback src={resolveNewsImageSrc(selectedArticle)!} alt={selectedArticle.title} className="w-full h-full object-cover" />
           </div>
         ) : null}
         <Card>
@@ -84,24 +99,28 @@ export function News({ onBack, embedded }: { onBack: () => void; embedded?: bool
         articles.map(article => (
           <Card
             key={article.id}
-            className="cursor-pointer hover:shadow-md transition"
+            className="cursor-pointer hover:shadow-md transition overflow-hidden"
             onClick={() => { setSelectedArticle(article); setIsDetailView(true); }}
           >
-            {article.hasImage ? (
-              <div className="w-full h-48 overflow-hidden bg-gray-100">
-                <ImageWithFallback src={`${API_BASE}/content/news/${article.id}/image`} alt={article.title} className="w-full h-full object-cover" />
+            <div className="flex flex-col md:flex-row">
+              <div className="md:w-72 md:min-w-[18rem] h-52 md:h-auto bg-gray-100 overflow-hidden">
+                {resolveNewsImageSrc(article) ? (
+                  <ImageWithFallback src={resolveNewsImageSrc(article)!} alt={article.title} className="w-full h-full object-cover" />
+                ) : null}
               </div>
-            ) : null}
-            <CardHeader>
-              <CardTitle>{article.title}</CardTitle>
-              <CardDescription>Published on {new Date(article.created_at).toLocaleDateString()}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="whitespace-pre-wrap line-clamp-3">{article.content}</p>
-              <Button variant="link" className="px-0" onClick={(e: React.MouseEvent<HTMLElement>) => { e.stopPropagation(); setSelectedArticle(article); setIsDetailView(true); }}>
-                Read more
-              </Button>
-            </CardContent>
+              <div className="flex-1">
+                <CardHeader>
+                  <CardTitle>{article.title}</CardTitle>
+                  <CardDescription>Published on {new Date(article.created_at).toLocaleDateString()}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="whitespace-pre-wrap line-clamp-3">{article.content}</p>
+                  <Button variant="link" className="px-0" onClick={(e: React.MouseEvent<HTMLElement>) => { e.stopPropagation(); setSelectedArticle(article); setIsDetailView(true); }}>
+                    Read more
+                  </Button>
+                </CardContent>
+              </div>
+            </div>
           </Card>
         ))
       ) : (
