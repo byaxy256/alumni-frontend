@@ -99,26 +99,24 @@ export function News({ onBack, embedded }: { onBack: () => void; embedded?: bool
         articles.map(article => (
           <Card
             key={article.id}
-            className="cursor-pointer hover:shadow-md transition overflow-hidden"
+            className="cursor-pointer hover:shadow-lg transition overflow-hidden border-0 ring-1 ring-slate-200"
             onClick={() => { setSelectedArticle(article); setIsDetailView(true); }}
           >
-            <div className="flex flex-col md:flex-row">
-              <div className="md:w-72 md:min-w-[18rem] h-52 md:h-auto bg-gray-100 overflow-hidden">
+            <div className="flex flex-row items-stretch">
+              <div className="w-64 h-64 flex-shrink-0 bg-gray-100 overflow-hidden">
                 {resolveNewsImageSrc(article) ? (
                   <ImageWithFallback src={resolveNewsImageSrc(article)!} alt={article.title} className="w-full h-full object-cover" />
                 ) : null}
               </div>
-              <div className="flex-1">
-                <CardHeader>
-                  <CardTitle>{article.title}</CardTitle>
-                  <CardDescription>Published on {new Date(article.created_at).toLocaleDateString()}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="whitespace-pre-wrap line-clamp-3">{article.content}</p>
-                  <Button variant="link" className="px-0" onClick={(e: React.MouseEvent<HTMLElement>) => { e.stopPropagation(); setSelectedArticle(article); setIsDetailView(true); }}>
-                    Read more
-                  </Button>
-                </CardContent>
+              <div className="flex-1 p-6 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{article.title}</h3>
+                  <p className="text-xs text-gray-500 mb-3">Published on {new Date(article.created_at).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-600 line-clamp-4">{article.content}</p>
+                </div>
+                <Button variant="link" className="px-0 w-fit" onClick={(e: React.MouseEvent<HTMLElement>) => { e.stopPropagation(); setSelectedArticle(article); setIsDetailView(true); }}>
+                  Read more →
+                </Button>
               </div>
             </div>
           </Card>
