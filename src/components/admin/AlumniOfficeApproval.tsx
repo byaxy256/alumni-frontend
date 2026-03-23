@@ -101,15 +101,10 @@ export default function AlumniOfficeApproval() {
         phone: createForm.phone || '',
         password: createForm.password,
         role: createForm.role,
-        meta: {
-          staff_id: createForm.staffId || null,
-          approved: true,
-          suspended: false,
-          office_role: createForm.role,
-        },
-        ...(createForm.adminSecret ? { adminSecret: createForm.adminSecret } : {}),
+        staff_id: createForm.staffId || '',
+        adminSecret: createForm.adminSecret || '',
       };
-      await apiCall('/auth/register', 'POST', payload, token || undefined);
+      await apiCall('/admin/office-accounts', 'POST', payload, token || undefined);
       toast.success('Office account created successfully.');
       setCreateForm({ fullName: '', email: '', phone: '', staffId: '', password: '', adminSecret: '', role: 'administrator' });
       await loadAllAlumniOffice();
@@ -185,7 +180,7 @@ export default function AlumniOfficeApproval() {
           </div>
           <div className="space-y-2">
             <Label>Phone</Label>
-            <Input value={createForm.phone} onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value.replace(/\\D/g, '').slice(0, 10) }))} maxLength={10} />
+            <Input value={createForm.phone} onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))} maxLength={10} />
           </div>
           <div className="space-y-2">
             <Label>Staff ID</Label>
@@ -215,6 +210,9 @@ export default function AlumniOfficeApproval() {
           <div className="space-y-2">
             <Label>Admin Secret</Label>
             <Input type="password" value={createForm.adminSecret} onChange={(e) => setCreateForm(f => ({ ...f, adminSecret: e.target.value }))} />
+            <p className="text-xs text-muted-foreground">
+              Used once on the staff member&apos;s first login. If your backend already has `ADMIN_REGISTRATION_SECRET`, this can match that secret.
+            </p>
           </div>
           <div className="md:col-span-2 flex justify-end">
             <Button onClick={handleCreateAccount} disabled={creating}>
