@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Settings, Users, CreditCard, Shield, LogOut, Home, Menu, UserCheck, BarChart3, DollarSign } from 'lucide-react';
+import { Settings, Users, CreditCard, Shield, LogOut, Home, Menu, UserCheck, BarChart3, DollarSign, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import AdminDashboard from './admin/AdminDashboard';
 import AdminReports from './admin/AdminReports';
@@ -10,6 +10,7 @@ import UserRoleManagement from './admin/UserRoleManagement';
 import DisbursementApproval from './admin/DisbursementApproval';
 import AuditLegal from './admin/AuditLegal';
 import AlumniOfficeApproval from './admin/AlumniOfficeApproval';
+import AdminOrders from './alumni_office_staff/AdminOrders';
 import { User } from '../App';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 import {
@@ -20,7 +21,7 @@ import {
 } from './ui/dropdown-menu';
 
 export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'alumni-approval' | 'fund-requests'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'alumni-approval' | 'fund-requests' | 'orders'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -30,6 +31,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
     { id: 'users' as const, label: 'User Management', icon: Users },
     { id: 'alumni-approval' as const, label: 'Alumni Office Approval', icon: UserCheck },
     { id: 'fund-requests' as const, label: 'Requested Funds', icon: DollarSign },
+    { id: 'orders' as const, label: 'Shop Orders', icon: ShoppingCart },
     { id: 'disbursements' as const, label: 'Disbursements', icon: CreditCard },
     { id: 'audit' as const, label: 'Audit & Legal', icon: Shield },
   ];
@@ -129,6 +131,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
         {currentView === 'disbursements' && <DisbursementApproval />}
         {currentView === 'audit' && <AuditLegal />}
         {currentView === 'fund-requests' && <AdminFundRequests />}
+        {currentView === 'orders' && <AdminOrders />}
       </main>
     </div>
   );
