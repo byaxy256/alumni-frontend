@@ -480,7 +480,6 @@ export default function ContentManagement() {
 
   const ContentCard = ({ item, type }: { item: ContentItem; type: 'news' | 'event' }) => {
     const kind = type === 'news' ? 'news' : 'events';
-    const isNews = type === 'news';
     const imgSrc = getContentImageSrc(item, kind, refreshStamp);
     const dateLabel =
       type === 'event'
@@ -488,66 +487,34 @@ export default function ContentManagement() {
         : item.createdAt
           ? new Date(item.createdAt).toLocaleDateString()
           : '';
+    const cardTone =
+      type === 'event'
+        ? 'bg-gradient-to-r from-[#f8fbff] via-[#eef4ff] to-[#e8eeff] border-[#c8d8ff]'
+        : 'bg-gradient-to-r from-[#fff8f6] via-[#fff1ea] to-[#ffe8de] border-[#ffd7c6]';
 
     return (
-      <Card className="group overflow-hidden border-0 shadow-lg bg-white ring-1 ring-black/5 hover:ring-[#0b2a4a]/25 transition-all rounded-2xl">
-        <div className={isNews ? 'flex flex-col md:flex-row' : ''}>
-          <div
-            className={
-              isNews
-                ? 'relative h-52 md:h-auto md:w-72 md:min-w-[18rem] bg-slate-100 overflow-hidden'
-                : 'relative aspect-[16/10] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden'
-            }
-          >
-            {imgSrc ? (
-              <img
-                src={imgSrc}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
-                <ImageIcon className="w-12 h-12 opacity-40" />
-                <span className="text-xs font-medium">No image</span>
-              </div>
-            )}
-            {!isNews && (
-              <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
-                  {item.published ? 'Published' : 'Draft'}
-                </Badge>
-                <Badge variant="secondary" className="bg-black/50 text-white border-0">
-                  Event
-                </Badge>
-              </div>
-            )}
-          </div>
-
-          <CardContent className="p-4 space-y-3 flex-1">
-            {isNews && (
-              <div className="flex flex-wrap gap-2">
-                <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
-                  {item.published ? 'Published' : 'Draft'}
-                </Badge>
-                <Badge variant="secondary" className="bg-[#0b2a4a]/90 text-white border-0">
-                  News
-                </Badge>
-              </div>
-            )}
+      <Card className={`group overflow-hidden shadow-md border rounded-2xl ${cardTone}`}>
+        <div className="flex flex-col md:flex-row items-stretch">
+          <CardContent className="p-4 md:p-5 space-y-3 flex-1">
+            <div className="flex flex-wrap gap-2">
+              <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
+                {item.published ? 'Published' : 'Draft'}
+              </Badge>
+              <Badge variant="secondary" className="bg-[#0b2a4a]/90 text-white border-0">
+                {type === 'event' ? 'Event' : 'News'}
+              </Badge>
+            </div>
 
             <div>
               <h3 className="font-bold text-lg text-[#0b2a4a] leading-snug line-clamp-2">{item.title}</h3>
-              <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+              <p className="text-xs text-slate-600 mt-1 flex items-center gap-1.5">
                 {type === 'event' ? <Calendar className="w-3.5 h-3.5 shrink-0" /> : <Newspaper className="w-3.5 h-3.5 shrink-0" />}
                 {dateLabel}
               </p>
             </div>
-            <p className="text-sm text-slate-600 line-clamp-3">{item.description}</p>
+            <p className="text-sm text-slate-700 line-clamp-3">{item.description}</p>
             {type === 'event' && item.location && (
-              <p className="text-xs text-slate-500 flex items-center gap-1">
+              <p className="text-xs text-slate-600 flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 shrink-0" />
                 {item.location}
               </p>
@@ -571,6 +538,24 @@ export default function ContentManagement() {
               </Button>
             </div>
           </CardContent>
+
+          <div className="relative h-48 md:h-auto md:w-[320px] md:min-w-[320px] bg-slate-100 border-t md:border-t-0 md:border-l border-black/10">
+            {imgSrc ? (
+              <img
+                src={imgSrc}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
+                <ImageIcon className="w-12 h-12 opacity-40" />
+                <span className="text-xs font-medium">No image</span>
+              </div>
+            )}
+          </div>
         </div>
       </Card>
     );
@@ -662,7 +647,7 @@ export default function ContentManagement() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className="space-y-4">
               {events.map((item) => (
                 <ContentCard key={item.id} item={item} type="event" />
               ))}
