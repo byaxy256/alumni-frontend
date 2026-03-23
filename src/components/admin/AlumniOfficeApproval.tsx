@@ -18,6 +18,8 @@ interface PendingUser {
     staff_id?: string;
     approved?: boolean;
     suspended?: boolean;
+    office_role?: string;
+    staff_role?: string;
   };
   created_at: string;
 }
@@ -111,12 +113,14 @@ export default function AlumniOfficeApproval() {
           email: createForm.email,
           phone: createForm.phone || '',
           password: createForm.password,
-          role: createForm.role,
+          role: 'alumni_office',
           adminSecret: createForm.adminSecret || '',
           meta: {
             staff_id: createForm.staffId || '',
             approved: true,
             suspended: false,
+            must_change_password: true,
+            admin_secret_verified: false,
             office_role: createForm.role,
           },
         };
@@ -145,8 +149,22 @@ export default function AlumniOfficeApproval() {
         body: JSON.stringify(staffPayload),
       });
 
-      if (response.status === 404) {
-        await createViaLegacyRegister();
+      if (response.status === 404 || response.status >= 500) {
+        try {
+          await createViaLegacyRegister();
+        } catch (legacyError: any) {
+          const message = String(legacyError?.message || '');
+          if (
+            message.toLowerCase().includes('server error') ||
+            message.toLowerCase().includes('validation failed') ||
+            message.toLowerCase().includes('`role`')
+          ) {
+            throw new Error(
+              'Your backend is still running the old auth/register logic and does not yet support the new internal office roles. Redeploy the latest backend, then try again.'
+            );
+          }
+          throw legacyError;
+        }
       } else {
         const responseData = await response.json().catch(() => ({}));
         if (!response.ok) {
@@ -274,6 +292,7 @@ export default function AlumniOfficeApproval() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {allUsers.map((user) => {
             const isSuspended = user.meta?.suspended === true;
+            const displayRole = (user.meta?.staff_role || user.meta?.office_role || user.role || 'office').replace(/_/g, ' ');
             return (
             <Card key={user.uid} className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -285,7 +304,7 @@ export default function AlumniOfficeApproval() {
                     </CardTitle>
                     <CardDescription className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge variant="outline" className="capitalize">
-                        {(user.role || 'office').replace(/_/g, ' ')}
+                        {displayRole}
                       </Badge>
                       {isSuspended ? (
                         <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
