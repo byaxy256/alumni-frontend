@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Search, Download, Eye, Loader2 } from 'lucide-react';
+import { Search, Eye, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiCall } from '../../api';
 
@@ -43,7 +43,6 @@ export default function AdminOrders() {
   const [paymentFilter, setPaymentFilter] = useState<string>('all');
   const [deliveryFilter, setDeliveryFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -93,7 +92,6 @@ export default function AdminOrders() {
     paymentStatus: string
   ) => {
     try {
-      setUpdating(true);
       await apiCall(`/merch/orders/${orderId}`, 'PATCH', {
         delivery_status: deliveryStatus,
         payment_status: paymentStatus,
@@ -103,8 +101,6 @@ export default function AdminOrders() {
       setSelectedOrder(null);
     } catch (err: any) {
       toast.error(err?.message || 'Failed to update order');
-    } finally {
-      setUpdating(false);
     }
   };
 

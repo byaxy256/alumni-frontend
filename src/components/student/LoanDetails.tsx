@@ -20,6 +20,23 @@ interface Loan {
   created_at: string;
   repaymentPeriod?: number;
   chopConsented?: boolean;
+  current_stage?: string;
+  overall_status?: string;
+  administrator_comment?: string;
+  general_secretary_comment?: string;
+  finance_review_comment?: string;
+  president_comment?: string;
+  finance_disbursement_comment?: string;
+  approved_amount?: number;
+  disbursed_amount?: number;
+  disbursed_to?: string;
+  transaction_reference?: string;
+  approval_logs?: Array<{
+    stage?: string;
+    decision?: string;
+    comment?: string | null;
+    timestamp?: string;
+  }>;
 }
 
 interface Payment {
@@ -248,6 +265,13 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
   );
 
   const displayLoanStatus = isLoanOverdue ? 'overdue' : activeLoan?.status;
+  const latestWorkflowComment =
+    activeLoan?.finance_disbursement_comment ||
+    activeLoan?.president_comment ||
+    activeLoan?.finance_review_comment ||
+    activeLoan?.general_secretary_comment ||
+    activeLoan?.administrator_comment ||
+    '';
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
@@ -297,6 +321,14 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
                   <p className="text-xs text-gray-500">Interest Rate</p>
                   <p className="text-base">0%</p>
                 </div>
+                <div>
+                  <p className="text-xs text-gray-500">Current Stage</p>
+                  <p className="text-base capitalize">{String(activeLoan.current_stage || activeLoan.status || 'submitted').replace(/_/g, ' ')}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Workflow Status</p>
+                  <p className="text-base capitalize">{String(activeLoan.overall_status || activeLoan.status || 'pending').replace(/_/g, ' ')}</p>
+                </div>
               </div>
               <div className="pt-2 border-t">
                 <div className="flex justify-between items-center mb-2">
@@ -309,6 +341,34 @@ export function LoanDetails({ user, onBack }: { user: User; onBack: () => void; 
                   <div className="h-2 rounded-full" style={{ backgroundColor: 'var(--accent)', width: `${activeLoan.amount_requested ? ((activeLoan.amount_requested - activeLoan.outstanding_balance) / activeLoan.amount_requested) * 100 : 0}%` }}></div>
                 </div>
               </div>
+              {latestWorkflowComment ? (
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-3 text-sm">
+                  <span className="font-medium">Latest note:</span> {latestWorkflowComment}
+                </div>
+              ) : null}
+              {activeLoan.approval_logs?.length ? (
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-3 text-sm">
+                  <p className="font-medium mb-2">Approval timeline</p>
+                  <div className="space-y-2 text-xs text-gray-500">
+                    {activeLoan.approval_logs.map((log, index) => (
+                      <div key={`${log.stage || 'stage'}-${index}`}>
+                        <span className="font-medium text-foreground">
+                          {String(log.stage || 'submitted').replace(/_/g, ' ')}
+                        </span>
+                        {' · '}
+                        {String(log.decision || 'updated').replace(/_/g, ' ')}
+                        {log.timestamp ? ` · ${new Date(log.timestamp).toLocaleString()}` : ''}
+                        {log.comment ? (
+                          <>
+                            {' — '}
+                            {log.comment}
+                          </>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
 

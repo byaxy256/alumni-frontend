@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
 import { ArrowLeft, Calendar, MapPin, Users, Clock, Loader2 } from 'lucide-react';
 import { ImageWithFallback } from '../figma_image/ImageWithFallback';
 import { API_BASE, api } from '../../api';

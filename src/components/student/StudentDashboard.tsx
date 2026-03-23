@@ -13,6 +13,16 @@ import { toast } from 'sonner';
 interface Loan { id: string; amount_requested: number; status: string; created_at: string; [key: string]: any; }
 interface SupportRequest { id: string; amount_requested: number; status: string; created_at: string; [key: string]: any; }
 interface NotificationItem { id: string; title: string; message: string; time: string; read: boolean; }
+interface ApplicationItem {
+  type: string;
+  id: string;
+  amount_requested: number;
+  status: string;
+  created_at: string;
+  current_stage?: string;
+  overall_status?: string;
+  [key: string]: any;
+}
 
 export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate: (screen: string) => void; }) {
   const [me, setMe] = useState<User | null>(user);
@@ -134,13 +144,25 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
   const activeLoan = loans.find(l => l.status === 'approved' || l.status === 'active');
   const totalApplications = loans.length + supportRequests.length;
   const activeLoansCount = loans.filter(l => l.status === 'approved' || l.status === 'active').length;
-  const allApplications = useMemo(() => {
-    const combined = [
+  const allApplications = useMemo<ApplicationItem[]>(() => {
+    const combined: ApplicationItem[] = [
       ...loans.map(l => ({ ...l, type: 'Loan' })),
       ...supportRequests.map(sr => ({ ...sr, type: 'Support' }))
     ];
     return combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [loans, supportRequests]);
+
+  const latestWorkflowComment = (application: any) => {
+    return (
+      application.finance_disbursement_comment ||
+      application.president_comment ||
+      application.finance_review_comment ||
+      application.general_secretary_comment ||
+      application.administrator_comment ||
+      application.academic_verification_comment ||
+      ''
+    );
+  };
   
   const quickActions = [
     {
@@ -257,9 +279,15 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                         <p className="text-sm font-semibold text-gray-800">{app.type} Application</p>
                         <p className="text-xs text-gray-500 mt-0.5">Amount: UGX {(app.amount_requested || 0).toLocaleString()}</p>
                         <p className="text-xs text-gray-400 mt-0.5">Submitted: {new Date(app.created_at || new Date()).toLocaleDateString()}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Stage: {String(app.current_stage || app.status || 'submitted').replace(/_/g, ' ')}
+                        </p>
+                        {latestWorkflowComment(app) ? (
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">Latest note: {latestWorkflowComment(app)}</p>
+                        ) : null}
                       </div>
                       <Badge className={(() => {
-                        const s = (app.status || 'pending').toLowerCase();
+                        const s = (app.overall_status || app.status || 'pending').toLowerCase();
                         const map: Record<string, string> = {
                           pending: 'bg-amber-100 text-amber-800 border border-amber-300',
                           under_review: 'bg-blue-100 text-blue-800 border border-blue-300',
@@ -268,11 +296,15 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                           rejected: 'bg-red-100 text-red-800 border border-red-300',
                           active: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
                           paid: 'bg-slate-100 text-slate-700 border border-slate-300',
+                          submitted: 'bg-amber-100 text-amber-800 border border-amber-300',
+                          ready_for_disbursement: 'bg-purple-100 text-purple-800 border border-purple-300',
+                          disbursed: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+                          completed: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
                         };
                         return map[s] || 'bg-gray-100 text-gray-800 border border-gray-300';
                       })()}>
                         {(() => {
-                          const s = (app.status || 'pending').toLowerCase();
+                          const s = (app.overall_status || app.status || 'pending').toLowerCase();
                           const labels: Record<string, string> = {
                             pending: 'Pending',
                             under_review: 'Under review',
@@ -281,6 +313,10 @@ export function StudentDashboard({ user, onNavigate }: { user: User; onNavigate:
                             rejected: 'Rejected',
                             active: 'Active',
                             paid: 'Paid',
+                            submitted: 'Submitted',
+                            ready_for_disbursement: 'Ready for disbursement',
+                            disbursed: 'Disbursed',
+                            completed: 'Completed',
                           };
                           return labels[s] || s;
                         })()}

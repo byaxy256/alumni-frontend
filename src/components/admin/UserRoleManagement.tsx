@@ -25,7 +25,17 @@ interface BackendUser {
   full_name: string;
   email: string;
   phone?: string;
-  role: 'student' | 'alumni' | 'admin' | 'alumni_office';
+  role:
+    | 'student'
+    | 'alumni'
+    | 'admin'
+    | 'alumni_office'
+    | 'administrator'
+    | 'general_secretary'
+    | 'finance'
+    | 'president'
+    | 'publicity'
+    | 'secretary_academics';
   meta?: { approved?: boolean; [key: string]: any };
   last_login?: string;
   created_at?: string;
@@ -69,7 +79,7 @@ export default function UserRoleManagement() {
 
   const deriveStatus = (user: BackendUser) => {
     if (user.meta?.suspended === true) return 'suspended';
-    if (user.role === 'alumni_office' && user.meta?.approved === false) return 'pending';
+    if (['alumni_office', 'administrator', 'general_secretary', 'finance', 'president', 'publicity', 'secretary_academics'].includes(user.role) && user.meta?.approved === false) return 'pending';
     return 'active';
   };
 
@@ -330,7 +340,13 @@ export default function UserRoleManagement() {
                 <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="student">Students</SelectItem>
                 <SelectItem value="alumni">Alumni</SelectItem>
-                <SelectItem value="alumni_office">Alumni Office</SelectItem>
+                <SelectItem value="administrator">Administrator</SelectItem>
+                <SelectItem value="general_secretary">General Secretary</SelectItem>
+                <SelectItem value="finance">Finance</SelectItem>
+                <SelectItem value="president">President</SelectItem>
+                <SelectItem value="publicity">Publicity</SelectItem>
+                <SelectItem value="secretary_academics">Secretary Academics</SelectItem>
+                <SelectItem value="alumni_office">Legacy Office</SelectItem>
                 <SelectItem value="admin">Admins</SelectItem>
               </SelectContent>
             </Select>

@@ -7,9 +7,8 @@ import Login from './components/Login';
 import ResetPassword from './components/ResetPassword';
 import { StudentApp } from './components/StudentApp';
 import { AlumniApp } from './components/AlumniApp';
-
-import { AlumniOfficeApp } from './components/AlumniOfficeApp';
 import { AdminApp } from './components/AdminApp';
+import { OfficeRoleApp } from './components/OfficeRoleApp';
 import { Toaster } from './components/ui/sonner';
 // import { GraduationCap } from 'lucide-react';
 import { LoadingSpinner } from './components/ui/loading-spinner';
@@ -23,6 +22,15 @@ import { Button } from './components/ui/button';
 import { toast } from 'sonner';
 
 const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+const OFFICE_ROLES = new Set([
+  'alumni_office',
+  'administrator',
+  'general_secretary',
+  'finance',
+  'president',
+  'publicity',
+  'secretary_academics',
+]);
 
 // This is the correct, complete User type definition
 export type User = {
@@ -30,7 +38,17 @@ export type User = {
   graduationYear: ReactNode;
   id: number;
   uid: string;
-  role: 'student' | 'alumni' | 'alumni_office' | 'admin';
+  role:
+    | 'student'
+    | 'alumni'
+    | 'alumni_office'
+    | 'admin'
+    | 'administrator'
+    | 'general_secretary'
+    | 'finance'
+    | 'president'
+    | 'publicity'
+    | 'secretary_academics';
   email_verified?: boolean;
   full_name?: string;
   email?: string;
@@ -102,7 +120,7 @@ export default function App() {
     localStorage.setItem('token', token);
     initPushNotifications(transformedUser);
     const requiresReset =
-      transformedUser.role === 'alumni_office' &&
+      OFFICE_ROLES.has(transformedUser.role) &&
       transformedUser.meta?.must_change_password === true;
     setMustChangePassword(requiresReset);
     
@@ -385,7 +403,13 @@ export default function App() {
     
     if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /></>;
     if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /></>;
-    if (user.role === 'alumni_office') return <><AlumniOfficeApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (
+      ['alumni_office', 'administrator', 'general_secretary', 'finance', 'president', 'publicity', 'secretary_academics'].includes(
+        user.role
+      )
+    ) {
+      return <><OfficeRoleApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    }
     if (user.role === 'admin') return <><AdminApp user={user} onLogout={handleLogout} /><Toaster /></>;
     
     // Fallback if role is invalid

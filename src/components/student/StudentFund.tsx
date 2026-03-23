@@ -17,6 +17,23 @@ type SupportRequest = {
   status: string;
   created_at: string;
   reason?: string;
+  current_stage?: string;
+  overall_status?: string;
+  administrator_comment?: string;
+  general_secretary_comment?: string;
+  finance_review_comment?: string;
+  president_comment?: string;
+  finance_disbursement_comment?: string;
+  academic_verification_status?: string;
+  academic_verification_comment?: string;
+  approved_amount?: number;
+  disbursed_amount?: number;
+  approval_logs?: Array<{
+    stage?: string;
+    decision?: string;
+    comment?: string | null;
+    timestamp?: string;
+  }>;
 };
 
 export function StudentFund({ user, onBack }: StudentFundProps) {
@@ -47,6 +64,18 @@ export function StudentFund({ user, onBack }: StudentFundProps) {
           status: r.status || 'pending',
           created_at: r.created_at || r.createdAt || new Date().toISOString(),
           reason: r.reason || r.purpose || '',
+          current_stage: r.current_stage,
+          overall_status: r.overall_status,
+          administrator_comment: r.administrator_comment,
+          general_secretary_comment: r.general_secretary_comment,
+          finance_review_comment: r.finance_review_comment,
+          president_comment: r.president_comment,
+          finance_disbursement_comment: r.finance_disbursement_comment,
+          academic_verification_status: r.academic_verification_status,
+          academic_verification_comment: r.academic_verification_comment,
+          approved_amount: Number(r.approved_amount || 0) || undefined,
+          disbursed_amount: Number(r.disbursed_amount || 0) || undefined,
+          approval_logs: Array.isArray(r.approval_logs) ? r.approval_logs : [],
         }));
         setRequests(normalized);
       } catch (err: any) {
@@ -64,8 +93,17 @@ export function StudentFund({ user, onBack }: StudentFundProps) {
 
   const totalRequested = requests.reduce((s, r) => s + (r.amount_requested || 0), 0);
   const totalApproved = requests
-    .filter(r => r.status === 'approved')
-    .reduce((s, r) => s + (r.amount_requested || 0), 0);
+    .filter(r => ['approved', 'disbursed'].includes(r.status))
+    .reduce((s, r) => s + Number(r.approved_amount || r.disbursed_amount || r.amount_requested || 0), 0);
+
+  const latestComment = (request: SupportRequest) =>
+    request.finance_disbursement_comment ||
+    request.president_comment ||
+    request.finance_review_comment ||
+    request.general_secretary_comment ||
+    request.administrator_comment ||
+    request.academic_verification_comment ||
+    '';
 
   return (
     <div className="min-h-screen pb-20 md:pb-6" style={{ background: 'var(--background)' }}>
@@ -125,12 +163,46 @@ export function StudentFund({ user, onBack }: StudentFundProps) {
                             <span>{new Date(r.created_at).toLocaleDateString()}</span>
                           </div>
                           <Badge className="capitalize" variant="secondary">
-                            {r.status?.replace('_', ' ') || 'pending'}
+                            {(r.overall_status || r.status || 'pending')?.replace('_', ' ')}
                           </Badge>
                         </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Current stage: {String(r.current_stage || r.status || 'submitted').replace(/_/g, ' ')}
+                        </p>
+                        {r.academic_verification_status && r.academic_verification_status !== 'not_required' ? (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Academic verification: {r.academic_verification_status.replace(/_/g, ' ')}
+                          </p>
+                        ) : null}
                         {r.reason && (
                           <p className="text-xs text-gray-500 mt-2 line-clamp-2">Reason: {r.reason}</p>
                         )}
+                        {latestComment(r) ? (
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">Latest note: {latestComment(r)}</p>
+                        ) : null}
+                        {r.approval_logs?.length ? (
+                          <div className="mt-3 rounded-xl border border-border/60 bg-muted/20 p-3">
+                            <p className="text-xs font-medium text-foreground mb-2">Workflow timeline</p>
+                            <div className="space-y-2">
+                              {r.approval_logs.map((log, index) => (
+                                <div key={`${log.stage || 'stage'}-${index}`} className="text-xs text-gray-500">
+                                  <span className="font-medium text-foreground">
+                                    {String(log.stage || 'submitted').replace(/_/g, ' ')}
+                                  </span>
+                                  {' · '}
+                                  {String(log.decision || 'updated').replace(/_/g, ' ')}
+                                  {log.timestamp ? ` · ${new Date(log.timestamp).toLocaleString()}` : ''}
+                                  {log.comment ? (
+                                    <>
+                                      {' — '}
+                                      {log.comment}
+                                    </>
+                                  ) : null}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </div>

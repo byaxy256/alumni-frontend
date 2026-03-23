@@ -23,6 +23,7 @@ interface PendingUser {
 }
 
 export default function AlumniOfficeApproval() {
+  const officeRoles = ['administrator', 'general_secretary', 'finance', 'president', 'publicity', 'secretary_academics', 'alumni_office'];
   const [allUsers, setAllUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -34,6 +35,7 @@ export default function AlumniOfficeApproval() {
     staffId: '',
     password: '',
     adminSecret: '',
+    role: 'administrator',
   });
 
   useEffect(() => {
@@ -45,8 +47,8 @@ export default function AlumniOfficeApproval() {
       setLoading(true);
       const token = localStorage.getItem('token');
       const users = await apiCall('/auth/users', 'GET', undefined, token || undefined);
-      const alumniOffice = (users || []).filter((u: PendingUser) => u.role === 'alumni_office');
-      setAllUsers(alumniOffice);
+      const officeUsers = (users || []).filter((u: PendingUser) => officeRoles.includes(u.role || ''));
+      setAllUsers(officeUsers);
     } catch (err) {
       console.error('Failed to load alumni office accounts:', err);
       toast.error('Failed to load accounts');
@@ -59,7 +61,7 @@ export default function AlumniOfficeApproval() {
     try {
       setProcessing(true);
       const token = localStorage.getItem('token');
-      await apiCall('/admin/alumni-office/suspend', 'POST', { uid, suspended }, token || undefined);
+      await apiCall(`/admin/users/${encodeURIComponent(uid)}/suspend`, 'PATCH', { suspended }, token || undefined);
       toast.success(suspended ? 'User suspended' : 'User unsuspended');
       await loadAllAlumniOffice();
     } catch (err: any) {
@@ -74,7 +76,7 @@ export default function AlumniOfficeApproval() {
     try {
       setProcessing(true);
       const token = localStorage.getItem('token');
-      await apiCall(`/admin/alumni-office/${uid}`, 'DELETE', undefined, token || undefined);
+      await apiCall(`/admin/users/${encodeURIComponent(uid)}`, 'DELETE', undefined, token || undefined);
       toast.success('User deleted');
       await loadAllAlumniOffice();
     } catch (err: any) {
@@ -98,17 +100,18 @@ export default function AlumniOfficeApproval() {
         email: createForm.email,
         phone: createForm.phone || '',
         password: createForm.password,
-        role: 'alumni_office',
+        role: createForm.role,
         meta: {
           staff_id: createForm.staffId || null,
           approved: true,
           suspended: false,
+          office_role: createForm.role,
         },
         ...(createForm.adminSecret ? { adminSecret: createForm.adminSecret } : {}),
       };
       await apiCall('/auth/register', 'POST', payload, token || undefined);
-      toast.success('Alumni office account created successfully.');
-      setCreateForm({ fullName: '', email: '', phone: '', staffId: '', password: '', adminSecret: '' });
+      toast.success('Office account created successfully.');
+      setCreateForm({ fullName: '', email: '', phone: '', staffId: '', password: '', adminSecret: '', role: 'administrator' });
       await loadAllAlumniOffice();
     } catch (err: any) {
       console.error('Failed to create alumni office account:', err);
@@ -145,8 +148,8 @@ export default function AlumniOfficeApproval() {
   return (
     <div className="p-4 lg:p-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Alumni Office Account Management</h1>
-        <p className="text-muted-foreground">Create and manage alumni office staff accounts</p>
+        <h1 className="text-3xl font-bold">Internal Office Account Management</h1>
+        <p className="text-muted-foreground">Create and manage the six internal office roles</p>
         <div className="text-sm text-muted-foreground mt-1">
           Total Staff: {allUsers.length}
         </div>
@@ -154,8 +157,8 @@ export default function AlumniOfficeApproval() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Create Alumni Office Account</CardTitle>
-          <CardDescription>Admins can create staff accounts here (requires admin secret).</CardDescription>
+          <CardTitle>Create Internal Office Account</CardTitle>
+          <CardDescription>Admins can create staff accounts here and assign the correct internal role.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -177,6 +180,23 @@ export default function AlumniOfficeApproval() {
           <div className="space-y-2">
             <Label>Temporary Password</Label>
             <Input type="password" value={createForm.password} onChange={(e) => setCreateForm(f => ({ ...f, password: e.target.value }))} />
+          </div>
+          <div className="space-y-2">
+            <Label>Office Role</Label>
+            <select
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              title="Office Role"
+              aria-label="Office Role"
+              value={createForm.role}
+              onChange={(e) => setCreateForm(f => ({ ...f, role: e.target.value }))}
+            >
+              <option value="administrator">Administrator</option>
+              <option value="general_secretary">General Secretary</option>
+              <option value="finance">Finance</option>
+              <option value="president">President</option>
+              <option value="publicity">Publicity</option>
+              <option value="secretary_academics">Secretary Academics</option>
+            </select>
           </div>
           <div className="space-y-2">
             <Label>Admin Secret</Label>
@@ -202,7 +222,10 @@ export default function AlumniOfficeApproval() {
                       <User className="w-5 h-5" />
                       {user.full_name}
                     </CardTitle>
-                    <CardDescription className="mt-2">
+                    <CardDescription className="mt-2 flex flex-wrap items-center gap-2">
+                      <Badge variant="outline" className="capitalize">
+                        {(user.role || 'office').replace(/_/g, ' ')}
+                      </Badge>
                       {isSuspended ? (
                         <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
                           Suspended

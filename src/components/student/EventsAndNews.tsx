@@ -27,14 +27,14 @@ export function EventsAndNews({ onBack }: EventsAndNewsProps) {
             <TabsList className="h-auto w-full justify-start gap-3 rounded-none border-b border-white/25 bg-transparent p-0 shadow-none">
               <TabsTrigger
                 value="events"
-                className="gap-2 rounded-t-md border-b-2 border-transparent bg-transparent px-3 py-2 text-white/90 shadow-none hover:text-white data-[state=active]:border-[#C79A2B] data-[state=active]:bg-[#C79A2B]/20 data-[state=active]:text-white data-[state=active]:shadow-none"
+                className="gap-2 rounded-t-md border-b-2 border-transparent bg-transparent px-3 py-2 text-white/90 shadow-none hover:text-white data-[state=active]:border-white data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:shadow-none"
               >
                 <Calendar className="w-4 h-4" />
                 Events
               </TabsTrigger>
               <TabsTrigger
                 value="news"
-                className="gap-2 rounded-t-md border-b-2 border-transparent bg-transparent px-3 py-2 text-white/90 shadow-none hover:text-white data-[state=active]:border-[#C79A2B] data-[state=active]:bg-[#C79A2B]/20 data-[state=active]:text-white data-[state=active]:shadow-none"
+                className="gap-2 rounded-t-md border-b-2 border-transparent bg-transparent px-3 py-2 text-white/90 shadow-none hover:text-white data-[state=active]:border-white data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:shadow-none"
               >
                 <Newspaper className="w-4 h-4" />
                 News

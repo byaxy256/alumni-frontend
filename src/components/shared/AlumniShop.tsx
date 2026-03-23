@@ -128,127 +128,131 @@ export function AlumniShop({ title = 'Alumni Shop' }: AlumniShopProps) {
 
   if (showCart) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button onClick={() => setShowCart(false)} variant="ghost">← Back to Shop</Button>
-          <h1 className="text-2xl font-bold">Shopping Cart</h1>
-        </div>
+      <div className="w-full min-h-[calc(100vh-4rem)] bg-slate-100">
+        <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+          <div className="flex items-center gap-4">
+            <Button onClick={() => setShowCart(false)} variant="ghost">← Back to Shop</Button>
+            <h1 className="text-2xl font-bold">Shopping Cart</h1>
+          </div>
 
-        {cart.length === 0 ? (
-          <Card className="p-12 text-center">
-            <ShoppingCart className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-4">Your cart is empty</p>
-            <Button onClick={() => setShowCart(false)}>Continue Shopping</Button>
-          </Card>
-        ) : (
-          <>
-            <div className="space-y-4">
-              {cart.map(item => {
-                const product = products.find(p => p.id === item.product_id);
-                const stock = product?.stock ?? 0;
-                return (
-                  <Card key={item.product_id} className="p-4">
-                    <div className="flex gap-4 items-start">
-                      <div className="w-24 h-24 bg-muted rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
-                        {product && getProductImage(product) ? (
-                          <img src={getProductImage(product)!} alt={item.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <ImageOff className="w-6 h-6 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{item.name}</h3>
-                        <p className="text-sm text-muted-foreground">UGX {item.price.toLocaleString()} each</p>
-                        <div className="flex items-center gap-2 mt-3">
+          {cart.length === 0 ? (
+            <Card className="p-12 text-center">
+              <ShoppingCart className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-4">Your cart is empty</p>
+              <Button onClick={() => setShowCart(false)}>Continue Shopping</Button>
+            </Card>
+          ) : (
+            <>
+              <div className="space-y-4">
+                {cart.map(item => {
+                  const product = products.find(p => p.id === item.product_id);
+                  const stock = product?.stock ?? 0;
+                  return (
+                    <Card key={item.product_id} className="p-4">
+                      <div className="flex gap-4 items-start">
+                        <div className="w-24 h-24 bg-muted rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
+                          {product && getProductImage(product) ? (
+                            <img src={getProductImage(product)!} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <ImageOff className="w-6 h-6 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">{item.name}</h3>
+                          <p className="text-sm text-muted-foreground">UGX {item.price.toLocaleString()} each</p>
+                          <div className="flex items-center gap-2 mt-3">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => updateQuantity(item.product_id, item.quantity - 1, stock)}
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                            <span className="w-8 text-center font-medium">{item.quantity}</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => updateQuantity(item.product_id, item.quantity + 1, stock)}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">UGX {(item.price * item.quantity).toLocaleString()}</p>
                           <Button
                             size="sm"
-                            variant="outline"
-                            onClick={() => updateQuantity(item.product_id, item.quantity - 1, stock)}
+                            variant="ghost"
+                            className="text-destructive mt-2"
+                            onClick={() => removeFromCart(item.product_id)}
                           >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="w-8 text-center font-medium">{item.quantity}</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateQuantity(item.product_id, item.quantity + 1, stock)}
-                          >
-                            <Plus className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">UGX {(item.price * item.quantity).toLocaleString()}</p>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive mt-2"
-                          onClick={() => removeFromCart(item.product_id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-
-            <Card className="p-6 border-t-2">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-lg font-semibold">Order Total:</span>
-                <span className="text-2xl font-bold text-primary">UGX {cartTotal.toLocaleString()}</span>
+                    </Card>
+                  );
+                })}
               </div>
-              <Button
-                onClick={handleCheckout}
-                disabled={checkingOut}
-                className="w-full"
-                size="lg"
-              >
-                {checkingOut ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Place Order & Pay
-                  </>
-                )}
-              </Button>
-            </Card>
-          </>
-        )}
+
+              <Card className="p-6 border-t-2">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-semibold">Order Total:</span>
+                  <span className="text-2xl font-bold text-primary">UGX {cartTotal.toLocaleString()}</span>
+                </div>
+                <Button
+                  onClick={handleCheckout}
+                  disabled={checkingOut}
+                  className="w-full"
+                  size="lg"
+                >
+                  {checkingOut ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      Place Order & Pay
+                    </>
+                  )}
+                </Button>
+              </Card>
+            </>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 lg:py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Browse alumni-branded merchandise and products. Items added by the alumni office are visible to both students
-            and alumni here.
-          </p>
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-slate-100">
+      <div className="max-w-6xl mx-auto px-4 py-6 lg:py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Browse alumni-branded merchandise and products. Items added by the alumni office are visible to both students
+              and alumni here.
+            </p>
+          </div>
+          <Button
+            onClick={() => setShowCart(true)}
+            variant="outline"
+            className="relative bg-white"
+          >
+            <ShoppingCart className="w-4 h-4 mr-2" />
+            Cart ({cart.length})
+          </Button>
         </div>
-        <Button
-          onClick={() => setShowCart(true)}
-          variant="outline"
-          className="relative"
-        >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          Cart ({cart.length})
-        </Button>
-      </div>
 
-      <Card className="border border-border bg-card shadow-sm">
-        <CardHeader>
-          <CardTitle>Available products</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <div className="rounded-2xl bg-[#0b2a4a] p-4 md:p-6">
+          <Card className="border border-border bg-card shadow-sm">
+            <CardHeader>
+              <CardTitle>Available products</CardTitle>
+            </CardHeader>
+            <CardContent>
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading products...</p>
           ) : error ? (
@@ -304,8 +308,10 @@ export function AlumniShop({ title = 'Alumni Shop' }: AlumniShopProps) {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

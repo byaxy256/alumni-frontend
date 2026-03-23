@@ -11,6 +11,9 @@ interface DashboardStats {
     students: number;
     alumni: number;
     alumni_office: number;
+    internal_office_total?: number;
+    internal_office_breakdown?: Record<string, number>;
+    legacy_office?: number;
     admins: number;
     newLast30Days: number;
   };
@@ -121,10 +124,11 @@ export default function AdminDashboard() {
     );
   }
 
+  const officeBreakdown = stats.users.internal_office_breakdown || {};
   const userDistribution = [
     { name: 'Students', value: stats.users.students },
     { name: 'Alumni', value: stats.users.alumni },
-    { name: 'Alumni Office', value: stats.users.alumni_office },
+    { name: 'Internal Office', value: stats.users.internal_office_total ?? stats.users.alumni_office },
     { name: 'Admins', value: stats.users.admins }
   ];
 
@@ -160,6 +164,17 @@ export default function AdminDashboard() {
       change: `${stats.disbursements.totalCount} total`,
       icon: TrendingUp,
       color: 'text-purple-600'
+    },
+    {
+      label: 'Internal Office',
+      value: String(stats.users.internal_office_total ?? stats.users.alumni_office ?? 0),
+      change: `${Object.entries(officeBreakdown)
+        .filter(([, value]) => Number(value) > 0)
+        .map(([role, value]) => `${value} ${role.replace(/_/g, ' ')}`)
+        .slice(0, 2)
+        .join(' • ') || '6 role structure active'}`,
+      icon: UserCheck,
+      color: 'text-indigo-600'
     },
     {
       label: 'Active Mentorships',
@@ -268,7 +283,7 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle>User Distribution</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -288,6 +303,22 @@ export default function AdminDashboard() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            {Object.keys(officeBreakdown).length > 0 && (
+              <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                {Object.entries(officeBreakdown).map(([role, count]) => (
+                  <div key={role} className="rounded-lg border border-border px-3 py-2">
+                    <span className="font-medium text-foreground">{role.replace(/_/g, ' ')}</span>
+                    <span className="ml-2">{count}</span>
+                  </div>
+                ))}
+                {(stats.users.legacy_office || 0) > 0 && (
+                  <div className="rounded-lg border border-border px-3 py-2">
+                    <span className="font-medium text-foreground">legacy office</span>
+                    <span className="ml-2">{stats.users.legacy_office}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
