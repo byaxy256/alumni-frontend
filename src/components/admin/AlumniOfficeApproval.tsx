@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Mail, Phone, User, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import { apiCall } from '../../api';
+import { API_BASE, apiCall } from '../../api';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
@@ -95,7 +95,7 @@ export default function AlumniOfficeApproval() {
     try {
       setCreating(true);
       const token = localStorage.getItem('token') || '';
-      const payload = {
+      const staffPayload = {
         full_name: createForm.fullName,
         email: createForm.email,
         phone: createForm.phone || '',
@@ -104,7 +104,56 @@ export default function AlumniOfficeApproval() {
         staff_id: createForm.staffId || '',
         adminSecret: createForm.adminSecret || '',
       };
-      await apiCall('/admin/office-accounts', 'POST', payload, token || undefined);
+
+      const createViaLegacyRegister = async () => {
+        const legacyPayload = {
+          full_name: createForm.fullName,
+          email: createForm.email,
+          phone: createForm.phone || '',
+          password: createForm.password,
+          role: createForm.role,
+          adminSecret: createForm.adminSecret || '',
+          meta: {
+            staff_id: createForm.staffId || '',
+            approved: true,
+            suspended: false,
+            office_role: createForm.role,
+          },
+        };
+
+        const legacyRes = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(legacyPayload),
+        });
+
+        const legacyData = await legacyRes.json().catch(() => ({}));
+        if (!legacyRes.ok) {
+          throw new Error(legacyData.error || legacyData.message || 'Failed to create account');
+        }
+      };
+
+      const response = await fetch(`${API_BASE}/admin/office-accounts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(staffPayload),
+      });
+
+      if (response.status === 404) {
+        await createViaLegacyRegister();
+      } else {
+        const responseData = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(responseData.error || responseData.message || 'Failed to create account');
+        }
+      }
+
       toast.success('Office account created successfully.');
       setCreateForm({ fullName: '', email: '', phone: '', staffId: '', password: '', adminSecret: '', role: 'administrator' });
       await loadAllAlumniOffice();
