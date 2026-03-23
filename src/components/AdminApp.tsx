@@ -21,7 +21,7 @@ import {
 } from './ui/dropdown-menu';
 
 export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'alumni-approval' | 'fund-requests' | 'orders'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'office-accounts' | 'fund-requests' | 'orders'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -29,7 +29,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
     { id: 'reports' as const, label: 'Reports & Analytics', icon: BarChart3 },
     { id: 'config' as const, label: 'System Config', icon: Settings },
     { id: 'users' as const, label: 'User Management', icon: Users },
-    { id: 'alumni-approval' as const, label: 'Alumni Office Approval', icon: UserCheck },
+    { id: 'office-accounts' as const, label: 'Internal Office Accounts', icon: UserCheck },
     { id: 'fund-requests' as const, label: 'Requested Funds', icon: DollarSign },
     { id: 'orders' as const, label: 'Shop Orders', icon: ShoppingCart },
     { id: 'disbursements' as const, label: 'Disbursements', icon: CreditCard },
@@ -127,7 +127,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
         {currentView === 'reports' && <AdminReports />}
         {currentView === 'config' && <SystemConfig />}
         {currentView === 'users' && <UserRoleManagement />}
-        {currentView === 'alumni-approval' && <AlumniOfficeApproval />}
+        {currentView === 'office-accounts' && <AlumniOfficeApproval />}
         {currentView === 'disbursements' && <DisbursementApproval />}
         {currentView === 'audit' && <AuditLegal />}
         {currentView === 'fund-requests' && <AdminFundRequests />}

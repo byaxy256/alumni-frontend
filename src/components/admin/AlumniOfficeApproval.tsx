@@ -148,8 +148,8 @@ export default function AlumniOfficeApproval() {
   return (
     <div className="p-4 lg:p-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Internal Office Account Management</h1>
-        <p className="text-muted-foreground">Create and manage the six internal office roles</p>
+        <h1 className="text-3xl font-bold">Internal Office Accounts</h1>
+        <p className="text-muted-foreground">Create and manage the six internal office roles from here.</p>
         <div className="text-sm text-muted-foreground mt-1">
           Total Staff: {allUsers.length}
         </div>
@@ -157,8 +157,22 @@ export default function AlumniOfficeApproval() {
 
       <Card>
         <CardHeader>
+          <CardTitle>How Staff Access Their Accounts</CardTitle>
+          <CardDescription>These are real accounts created by admin. Staff do not register from the public signup page.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-muted-foreground">
+          <p>1. Create the account here and assign one of the six office roles.</p>
+          <p>2. Give the staff member their email or phone plus the temporary password you set.</p>
+          <p>3. They use the normal sign in page.</p>
+          <p>4. On first login, the system asks for the admin secret, then forces them to set a new permanent password.</p>
+          <p>5. After that, they sign in normally and go straight to the correct role dashboard automatically.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Create Internal Office Account</CardTitle>
-          <CardDescription>Admins can create staff accounts here and assign the correct internal role.</CardDescription>
+          <CardDescription>Admins create staff accounts here. Public signup remains only for students and alumni.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
