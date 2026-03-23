@@ -494,7 +494,26 @@ export default function ContentManagement() {
 
     return (
       <Card className={`group overflow-hidden shadow-md border rounded-2xl ${cardTone}`}>
-        <div className="flex flex-col md:flex-row items-stretch">
+        {/* Keep a single-row layout on all screen sizes. Image stays extreme-left. */}
+        <div className="flex flex-row items-stretch">
+          <div className="relative w-[160px] h-[110px] sm:w-[190px] sm:h-[120px] md:w-[260px] md:h-[155px] shrink-0 bg-slate-100 border-r border-black/10 overflow-hidden">
+            {imgSrc ? (
+              <img
+                src={imgSrc}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
+                <ImageIcon className="w-10 h-10 opacity-40" />
+                <span className="text-[0.72rem] font-medium">No image</span>
+              </div>
+            )}
+          </div>
+
           <CardContent className="p-4 md:p-5 space-y-3 flex-1">
             <div className="flex flex-wrap gap-2">
               <Badge className={item.published ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-amber-600 hover:bg-amber-600'}>
@@ -538,24 +557,6 @@ export default function ContentManagement() {
               </Button>
             </div>
           </CardContent>
-
-          <div className="relative h-48 md:h-auto md:w-[320px] md:min-w-[320px] bg-slate-100 border-t md:border-t-0 md:border-l border-black/10">
-            {imgSrc ? (
-              <img
-                src={imgSrc}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
-                <ImageIcon className="w-12 h-12 opacity-40" />
-                <span className="text-xs font-medium">No image</span>
-              </div>
-            )}
-          </div>
         </div>
       </Card>
     );
