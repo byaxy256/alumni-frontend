@@ -4041,6 +4041,27 @@ body {
 .bg-blue-500,
 .bg-blue-600,
 .bg-blue-700 { background-color: var(--brand-blue) !important; }
+
+/* Ensure readability: any blue surface should use white foreground text/icons */
+.bg-\[\#0b2a4a\],
+.bg-\[var\(--brand-blue\)\],
+.bg-blue-500,
+.bg-blue-600,
+.bg-blue-700,
+[style*="background-color: #0b2a4a"],
+[style*="background-color:#0b2a4a"] {
+  color: #ffffff !important;
+}
+
+.bg-\[\#0b2a4a\] *,
+.bg-\[var\(--brand-blue\)\] *,
+.bg-blue-500 *,
+.bg-blue-600 *,
+.bg-blue-700 *,
+[style*="background-color: #0b2a4a"] *,
+[style*="background-color:#0b2a4a"] * {
+  color: #ffffff;
+}
 .text-blue-500,
 .text-blue-600,
 .text-blue-700,
