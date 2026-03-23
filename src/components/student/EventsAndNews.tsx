@@ -24,17 +24,17 @@ export function EventsAndNews({ onBack }: EventsAndNewsProps) {
           <h1 className="text-xl font-semibold text-white">Events & News</h1>
           <p className="text-sm text-white/75 mt-0.5">Join events and read the latest updates</p>
           <Tabs value={tab} onValueChange={(v) => setTab(v as 'events' | 'news')} className="mt-4">
-            <TabsList className="h-auto w-full justify-start gap-6 rounded-none border-b border-black/30 bg-transparent p-0 shadow-none">
+            <TabsList className="h-auto w-full justify-start gap-3 rounded-none border-b border-white/25 bg-transparent p-0 shadow-none">
               <TabsTrigger
                 value="events"
-                className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-0 pb-2.5 pt-0 text-white/85 shadow-none hover:text-white data-[state=active]:border-[#C79A2B] data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none"
+                className="gap-2 rounded-t-md border-b-2 border-transparent bg-transparent px-3 py-2 text-white/90 shadow-none hover:text-white data-[state=active]:border-[#C79A2B] data-[state=active]:bg-[#C79A2B]/20 data-[state=active]:text-white data-[state=active]:shadow-none"
               >
                 <Calendar className="w-4 h-4" />
                 Events
               </TabsTrigger>
               <TabsTrigger
                 value="news"
-                className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-0 pb-2.5 pt-0 text-white/85 shadow-none hover:text-white data-[state=active]:border-[#C79A2B] data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none"
+                className="gap-2 rounded-t-md border-b-2 border-transparent bg-transparent px-3 py-2 text-white/90 shadow-none hover:text-white data-[state=active]:border-[#C79A2B] data-[state=active]:bg-[#C79A2B]/20 data-[state=active]:text-white data-[state=active]:shadow-none"
               >
                 <Newspaper className="w-4 h-4" />
                 News
