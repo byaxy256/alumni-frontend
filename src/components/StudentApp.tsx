@@ -10,7 +10,6 @@ import { StudentFund } from './student/StudentFund';
 import { EventsAndNews } from './student/EventsAndNews';
 import type { User } from '../App';
 import { Home, FileText, DollarSign, History, Users, Bell, User as UserIcon, Wallet, Calendar, ShoppingBag, Menu, LogOut } from 'lucide-react';
-import { ThemeToggle } from './ui/ThemeToggle';
 import { AlumniShop } from './shared/AlumniShop';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 import { Button } from './ui/button';
@@ -96,12 +95,11 @@ export const StudentApp = ({ user, onLogout }: { user: User; onLogout: () => voi
     <div className="min-h-screen flex" style={{ background: 'var(--background)' }}>
       <aside className="hidden md:flex md:flex-col w-64 bg-[#0b2a4a] fixed h-screen shadow-xl">
         <div className="p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-start">
             <div>
               <h1 className="text-white">Alumni circle</h1>
               <p className="text-sm text-white/80 mt-1">Student Portal</p>
             </div>
-            <ThemeToggle />
           </div>
         </div>
         <nav className="flex-1 p-4 overflow-y-auto">
