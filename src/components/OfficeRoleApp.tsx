@@ -28,6 +28,7 @@ import {
 } from './ui/dropdown-menu';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 import type { User } from '../App';
+import { AlumniOfficeApp } from './AlumniOfficeApp';
 import { OfficeOverview } from './office/OfficeOverview';
 import { FundWorkflowQueue } from './office/FundWorkflowQueue';
 import { SecretaryAcademicsPanel } from './office/SecretaryAcademicsPanel';
@@ -147,6 +148,16 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const role = normalizeRole(user.role);
+  if (role === 'administrator') {
+    return (
+      <AlumniOfficeApp
+        user={user}
+        onLogout={onLogout}
+        headerTitle="Administrator Dashboard"
+        headerSubtitle={`Internal Office Administrator · ${user.name || user.full_name || user.email || 'Staff'}`}
+      />
+    );
+  }
   const navigationItems = useMemo(() => getNavigation(role), [role]);
   const roleLabel = roleLabels[role];
   const displayName = user.name || user.full_name || user.email || 'Staff';

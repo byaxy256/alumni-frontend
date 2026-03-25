@@ -23,9 +23,20 @@ import { AlumniFundRequest } from './AlumniFundRequest';
 
 type AlumniScreen = 'dashboard' | 'applications' | 'import' | 'broadcast' | 'projects' | 'merch' | 'footprints' | 'reports' | 'manage-content' | 'fund-request';
 
-export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
+export const AlumniOfficeApp = ({
+  user,
+  onLogout,
+  headerTitle = 'Alumni Circle Office Staff',
+  headerSubtitle,
+}: {
+  user: User;
+  onLogout: () => void;
+  headerTitle?: string;
+  headerSubtitle?: string;
+}) => {
   const [currentScreen, setCurrentScreen] = useState<AlumniScreen>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const resolvedSubtitle = headerSubtitle || user.name || user.full_name || user.email || '';
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
@@ -80,8 +91,8 @@ export const AlumniOfficeApp = ({ user, onLogout }: { user: User; onLogout: () =
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="w-10 h-10" />
             <div>
-              <h1 className="text-sm text-white">Alumni Circle Office Staff</h1>
-              <p className="text-xs text-white/80">{user.name}</p>
+              <h1 className="text-sm text-white">{headerTitle}</h1>
+              <p className="text-xs text-white/80">{resolvedSubtitle}</p>
             </div>
           </div>
 
