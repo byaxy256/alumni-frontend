@@ -30,8 +30,10 @@ type OfficeRole =
   | 'general_secretary'
   | 'finance'
   | 'president'
+  | 'vice_president'
   | 'publicity'
-  | 'secretary_academics';
+  | 'secretary_academics'
+  | 'projects_manager';
 
 interface OfficeNavItem {
   id: string;
@@ -43,6 +45,7 @@ interface OfficeNavItem {
 
 interface OfficeOverviewProps {
   role: OfficeRole;
+  displayName: string;
   navigationItems: OfficeNavItem[];
   onNavigate: (screen: string) => void;
 }
@@ -82,104 +85,98 @@ const roleCopy: Record<
     title: string;
     subtitle: string;
     icon: any;
-    responsibilities: string[];
   }
 > = {
   administrator: {
     title: 'Administrator Dashboard',
-    subtitle: 'Daily office operations, first review queue, and the full alumni office toolset.',
+    subtitle: 'Main operations center for applications, requests, and internal coordination.',
     icon: Wallet,
-    responsibilities: [
-      'Handle the first review of student fund requests.',
-      'Run day-to-day office operations and application follow-up.',
-      'Access the full alumni office operations modules from one dashboard.',
-    ],
   },
   general_secretary: {
     title: 'General Secretary Dashboard',
-    subtitle: 'Oversight review, comments, and second-stage accountability in the fund workflow.',
+    subtitle: 'Operational approvals and second-stage workflow accountability.',
     icon: FileCheck,
-    responsibilities: [
-      'Review only administrator-approved requests.',
-      'Add comments and oversight guidance before finance review.',
-      'Track queue health and request movement across the office.',
-    ],
   },
   finance: {
     title: 'Finance Dashboard',
-    subtitle: 'Handle financial readiness review and final disbursement recording in separate queues.',
+    subtitle: 'Finance review, disbursements, and transaction control in one workspace.',
     icon: Wallet,
-    responsibilities: [
-      'Check whether funds are available before executive approval.',
-      'Record disbursement details after presidential approval.',
-      'Watch fund totals, disbursement activity, and finance reporting.',
-    ],
   },
   president: {
     title: 'President Dashboard',
-    subtitle: 'Executive oversight of finance-cleared requests without editing operational content.',
+    subtitle: 'Executive approval center for high-priority reviews and release decisions.',
     icon: Bell,
-    responsibilities: [
-      'Review only requests that finance has already cleared.',
-      'Approve or reject release decisions with executive comments.',
-      'Track high-level office and fund status from a single view.',
-    ],
+  },
+  vice_president: {
+    title: 'Vice President Dashboard',
+    subtitle: 'Executive fallback approval center with the same review authority.',
+    icon: Bell,
   },
   publicity: {
     title: 'Publicity Dashboard',
-    subtitle: 'Manage communication, announcements, events, and public-facing alumni messaging.',
+    subtitle: 'Newsroom, announcements, communications, and event visibility operations.',
     icon: Megaphone,
-    responsibilities: [
-      'Create and publish news, announcements, and public updates.',
-      'Manage event visibility and public communication workflows.',
-      'Run broadcasts and watch communication activity from one dashboard.',
-    ],
   },
   secretary_academics: {
     title: 'Secretary Academics Dashboard',
-    subtitle: 'Academic verification, transcript handling, and mentorship application review.',
+    subtitle: 'Academic verification, transcript workflow, and mentorship decisions.',
     icon: GraduationCap,
-    responsibilities: [
-      'Verify academic documents for student benefit applications.',
-      'Handle the transcript holder program and track statuses.',
-      'Review mentorship applications before they move forward.',
-    ],
+  },
+  projects_manager: {
+    title: 'Projects Manager Dashboard',
+    subtitle: 'Project portfolio management, milestone tracking, and delivery updates.',
+    icon: Users,
   },
 };
 
 const quickActionsByRole: Record<OfficeRole, Array<{ label: string; target: string }>> = {
   administrator: [
-    { label: 'Open first review queue', target: 'fund-queue' },
-    { label: 'Review full applications list', target: 'applications' },
-    { label: 'Request office funds', target: 'fund-request' },
+    { label: 'Open applications queue', target: 'applications' },
+    { label: 'Open request funds module', target: 'request-funds' },
+    { label: 'Review notifications', target: 'notifications' },
     { label: 'Open reports', target: 'reports' },
   ],
   general_secretary: [
-    { label: 'Open oversight queue', target: 'fund-queue' },
-    { label: 'Check latest reviewed case', target: 'fund-queue' },
+    { label: 'Open approvals queue', target: 'approvals' },
+    { label: 'Inspect applications', target: 'applications' },
+    { label: 'Open request funds', target: 'request-funds' },
     { label: 'View oversight reports', target: 'reports' },
   ],
   finance: [
     { label: 'Open finance review', target: 'finance-review' },
-    { label: 'Open disbursement queue', target: 'finance-disbursement' },
+    { label: 'Open disbursements', target: 'disbursements' },
+    { label: 'View transactions', target: 'transactions' },
     { label: 'View finance reports', target: 'reports' },
   ],
   president: [
-    { label: 'Open executive queue', target: 'fund-queue' },
-    { label: 'Review release decisions', target: 'fund-queue' },
+    { label: 'Open executive review', target: 'executive-review' },
+    { label: 'Review fund requests', target: 'fund-requests' },
+    { label: 'View oversight reports', target: 'reports' },
+  ],
+  vice_president: [
+    { label: 'Open executive review', target: 'executive-review' },
+    { label: 'Review fund requests', target: 'fund-requests' },
     { label: 'View oversight reports', target: 'reports' },
   ],
   publicity: [
-    { label: 'Manage announcements', target: 'content' },
-    { label: 'Open event tools', target: 'merch' },
-    { label: 'Start a broadcast', target: 'broadcast' },
+    { label: 'Manage news', target: 'news' },
+    { label: 'Open events', target: 'events' },
+    { label: 'Publish announcements', target: 'announcements' },
+    { label: 'Start communications', target: 'communications' },
     { label: 'View publicity reports', target: 'reports' },
   ],
   secretary_academics: [
-    { label: 'Review academic documents', target: 'academic' },
+    { label: 'Review academic verification', target: 'academic-verification' },
+    { label: 'Review student benefits', target: 'student-benefit-reviews' },
     { label: 'Manage transcript cases', target: 'transcript' },
     { label: 'Open mentorship review', target: 'mentorship' },
     { label: 'View academic reports', target: 'reports' },
+  ],
+  projects_manager: [
+    { label: 'Open projects module', target: 'projects' },
+    { label: 'Review milestones', target: 'milestones' },
+    { label: 'Post project updates', target: 'updates' },
+    { label: 'View project reports', target: 'reports' },
   ],
 };
 
@@ -195,7 +192,7 @@ function EmptyChartState({ label }: { label: string }) {
   );
 }
 
-export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOverviewProps) {
+export function OfficeOverview({ role, displayName, navigationItems, onNavigate }: OfficeOverviewProps) {
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<Record<string, number>>({});
   const [roleQueues, setRoleQueues] = useState<{ primary: QueueItem[]; secondary: QueueItem[] }>({ primary: [], secondary: [] });
@@ -216,7 +213,7 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
         if (cancelled) return;
         setSummary(summaryResponse?.summary || {});
 
-        if (role === 'general_secretary' || role === 'president') {
+        if (role === 'administrator' || role === 'general_secretary' || role === 'president' || role === 'vice_president') {
           const queueItems = await apiCall('/office/fund-workflow', 'GET');
           if (!cancelled) {
             setRoleQueues({ primary: Array.isArray(queueItems) ? queueItems : [], secondary: [] });
@@ -256,6 +253,20 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
               mentorship: Array.isArray(mentorship) ? mentorship : [],
             });
           }
+        } else if (role === 'projects_manager') {
+          try {
+            const projects = await apiCall('/office/projects', 'GET');
+            if (!cancelled) {
+              setRoleQueues({
+                primary: Array.isArray(projects) ? projects : [],
+                secondary: [],
+              });
+            }
+          } catch {
+            if (!cancelled) {
+              setRoleQueues({ primary: [], secondary: [] });
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to load office dashboard summary:', error);
@@ -283,6 +294,36 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
   const tools = navigationItems.filter((item) => item.id !== 'dashboard');
 
   const dashboardData = useMemo(() => {
+    if (role === 'administrator') {
+      const items = roleQueues.primary;
+      const typeCounts = ['loan', 'support', 'student_benefit'].map((type) => ({
+        name: type.replace(/_/g, ' '),
+        value: items.filter((item) => item.type === type).length,
+      }));
+
+      return {
+        cards: [
+          { label: 'Pending Applications', value: summary.pending_fund_applications || items.length, helper: 'applications waiting operational handling' },
+          { label: 'Approved Applications', value: summary.approved_fund_applications || 0, helper: 'applications approved across workflows' },
+          { label: 'Rejected Applications', value: summary.rejected_fund_applications || 0, helper: 'applications rejected at any stage' },
+          { label: 'Total Beneficiaries', value: summary.total_recipients || 0, helper: 'students who received support or loans' },
+          { label: 'Available Funds', value: `UGX ${Number(summary.total_fund_balance || 0).toLocaleString()}`, helper: 'current net available fund balance' },
+          { label: 'Total Disbursed', value: `UGX ${Number(summary.total_disbursed || 0).toLocaleString()}`, helper: 'total amount disbursed to beneficiaries' },
+        ],
+        primaryChartTitle: 'Application Trends by Type',
+        primaryChartType: 'bar' as const,
+        primaryChartData: typeCounts,
+        primaryDataKey: 'value',
+        secondaryChartTitle: 'Workflow Status Mix',
+        secondaryChartType: 'pie' as const,
+        secondaryChartData: [
+          { name: 'Pending', value: summary.pending_fund_applications || items.length },
+          { name: 'Approved', value: summary.approved_fund_applications || 0 },
+          { name: 'Rejected', value: summary.rejected_fund_applications || 0 },
+        ].filter((item) => item.value > 0),
+      };
+    }
+
     if (role === 'general_secretary') {
       const items = roleQueues.primary;
       const typeCounts = ['loan', 'support', 'student_benefit'].map((type) => ({
@@ -298,16 +339,18 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
 
       return {
         cards: [
-          { label: 'Oversight Queue', value: items.length, helper: 'administrator-approved requests waiting for review' },
-          { label: 'Loan Cases', value: items.filter((item) => item.type === 'loan').length, helper: 'loan requests at secretary stage' },
-          { label: 'Support & Benefit', value: items.filter((item) => item.type !== 'loan').length, helper: 'support and benefit cases to comment on' },
-          { label: 'Queue Value', value: `UGX ${sumRequestedAmount(items).toLocaleString()}`, helper: 'total requested amount awaiting oversight' },
+          { label: 'Pending Applications', value: items.length, helper: 'requests awaiting secretary review' },
+          { label: 'Pending Fund Requests', value: items.length, helper: 'fund requests currently in your queue' },
+          { label: 'Approved by Administrator', value: items.length, helper: 'cases moved from administrator stage' },
+          { label: 'Total Commented Cases', value: items.filter((item: any) => Object.values(item?.comments || {}).some(Boolean)).length, helper: 'cases with workflow comments attached' },
+          { label: 'Reviewed This Month', value: summary.general_secretary_reviewed_this_month || 0, helper: 'monthly throughput for secretary reviews' },
+          { label: 'Queue Value', value: `UGX ${sumRequestedAmount(items).toLocaleString()}`, helper: 'requested value currently awaiting review' },
         ],
-        primaryChartTitle: 'Oversight Queue by Request Type',
+        primaryChartTitle: 'Application Trends by Type',
         primaryChartType: 'bar' as const,
         primaryChartData: typeCounts,
         primaryDataKey: 'value',
-        secondaryChartTitle: 'Requested Amount by Type',
+        secondaryChartTitle: 'Requests Awaiting Review Value',
         secondaryChartType: 'pie' as const,
         secondaryChartData: amountByType.filter((item) => item.value > 0),
       };
@@ -344,7 +387,7 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
       };
     }
 
-    if (role === 'president') {
+    if (role === 'president' || role === 'vice_president') {
       const items = roleQueues.primary;
       const typeCounts = ['loan', 'support', 'student_benefit'].map((type) => ({
         name: type.replace(/_/g, ' '),
@@ -357,19 +400,54 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
 
       return {
         cards: [
-          { label: 'Executive Queue', value: items.length, helper: 'finance-cleared requests waiting on executive action' },
-          { label: 'Total Queue Value', value: `UGX ${sumRequestedAmount(items).toLocaleString()}`, helper: 'amount awaiting presidential decision' },
-          { label: 'Unread Notifications', value: summary.unread_notifications || 0, helper: 'workflow updates and student communication' },
-          { label: 'Total Fund Applications', value: summary.total_fund_applications || 0, helper: 'full office workflow volume' },
+          { label: 'Pending Executive Reviews', value: items.length, helper: 'finance-cleared requests waiting decision' },
+          { label: 'Approved Releases', value: summary.executive_approved || 0, helper: 'requests approved at executive stage' },
+          { label: 'Rejected Requests', value: summary.executive_rejected || 0, helper: 'requests rejected by executive review' },
+          { label: 'Total Reviewed', value: summary.executive_reviewed_total || items.length, helper: 'all executive-reviewed requests this period' },
+          { label: 'Queue Value', value: `UGX ${sumRequestedAmount(items).toLocaleString()}`, helper: 'requested value awaiting decision' },
+          { label: 'Unread Notifications', value: summary.unread_notifications || 0, helper: 'new comments and workflow updates' },
         ],
         primaryChartTitle: 'Executive Queue by Request Type',
         primaryChartType: 'bar' as const,
         primaryChartData: typeCounts,
         primaryDataKey: 'value',
-        secondaryChartTitle: 'Decision Focus',
+        secondaryChartTitle: 'Executive Decision Mix',
         secondaryChartType: 'pie' as const,
         secondaryChartData: statusCounts,
       };
+        if (role === 'projects_manager') {
+          const projects = roleQueues.primary;
+          const active = projects.filter((item: any) => ['active', 'in_progress'].includes(String((item as any)?.status || ''))).length;
+          const completed = projects.filter((item: any) => String((item as any)?.status || '') === 'completed').length;
+          const delayed = projects.filter((item: any) => ['delayed', 'blocked'].includes(String((item as any)?.status || ''))).length;
+          const budgetTracked = projects.reduce((sum: number, item: any) => sum + Number((item as any)?.budget || (item as any)?.requested_amount || 0), 0);
+
+          return {
+            cards: [
+              { label: 'Total Projects', value: projects.length, helper: 'projects under office portfolio tracking' },
+              { label: 'Active Projects', value: active, helper: 'projects currently being executed' },
+              { label: 'Completed Projects', value: completed, helper: 'projects closed successfully' },
+              { label: 'Delayed Projects', value: delayed, helper: 'projects needing escalation or recovery' },
+              { label: 'Total Budget Tracked', value: `UGX ${budgetTracked.toLocaleString()}`, helper: 'sum of tracked budgets across projects' },
+              { label: 'Notifications', value: summary.unread_notifications || 0, helper: 'project alerts and pending updates' },
+            ],
+            primaryChartTitle: 'Project Status Distribution',
+            primaryChartType: 'bar' as const,
+            primaryChartData: [
+              { name: 'Active', value: active },
+              { name: 'Completed', value: completed },
+              { name: 'Delayed', value: delayed },
+            ],
+            primaryDataKey: 'value',
+            secondaryChartTitle: 'Budget vs Volume',
+            secondaryChartType: 'pie' as const,
+            secondaryChartData: [
+              { name: 'Budget Tracked', value: budgetTracked },
+              { name: 'Project Count', value: projects.length },
+            ].filter((item) => item.value > 0),
+          };
+        }
+
     }
 
     if (role === 'publicity') {
@@ -449,11 +527,76 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
   }, [role, roleQueues, contentItems, academicData, summary]);
 
   const roleActions = quickActionsByRole[role];
+  const recentRows = useMemo(() => {
+    if (['administrator', 'general_secretary', 'finance', 'president', 'vice_president'].includes(role)) {
+      return roleQueues.primary.slice(0, 6).map((item) => ({
+        name: (item as any).student_name || (item as any).access_number || item.id,
+        type: item.type || 'request',
+        status: item.overall_status || 'pending',
+        value: Number(item.requested_amount || 0),
+      }));
+    }
+    if (role === 'publicity') {
+      return contentItems.news.slice(0, 6).map((item) => ({
+        name: item.title || 'Untitled post',
+        type: 'news',
+        status: item.published ? 'published' : 'draft',
+        value: 0,
+      }));
+    }
+    if (role === 'secretary_academics') {
+      return academicData.academic.slice(0, 6).map((item, index) => ({
+        name: `Academic Case ${index + 1}`,
+        type: 'verification',
+        status: item.academic_verification_status || 'pending',
+        value: 0,
+      }));
+    }
+    return roleQueues.primary.slice(0, 6).map((item: any, index) => ({
+      name: item.name || item.title || `Project ${index + 1}`,
+      type: 'project',
+      status: item.status || 'active',
+      value: Number(item.budget || 0),
+    }));
+  }, [role, roleQueues, contentItems, academicData]);
+
+  const awaitingRows = useMemo(() => {
+    if (role === 'finance') {
+      return roleQueues.secondary.slice(0, 6).map((item) => ({
+        name: (item as any).student_name || (item as any).access_number || item.id,
+        type: item.type || 'request',
+        status: item.overall_status || 'pending',
+        value: Number(item.requested_amount || 0),
+      }));
+    }
+    if (role === 'publicity') {
+      return contentItems.events.slice(0, 6).map((item) => ({
+        name: item.title || 'Untitled event',
+        type: 'event',
+        status: item.published ? 'published' : 'draft',
+        value: 0,
+      }));
+    }
+    if (role === 'secretary_academics') {
+      return academicData.mentorship.slice(0, 6).map((item, index) => ({
+        name: `Mentorship ${index + 1}`,
+        type: 'mentorship',
+        status: item.mentorship_application_status || 'pending',
+        value: 0,
+      }));
+    }
+    return roleQueues.primary.slice(0, 6).map((item) => ({
+      name: (item as any).student_name || (item as any).access_number || item.id,
+      type: item.type || 'request',
+      status: item.current_stage || item.overall_status || 'pending',
+      value: Number(item.requested_amount || 0),
+    }));
+  }, [role, roleQueues, contentItems, academicData]);
 
   return (
     <div className="space-y-6 p-4 lg:p-8 lg:pb-10">
       <section className="rounded-3xl bg-[#0b2a4a] text-white shadow-lg">
-        <div className="grid gap-6 p-6 lg:grid-cols-[1.5fr,1fr] lg:p-8">
+        <div className="grid gap-6 p-6 lg:p-8">
           <div className="space-y-4">
             <Badge className="w-fit bg-[#d4a62a] text-[#2b1d0e] hover:bg-[#d4a62a]">
               Internal Office
@@ -465,23 +608,10 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
               <div className="space-y-2">
                 <h2 className="text-2xl font-semibold lg:text-3xl">{roleMeta.title}</h2>
                 <p className="max-w-2xl text-sm text-white/80 lg:text-base">{roleMeta.subtitle}</p>
+                <p className="text-sm text-white/90">Welcome back, {displayName.split(' ')[0]}!</p>
               </div>
             </div>
           </div>
-
-          <Card className="border-white/10 bg-white/10 text-white shadow-none backdrop-blur-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Role Focus</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-white/85">
-              {roleMeta.responsibilities.map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <div className="mt-1 h-2 w-2 rounded-full bg-[#d4a62a]" />
-                  <p>{item}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </div>
       </section>
 
@@ -574,9 +704,73 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr,0.9fr]">
+        <Card className="border-border/60 bg-card shadow-sm xl:col-span-2">
+          <CardHeader>
+            <CardTitle>{role === 'general_secretary' ? 'Recent Applications' : 'Recent Work Items'}</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr className="border-b border-border/70 text-muted-foreground">
+                  <th className="py-2 text-left font-medium">Item</th>
+                  <th className="py-2 text-left font-medium">Type</th>
+                  <th className="py-2 text-left font-medium">Status</th>
+                  <th className="py-2 text-right font-medium">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentRows.length ? recentRows.map((row) => (
+                  <tr key={`${row.name}-${row.type}`} className="border-b border-border/40">
+                    <td className="py-3">{row.name}</td>
+                    <td className="py-3 capitalize text-muted-foreground">{row.type.replace(/_/g, ' ')}</td>
+                    <td className="py-3 capitalize">{row.status.replace(/_/g, ' ')}</td>
+                    <td className="py-3 text-right">{row.value ? `UGX ${row.value.toLocaleString()}` : '—'}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td className="py-4 text-muted-foreground" colSpan={4}>No recent records found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 bg-card shadow-sm xl:col-span-2">
+          <CardHeader>
+            <CardTitle>{role === 'general_secretary' ? 'Requests Awaiting Review' : 'Pending Queue'}</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr className="border-b border-border/70 text-muted-foreground">
+                  <th className="py-2 text-left font-medium">Item</th>
+                  <th className="py-2 text-left font-medium">Type</th>
+                  <th className="py-2 text-left font-medium">Stage</th>
+                  <th className="py-2 text-right font-medium">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {awaitingRows.length ? awaitingRows.map((row) => (
+                  <tr key={`${row.name}-${row.status}`} className="border-b border-border/40">
+                    <td className="py-3">{row.name}</td>
+                    <td className="py-3 capitalize text-muted-foreground">{row.type.replace(/_/g, ' ')}</td>
+                    <td className="py-3 capitalize">{row.status.replace(/_/g, ' ')}</td>
+                    <td className="py-3 text-right">{row.value ? `UGX ${row.value.toLocaleString()}` : '—'}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td className="py-4 text-muted-foreground" colSpan={4}>No pending records found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+
         <Card className="border-border/60 bg-card shadow-sm">
           <CardHeader>
-            <CardTitle>Role Tools</CardTitle>
+            <CardTitle>Operational Modules</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             {tools.map((tool) => {
@@ -617,39 +811,6 @@ export function OfficeOverview({ role, navigationItems, onNavigate }: OfficeOver
         </Card>
       </div>
 
-      {role === 'secretary_academics' && (
-        <Card className="border-border/60 bg-card shadow-sm">
-          <CardContent className="flex items-start gap-4 p-5">
-            <Users className="mt-1 h-5 w-5 text-[#8A1F3A]" />
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Mentorship applications now pass through secretary academics screening before they move to mentor engagement.</p>
-              <p>Academic verification comments and transcript decisions should be entered clearly so students can track outcomes on their dashboard.</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {role === 'publicity' && (
-        <Card className="border-border/60 bg-card shadow-sm">
-          <CardContent className="flex items-start gap-4 p-5">
-            <Megaphone className="mt-1 h-5 w-5 text-[#8A1F3A]" />
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Publicity only sees PR-focused tools here: communication content, event visibility, and broadcasting.</p>
-              <p>Fund approval queues stay hidden so this dashboard remains focused on communication work.</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {role === 'finance' && (
-        <Card className="border-border/60 bg-card shadow-sm">
-          <CardContent className="space-y-2 p-5 text-sm text-muted-foreground">
-            <p>Finance is split into two separate working areas on purpose:</p>
-            <p>1. Finance Review checks readiness before presidential approval.</p>
-            <p>2. Disbursement records the actual release after approval.</p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

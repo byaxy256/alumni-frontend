@@ -15,8 +15,10 @@ type OfficeRole =
   | 'general_secretary'
   | 'finance'
   | 'president'
+  | 'vice_president'
   | 'publicity'
-  | 'secretary_academics';
+  | 'secretary_academics'
+  | 'projects_manager';
 
 type QueueMode = 'default' | 'review' | 'disbursement';
 
@@ -59,11 +61,12 @@ interface FundWorkflowQueueProps {
 }
 
 const queueTitle: Record<string, string> = {
-  administrator: 'Administrator First Review',
-  general_secretary: 'General Secretary Oversight Queue',
-  president: 'President Executive Queue',
+  administrator: 'Administrator Request Funds Queue',
+  general_secretary: 'General Secretary Approvals Queue',
+  president: 'President Executive Review Queue',
+  vice_president: 'Vice President Executive Review Queue',
   finance_review: 'Finance Review Queue',
-  finance_disbursement: 'Finance Disbursement Queue',
+  finance_disbursement: 'Finance Disbursements Queue',
 };
 
 function buildAttachmentUrl(attachment: any): string {

@@ -3,6 +3,7 @@ import {
   BarChart3,
   Bell,
   BookOpenCheck,
+  BriefcaseBusiness,
   FileCheck2,
   FileText,
   FolderOpen,
@@ -12,11 +13,14 @@ import {
   Mail,
   Megaphone,
   Menu,
-  NotebookPen,
+  Newspaper,
+  Receipt,
   Send,
   Settings2Icon,
   ShoppingBag,
   Upload,
+  UserCheck,
+  Users,
   Wallet,
 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -28,7 +32,6 @@ import {
 } from './ui/dropdown-menu';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 import type { User } from '../App';
-import { AlumniOfficeApp } from './AlumniOfficeApp';
 import { OfficeOverview } from './office/OfficeOverview';
 import { FundWorkflowQueue } from './office/FundWorkflowQueue';
 import { SecretaryAcademicsPanel } from './office/SecretaryAcademicsPanel';
@@ -39,6 +42,7 @@ import ProjectManagement from './alumni_office_staff/ProjectManagement';
 import MerchEvents from './alumni_office_staff/MerchEvents';
 import ManageContent from './alumni_office_staff/ManageContent';
 import Reports from './alumni_office_staff/Reports';
+import { UnifiedNotifications } from './shared/UnifiedNotifications';
 
 type OfficeRole =
   | 'administrator'
@@ -52,19 +56,31 @@ type OfficeRole =
 
 type OfficeScreen =
   | 'dashboard'
-  | 'fund-queue'
-  | 'finance-review'
-  | 'finance-disbursement'
+  | 'applications'
+  | 'request-funds'
+  | 'approvals'
   | 'reports'
-  | 'content'
+  | 'notifications'
+  | 'import'
   | 'broadcast'
-  | 'academic'
+  | 'projects'
+  | 'content'
+  | 'news'
+  | 'events'
+  | 'announcements'
+  | 'communications'
+  | 'academic-verification'
+  | 'student-benefit-reviews'
   | 'transcript'
   | 'mentorship'
-  | 'applications'
-  | 'import'
-  | 'projects'
-  | 'merch';
+  | 'finance-review'
+  | 'disbursements'
+  | 'transactions'
+  | 'beneficiaries'
+  | 'fund-requests'
+  | 'executive-review'
+  | 'milestones'
+  | 'updates';
 
 interface OfficeRoleAppProps {
   user: User;
@@ -113,62 +129,73 @@ function getNavigation(role: OfficeRole): OfficeNavItem[] {
   switch (role) {
     case 'administrator':
       return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'See the full operational overview for the office.' },
-        { id: 'fund-queue', label: 'First Review', shortLabel: 'Review', icon: FileCheck2, description: 'Review newly submitted student fund requests first.' },
-        { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Work through loan and support applications from the office queue.' },
-        { id: 'import', label: 'Import Data', shortLabel: 'Import', icon: Upload, description: 'Bring in student, alumni, and office records safely.' },
-        { id: 'broadcast', label: 'Broadcast', shortLabel: 'Send', icon: Mail, description: 'Send office-wide communication and campaign updates.' },
-        { id: 'projects', label: 'Projects', shortLabel: 'Projects', icon: FolderOpen, description: 'Track daily office initiatives and delivery progress.' },
-        { id: 'merch', label: 'Merch & Events', shortLabel: 'Events', icon: ShoppingBag, description: 'Manage event operations and office merchandise.' },
-        { id: 'content', label: 'Manage Content', shortLabel: 'Content', icon: Settings2Icon, description: 'Publish and update communication content when needed.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'See analytics, fund performance, and office activity.' },
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Operational overview and KPIs.' },
+        { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Process loan and support applications.' },
+        { id: 'request-funds', label: 'Request Funds', shortLabel: 'Funds', icon: Wallet, description: 'Manage first-stage workflow requests.' },
+        { id: 'import', label: 'Import Data', shortLabel: 'Import', icon: Upload, description: 'Import student, alumni, and office records.' },
+        { id: 'broadcast', label: 'Broadcast', shortLabel: 'Comms', icon: Mail, description: 'Send communication campaigns and notices.' },
+        { id: 'projects', label: 'Projects', shortLabel: 'Projects', icon: FolderOpen, description: 'Track project progress and outcomes.' },
+        { id: 'content', label: 'Manage Content', shortLabel: 'Content', icon: Settings2Icon, description: 'Manage announcements and media content.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'View fund and workflow analytics.' },
+        { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'Review internal office alerts and updates.' },
       ];
     case 'general_secretary':
       return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'See the oversight summary for reviewed fund requests.' },
-        { id: 'fund-queue', label: 'Oversight Queue', shortLabel: 'Queue', icon: NotebookPen, description: 'Review requests already approved by the administrator.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'View oversight analytics and workflow trends.' },
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Operational review KPIs and queue value.' },
+        { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Inspect application details and context.' },
+        { id: 'request-funds', label: 'Request Funds', shortLabel: 'Funds', icon: Wallet, description: 'Open fund requests awaiting secretary action.' },
+        { id: 'approvals', label: 'Approvals', shortLabel: 'Approve', icon: FileCheck2, description: 'Approve or reject reviewed cases.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Track throughput, approvals, and value trends.' },
+        { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'See new workflow comments and decisions.' },
       ];
     case 'finance':
       return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Monitor finance readiness and outgoing disbursements.' },
-        { id: 'finance-review', label: 'Finance Review', shortLabel: 'Review', icon: Wallet, description: 'Check financial readiness before requests go to the president.' },
-        { id: 'finance-disbursement', label: 'Disbursement', shortLabel: 'Pay', icon: Send, description: 'Record releases after presidential approval.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Track fund balance, income, and disbursement activity.' },
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Finance KPIs and operational pipeline.' },
+        { id: 'finance-review', label: 'Finance Review', shortLabel: 'Review', icon: Wallet, description: 'Validate financial viability of requests.' },
+        { id: 'disbursements', label: 'Disbursements', shortLabel: 'Disburse', icon: Send, description: 'Process approved fund releases.' },
+        { id: 'transactions', label: 'Transactions', shortLabel: 'Txns', icon: Receipt, description: 'Track transaction records and references.' },
+        { id: 'beneficiaries', label: 'Beneficiaries', shortLabel: 'Beneficiaries', icon: Users, description: 'Monitor funded beneficiaries and payout status.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'View finance trends and disbursement metrics.' },
+        { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'Receive review and disbursement alerts.' },
       ];
     case 'president':
-      return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Executive view of requests awaiting presidential action.' },
-        { id: 'fund-queue', label: 'Executive Queue', shortLabel: 'Queue', icon: Bell, description: 'Approve or reject finance-cleared requests for release.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Review high-level office and fund analytics.' },
-      ];
     case 'vice_president':
       return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Vice executive view of requests awaiting approval.' },
-        { id: 'fund-queue', label: 'Executive Queue', shortLabel: 'Queue', icon: Bell, description: 'Approve or reject finance-cleared requests for release.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Review high-level office and fund analytics.' },
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Executive KPI overview and queue value.' },
+        { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Inspect case details before decisions.' },
+        { id: 'fund-requests', label: 'Fund Requests', shortLabel: 'Funds', icon: Wallet, description: 'Review incoming executive-stage requests.' },
+        { id: 'executive-review', label: 'Executive Review', shortLabel: 'Review', icon: UserCheck, description: 'Approve or reject release recommendations.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Track executive decisions and outcomes.' },
+        { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'Monitor decision updates and escalations.' },
       ];
     case 'publicity':
       return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Track communication work, news volume, and event visibility.' },
-        { id: 'content', label: 'Manage Content', shortLabel: 'Content', icon: Megaphone, description: 'Create and publish news, announcements, and public updates.' },
-        { id: 'merch', label: 'Events', shortLabel: 'Events', icon: ShoppingBag, description: 'Manage event listings, registrations, and public-facing event content.' },
-        { id: 'broadcast', label: 'Broadcast', shortLabel: 'Send', icon: Mail, description: 'Send broadcast messages and campaign communication.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'See communication performance and engagement analytics.' },
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'PR performance and publishing metrics.' },
+        { id: 'news', label: 'News', shortLabel: 'News', icon: Newspaper, description: 'Manage and publish news posts.' },
+        { id: 'events', label: 'Events', shortLabel: 'Events', icon: ShoppingBag, description: 'Manage event content and schedules.' },
+        { id: 'announcements', label: 'Announcements', shortLabel: 'Announce', icon: Megaphone, description: 'Publish official announcements.' },
+        { id: 'communications', label: 'Communications', shortLabel: 'Comms', icon: Mail, description: 'Run email and outreach communications.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Track audience engagement and output.' },
+        { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'PR alerts and publication reminders.' },
       ];
     case 'secretary_academics':
       return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Watch academic verification, transcript, and mentorship workload.' },
-        { id: 'academic', label: 'Academic Review', shortLabel: 'Review', icon: BookOpenCheck, description: 'Verify academic documents for student benefit applications.' },
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Academic operations summary and queues.' },
+        { id: 'academic-verification', label: 'Academic Verification', shortLabel: 'Verify', icon: BookOpenCheck, description: 'Verify documents for benefit eligibility.' },
+        { id: 'student-benefit-reviews', label: 'Student Benefit Reviews', shortLabel: 'Benefits', icon: FileCheck2, description: 'Review benefit-related academic cases.' },
         { id: 'transcript', label: 'Transcript Program', shortLabel: 'Transcript', icon: GraduationCap, description: 'Manage transcript holder records and decisions.' },
-        { id: 'mentorship', label: 'Mentorship', shortLabel: 'Mentor', icon: NotebookPen, description: 'Approve or reject mentorship applications and notes.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'See academic workflow trends and pending cases.' },
+        { id: 'mentorship', label: 'Mentorship', shortLabel: 'Mentor', icon: Users, description: 'Review mentorship applications and progress.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'See verification and mentorship trends.' },
+        { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'Academic queue alerts and updates.' },
       ];
     case 'projects_manager':
       return [
-        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Track office projects, milestones, and progress.' },
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Project health, status, and budget metrics.' },
         { id: 'projects', label: 'Projects', shortLabel: 'Projects', icon: FolderOpen, description: 'Manage ongoing projects and track deliverables.' },
-        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'View project analytics and completion metrics.' },
+        { id: 'milestones', label: 'Milestones', shortLabel: 'Milestones', icon: BriefcaseBusiness, description: 'Track milestone completion and blockers.' },
+        { id: 'updates', label: 'Updates', shortLabel: 'Updates', icon: Send, description: 'Publish project status and outcomes.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Review project performance analytics.' },
+        { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'Receive project and milestone alerts.' },
       ];
   }
 }
@@ -201,40 +228,56 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
         return (
           <OfficeOverview
             role={role}
+            displayName={displayName}
             navigationItems={navigationItems}
             onNavigate={(screen) => setCurrentScreen(screen as OfficeScreen)}
           />
         );
-      case 'fund-queue':
+      case 'request-funds':
+      case 'approvals':
+      case 'fund-requests':
+      case 'executive-review':
         return <FundWorkflowQueue role={role} />;
       case 'finance-review':
         return <FundWorkflowQueue role={role} mode="review" />;
-      case 'finance-disbursement':
+      case 'disbursements':
         return <FundWorkflowQueue role={role} mode="disbursement" />;
+      case 'transactions':
+      case 'beneficiaries':
+        return <Reports />;
       case 'reports':
         return <Reports />;
+      case 'news':
+      case 'announcements':
       case 'content':
         return <ManageContent />;
+      case 'communications':
       case 'broadcast':
         return <BroadcastEmail />;
-      case 'academic':
+      case 'events':
+        return <MerchEvents />;
+      case 'academic-verification':
         return <SecretaryAcademicsPanel defaultTab="academic" />;
       case 'transcript':
         return <SecretaryAcademicsPanel defaultTab="transcript" />;
       case 'mentorship':
         return <SecretaryAcademicsPanel defaultTab="mentorship" />;
       case 'applications':
+      case 'student-benefit-reviews':
         return <ApplicationsQueue />;
       case 'import':
         return <ImportAssistant />;
       case 'projects':
+      case 'milestones':
+      case 'updates':
         return <ProjectManagement />;
-      case 'merch':
-        return <MerchEvents />;
+      case 'notifications':
+        return <UnifiedNotifications user={user} onBack={() => setCurrentScreen('dashboard')} />;
       default:
         return (
           <OfficeOverview
             role={role}
+            displayName={displayName}
             navigationItems={navigationItems}
             onNavigate={(screen) => setCurrentScreen(screen as OfficeScreen)}
           />
@@ -254,10 +297,6 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
               <UcuBadgeLogo className="h-9 w-9" />
               <h1 className="text-white font-semibold text-sm">{roleLabel}</h1>
             </div>
-          </div>
-
-          <div className="px-6 py-4 border-b border-black/20">
-            <p className="text-sm text-white font-medium">Welcome back, {displayName.split(' ')[0]}!</p>
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
