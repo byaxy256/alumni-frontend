@@ -34,7 +34,7 @@ function documentFullUrl(att: any): string {
 
 // --- Type Definitions (Updated to include more details from backend JOIN) ---
 type Application = {
-  id: number;
+  id: string | number;
   applicationId: string;
   type: 'loan' | 'support';
   student: { name: string; id: string; program: string; year: number; email: string; phone: string; };
@@ -51,6 +51,40 @@ type Application = {
 };
 
 type RawData = { id: number; student_uid: string; full_name: string; email: string; phone: string; amount_requested: number; created_at: string; status: string; program: string; semester: number; reason?: string; [key: string]: any; };
+
+type OfficeWorkflowApplication = {
+  id: string;
+  type: 'loan' | 'support' | 'student_benefit';
+  student_name: string;
+  access_number?: string;
+  student_email?: string;
+  student_phone?: string;
+  program?: string;
+  requested_amount?: number;
+  overall_status?: string;
+  current_stage?: string;
+  submitted_at?: string;
+  source?: {
+    reason?: string;
+    guarantor?: { name?: string; phone?: string; relation?: string } | null;
+    attachments?: any[];
+  } | null;
+  payload?: Record<string, any>;
+};
+
+function getCurrentRole() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('user');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const role = parsed?.role;
+    if (role === 'alumni_office') return 'administrator';
+    return role || null;
+  } catch {
+    return null;
+  }
+}
 
 function StatusBadge({ status }: { status: Application['status'] }) {
   const config: Record<string, { label: string; className: string }> = {
@@ -76,7 +110,7 @@ export default function ApplicationsQueue() {
   const [showRequestInfoDialog, setShowRequestInfoDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [infoRequestMessage, setInfoRequestMessage] = useState('');
-  const [selectedApplications, setSelectedApplications] = useState<number[]>([]);
+  const [selectedApplications, setSelectedApplications] = useState<Array<string | number>>([]);
   const [documentViewer, setDocumentViewer] = useState<{ url: string; name: string; mimetype?: string } | null>(null);
 
   const fetchApplications = async () => {
@@ -84,6 +118,52 @@ export default function ApplicationsQueue() {
     try {
       const token = localStorage.getItem('token') || '';
       const headers = { Authorization: `Bearer ${token}` };
+      const role = getCurrentRole();
+
+      if (role === 'general_secretary') {
+        const queueRes = await fetch(`${API_BASE}/office/fund-workflow`, { headers });
+        if (!queueRes.ok) {
+          throw new Error('Failed to fetch general secretary applications queue');
+        }
+
+        const queueData: OfficeWorkflowApplication[] = await queueRes.json();
+        const normalizedQueue: Application[] = (Array.isArray(queueData) ? queueData : []).map((item) => {
+          const payload = item.payload || {};
+          const submittedAt = item.submitted_at || new Date().toISOString();
+          return {
+            id: item.id,
+            applicationId: `${String(item.type || 'APP').toUpperCase()}-${String(item.id).slice(-6)}`,
+            type: item.type === 'loan' ? 'loan' : 'support',
+            student: {
+              name: item.student_name || 'Unknown Student',
+              id: item.access_number || 'N/A',
+              email: item.student_email || payload.email || '',
+              phone: item.student_phone || payload.phone || '',
+              program: item.program || payload.program || 'N/A',
+              year: Number(payload.year || payload.level || 1),
+            },
+            guarantor: {
+              name: item.source?.guarantor?.name || '',
+              phone: item.source?.guarantor?.phone || '',
+              relation: item.source?.guarantor?.relation || '',
+            },
+            documentsCount: Number(item.source?.attachments?.length || 0),
+            documentsRequired: 2,
+            amount: Number(item.requested_amount || 0),
+            purpose: item.source?.reason || payload.reason || payload.purpose || 'N/A',
+            status: 'pending',
+            submittedDate: new Date(submittedAt).toLocaleDateString(),
+            raw: {
+              ...item,
+              attachments: item.source?.attachments || [],
+              created_at: submittedAt,
+            },
+          };
+        });
+
+        setApplications(normalizedQueue.sort((a, b) => new Date(String(b.raw.created_at)).getTime() - new Date(String(a.raw.created_at)).getTime()));
+        return;
+      }
 
       const [loansRes, supportRes] = await Promise.all([
         fetch(`${API_BASE}/loans`, { headers }),
@@ -232,7 +312,7 @@ export default function ApplicationsQueue() {
     toast.info('Bulk actions are not yet implemented.');
   };
 
-  const toggleApplicationSelection = (id: number) => {
+  const toggleApplicationSelection = (id: string | number) => {
     setSelectedApplications((prev) => prev.includes(id) ? prev.filter((appId) => appId !== id) : [...prev, id]);
   };
   

@@ -63,6 +63,7 @@ interface FundWorkflowQueueProps {
 const queueTitle: Record<string, string> = {
   administrator: 'Administrator Request Funds Queue',
   general_secretary: 'General Secretary Approvals Queue',
+  secretary_academics: 'Secretary Academics Verification Queue',
   president: 'President Executive Review Queue',
   vice_president: 'Vice President Executive Review Queue',
   finance_review: 'Finance Review Queue',
@@ -131,6 +132,7 @@ export function FundWorkflowQueue({ role, mode = 'default' }: FundWorkflowQueueP
       item.comments?.finance_disbursement,
       item.comments?.president,
       item.comments?.finance_review,
+      item.comments?.secretary_academics,
       item.comments?.general_secretary,
       item.comments?.administrator,
     ].find(Boolean);

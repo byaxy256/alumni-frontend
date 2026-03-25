@@ -415,39 +415,39 @@ export function OfficeOverview({ role, displayName, navigationItems, onNavigate 
         secondaryChartType: 'pie' as const,
         secondaryChartData: statusCounts,
       };
-        if (role === 'projects_manager') {
-          const projects = roleQueues.primary;
-          const active = projects.filter((item: any) => ['active', 'in_progress'].includes(String((item as any)?.status || ''))).length;
-          const completed = projects.filter((item: any) => String((item as any)?.status || '') === 'completed').length;
-          const delayed = projects.filter((item: any) => ['delayed', 'blocked'].includes(String((item as any)?.status || ''))).length;
-          const budgetTracked = projects.reduce((sum: number, item: any) => sum + Number((item as any)?.budget || (item as any)?.requested_amount || 0), 0);
+    }
 
-          return {
-            cards: [
-              { label: 'Total Projects', value: projects.length, helper: 'projects under office portfolio tracking' },
-              { label: 'Active Projects', value: active, helper: 'projects currently being executed' },
-              { label: 'Completed Projects', value: completed, helper: 'projects closed successfully' },
-              { label: 'Delayed Projects', value: delayed, helper: 'projects needing escalation or recovery' },
-              { label: 'Total Budget Tracked', value: `UGX ${budgetTracked.toLocaleString()}`, helper: 'sum of tracked budgets across projects' },
-              { label: 'Notifications', value: summary.unread_notifications || 0, helper: 'project alerts and pending updates' },
-            ],
-            primaryChartTitle: 'Project Status Distribution',
-            primaryChartType: 'bar' as const,
-            primaryChartData: [
-              { name: 'Active', value: active },
-              { name: 'Completed', value: completed },
-              { name: 'Delayed', value: delayed },
-            ],
-            primaryDataKey: 'value',
-            secondaryChartTitle: 'Budget vs Volume',
-            secondaryChartType: 'pie' as const,
-            secondaryChartData: [
-              { name: 'Budget Tracked', value: budgetTracked },
-              { name: 'Project Count', value: projects.length },
-            ].filter((item) => item.value > 0),
-          };
-        }
+    if (role === 'projects_manager') {
+      const projects = roleQueues.primary;
+      const active = projects.filter((item: any) => ['active', 'in_progress'].includes(String((item as any)?.status || ''))).length;
+      const completed = projects.filter((item: any) => String((item as any)?.status || '') === 'completed').length;
+      const delayed = projects.filter((item: any) => ['delayed', 'blocked'].includes(String((item as any)?.status || ''))).length;
+      const budgetTracked = projects.reduce((sum: number, item: any) => sum + Number((item as any)?.budget || (item as any)?.requested_amount || 0), 0);
 
+      return {
+        cards: [
+          { label: 'Total Projects', value: projects.length, helper: 'projects under office portfolio tracking' },
+          { label: 'Active Projects', value: active, helper: 'projects currently being executed' },
+          { label: 'Completed Projects', value: completed, helper: 'projects closed successfully' },
+          { label: 'Delayed Projects', value: delayed, helper: 'projects needing escalation or recovery' },
+          { label: 'Total Budget Tracked', value: `UGX ${budgetTracked.toLocaleString()}`, helper: 'sum of tracked budgets across projects' },
+          { label: 'Notifications', value: summary.unread_notifications || 0, helper: 'project alerts and pending updates' },
+        ],
+        primaryChartTitle: 'Project Status Distribution',
+        primaryChartType: 'bar' as const,
+        primaryChartData: [
+          { name: 'Active', value: active },
+          { name: 'Completed', value: completed },
+          { name: 'Delayed', value: delayed },
+        ],
+        primaryDataKey: 'value',
+        secondaryChartTitle: 'Budget vs Volume',
+        secondaryChartType: 'pie' as const,
+        secondaryChartData: [
+          { name: 'Budget Tracked', value: budgetTracked },
+          { name: 'Project Count', value: projects.length },
+        ].filter((item) => item.value > 0),
+      };
     }
 
     if (role === 'publicity') {
