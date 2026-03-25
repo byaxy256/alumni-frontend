@@ -331,7 +331,7 @@ export default function App() {
   if (showLanding && !user) {
     return (
       <>
-        <LandingPage onLogin={handleGoToLogin} />
+        <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />
         <Toaster />
       </>
     );
@@ -444,7 +444,7 @@ export default function App() {
   // Fallback to the landing page if no other condition is met
   return (
     <>
-      <LandingPage onLogin={handleGoToLogin} />
+      <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />
       <Toaster />
     </>
   );

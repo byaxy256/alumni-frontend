@@ -15,6 +15,7 @@ import { API_BASE } from '../api';
 import { toast } from 'sonner';
 
 interface LandingPageProps {
+  onGetStarted: () => void;
   onLogin: () => void;
 }
 
@@ -42,7 +43,7 @@ function formatUgx(value: number) {
   return `UGX ${Number(value || 0).toLocaleString()}`;
 }
 
-export default function LandingPage({ onLogin }: LandingPageProps) {
+export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [causes, setCauses] = useState<DonationCause[]>(DEFAULT_CAUSES);
   const [totalContributions, setTotalContributions] = useState<number>(0);
@@ -213,19 +214,19 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
                 A modern alumni platform that brings UCU graduates together to donate, mentor, and stay close to the UCU community.
               </p>
               <div className="flex flex-wrap items-center gap-3">
-                <Button onClick={() => openDonateModal()} className="bg-[#bc8b37] hover:bg-[#a9792d] text-white px-8 py-3 text-base font-semibold rounded-xl">
-                  Donate
+                <Button onClick={onGetStarted} className="bg-[#bc8b37] hover:bg-[#a9792d] text-white px-8 py-3 text-base font-semibold rounded-xl">
+                  Get Started
                 </Button>
-                <Button onClick={() => openDonateModal()} variant="outline" className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] hover:bg-[#eef3ff] px-8 py-3 rounded-xl">
-                  Donate
+                <Button onClick={onLogin} variant="outline" className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] hover:bg-[#eef3ff] px-8 py-3 rounded-xl">
+                  I have an account
                 </Button>
               </div>
             </div>
 
             <div className="relative">
-              <div className="rounded-3xl overflow-hidden border border-[#d6ddf0] bg-[#eef2ff] w-full aspect-[4/3] shadow-lg">
+              <div className="mx-auto w-full max-w-[620px] max-h-[420px] rounded-3xl overflow-hidden border border-[#d6ddf0] bg-[#eef2ff] aspect-[16/10] shadow-lg">
                 <img
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-wU4bc4HI0fIkuHntFUcmwepKq0P4Fo.png"
+                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80"
                   alt="Alumni community"
                   className="w-full h-full object-cover"
                 />
@@ -236,12 +237,12 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
 
         <section className="px-6 py-8">
           <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-            <div className="rounded-2xl p-7 border shadow-sm" style={{ background: '#f8f7fb', borderColor: '#d9dff0' }}>
+            <div className="rounded-2xl p-8 border shadow-sm" style={{ background: '#f8f7fb', borderColor: '#d9dff0' }}>
               <div className="h-12 w-12 rounded-lg flex items-center justify-center mb-4" style={{ background: '#f6e8c8' }}>
                 <Coins className="w-6 h-6" style={{ color: '#b37b2a' }} />
               </div>
               <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Student Support</h3>
-              <p className="text-sm mb-4" style={{ color: '#657393' }}>Emergency loans, Support campaigns</p>
+              <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Emergency loans, Support campaigns</p>
               <div className="space-y-1">
                 <p className="text-2xl font-bold" style={{ color: '#25345c' }}>{formatUgx(totalContributions || 320000000)}+</p>
                 <p className="text-sm flex items-center gap-1" style={{ color: '#657393' }}>
@@ -251,12 +252,12 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
               </div>
             </div>
 
-            <div className="rounded-2xl p-7 border shadow-sm" style={{ background: '#f8f7fb', borderColor: '#d9dff0' }}>
+            <div className="rounded-2xl p-8 border shadow-sm" style={{ background: '#f8f7fb', borderColor: '#d9dff0' }}>
               <div className="h-12 w-12 rounded-lg flex items-center justify-center mb-4" style={{ background: '#efe7ff' }}>
                 <Users className="w-6 h-6" style={{ color: '#6d4eb5' }} />
               </div>
               <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Alumni Network</h3>
-              <p className="text-sm mb-4" style={{ color: '#657393' }}>Find classmates, mentors, and social chapters</p>
+              <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Find classmates, mentors, and social chapters</p>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" style={{ color: '#6d4eb5' }} />
                 <p className="text-2xl font-bold" style={{ color: '#25345c' }}>{mentorCount}+</p>
@@ -264,12 +265,12 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
               </div>
             </div>
 
-            <div className="rounded-2xl p-7 border shadow-sm" style={{ background: '#f8f7fb', borderColor: '#d9dff0' }}>
+            <div className="rounded-2xl p-8 border shadow-sm" style={{ background: '#f8f7fb', borderColor: '#d9dff0' }}>
               <div className="h-12 w-12 rounded-lg flex items-center justify-center mb-4" style={{ background: '#e7efff' }}>
                 <ShieldCheck className="w-6 h-6" style={{ color: '#355fa8' }} />
               </div>
               <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Secure & Trusted</h3>
-              <p className="text-sm mb-4" style={{ color: '#657393' }}>Built with advanced security and privacy protection</p>
+              <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Built with advanced security and privacy protection</p>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" style={{ color: '#355fa8' }} />
                 <p className="text-sm" style={{ color: '#657393' }}>Privacy</p>
@@ -315,7 +316,7 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
                   <div key={campaign.id} className="bg-white rounded-lg p-6 border border-[#d9dff0] shadow-sm">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold" style={{ color: '#25345c' }}>{campaign.name}</h4>
-                      <Button className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-6" onClick={() => openDonateModal(campaign.name)}>Donate</Button>
+                      <Button className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-6 min-w-[108px]" onClick={() => openDonateModal(campaign.name)}>Donate</Button>
                     </div>
                     <div className="flex items-center justify-between text-sm mb-2" style={{ color: '#657393' }}>
                       <span>{formatUgx(campaign.raised)}</span>
