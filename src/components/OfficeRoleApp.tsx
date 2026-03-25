@@ -90,10 +90,21 @@ const roleLabels: Record<OfficeRole, string> = {
   projects_manager: 'Projects Manager Dashboard',
 };
 
-function normalizeRole(role: User['role']): OfficeRole {
+function normalizeRole(role: User['role']): OfficeRole | null {
   if (role === 'alumni_office') return 'administrator';
-  if (!['administrator', 'general_secretary', 'finance', 'president', 'vice_president', 'publicity', 'secretary_academics', 'projects_manager'].includes(role as string)) {
-    return 'administrator';
+  if (
+    ![
+      'administrator',
+      'general_secretary',
+      'finance',
+      'president',
+      'vice_president',
+      'publicity',
+      'secretary_academics',
+      'projects_manager',
+    ].includes(role as string)
+  ) {
+    return null;
   }
   return role as OfficeRole;
 }
@@ -167,6 +178,19 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const role = normalizeRole(user.role);
+  if (!role) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--brand-blue-soft-10)] px-6">
+        <div className="max-w-md w-full rounded-2xl border border-border bg-card p-6 text-center space-y-3">
+          <h1 className="text-lg font-semibold text-foreground">Role not configured</h1>
+          <p className="text-sm text-muted-foreground">
+            Your account role <span className="font-medium">"{String(user.role)}"</span> is not mapped to an internal office dashboard yet.
+          </p>
+          <Button onClick={onLogout} className="w-full">Logout</Button>
+        </div>
+      </div>
+    );
+  }
   const navigationItems = useMemo(() => getNavigation(role), [role]);
   const roleLabel = roleLabels[role];
   const displayName = user.name || user.full_name || user.email || 'Staff';
@@ -234,7 +258,6 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
 
           <div className="px-6 py-4 border-b border-black/20">
             <p className="text-sm text-white font-medium">Welcome back, {displayName.split(' ')[0]}!</p>
-            <p className="text-xs text-white/70 mt-1">Role: {roleLabel.replace(' Dashboard', '')}</p>
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">

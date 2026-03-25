@@ -408,9 +408,17 @@ export default function App() {
     if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /></>;
     if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /></>;
     if (
-      ['alumni_office', 'administrator', 'general_secretary', 'finance', 'president', 'publicity', 'secretary_academics'].includes(
-        user.role
-      )
+      [
+        'alumni_office',
+        'administrator',
+        'general_secretary',
+        'finance',
+        'president',
+        'vice_president',
+        'publicity',
+        'secretary_academics',
+        'projects_manager',
+      ].includes(user.role)
     ) {
       return <><OfficeRoleApp user={user} onLogout={handleLogout} /><Toaster /></>;
     }
