@@ -27,16 +27,13 @@ export const AlumniOfficeApp = ({
   user,
   onLogout,
   headerTitle = 'Administrator Dashboard',
-  headerSubtitle,
 }: {
   user: User;
   onLogout: () => void;
   headerTitle?: string;
-  headerSubtitle?: string;
 }) => {
   const [currentScreen, setCurrentScreen] = useState<AlumniScreen>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const displayName = user.name || user.full_name || user.email || 'Staff';
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
