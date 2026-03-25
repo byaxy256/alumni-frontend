@@ -1,14 +1,13 @@
 import { Button } from './ui/button';
 import {
   Users,
-  HeartHandshake,
-  Sparkles,
+  Heart,
   ShieldCheck,
   ArrowRight,
-  CreditCard,
-  MessageCircle,
-  CalendarCheck,
-  GraduationCapIcon
+  Coins,
+  Calendar,
+  MapPin,
+  Search
 } from 'lucide-react';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 
@@ -19,181 +18,211 @@ interface LandingPageProps {
 
 export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
   return (
-    <div className="landing-shell relative min-h-screen overflow-x-clip bg-background text-foreground">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 -right-32 h-96 w-96 rounded-full bg-primary opacity-20 blur-[120px] dark:opacity-45" />
-        <div className="absolute top-32 -left-20 h-80 w-80 rounded-full bg-accent opacity-16 blur-[120px] dark:opacity-28" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-[color:var(--brand-hero-to)] opacity-22 blur-[140px] dark:opacity-32" />
-      </div>
-      <div className="absolute inset-0 bg-[#f8f5f0]/62 dark:bg-black/28" />
-
-      <header className="sticky top-0 z-40 bg-[#fff9f2]/94 dark:bg-card/92 backdrop-blur-2xl border-b border-primary/10 dark:border-border shadow-sm">
+    <div className="landing-shell relative min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 text-foreground">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-purple-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a
-            href="https://waitro.org/member/ucu-uganda-christian-university/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 hover:opacity-90 transition"
-          >
-            <UcuBadgeLogo className="h-9 w-[4.5rem] rounded-md border-primary/20 bg-transparent" imageClassName="object-contain" />
-            <div>
-              <p className="text-lg font-semibold">Alumni Circle</p>
-              <p className="text-xs text-foreground/70 dark:text-muted-foreground">Uganda Christian University</p>
-            </div>
-          </a>
           <div className="flex items-center gap-3">
-            <Button onClick={onLogin} variant="outline" className="border-primary/30 text-foreground hover:bg-primary/5 dark:border-accent/35 dark:hover:bg-accent/10">
-              Login
-            </Button>
+            <UcuBadgeLogo className="h-9 w-9 rounded-md" imageClassName="object-contain" />
+            <div>
+              <p className="text-sm font-semibold text-gray-900">UGANDA</p>
+              <p className="text-xs text-gray-600">Christian University</p>
+              <p className="text-xs text-gray-500">Alumni Circle</p>
+            </div>
           </div>
+          <Button onClick={onLogin} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
+            <Users className="w-4 h-4 mr-2" />
+            Log In
+          </Button>
         </div>
       </header>
 
-      <main className="pt-6 relative z-10">
-        <section className="pt-28 pb-16 px-6">
+      <main className="relative z-10">
+        {/* Hero Section with Image */}
+        <section className="relative px-6 py-16 md:py-24">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="flex justify-center sm:justify-start">
-                <div className="inline-flex max-w-xs sm:max-w-none items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs text-center sm:text-left text-foreground/80 mb-6 dark:border-accent/25 dark:bg-accent/10 dark:text-foreground">
-                  <Sparkles className="h-4 w-4 text-accent shrink-0" />
-                  <span className="whitespace-normal">
-                    Built for UCU alumni + students
-                  </span>
-                </div>
-              </div>
-              <h1 className="text-4xl md:text-6xl font-semibold leading-tight mb-6 text-foreground">
-                Support students.
+              <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6 leading-tight">
+                <span className="text-gray-900">Support students.</span>
                 <br />
-                <span className="text-accent">Stay connected.</span>
+                <span className="text-amber-600">Stay connected.</span>
                 <br />
-                Grow together.
+                <span className="text-gray-900">Grow together.</span>
               </h1>
-              <p className="text-lg text-foreground/80 dark:text-foreground/90 mb-8 max-w-xl">
-                A modern alumni platform that feels like an app: fast, personal, and built for real impact. Donate, mentor, and stay close to the UCU community.
+              <p className="text-gray-700 text-lg mb-8 max-w-lg">
+                A modern alumni platform that brings UCU graduates together to donate, mentor, and stay close to the UCU community.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  onClick={onGetStarted}
-                  size="lg"
-                  className="bg-accent text-primary hover:bg-accent/90 px-8"
-                >
-                  Get Started <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button
-                  onClick={onLogin}
-                  size="lg"
-                  variant="outline"
-                  className="border-primary/30 text-foreground hover:bg-primary/5 dark:border-accent/35 dark:hover:bg-accent/10 px-8"
-                >
-                  I have an account
-                </Button>
-              </div>
-              <div className="mt-10 flex items-center gap-6 text-sm text-foreground/80 dark:text-foreground/85">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-accent" /> 5,000+ alumni
-                </div>
-                <div className="flex items-center gap-2">
-                  <HeartHandshake className="h-4 w-4 text-accent" /> UGX 2B+ support
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute -inset-6 rounded-3xl border border-black/10 bg-black/5 blur-xl dark:border-border dark:bg-white/5" />
-              <div className="relative rounded-3xl border border-black/10 bg-white/80 p-6 dark:border-border dark:bg-card/95">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2 text-sm text-foreground/70 dark:text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-accent" /> Live Activity
-                  </div>
-                  <div className="text-xs text-foreground/50 dark:text-muted-foreground">Alumni Circle App</div>
-                </div>
-                <div className="space-y-4">
-                  <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-foreground">Scholarship Drive</p>
-                        <p className="text-xs text-foreground/60 dark:text-muted-foreground">This month</p>
-                      </div>
-                      <p className="text-sm text-accent">92%</p>
-                    </div>
-                    <div className="mt-3 h-2 rounded-full bg-black/10 dark:bg-white/10">
-                      <div className="h-2 rounded-full bg-accent w-[92%]" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10">
-                      <div className="flex items-center gap-2 text-foreground/70 dark:text-muted-foreground text-xs">
-                        <CalendarCheck className="h-4 w-4" /> Events
-                      </div>
-                      <p className="text-xl mt-2 text-foreground">12</p>
-                      <p className="text-xs text-foreground/60 dark:text-muted-foreground">Upcoming</p>
-                    </div>
-                    <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10">
-                      <div className="flex items-center gap-2 text-foreground/70 dark:text-muted-foreground text-xs">
-                        <MessageCircle className="h-4 w-4" /> Mentors
-                      </div>
-                      <p className="text-xl mt-2 text-foreground">240+</p>
-                      <p className="text-xs text-foreground/60 dark:text-muted-foreground">Active</p>
-                    </div>
-                  </div>
-                  <div className="rounded-2xl bg-black/5 p-4 border border-black/10 dark:bg-white/5 dark:border-white/10 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
-                        <CreditCard className="h-5 w-5 text-accent" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-foreground">Quick Donate</p>
-                        <p className="text-xs text-foreground/60 dark:text-muted-foreground">Instant mobile pay</p>
-                      </div>
-                    </div>
-                    <Button className="bg-primary/10 text-foreground hover:bg-primary/20 dark:bg-accent/20 dark:hover:bg-accent/30">Send</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="px-6 pb-24 pt-12">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-            <div className="rounded-2xl border border-black/10 bg-white/80 p-6 dark:border-border dark:bg-card/90">
-              <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
-                <GraduationCapIcon className="h-5 w-5 text-accent" />
-              </div>
-              <h3 className="text-lg mb-2">Student Support</h3>
-              <p className="text-sm text-foreground/80 dark:text-foreground/85">Flexible giving, emergency funds, and tuition support.</p>
-            </div>
-            <div className="rounded-2xl border border-black/10 bg-white/80 p-6 dark:border-border dark:bg-card/90">
-              <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
-                <Users className="h-5 w-5 text-accent" />
-              </div>
-              <h3 className="text-lg mb-2">Alumni Network</h3>
-              <p className="text-sm text-foreground/80 dark:text-foreground/85">Find classmates, mentors, and regional chapters.</p>
-            </div>
-            <div className="rounded-2xl border border-black/10 bg-white/80 p-6 dark:border-border dark:bg-card/90">
-              <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
-                <ShieldCheck className="h-5 w-5 text-accent" />
-              </div>
-              <h3 className="text-lg mb-2">Secure & Trusted</h3>
-              <p className="text-sm text-foreground/80 dark:text-foreground/85">Built with audit trails and bank‑level protection.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="px-6 pb-28">
-          <div className="max-w-5xl mx-auto rounded-3xl border border-white/20 bg-gradient-to-r from-primary/90 to-[color:var(--brand-hero-to)] p-10 md:p-14 dark:from-[#2b1d27] dark:to-[#24314f] dark:border-white/10">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <h2 className="text-3xl font-semibold mb-2">Ready to make an impact?</h2>
-                <p className="text-white/80">Create your account and start supporting students today.</p>
-              </div>
               <Button
                 onClick={onGetStarted}
-                size="lg"
-                className="bg-accent text-primary hover:bg-accent/90 px-8"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 text-lg font-semibold"
               >
-                Create Free Account
+                Donate Now
               </Button>
+            </div>
+            
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden bg-gray-200 aspect-square">
+                <img
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-wU4bc4HI0fIkuHntFUcmwepKq0P4Fo.png"
+                  alt="Alumni community"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Cards */}
+        <section className="px-6 py-16 bg-white/50">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+            <div className="rounded-2xl bg-white p-8 border border-gray-200 shadow-sm">
+              <div className="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center mb-4">
+                <Coins className="w-6 h-6 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Student Support</h3>
+              <p className="text-gray-600 text-sm mb-4">Emergency loans, Support campaigns</p>
+              <div className="space-y-2">
+                <p className="text-2xl font-bold text-gray-900">UGX 320,000,000+</p>
+                <p className="text-sm text-gray-600 flex items-center gap-1">
+                  <Heart className="w-4 h-4 text-amber-600" />
+                  1.5k+ donors
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white p-8 border border-gray-200 shadow-sm">
+              <div className="h-12 w-12 rounded-lg bg-pink-100 flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-pink-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Alumni Network</h3>
+              <p className="text-gray-600 text-sm mb-4">Find classmates, mentors, and social chapters</p>
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-pink-600" />
+                <p className="text-2xl font-bold text-gray-900">240+</p>
+                <p className="text-gray-600">Active members</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white p-8 border border-gray-200 shadow-sm">
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
+                <ShieldCheck className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Secure & Trusted</h3>
+              <p className="text-gray-600 text-sm mb-4">Built with advanced security and privacy protection</p>
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-blue-600" />
+                <p className="text-gray-600">Privacy</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Funding Campaigns and Upcoming Events */}
+        <section className="px-6 py-16">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12">
+            {/* Funding Campaigns */}
+            <div>
+              <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8">Funding Campaigns</h2>
+              
+              {/* Stats Bar */}
+              <div className="rounded-xl bg-gradient-to-r from-blue-900 to-amber-600 p-6 text-white mb-8 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Coins className="w-6 h-6" />
+                  <div>
+                    <p className="text-sm opacity-90">Total Contributions</p>
+                    <p className="text-2xl font-bold">UGX 1,250,000</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm opacity-90">6 Active Campaigns</p>
+                  <p className="text-2xl font-bold">3 Events</p>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative mb-8">
+                <Search className="absolute left-4 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search funding campaigns, events or news..."
+                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-600"
+                />
+              </div>
+
+              {/* Campaign Items */}
+              <div className="space-y-4">
+                {[
+                  { title: "Scholarship Drive for Laptops", current: "UGX 4,250,000", target: "UGX/ 5,300,000", percent: 80 },
+                  { title: "Financial Aid Support", current: "UGX 3,200,000", target: "UGX/ 6,000,000", percent: 53 },
+                  { title: "General Scholarship Fund", current: "UGX 2,900,000", target: "UGX/ 5,000,000", percent: 58 }
+                ].map((campaign, idx) => (
+                  <div key={idx} className="bg-white rounded-lg p-6 border border-gray-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-gray-900">{campaign.title}</h4>
+                      <Button className="bg-blue-700 hover:bg-blue-800 text-white px-6">Donate</Button>
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                      <span>{campaign.current}</span>
+                      <span>{campaign.target}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-blue-600 to-amber-600 h-2 rounded-full"
+                        style={{ width: `${campaign.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Upcoming Events */}
+            <div>
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-serif font-bold text-gray-900">Upcoming Events</h2>
+                <ArrowRight className="w-6 h-6 text-gray-600" />
+              </div>
+
+              {/* Event Cards */}
+              <div className="space-y-4 mb-8">
+                {[
+                  { title: "Career Networking Night", date: "Thursday, April 27", location: "Kampala", avatar: "👨" },
+                  { title: "Community Service Day", date: "Saturday, May 4", location: "Naguru", avatar: "👨" }
+                ].map((event, idx) => (
+                  <div key={idx} className="bg-white rounded-lg p-6 border border-gray-200 flex gap-4">
+                    <div className="text-3xl">{event.avatar}</div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 mb-1">{event.title}</h4>
+                      <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
+                        <Calendar className="w-4 h-4" />
+                        {event.date}
+                      </p>
+                      <p className="text-sm text-gray-600 flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        {event.location}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 font-semibold">
+                View All Events
+              </Button>
+
+              {/* Bottom Stats */}
+              <div className="bg-white rounded-lg p-6 border border-gray-200 mt-8 flex items-center justify-around text-center">
+                <div>
+                  <Coins className="w-6 h-6 text-amber-600 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">UGX</p>
+                  <p className="text-sm text-gray-600">Total Contributions</p>
+                </div>
+                <div className="h-12 w-px bg-gray-200" />
+                <div>
+                  <Users className="w-6 h-6 text-pink-600 mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-gray-900">240+</p>
+                  <p className="text-sm text-gray-600">Mentors</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
