@@ -18,11 +18,11 @@ interface LandingPageProps {
 
 export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
   return (
-    <div className="landing-shell relative min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 text-foreground">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-purple-100 shadow-sm">
+    <div className="landing-shell relative min-h-screen bg-white text-foreground">
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <UcuBadgeLogo className="h-9 w-9 rounded-md" imageClassName="object-contain" />
+            <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain" />
             <div>
               <p className="text-sm font-semibold text-gray-900">UGANDA</p>
               <p className="text-xs text-gray-600">Christian University</p>
@@ -30,7 +30,6 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
           </div>
           <Button onClick={onLogin} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-            <Users className="w-4 h-4 mr-2" />
             Log In
           </Button>
         </div>
@@ -38,29 +37,27 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
 
       <main className="relative z-10">
         {/* Hero Section with Image */}
-        <section className="relative px-6 py-16 md:py-24">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <section className="relative px-6 py-12 md:py-20 bg-gradient-to-b from-blue-50/30 to-white">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
-              <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6 leading-tight">
-                <span className="text-gray-900">Support students.</span>
-                <br />
-                <span className="text-amber-600">Stay connected.</span>
-                <br />
-                <span className="text-gray-900">Grow together.</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                <div className="text-gray-900">Support students.</div>
+                <div className="text-amber-600 text-5xl md:text-6xl lg:text-7xl">Stay connected.</div>
+                <div className="text-gray-900">Grow together.</div>
               </h1>
-              <p className="text-gray-700 text-lg mb-8 max-w-lg">
+              <p className="text-gray-700 text-base md:text-lg mb-8 max-w-xl leading-relaxed">
                 A modern alumni platform that brings UCU graduates together to donate, mentor, and stay close to the UCU community.
               </p>
               <Button
                 onClick={onGetStarted}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 text-lg font-semibold"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 text-base font-semibold rounded-lg"
               >
                 Donate Now
               </Button>
             </div>
             
             <div className="relative">
-              <div className="rounded-2xl overflow-hidden bg-gray-200 aspect-square">
+              <div className="rounded-3xl overflow-hidden bg-gray-200 w-full aspect-square shadow-lg">
                 <img
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-wU4bc4HI0fIkuHntFUcmwepKq0P4Fo.png"
                   alt="Alumni community"
@@ -72,12 +69,47 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         </section>
 
         {/* Features Cards */}
-        <section className="px-6 py-16 bg-white/50">
+        <section className="px-6 py-16 bg-blue-50/30">
           <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
-            <div className="rounded-2xl bg-white p-8 border border-gray-200 shadow-sm">
-              <div className="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center mb-4">
-                <Coins className="w-6 h-6 text-amber-600" />
+            <div className="rounded-2xl bg-white p-8 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center mb-4">
+                <Coins className="w-6 h-6 text-yellow-700" />
               </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Student Support</h3>
+              <p className="text-gray-600 text-sm mb-4">Emergency loans, Support campaigns</p>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-gray-900">UGX 320,000,000+</p>
+                <p className="text-sm text-gray-600 flex items-center gap-1">
+                  <Heart className="w-4 h-4 text-red-500" />
+                  1.5k+ donors
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white p-8 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-pink-100 flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-pink-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Alumni Network</h3>
+              <p className="text-gray-600 text-sm mb-4">Find classmates, mentors, and social chapters</p>
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-red-500" />
+                <p className="text-2xl font-bold text-gray-900">240+</p>
+                <p className="text-gray-600 text-sm">Active members</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white p-8 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
+                <ShieldCheck className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Secure & Trusted</h3>
+              <p className="text-gray-600 text-sm mb-4">Built with advanced security and privacy protection</p>
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-blue-600" />
+                <p className="text-gray-600 text-sm">Privacy</p>
+              </div>
+            </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Student Support</h3>
               <p className="text-gray-600 text-sm mb-4">Emergency loans, Support campaigns</p>
               <div className="space-y-2">
@@ -117,7 +149,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         </section>
 
         {/* Funding Campaigns and Upcoming Events */}
-        <section className="px-6 py-16">
+        <section className="px-6 py-16 bg-white">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12">
             {/* Funding Campaigns */}
             <div>
