@@ -28,8 +28,10 @@ const OFFICE_ROLES = new Set([
   'general_secretary',
   'finance',
   'president',
+  'vice_president',
   'publicity',
   'secretary_academics',
+  'projects_manager',
 ]);
 
 // This is the correct, complete User type definition
@@ -47,8 +49,10 @@ export type User = {
     | 'general_secretary'
     | 'finance'
     | 'president'
+    | 'vice_president'
     | 'publicity'
-    | 'secretary_academics';
+    | 'secretary_academics'
+    | 'projects_manager';
   email_verified?: boolean;
   full_name?: string;
   email?: string;

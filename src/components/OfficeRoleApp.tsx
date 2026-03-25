@@ -45,8 +45,10 @@ type OfficeRole =
   | 'general_secretary'
   | 'finance'
   | 'president'
+  | 'vice_president'
   | 'publicity'
-  | 'secretary_academics';
+  | 'secretary_academics'
+  | 'projects_manager';
 
 type OfficeScreen =
   | 'dashboard'
@@ -78,16 +80,21 @@ interface OfficeNavItem {
 }
 
 const roleLabels: Record<OfficeRole, string> = {
-  administrator: 'Administrator',
-  general_secretary: 'General Secretary',
-  finance: 'Finance',
-  president: 'President',
-  publicity: 'Publicity',
-  secretary_academics: 'Secretary Academics',
+  administrator: 'Administrator Dashboard',
+  general_secretary: 'General Secretary Dashboard',
+  finance: 'Finance Dashboard',
+  president: 'President Dashboard',
+  vice_president: 'Vice President Dashboard',
+  publicity: 'Publicity Dashboard',
+  secretary_academics: 'Secretary Academics Dashboard',
+  projects_manager: 'Projects Manager Dashboard',
 };
 
 function normalizeRole(role: User['role']): OfficeRole {
   if (role === 'alumni_office') return 'administrator';
+  if (!['administrator', 'general_secretary', 'finance', 'president', 'vice_president', 'publicity', 'secretary_academics', 'projects_manager'].includes(role as string)) {
+    return 'administrator';
+  }
   return role as OfficeRole;
 }
 
@@ -124,6 +131,12 @@ function getNavigation(role: OfficeRole): OfficeNavItem[] {
         { id: 'fund-queue', label: 'Executive Queue', shortLabel: 'Queue', icon: Bell, description: 'Approve or reject finance-cleared requests for release.' },
         { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Review high-level office and fund analytics.' },
       ];
+    case 'vice_president':
+      return [
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Vice executive view of requests awaiting approval.' },
+        { id: 'fund-queue', label: 'Executive Queue', shortLabel: 'Queue', icon: Bell, description: 'Approve or reject finance-cleared requests for release.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'Review high-level office and fund analytics.' },
+      ];
     case 'publicity':
       return [
         { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Track communication work, news volume, and event visibility.' },
@@ -140,6 +153,12 @@ function getNavigation(role: OfficeRole): OfficeNavItem[] {
         { id: 'mentorship', label: 'Mentorship', shortLabel: 'Mentor', icon: NotebookPen, description: 'Approve or reject mentorship applications and notes.' },
         { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'See academic workflow trends and pending cases.' },
       ];
+    case 'projects_manager':
+      return [
+        { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Track office projects, milestones, and progress.' },
+        { id: 'projects', label: 'Projects', shortLabel: 'Projects', icon: FolderOpen, description: 'Manage ongoing projects and track deliverables.' },
+        { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'View project analytics and completion metrics.' },
+      ];
   }
 }
 
@@ -148,16 +167,6 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const role = normalizeRole(user.role);
-  if (role === 'administrator') {
-    return (
-      <AlumniOfficeApp
-        user={user}
-        onLogout={onLogout}
-        headerTitle="Administrator Dashboard"
-        headerSubtitle={`Internal Office Administrator · ${user.name || user.full_name || user.email || 'Staff'}`}
-      />
-    );
-  }
   const navigationItems = useMemo(() => getNavigation(role), [role]);
   const roleLabel = roleLabels[role];
   const displayName = user.name || user.full_name || user.email || 'Staff';
@@ -219,16 +228,13 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
           <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 border-b border-black/20">
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-9 w-9" />
-              <div>
-                <h1 className="text-white font-semibold text-sm">{roleLabel} Dashboard</h1>
-                <p className="text-xs text-white/75">Alumni Circle Internal Office</p>
-              </div>
+              <h1 className="text-white font-semibold text-sm">{roleLabel}</h1>
             </div>
           </div>
 
           <div className="px-6 py-4 border-b border-black/20">
-            <p className="text-sm text-white/90 font-medium">{displayName}</p>
-            <p className="text-xs text-white/70">{roleLabel}</p>
+            <p className="text-sm text-white font-medium">Welcome back, {displayName.split(' ')[0]}!</p>
+            <p className="text-xs text-white/70 mt-1">Role: {roleLabel.replace(' Dashboard', '')}</p>
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
@@ -268,10 +274,7 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
         <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="h-8 w-8" />
-            <div>
-              <h1 className="text-white font-semibold text-sm">{roleLabel} Dashboard</h1>
-              <p className="text-xs text-white/75">{displayName}</p>
-            </div>
+            <h1 className="text-white font-semibold text-sm">{roleLabel}</h1>
           </div>
           <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <DropdownMenuTrigger asChild>

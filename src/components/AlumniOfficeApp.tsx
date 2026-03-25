@@ -26,7 +26,7 @@ type AlumniScreen = 'dashboard' | 'applications' | 'import' | 'broadcast' | 'pro
 export const AlumniOfficeApp = ({
   user,
   onLogout,
-  headerTitle = 'Alumni Circle Office Staff',
+  headerTitle = 'Administrator Dashboard',
   headerSubtitle,
 }: {
   user: User;
@@ -36,7 +36,7 @@ export const AlumniOfficeApp = ({
 }) => {
   const [currentScreen, setCurrentScreen] = useState<AlumniScreen>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const resolvedSubtitle = headerSubtitle || user.name || user.full_name || user.email || '';
+  const displayName = user.name || user.full_name || user.email || 'Staff';
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
@@ -90,10 +90,7 @@ export const AlumniOfficeApp = ({
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="w-10 h-10" />
-            <div>
-              <h1 className="text-sm text-white">{headerTitle}</h1>
-              <p className="text-xs text-white/80">{resolvedSubtitle}</p>
-            </div>
+            <h1 className="text-sm text-white">{headerTitle}</h1>
           </div>
 
           {/* Mobile Menu */}

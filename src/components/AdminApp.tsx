@@ -42,10 +42,10 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
       <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col border-r border-black/20 text-white" style={{ backgroundColor: '#8A1F3A' }}>
         <div className="flex flex-col flex-1 min-h-0">
 
-          <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 border-b border-black/20" style={{ backgroundColor: '#8A1F3A' }}>
+        <div className="flex items-center justify-between h-16 flex-shrink-0 px-6 border-b border-black/20" style={{ backgroundColor: '#8A1F3A' }}>
             <div className="flex items-center gap-3">
               <UcuBadgeLogo className="h-8 w-8" />
-              <h1 className="text-white font-semibold">Alumni Admin</h1>
+              <h1 className="text-white font-semibold">System Administrator Dashboard</h1>
             </div>
           </div>
           <nav className="flex-1 px-4 py-6 space-y-1.5">
@@ -87,7 +87,7 @@ export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void 
         <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-3">
             <UcuBadgeLogo className="h-8 w-8" />
-            <h1 className="text-white font-semibold text-sm">Alumni Admin</h1>
+            <h1 className="text-white font-semibold text-sm">System Administrator Dashboard</h1>
           </div>
           <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <DropdownMenuTrigger asChild>
