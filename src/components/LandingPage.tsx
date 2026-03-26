@@ -203,8 +203,8 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
 
       <main className="relative z-10">
         <section className="relative px-6 py-10 md:py-14">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
-            <div>
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-14 xl:gap-16 items-center">
+            <div className="order-2 lg:order-1">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 leading-tight" style={{ color: '#232f55' }}>
                 <div>Support students.</div>
                 <div style={{ color: '#b37b2a' }}>Stay connected.</div>
@@ -213,26 +213,43 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               <p className="text-base md:text-lg mb-8 max-w-xl leading-relaxed" style={{ color: '#596786' }}>
                 A modern alumni platform that brings UCU graduates together to donate, mentor, and stay close to the UCU community.
               </p>
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 max-w-md">
                 <Button
                   onClick={onGetStarted}
-                  className="bg-[#0b2a4a] hover:bg-[#123a66] text-white px-8 py-3 text-base font-semibold rounded-xl shadow-lg shadow-[#0b2a4a]/35 ring-2 ring-white/90 border border-white/20"
+                  className="w-full sm:w-auto bg-gradient-to-b from-[#c9a046] to-[#a67c2e] hover:from-[#d4ad52] hover:to-[#b88a35] text-white px-8 py-3 text-base font-semibold rounded-xl shadow-md shadow-amber-900/20 border border-[#e8d4a8]/80"
                 >
                   Get Started
                 </Button>
-                <Button onClick={onLogin} variant="outline" className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] hover:bg-[#eef3ff] px-8 py-3 rounded-xl">
+                <Button
+                  type="button"
+                  onClick={onLogin}
+                  variant="outline"
+                  className="w-full sm:w-auto border-2 border-[#c5d0ea] bg-white text-[#1f2d4f] px-8 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200 hover:border-[#0b2a4a] hover:bg-[#f4f7ff] hover:text-[#0b2a4a] hover:shadow-md active:scale-[0.99]"
+                >
                   I have an account
                 </Button>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="mx-auto w-full max-w-[620px] max-h-[420px] rounded-3xl overflow-hidden border border-[#d6ddf0] bg-[#eef2ff] aspect-[16/10] shadow-lg">
-                <img
-                  src="/images/bishop-tucker-building.png"
-                  alt="Bishop Tucker Building, Uganda Christian University"
-                  className="w-full h-full object-cover object-center"
+            <div className="relative order-1 lg:order-2 flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-[520px] lg:max-w-none">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-[#e8ecf7]/90 via-white to-[#f5efe4]/80 blur-sm"
                 />
+                <div className="relative overflow-hidden rounded-[2rem] border border-[#d0d9ee] bg-[#e4eaf5] shadow-[0_24px_60px_-18px_rgba(31,45,79,0.35)] ring-1 ring-black/5">
+                  <div className="aspect-[4/3] w-full sm:aspect-[5/4] lg:aspect-[4/3]">
+                    <img
+                      src="/images/bishop-tucker-building.png"
+                      alt="Bishop Tucker Building, Uganda Christian University"
+                      className="h-full w-full object-cover object-[center_58%]"
+                    />
+                  </div>
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0b2a4a]/25 via-transparent to-transparent"
+                    aria-hidden
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -283,28 +300,27 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         </section>
 
         <section className="px-6 py-10 bg-transparent">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12">
-            <div>
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-20 items-start">
+            <div className="min-w-0 pr-0 lg:pr-2">
               <h2 className="text-3xl font-serif font-bold mb-8" style={{ color: '#25345c' }}>Funding Campaigns</h2>
 
-              <div
-                className="rounded-xl p-6 text-white mb-8 grid grid-cols-1 sm:grid-cols-3 gap-6 items-center text-center"
-                style={{ background: 'linear-gradient(90deg, #203768 0%, #8f3f59 52%, #b48434 100%)' }}
-              >
-                <div className="flex flex-col items-center gap-1 sm:flex-row sm:justify-center sm:gap-3">
-                  <Coins className="w-6 h-6 shrink-0" />
-                  <div>
-                    <p className="text-sm opacity-90">Total Contributions</p>
-                    <p className="text-2xl font-bold">{formatUgx(totalContributions || 1250000)}</p>
+              <div className="mb-8 rounded-2xl border border-[#d9dff0] bg-white p-1 shadow-sm">
+                <div className="grid grid-cols-3 divide-x divide-[#e8ecf7] rounded-xl bg-[#f8f9fc] px-2 py-4 sm:px-4 sm:py-5">
+                  <div className="flex flex-col items-center justify-center gap-1 px-1 text-center">
+                    <Coins className="h-4 w-4 text-[#b37b2a] sm:h-5 sm:w-5" />
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-[#657393] sm:text-xs">Contributions</p>
+                    <p className="text-sm font-bold leading-tight text-[#25345c] sm:text-base">{formatUgx(totalContributions || 1250000)}</p>
                   </div>
-                </div>
-                <div className="flex flex-col items-center justify-center border-y border-white/20 py-3 sm:border-x sm:border-y-0 sm:py-0">
-                  <p className="text-sm opacity-90">Active Campaigns</p>
-                  <p className="text-3xl font-bold tabular-nums">{activeCampaigns}</p>
-                </div>
-                <div className="flex flex-col items-center justify-center">
-                  <p className="text-sm opacity-90">Events</p>
-                  <p className="text-3xl font-bold tabular-nums">{events.length}</p>
+                  <div className="flex flex-col items-center justify-center gap-1 px-1 text-center">
+                    <Heart className="h-4 w-4 text-[#8f3f59] sm:h-5 sm:w-5" />
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-[#657393] sm:text-xs">Active</p>
+                    <p className="text-xl font-bold tabular-nums text-[#25345c] sm:text-2xl">{activeCampaigns}</p>
+                  </div>
+                  <div className="flex flex-col items-center justify-center gap-1 px-1 text-center">
+                    <Calendar className="h-4 w-4 text-[#355fa8] sm:h-5 sm:w-5" />
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-[#657393] sm:text-xs">Events</p>
+                    <p className="text-xl font-bold tabular-nums text-[#25345c] sm:text-2xl">{events.length}</p>
+                  </div>
                 </div>
               </div>
 
@@ -319,7 +335,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 />
               </div>
 
-              <div className="space-y-4 max-w-xl mx-auto w-full">
+              <div className="space-y-4 w-full">
                 {filteredCauses.map((campaign) => {
                   const percent = campaign.goal > 0 ? Math.min(100, Math.round((campaign.raised / campaign.goal) * 100)) : 0;
                   return (
@@ -343,10 +359,10 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               </div>
             </div>
 
-            <div>
+            <div className="min-w-0 border-t border-[#e8ecf7] pt-10 lg:border-l lg:border-t-0 lg:pl-12 xl:pl-16 lg:pt-0">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-3xl font-serif font-bold" style={{ color: '#25345c' }}>Upcoming Events</h2>
-                <ArrowRight className="w-6 h-6" style={{ color: '#657393' }} />
+                <ArrowRight className="w-6 h-6 shrink-0" style={{ color: '#657393' }} />
               </div>
 
               <div className="space-y-4 mb-8">
@@ -372,24 +388,16 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               </div>
 
               <Button
-                className="w-full bg-[#0b2a4a] hover:bg-[#123a66] text-white py-3 font-semibold shadow-lg shadow-[#0b2a4a]/30 ring-2 ring-white border border-white/15"
+                className="w-full bg-gradient-to-b from-[#c9a046] to-[#a67c2e] hover:from-[#d4ad52] hover:to-[#b88a35] text-white py-3 font-semibold rounded-xl shadow-md shadow-amber-900/15 border border-[#e8d4a8]/80"
                 onClick={() => openDonateModal()}
               >
                 View All Events
               </Button>
 
-              <div className="bg-white rounded-lg p-6 border border-[#d9dff0] mt-8 flex items-center justify-around text-center shadow-sm">
-                <div>
-                  <Coins className="w-6 h-6 mx-auto mb-2" style={{ color: '#bc8b37' }} />
-                  <p className="text-2xl font-bold" style={{ color: '#25345c' }}>UGX</p>
-                  <p className="text-sm" style={{ color: '#657393' }}>Total Contributions</p>
-                </div>
-                <div className="h-12 w-px bg-gray-200" />
-                <div>
-                  <Users className="w-6 h-6 mx-auto mb-2" style={{ color: '#6d4eb5' }} />
-                  <p className="text-2xl font-bold" style={{ color: '#25345c' }}>{mentorCount}+</p>
-                  <p className="text-sm" style={{ color: '#657393' }}>Mentors</p>
-                </div>
+              <div className="mt-8 rounded-xl border border-[#d9dff0] bg-[#f8f9fc] px-4 py-4 text-center shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#657393]">Alumni mentors</p>
+                <p className="mt-1 text-2xl font-bold text-[#25345c]">{mentorCount}+</p>
+                <p className="text-sm text-[#657393]">ready to guide students</p>
               </div>
             </div>
           </div>
