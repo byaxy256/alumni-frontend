@@ -33,20 +33,6 @@ type SupportRequest = {
   createdAt?: string;
 };
 
-type NotificationItem = {
-  id: string;
-  actor?: string;
-  action?: string;
-  target?: string;
-  createdAt?: string;
-};
-
-type DonationStats = {
-  totalRaised?: number;
-  donorCount?: number;
-  donationCount?: number;
-};
-
 type DisbursementItem = {
   id?: string;
   student_uid?: string;
@@ -71,10 +57,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   const [loading, setLoading] = useState(true);
   const [loans, setLoans] = useState<Loan[]>([]);
   const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [donationStats, setDonationStats] = useState<DonationStats>({});
   const [disbursements, setDisbursements] = useState<DisbursementItem[]>([]);
-  const [totalAlumni, setTotalAlumni] = useState(0);
   const [me, setMe] = useState<User | null>(null);
 
   // Derived metrics
@@ -82,28 +65,12 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     supportRequests.filter(sr => (sr.status ?? '').toLowerCase() === 'pending').length +
     loans.filter(l => (l.status ?? '').toLowerCase() === 'pending').length;
 
-  const getMoney = (item: any) =>
-    Number(
-      item?.disbursedAmount ??
-      item?.amount_disbursed ??
-      item?.approved_amount ??
-      item?.amountRequested ??
-      item?.amount_requested ??
-      item?.amount ??
-      0
-    );
 
-  const isDisbursedStatus = (status: string) => {
-    const s = (status || '').toLowerCase();
-    return ['approved', 'active', 'paid', 'disbursed'].includes(s);
-  };
 
   const totalDisbursed = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
   const grossApprovedTotal = disbursements.reduce((sum, d) => sum + Number(d.original_amount || d.net_amount || 0), 0);
   const automatedDeductionsTotal = disbursements.reduce((sum, d) => sum + Number(d.deduction || 0), 0);
   const totalFundBalance = grossApprovedTotal - totalDisbursed;
-  const activeDonors = Number(donationStats.donorCount || 0);
-  const resolvedTotalAlumni = totalAlumni || 0;
 
   // Monthly applications data for chart
   const monthlyApplications = [
@@ -114,11 +81,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     { month: 'November', applications: 10 },
   ];
 
-  // Donor breakdown for pie chart
-  const donorsBreakdown = [
-    { name: 'Active Donors', value: activeDonors, color: '#3b82f6' },
-    { name: 'Alumni', value: resolvedTotalAlumni - activeDonors, color: '#f97316' },
-  ];
+
 
   useEffect(() => {
     let cancelled = false;
@@ -129,36 +92,23 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
     async function loadAll(silent = false) {
       if (!silent) setLoading(true);
       try {
-        const [loansRes, supportRes, notifsRes, meRes, donationsRes, disburseRes, usersRes] = await Promise.all([
+        const [loansRes, supportRes, meRes, disburseRes] = await Promise.all([
           fetch(`${API_BASE}/loans`, { headers, signal: ac.signal, cache: 'no-store' }),
           fetch(`${API_BASE}/support`, { headers, signal: ac.signal, cache: 'no-store' }),
-          fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal, cache: 'no-store' }),
           fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal, cache: 'no-store' }),
-          fetch(`${API_BASE}/donations/all-stats`, { headers, signal: ac.signal, cache: 'no-store' }),
           fetch(`${API_BASE}/disburse`, { headers, signal: ac.signal, cache: 'no-store' }),
-          fetch(`${API_BASE}/auth/users`, { headers, signal: ac.signal, cache: 'no-store' }),
         ]);
 
         const loansJson = loansRes.ok ? await loansRes.json() : [];
         const supportJson = supportRes.ok ? await supportRes.json() : [];
-        const notifsJson = notifsRes.ok ? await notifsRes.json() : [];
         const meJson = meRes.ok ? await meRes.json() : null;
-        const donationsJson = donationsRes.ok ? await donationsRes.json() : {};
         const disburseJson = disburseRes.ok ? await disburseRes.json() : [];
-        const usersJson = usersRes.ok ? await usersRes.json() : [];
 
         if (cancelled) return;
         setLoans(Array.isArray(loansJson) ? loansJson : []);
         setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
-        setNotifications(Array.isArray(notifsJson) ? notifsJson : []);
         setMe(meJson?.user || null);
-        setDonationStats(donationsJson || {});
         setDisbursements(Array.isArray(disburseJson) ? disburseJson : []);
-        if (Array.isArray(usersJson)) {
-          setTotalAlumni(usersJson.filter((u: any) => u?.role === 'alumni').length);
-        } else {
-          setTotalAlumni(0);
-        }
       } catch (err: any) {
         if (!cancelled) {
           console.error('Dashboard fetch error', err);
@@ -344,9 +294,9 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
                 <PieChart>
                   <Pie
                     data={[
-                      { name: 'Active', value: Math.round(totalFundBalance * 0.6) },
-                      { name: 'Pending', value: Math.round(totalFundBalance * 0.25) },
-                      { name: 'Hold', value: Math.round(totalFundBalance * 0.15) },
+                      { value: Math.round(totalFundBalance * 0.6) },
+                      { value: Math.round(totalFundBalance * 0.25) },
+                      { value: Math.round(totalFundBalance * 0.15) },
                     ]}
                     cx="50%"
                     cy="50%"

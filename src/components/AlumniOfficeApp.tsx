@@ -149,7 +149,11 @@ export const AlumniOfficeApp = ({
             <header className="h-[78px] bg-gradient-to-r from-[#1a3562] to-[#1f3f72] text-white flex items-center justify-between px-6 border-b border-[#152d55]">
               <div />
               <div className="flex items-center gap-5">
-                <button className="hover:text-white/85 transition">
+                <button 
+                  className="hover:text-white/85 transition"
+                  title="Notifications"
+                  aria-label="Notifications"
+                >
                   <Bell size={16} />
                 </button>
                 <button className="flex items-center gap-2 text-sm">
