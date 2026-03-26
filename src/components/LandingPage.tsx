@@ -214,7 +214,10 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 A modern alumni platform that brings UCU graduates together to donate, mentor, and stay close to the UCU community.
               </p>
               <div className="flex flex-wrap items-center gap-3">
-                <Button onClick={onGetStarted} className="bg-[#bc8b37] hover:bg-[#a9792d] text-white px-8 py-3 text-base font-semibold rounded-xl">
+                <Button
+                  onClick={onGetStarted}
+                  className="bg-[#0b2a4a] hover:bg-[#123a66] text-white px-8 py-3 text-base font-semibold rounded-xl shadow-lg shadow-[#0b2a4a]/35 ring-2 ring-white/90 border border-white/20"
+                >
                   Get Started
                 </Button>
                 <Button onClick={onLogin} variant="outline" className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] hover:bg-[#eef3ff] px-8 py-3 rounded-xl">
@@ -226,9 +229,9 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             <div className="relative">
               <div className="mx-auto w-full max-w-[620px] max-h-[420px] rounded-3xl overflow-hidden border border-[#d6ddf0] bg-[#eef2ff] aspect-[16/10] shadow-lg">
                 <img
-                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80"
-                  alt="Alumni community"
-                  className="w-full h-full object-cover"
+                  src="/images/bishop-tucker-building.png"
+                  alt="Bishop Tucker Building, Uganda Christian University"
+                  className="w-full h-full object-cover object-center"
                 />
               </div>
             </div>
@@ -284,17 +287,24 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             <div>
               <h2 className="text-3xl font-serif font-bold mb-8" style={{ color: '#25345c' }}>Funding Campaigns</h2>
 
-              <div className="rounded-xl p-6 text-white mb-8 flex items-center justify-between" style={{ background: 'linear-gradient(90deg, #203768 0%, #8f3f59 52%, #b48434 100%)' }}>
-                <div className="flex items-center gap-3">
-                  <Coins className="w-6 h-6" />
+              <div
+                className="rounded-xl p-6 text-white mb-8 grid grid-cols-1 sm:grid-cols-3 gap-6 items-center text-center"
+                style={{ background: 'linear-gradient(90deg, #203768 0%, #8f3f59 52%, #b48434 100%)' }}
+              >
+                <div className="flex flex-col items-center gap-1 sm:flex-row sm:justify-center sm:gap-3">
+                  <Coins className="w-6 h-6 shrink-0" />
                   <div>
                     <p className="text-sm opacity-90">Total Contributions</p>
                     <p className="text-2xl font-bold">{formatUgx(totalContributions || 1250000)}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm opacity-90">{activeCampaigns} Active Campaigns</p>
-                  <p className="text-2xl font-bold">{events.length} Events</p>
+                <div className="flex flex-col items-center justify-center border-y border-white/20 py-3 sm:border-x sm:border-y-0 sm:py-0">
+                  <p className="text-sm opacity-90">Active Campaigns</p>
+                  <p className="text-3xl font-bold tabular-nums">{activeCampaigns}</p>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-sm opacity-90">Events</p>
+                  <p className="text-3xl font-bold tabular-nums">{events.length}</p>
                 </div>
               </div>
 
@@ -309,7 +319,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 />
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 max-w-xl mx-auto w-full">
                 {filteredCauses.map((campaign) => {
                   const percent = campaign.goal > 0 ? Math.min(100, Math.round((campaign.raised / campaign.goal) * 100)) : 0;
                   return (
@@ -361,7 +371,10 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 ))}
               </div>
 
-              <Button className="w-full bg-[#bc8b37] hover:bg-[#a9792d] text-white py-3 font-semibold" onClick={() => openDonateModal()}>
+              <Button
+                className="w-full bg-[#0b2a4a] hover:bg-[#123a66] text-white py-3 font-semibold shadow-lg shadow-[#0b2a4a]/30 ring-2 ring-white border border-white/15"
+                onClick={() => openDonateModal()}
+              >
                 View All Events
               </Button>
 
