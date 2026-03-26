@@ -86,6 +86,26 @@ function getCurrentRole() {
   }
 }
 
+function isOfficeWorkflowRole(role?: string | null) {
+  return [
+    'administrator',
+    'general_secretary',
+    'secretary_academics',
+    'finance',
+    'president',
+    'admin',
+  ].includes(String(role || ''));
+}
+
+function mapWorkflowStatus(overallStatus?: string | null): Application['status'] {
+  const status = String(overallStatus || '').toLowerCase();
+  if (status === 'submitted') return 'pending';
+  if (status === 'under_review' || status === 'ready_for_disbursement') return 'under_review';
+  if (status === 'rejected') return 'rejected';
+  if (status === 'disbursed' || status === 'completed') return 'approved';
+  return 'pending';
+}
+
 function StatusBadge({ status }: { status: Application['status'] }) {
   const config: Record<string, { label: string; className: string }> = {
     pending: { label: 'Pending', className: 'bg-amber-100 text-amber-800 border-amber-300' },
@@ -108,6 +128,7 @@ export default function ApplicationsQueue() {
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showRequestInfoDialog, setShowRequestInfoDialog] = useState(false);
+  const [approvalComment, setApprovalComment] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [infoRequestMessage, setInfoRequestMessage] = useState('');
   const [selectedApplications, setSelectedApplications] = useState<Array<string | number>>([]);
@@ -119,12 +140,9 @@ export default function ApplicationsQueue() {
       const token = localStorage.getItem('token') || '';
       const headers = { Authorization: `Bearer ${token}` };
       const role = getCurrentRole();
-
-      if (role === 'general_secretary') {
+      const tryWorkflowFirst = async () => {
         const queueRes = await fetch(`${API_BASE}/office/fund-workflow`, { headers });
-        if (!queueRes.ok) {
-          throw new Error('Failed to fetch general secretary applications queue');
-        }
+        if (!queueRes.ok) return false;
 
         const queueData: OfficeWorkflowApplication[] = await queueRes.json();
         const normalizedQueue: Application[] = (Array.isArray(queueData) ? queueData : []).map((item) => {
@@ -151,7 +169,7 @@ export default function ApplicationsQueue() {
             documentsRequired: 2,
             amount: Number(item.requested_amount || 0),
             purpose: item.source?.reason || payload.reason || payload.purpose || 'N/A',
-            status: 'pending',
+            status: mapWorkflowStatus(item.overall_status),
             submittedDate: new Date(submittedAt).toLocaleDateString(),
             raw: {
               ...item,
@@ -162,7 +180,14 @@ export default function ApplicationsQueue() {
         });
 
         setApplications(normalizedQueue.sort((a, b) => new Date(String(b.raw.created_at)).getTime() - new Date(String(a.raw.created_at)).getTime()));
-        return;
+        return true;
+      };
+
+      const loadedFromWorkflow = await tryWorkflowFirst();
+      if (loadedFromWorkflow) return;
+
+      if (isOfficeWorkflowRole(role)) {
+        throw new Error('Failed to fetch fund workflow queue');
       }
 
       const [loansRes, supportRes] = await Promise.all([
@@ -241,6 +266,26 @@ export default function ApplicationsQueue() {
   const updateApplicationStatus = async (app: Application, newStatus: 'approved' | 'rejected', reason?: string) => {
     try {
       const token = localStorage.getItem('token') || '';
+      const role = getCurrentRole();
+      const isWorkflowApplication = isOfficeWorkflowRole(role) && !!app.raw?.current_stage;
+
+      if (isWorkflowApplication) {
+        const decision = newStatus === 'approved' ? 'approve' : 'reject';
+        const workflowRes = await fetch(`${API_BASE}/office/fund-workflow/${app.id}/decision`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ decision, comment: reason || '' }),
+        });
+
+        if (!workflowRes.ok) {
+          throw new Error(await workflowRes.json().then((d) => d.error || 'Failed to update workflow status'));
+        }
+
+        toast.success(`Application ${app.applicationId} ${newStatus === 'approved' ? 'progressed to next stage' : 'has been rejected'}.`);
+        fetchApplications();
+        return;
+      }
+
       const isLoan = app.type === 'loan';
       const endpoint = isLoan
         ? `${API_BASE}/loans/${app.id}/status`
@@ -269,9 +314,10 @@ export default function ApplicationsQueue() {
 
   const confirmApproval = () => {
     if (!selectedApplication) return;
-    updateApplicationStatus(selectedApplication, 'approved');
+    updateApplicationStatus(selectedApplication, 'approved', approvalComment);
     setShowApproveDialog(false);
     setSelectedApplication(null);
+    setApprovalComment('');
   };
 
   const handleReject = (application: Application) => {
@@ -543,8 +589,14 @@ export default function ApplicationsQueue() {
                     Are you sure you want to approve application {selectedApplication.applicationId} for <strong>UGX {selectedApplication.amount.toLocaleString()}</strong>?
                   </AlertDialogDescription>
               </AlertDialogHeader>
+              <Textarea
+                placeholder="Add approval comment (required for some roles/stages)..."
+                value={approvalComment}
+                onChange={(e) => setApprovalComment(e.target.value)}
+                rows={3}
+              />
               <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel onClick={() => setApprovalComment('')}>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={confirmApproval} style={{ backgroundColor: 'var(--accent)' }}>Approve</AlertDialogAction>
               </AlertDialogFooter>
           </AlertDialogContent>
