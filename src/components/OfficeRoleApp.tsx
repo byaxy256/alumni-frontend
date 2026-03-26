@@ -35,7 +35,6 @@ import type { User } from '../App';
 import { OfficeOverview } from './office/OfficeOverview';
 import { FundWorkflowQueue } from './office/FundWorkflowQueue';
 import { SecretaryAcademicsPanel } from './office/SecretaryAcademicsPanel';
-import { AdministratorDashboard } from './office/AdministratorDashboard';
 import { FinanceDashboard } from './office/FinanceDashboard';
 import { PresidentDashboard } from './office/PresidentDashboard';
 import { PublicityDashboard } from './office/PublicityDashboard';
@@ -43,7 +42,6 @@ import { SecretaryAcademicsDashboard } from './office/SecretaryAcademicsDashboar
 import { VicePresidentDashboard } from './office/VicePresidentDashboard';
 import { ProjectsManagerDashboard } from './office/ProjectsManagerDashboard';
 import AlumniDashboard from './alumni_office_staff/AlumniDashboard';
-import AlumniOfficeOperations from './alumni_office/OperationalDashboard';
 import ApplicationsQueue from './alumni_office_staff/ApplicationsQueue';
 import ImportAssistant from './alumni_office_staff/ImportAssistant';
 import BroadcastEmail from './alumni_office_staff/BroadcastEmail';
@@ -242,7 +240,7 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
         } else if (role === 'president' || role === 'vice_president') {
           return role === 'vice_president' ? <VicePresidentDashboard /> : <PresidentDashboard />;
         } else if (role === 'general_secretary') {
-          return <AlumniOfficeOperations onNavigate={(screen) => setCurrentScreen(screen as OfficeScreen)} />;
+          return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as OfficeScreen)} />;
         } else if (role === 'publicity') {
           return <PublicityDashboard />;
         } else if (role === 'secretary_academics') {
