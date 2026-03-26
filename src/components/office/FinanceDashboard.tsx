@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { TrendingDown, TrendingUp, AlertCircle, DollarSign } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { UcuBadgeLogo } from '../UcuBadgeLogo';
 import { API_BASE } from '../../api';
@@ -93,22 +93,62 @@ export function FinanceDashboard() {
   const netPaidOutTotal = disbursementRecords.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
   const totalLoansRequested = loanRecords.reduce((sum, l) => sum + getAmount(l), 0);
 
-  // Financial trend data
-  const financialTrends = [
-    { month: 'Jan', approved: 12500000, disbursed: 11800000, deductions: 700000 },
-    { month: 'Feb', approved: 14200000, disbursed: 13500000, deductions: 700000 },
-    { month: 'Mar', approved: 13800000, disbursed: 13100000, deductions: 700000 },
-    { month: 'Apr', approved: 15600000, disbursed: 14900000, deductions: 700000 },
-    { month: 'May', approved: 16200000, disbursed: 15500000, deductions: 700000 },
-  ];
+  const financialTrends = useMemo(() => {
+    const monthMap = new Map<string, { approved: number; disbursed: number; deductions: number; date: Date }>();
+    disbursementRecords.forEach((record) => {
+      const date = new Date(record.createdAt || Date.now());
+      const key = `${date.getFullYear()}-${date.getMonth()}`;
+      const month = date.toLocaleDateString('en-US', { month: 'short' });
+      const existing = monthMap.get(key) || { approved: 0, disbursed: 0, deductions: 0, date: new Date(date.getFullYear(), date.getMonth(), 1) };
+      existing.approved += Number(record.original_amount || 0);
+      existing.disbursed += Number(record.net_amount || 0);
+      existing.deductions += Number(record.deduction_amount || 0);
+      monthMap.set(key, existing);
+      (monthMap.get(key) as any).month = month;
+    });
 
-  // Deduction breakdown
-  const deductionData = [
-    { name: 'SACCO Repayment', value: 45, color: '#ef4444' },
-    { name: 'Insurance', value: 25, color: '#f59e0b' },
-    { name: 'Admin Fee', value: 20, color: '#8b5cf6' },
-    { name: 'Other', value: 10, color: '#6b7280' },
-  ];
+    return Array.from(monthMap.values())
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .slice(-6)
+      .map((item) => ({
+        month: item.date.toLocaleDateString('en-US', { month: 'short' }),
+        approved: item.approved,
+        disbursed: item.disbursed,
+        deductions: item.deductions,
+      }));
+  }, [disbursementRecords]);
+
+  const deductionData = useMemo(() => {
+    const colors = ['#ef4444', '#f59e0b', '#8b5cf6', '#6b7280', '#3b82f6', '#10b981'];
+    const reasonMap = new Map<string, number>();
+    disbursementRecords.forEach((record) => {
+      const reason = String(record.deduction_reason || 'other').trim() || 'other';
+      const amount = Number(record.deduction_amount || 0);
+      reasonMap.set(reason, (reasonMap.get(reason) || 0) + amount);
+    });
+
+    const total = Array.from(reasonMap.values()).reduce((sum, v) => sum + v, 0) || 1;
+    return Array.from(reasonMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, amount], index) => ({
+        name,
+        value: Number(((amount / total) * 100).toFixed(1)),
+        color: colors[index % colors.length],
+      }));
+  }, [disbursementRecords]);
+
+  const pendingFinanceReviewCount = loanRecords.filter(
+    (loan) => String(loan.status || '').toLowerCase() === 'pending'
+  ).length;
+
+  const awaitingApprovalCount = supportRecords.filter(
+    (support) => String(support.status || '').toLowerCase() === 'reviewed'
+  ).length;
+
+  const readyToDisburseCount = loanRecords.filter(
+    (loan) => String(loan.status || '').toLowerCase() === 'approved'
+  ).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -280,30 +320,30 @@ export function FinanceDashboard() {
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-semibold text-blue-900">Pending Finance Review</p>
-                <span className="text-2xl font-bold text-blue-600">28</span>
+                <span className="text-2xl font-bold text-blue-600">{pendingFinanceReviewCount}</span>
               </div>
               <div className="w-full bg-blue-200 rounded h-2">
-                <div className="bg-blue-600 h-2 rounded" style={{ width: '45%' }} />
+                <div className="bg-blue-600 h-2 rounded" style={{ width: `${Math.min(100, pendingFinanceReviewCount * 4)}%` }} />
               </div>
               <Button size="sm" className="w-full mt-3" variant="outline">Review Now</Button>
             </div>
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-semibold text-amber-900">Awaiting Approval</p>
-                <span className="text-2xl font-bold text-amber-600">15</span>
+                <span className="text-2xl font-bold text-amber-600">{awaitingApprovalCount}</span>
               </div>
               <div className="w-full bg-amber-200 rounded h-2">
-                <div className="bg-amber-600 h-2 rounded" style={{ width: '24%' }} />
+                <div className="bg-amber-600 h-2 rounded" style={{ width: `${Math.min(100, awaitingApprovalCount * 5)}%` }} />
               </div>
               <Button size="sm" className="w-full mt-3" variant="outline">Process</Button>
             </div>
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-semibold text-green-900">Ready to Disburse</p>
-                <span className="text-2xl font-bold text-green-600">42</span>
+                <span className="text-2xl font-bold text-green-600">{readyToDisburseCount}</span>
               </div>
               <div className="w-full bg-green-200 rounded h-2">
-                <div className="bg-green-600 h-2 rounded" style={{ width: '67%' }} />
+                <div className="bg-green-600 h-2 rounded" style={{ width: `${Math.min(100, readyToDisburseCount * 3)}%` }} />
               </div>
               <Button size="sm" className="w-full mt-3" variant="outline">Disburse</Button>
             </div>

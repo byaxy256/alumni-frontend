@@ -43,6 +43,7 @@ import { SecretaryAcademicsDashboard } from './office/SecretaryAcademicsDashboar
 import { VicePresidentDashboard } from './office/VicePresidentDashboard';
 import { ProjectsManagerDashboard } from './office/ProjectsManagerDashboard';
 import AlumniDashboard from './alumni_office_staff/AlumniDashboard';
+import AlumniOfficeOperations from './alumni_office/OperationalDashboard';
 import ApplicationsQueue from './alumni_office_staff/ApplicationsQueue';
 import ImportAssistant from './alumni_office_staff/ImportAssistant';
 import BroadcastEmail from './alumni_office_staff/BroadcastEmail';
@@ -235,13 +236,13 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
       case 'dashboard':
         // Render role-specific dashboards
         if (role === 'administrator') {
-          return <AdministratorDashboard />;
+          return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as OfficeScreen)} />;
         } else if (role === 'finance') {
           return <FinanceDashboard />;
         } else if (role === 'president' || role === 'vice_president') {
           return role === 'vice_president' ? <VicePresidentDashboard /> : <PresidentDashboard />;
         } else if (role === 'general_secretary') {
-          return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as OfficeScreen)} />;
+          return <AlumniOfficeOperations onNavigate={(screen) => setCurrentScreen(screen as OfficeScreen)} />;
         } else if (role === 'publicity') {
           return <PublicityDashboard />;
         } else if (role === 'secretary_academics') {
