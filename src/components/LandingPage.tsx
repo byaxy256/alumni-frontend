@@ -213,10 +213,10 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               <p className="text-base md:text-lg mb-8 max-w-xl leading-relaxed" style={{ color: '#596786' }}>
                 A modern alumni platform that brings UCU graduates together to donate, mentor, and stay close to the UCU community.
               </p>
-              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 max-w-md">
+              <div className="flex flex-wrap items-center gap-3">
                 <Button
                   onClick={onGetStarted}
-                  className="w-full sm:w-auto bg-gradient-to-b from-[#c9a046] to-[#a67c2e] hover:from-[#d4ad52] hover:to-[#b88a35] text-white px-8 py-3 text-base font-semibold rounded-xl shadow-md shadow-amber-900/20 border border-[#e8d4a8]/80"
+                  className="bg-[#0b2a4a] hover:bg-[#123a66] text-white px-6 py-2.5 text-sm md:text-base font-semibold rounded-xl shadow-md shadow-[#0b2a4a]/25"
                 >
                   Get Started
                 </Button>
@@ -224,7 +224,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                   type="button"
                   onClick={onLogin}
                   variant="outline"
-                  className="w-full sm:w-auto border-2 border-[#c5d0ea] bg-white text-[#1f2d4f] px-8 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200 hover:border-[#0b2a4a] hover:bg-[#f4f7ff] hover:text-[#0b2a4a] hover:shadow-md active:scale-[0.99]"
+                  className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] px-6 py-2.5 text-sm md:text-base rounded-xl font-semibold transition-colors hover:bg-[#eef3ff] hover:border-[#b9c7e6]"
                 >
                   I have an account
                 </Button>
@@ -232,23 +232,16 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             </div>
 
             <div className="relative order-1 lg:order-2 flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[520px] lg:max-w-none">
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-[#e8ecf7]/90 via-white to-[#f5efe4]/80 blur-sm"
-                />
-                <div className="relative overflow-hidden rounded-[2rem] border border-[#d0d9ee] bg-[#e4eaf5] shadow-[0_24px_60px_-18px_rgba(31,45,79,0.35)] ring-1 ring-black/5">
-                  <div className="aspect-[4/3] w-full sm:aspect-[5/4] lg:aspect-[4/3]">
+              <div className="w-full max-w-[560px]">
+                <div className="overflow-hidden rounded-3xl border border-[#d0d9ee] bg-white shadow-[0_24px_60px_-18px_rgba(31,45,79,0.32)] ring-1 ring-black/5">
+                  <div className="aspect-[4/3] w-full">
                     <img
                       src="/images/bishop-tucker-building.png"
                       alt="Bishop Tucker Building, Uganda Christian University"
-                      className="h-full w-full object-cover object-[center_58%]"
+                      className="h-full w-full object-cover object-center"
                     />
                   </div>
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0b2a4a]/25 via-transparent to-transparent"
-                    aria-hidden
-                  />
+                  <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white/30 via-transparent to-transparent" />
                 </div>
               </div>
             </div>
@@ -261,8 +254,19 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               <div className="h-12 w-12 rounded-lg flex items-center justify-center mb-4" style={{ background: '#f6e8c8' }}>
                 <Coins className="w-6 h-6" style={{ color: '#b37b2a' }} />
               </div>
-              <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Student Support</h3>
-              <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Emergency loans, Support campaigns</p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Student Support</h3>
+                  <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Emergency loans, Support campaigns</p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => openDonateModal('Student Loan Fund')}
+                  className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-5 h-10 rounded-xl font-semibold shadow-sm"
+                >
+                  Donate
+                </Button>
+              </div>
               <div className="space-y-1">
                 <p className="text-2xl font-bold" style={{ color: '#25345c' }}>{formatUgx(totalContributions || 320000000)}+</p>
                 <p className="text-sm flex items-center gap-1" style={{ color: '#657393' }}>
@@ -304,8 +308,11 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             <div className="min-w-0 pr-0 lg:pr-2">
               <h2 className="text-3xl font-serif font-bold mb-8" style={{ color: '#25345c' }}>Funding Campaigns</h2>
 
-              <div className="mb-8 rounded-2xl border border-[#d9dff0] bg-white p-1 shadow-sm">
-                <div className="grid grid-cols-3 divide-x divide-[#e8ecf7] rounded-xl bg-[#f8f9fc] px-2 py-4 sm:px-4 sm:py-5">
+              <div
+                className="mb-8 rounded-2xl border border-[#d9dff0] p-1 shadow-sm"
+                style={{ background: 'linear-gradient(90deg, rgba(32,55,104,0.10) 0%, rgba(143,63,89,0.10) 55%, rgba(180,132,52,0.10) 100%)' }}
+              >
+                <div className="grid grid-cols-3 divide-x divide-[#e8ecf7] rounded-xl bg-white/90 px-2 py-4 backdrop-blur sm:px-4 sm:py-5">
                   <div className="flex flex-col items-center justify-center gap-1 px-1 text-center">
                     <Coins className="h-4 w-4 text-[#b37b2a] sm:h-5 sm:w-5" />
                     <p className="text-[10px] font-medium uppercase tracking-wide text-[#657393] sm:text-xs">Contributions</p>
@@ -387,12 +394,19 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 ))}
               </div>
 
-              <Button
-                className="w-full bg-gradient-to-b from-[#c9a046] to-[#a67c2e] hover:from-[#d4ad52] hover:to-[#b88a35] text-white py-3 font-semibold rounded-xl shadow-md shadow-amber-900/15 border border-[#e8d4a8]/80"
-                onClick={() => openDonateModal()}
-              >
-                View All Events
-              </Button>
+              <div className="flex items-center justify-end">
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openDonateModal();
+                  }}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#0b2a4a] underline underline-offset-4 decoration-[#b9c7e6] hover:text-[#123a66]"
+                >
+                  View All Events
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </div>
 
               <div className="mt-8 rounded-xl border border-[#d9dff0] bg-[#f8f9fc] px-4 py-4 text-center shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-wide text-[#657393]">Alumni mentors</p>
