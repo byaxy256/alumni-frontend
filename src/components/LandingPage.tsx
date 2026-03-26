@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 import { API_BASE } from '../api';
-import { toast } from 'sonner';
 
 interface LandingPageProps {
   onGetStarted: () => void;
   onLogin: () => void;
+  onDonate: (cause?: string) => void;
 }
 
 type EventItem = {
@@ -43,74 +43,14 @@ function formatUgx(value: number) {
   return `UGX ${Number(value || 0).toLocaleString()}`;
 }
 
-export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
+export default function LandingPage({ onGetStarted, onLogin, onDonate }: LandingPageProps) {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [causes, setCauses] = useState<DonationCause[]>(DEFAULT_CAUSES);
   const [totalContributions, setTotalContributions] = useState<number>(0);
   const [mentorCount, setMentorCount] = useState<number>(240);
   const [search, setSearch] = useState('');
-  const [showDonateModal, setShowDonateModal] = useState(false);
-  const [donateLoading, setDonateLoading] = useState(false);
-  const [donateForm, setDonateForm] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    amount: '',
-    cause: 'Student Loan Fund',
-  });
 
-  const openDonateModal = (cause?: string) => {
-    setDonateForm((prev) => ({
-      ...prev,
-      cause: cause || prev.cause,
-    }));
-    setShowDonateModal(true);
-  };
-
-  const submitGuestDonation = async () => {
-    const amount = Number(donateForm.amount || 0);
-    if (!donateForm.full_name.trim() || !donateForm.email.trim() || !donateForm.phone.trim() || !Number.isFinite(amount) || amount <= 0) {
-      toast.error('Please fill your name, email, phone and a valid amount.');
-      return;
-    }
-
-    try {
-      setDonateLoading(true);
-      const res = await fetch(`${API_BASE}/donations/public`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          full_name: donateForm.full_name,
-          email: donateForm.email,
-          phone: donateForm.phone,
-          amount,
-          cause: donateForm.cause,
-          payment_method: 'guest',
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data?.error || 'Failed to submit donation');
-      }
-
-      toast.success('Thank you! Your donation was received successfully.');
-      setShowDonateModal(false);
-      setDonateForm((prev) => ({ ...prev, amount: '' }));
-
-      const statsRes = await fetch(`${API_BASE}/donations/public-stats`);
-      if (statsRes.ok) {
-        const statsJson = await statsRes.json();
-        if (typeof statsJson?.totalContributions === 'number') {
-          setTotalContributions(statsJson.totalContributions);
-        }
-      }
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to submit donation');
-    } finally {
-      setDonateLoading(false);
-    }
-  };
+  const goDonate = (cause?: string) => onDonate(cause);
 
   useEffect(() => {
     let cancelled = false;
@@ -224,7 +164,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                   type="button"
                   onClick={onLogin}
                   variant="outline"
-                  className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] px-6 py-2.5 text-sm md:text-base rounded-xl font-semibold transition-colors hover:bg-[#eef3ff] hover:border-[#b9c7e6]"
+                  className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] px-6 py-2.5 text-sm md:text-base rounded-xl font-semibold transition-colors hover:!bg-[#eef3ff] hover:!border-[#b9c7e6] hover:!text-[#0b2a4a]"
                 >
                   I have an account
                 </Button>
@@ -261,7 +201,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 </div>
                 <Button
                   type="button"
-                  onClick={() => openDonateModal('Student Loan Fund')}
+                  onClick={() => goDonate('Student Loan Fund')}
                   className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-5 h-10 rounded-xl font-semibold shadow-sm"
                 >
                   Donate
@@ -280,8 +220,19 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               <div className="h-12 w-12 rounded-lg flex items-center justify-center mb-4" style={{ background: '#efe7ff' }}>
                 <Users className="w-6 h-6" style={{ color: '#6d4eb5' }} />
               </div>
-              <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Alumni Network</h3>
-              <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Find classmates, mentors, and social chapters</p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Alumni Network</h3>
+                  <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Find classmates, mentors, and social chapters</p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => goDonate('Merit Scholarships')}
+                  className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-5 h-10 rounded-xl font-semibold shadow-sm"
+                >
+                  Donate
+                </Button>
+              </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" style={{ color: '#6d4eb5' }} />
                 <p className="text-2xl font-bold" style={{ color: '#25345c' }}>{mentorCount}+</p>
@@ -293,8 +244,19 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               <div className="h-12 w-12 rounded-lg flex items-center justify-center mb-4" style={{ background: '#e7efff' }}>
                 <ShieldCheck className="w-6 h-6" style={{ color: '#355fa8' }} />
               </div>
-              <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Secure & Trusted</h3>
-              <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Built with advanced security and privacy protection</p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1" style={{ color: '#25345c' }}>Secure & Trusted</h3>
+                  <p className="text-sm leading-relaxed mb-4" style={{ color: '#657393' }}>Built with advanced security and privacy protection</p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => goDonate('Emergency Relief')}
+                  className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-5 h-10 rounded-xl font-semibold shadow-sm"
+                >
+                  Donate
+                </Button>
+              </div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" style={{ color: '#355fa8' }} />
                 <p className="text-sm" style={{ color: '#657393' }}>Privacy</p>
@@ -349,7 +311,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                   <div key={campaign.id} className="bg-white rounded-lg p-6 border border-[#d9dff0] shadow-sm">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold" style={{ color: '#25345c' }}>{campaign.name}</h4>
-                      <Button className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-6 min-w-[108px]" onClick={() => openDonateModal(campaign.name)}>Donate</Button>
+                      <Button className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-6 min-w-[108px]" onClick={() => goDonate(campaign.name)}>Donate</Button>
                     </div>
                     <div className="flex items-center justify-between text-sm mb-2" style={{ color: '#657393' }}>
                       <span>{formatUgx(campaign.raised)}</span>
@@ -369,7 +331,10 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             <div className="min-w-0 border-t border-[#e8ecf7] pt-10 lg:border-l lg:border-t-0 lg:pl-12 xl:pl-16 lg:pt-0">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-3xl font-serif font-bold" style={{ color: '#25345c' }}>Upcoming Events</h2>
-                <ArrowRight className="w-6 h-6 shrink-0" style={{ color: '#657393' }} />
+                <div className="flex items-center gap-2 text-[#657393]">
+                  <span className="text-sm font-semibold">View All Events</span>
+                  <ArrowRight className="w-6 h-6 shrink-0" />
+                </div>
               </div>
 
               <div className="space-y-4 mb-8">
@@ -394,19 +359,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 ))}
               </div>
 
-              <div className="flex items-center justify-end">
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    openDonateModal();
-                  }}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#0b2a4a] underline underline-offset-4 decoration-[#b9c7e6] hover:text-[#123a66]"
-                >
-                  View All Events
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
+              <div className="h-2" />
 
               <div className="mt-8 rounded-xl border border-[#d9dff0] bg-[#f8f9fc] px-4 py-4 text-center shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-wide text-[#657393]">Alumni mentors</p>
@@ -418,73 +371,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
         </section>
       </main>
 
-      {showDonateModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-[#d9dff0] bg-white p-6 shadow-2xl">
-            <h3 className="text-xl font-semibold" style={{ color: '#25345c' }}>Donate</h3>
-            <p className="mt-1 text-sm" style={{ color: '#657393' }}>You can donate without creating an account.</p>
-
-            <div className="mt-4 space-y-3">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={donateForm.full_name}
-                onChange={(event) => setDonateForm((prev) => ({ ...prev, full_name: event.target.value }))}
-                className="w-full rounded-lg border border-[#d9dff0] px-3 py-2 text-sm text-[#25345c] outline-none focus:ring-2 focus:ring-[#bc8b37]"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={donateForm.email}
-                onChange={(event) => setDonateForm((prev) => ({ ...prev, email: event.target.value }))}
-                className="w-full rounded-lg border border-[#d9dff0] px-3 py-2 text-sm text-[#25345c] outline-none focus:ring-2 focus:ring-[#bc8b37]"
-              />
-              <input
-                type="tel"
-                placeholder="Phone"
-                value={donateForm.phone}
-                onChange={(event) => setDonateForm((prev) => ({ ...prev, phone: event.target.value }))}
-                className="w-full rounded-lg border border-[#d9dff0] px-3 py-2 text-sm text-[#25345c] outline-none focus:ring-2 focus:ring-[#bc8b37]"
-              />
-              <input
-                type="number"
-                placeholder="Amount (UGX)"
-                value={donateForm.amount}
-                onChange={(event) => setDonateForm((prev) => ({ ...prev, amount: event.target.value }))}
-                className="w-full rounded-lg border border-[#d9dff0] px-3 py-2 text-sm text-[#25345c] outline-none focus:ring-2 focus:ring-[#bc8b37]"
-              />
-              <select
-                aria-label="Donation Cause"
-                value={donateForm.cause}
-                onChange={(event) => setDonateForm((prev) => ({ ...prev, cause: event.target.value }))}
-                className="w-full rounded-lg border border-[#d9dff0] px-3 py-2 text-sm text-[#25345c] outline-none focus:ring-2 focus:ring-[#bc8b37]"
-              >
-                {causes.map((cause) => (
-                  <option key={cause.id} value={cause.name}>{cause.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mt-5 flex items-center justify-end gap-2">
-              <Button
-                variant="outline"
-                className="border-[#d9dff0] text-[#2f3e67]"
-                onClick={() => setShowDonateModal(false)}
-                disabled={donateLoading}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-[#bc8b37] hover:bg-[#a9792d] text-white"
-                onClick={submitGuestDonation}
-                disabled={donateLoading}
-              >
-                {donateLoading ? 'Submitting...' : 'Donate'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {null}
     </div>
   );
 }

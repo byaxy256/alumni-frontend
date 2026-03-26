@@ -5,6 +5,7 @@ import LandingPage from './components/LandingPage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import ResetPassword from './components/ResetPassword';
+import GuestDonate from './components/GuestDonate';
 import { StudentApp } from './components/StudentApp';
 import { AlumniApp } from './components/AlumniApp';
 import { AdminApp } from './components/AdminApp';
@@ -81,6 +82,12 @@ export default function App() {
   const forcedScreen = typeof window !== 'undefined'
     ? new URLSearchParams(window.location.search).get('screen')
     : null;
+  const initialDonate = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('donate') === '1'
+    : false;
+  const initialDonateCause = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('cause')
+    : null;
   const [user, setUser] = useState<User | null>(null);
   const [showLanding, setShowLanding] = useState(forcedScreen !== 'login' && forcedScreen !== 'signup');
   const [showSignUp, setShowSignUp] = useState(forcedScreen === 'signup');
@@ -88,6 +95,8 @@ export default function App() {
 
 
   const [showLogin, setShowLogin] = useState(forcedScreen === 'login');
+  const [showDonate, setShowDonate] = useState(initialDonate);
+  const [donateCause, setDonateCause] = useState<string | null>(initialDonateCause);
   const [passwordResetToken, setPasswordResetToken] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     return new URLSearchParams(window.location.search).get('reset_token');
@@ -203,6 +212,7 @@ export default function App() {
   const handleBackToLanding = () => {
     setShowSignUp(false);
     setShowLogin(false);
+    setShowDonate(false);
     setShowLanding(true);
   };
 
@@ -210,6 +220,39 @@ export default function App() {
     setShowSignUp(false);
     setShowLogin(true);
     setShowLanding(false);
+  };
+
+  const setDonateUrl = (cause?: string) => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('screen');
+    url.searchParams.delete('reset_token');
+    url.searchParams.set('donate', '1');
+    if (cause) url.searchParams.set('cause', cause);
+    else url.searchParams.delete('cause');
+    window.history.pushState({}, '', url.pathname + url.search + url.hash);
+  };
+
+  const clearDonateUrl = () => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('donate');
+    url.searchParams.delete('cause');
+    window.history.pushState({}, '', url.pathname + url.search + url.hash);
+  };
+
+  const handleGoToDonate = (cause?: string) => {
+    setDonateCause(cause ? String(cause) : null);
+    setShowLanding(false);
+    setShowSignUp(false);
+    setShowLogin(false);
+    setShowDonate(true);
+    setDonateUrl(cause);
+  };
+
+  const handleBackFromDonate = () => {
+    clearDonateUrl();
+    handleBackToLanding();
   };
 
   // FIX: Corrected and consolidated the useEffect hook for checking authentication.
@@ -327,11 +370,20 @@ export default function App() {
     );
   }
 
+  if (showDonate && !user) {
+    return (
+      <>
+        <GuestDonate initialCause={donateCause} onBack={handleBackFromDonate} />
+        <Toaster />
+      </>
+    );
+  }
+
   // Your component rendering logic is preserved exactly
   if (showLanding && !user) {
     return (
       <>
-        <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />
+        <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} onDonate={handleGoToDonate} />
         <Toaster />
       </>
     );
@@ -444,7 +496,7 @@ export default function App() {
   // Fallback to the landing page if no other condition is met
   return (
     <>
-      <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />
+      <LandingPage onGetStarted={handleGetStarted} onLogin={handleGoToLogin} onDonate={handleGoToDonate} />
       <Toaster />
     </>
   );
