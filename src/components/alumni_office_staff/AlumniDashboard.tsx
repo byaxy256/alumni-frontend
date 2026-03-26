@@ -1,257 +1,463 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { FileText, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { DollarSign, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { User } from '../../App';
-import { useOfficeRealtimeData } from '../office/useOfficeRealtimeData';
+import { API_BASE } from '../../api';
+import { UcuBadgeLogo } from '../UcuBadgeLogo';
 
 interface AlumniDashboardProps {
   user: User;
   onNavigate: (screen: string) => void;
 }
 
-const formatCompactUGX = (value: number): string => {
-  if (value >= 1_000_000) return `UGX ${(value / 1_000_000).toFixed(1)}M`;
-  if (value >= 1_000) return `UGX ${(value / 1_000).toFixed(1)}K`;
-  return `UGX ${value.toLocaleString()}`;
+type Loan = {
+  id: string;
+  amount?: number;
+  disbursedAmount?: number;
+  status?: string;
+  createdAt?: string;
+  // other fields...
 };
 
-const getAmount = (item: Record<string, any>) =>
-  Number(
-    item?.disbursedAmount ??
-      item?.amount_disbursed ??
-      item?.approved_amount ??
-      item?.amountRequested ??
-      item?.amount_requested ??
-      item?.amount ??
-      item?.net_amount ??
-      item?.original_amount ??
-      0,
-  );
+type SupportRequest = {
+  id: string;
+  amountRequested?: number;
+  status?: string;
+  createdAt?: string;
+  // other fields...
+};
 
-const toDate = (item: Record<string, any>): Date | null => {
-  const raw = item?.createdAt ?? item?.created_at ?? item?.updatedAt ?? item?.approved_at ?? null;
-  if (!raw) return null;
-  const parsed = new Date(raw);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
+type NotificationItem = {
+  id: string;
+  actor?: string;
+  action?: string;
+  target?: string;
+  createdAt?: string;
+  // other fields...
+};
+
+type DonationStats = {
+  totalRaised?: number;
+  donorCount?: number;
+  donationCount?: number;
+  byCause?: Record<string, number>;
+};
+
+type DisbursementItem = {
+  id?: string;
+  student_uid?: string;
+  net_amount?: number;
+  original_amount?: number;
+  approved_at?: string;
+  created_at?: string;
 };
 
 export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardProps) {
-  const { loading, loans, supports, disbursements, notifications, users, donations, monthlyPipeline, statusBreakdown } =
-    useOfficeRealtimeData();
+  const [loading, setLoading] = useState(true);
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [donationStats, setDonationStats] = useState<DonationStats>({});
+  const [disbursements, setDisbursements] = useState<DisbursementItem[]>([]);
+  const [totalAlumni, setTotalAlumni] = useState(0);
+  const [me, setMe] = useState<User | null>(null);
 
-  const pendingApplications = [...loans, ...supports].filter(
-    (item) => String(item?.status || '').toLowerCase() === 'pending',
-  ).length;
+  // Derived metrics
+  const pendingApplications =
+    supportRequests.filter(sr => (sr.status ?? '').toLowerCase() === 'pending').length +
+    loans.filter(l => (l.status ?? '').toLowerCase() === 'pending').length;
 
-  const pendingFundRequests = supports.filter(
-    (item) => String(item?.status || '').toLowerCase() === 'pending',
-  ).length;
+  const totalRaised = Number(donationStats.totalRaised || 0);
+  const totalDisbursed = disbursements.reduce((sum, d) => sum + Number(d.net_amount || 0), 0);
+  const totalFundBalance = totalRaised - totalDisbursed;
+  const activeDonors = Number(donationStats.donorCount || 0);
+  const resolvedTotalAlumni = Math.max(totalAlumni, activeDonors);
+  const nonDonorAlumni = Math.max(resolvedTotalAlumni - activeDonors, 0);
 
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  const formatCompactUGX = (value: number) => {
+    if (value >= 1000000000) return `UGX ${(value / 1000000000).toFixed(1)}B`;
+    if (value >= 1000000) return `UGX ${(value / 1000000).toFixed(1)}M`;
+    return `UGX ${Math.round(value).toLocaleString()}`;
+  };
 
-  const reviewedThisMonth = [...loans, ...supports].filter((item) => {
-    const status = String(item?.status || '').toLowerCase();
-    const date = toDate(item);
-    return date && date >= startOfMonth && status !== 'pending';
-  }).length;
+  // monthly applications received derived from supportRequests & loans createdAt
+  const monthlyApplications = (() => {
+    // build last 5 months labels
+    const months: { month: string; applications: number }[] = [];
+    const now = new Date();
+    for (let i = 4; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = d.toLocaleString(undefined, { month: 'short' });
+      months.push({ month: label, applications: 0 });
+    }
 
-  const approvedItems = [...loans, ...supports].filter((item) => {
-    const status = String(item?.status || '').toLowerCase();
-    return ['approved', 'active', 'disbursed', 'paid'].includes(status);
-  });
+    // Count applications (both loans and support requests)
+    const allApplications = [...loans, ...supportRequests];
+    allApplications.forEach(app => {
+      const dateStr = (app as any).createdAt || (app as any).created_at || '';
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      const label = d.toLocaleString(undefined, { month: 'short' });
+      const idx = months.findIndex(m => m.month === label);
+      if (idx >= 0) months[idx].applications += 1;
+    });
 
-  const approvedCount = approvedItems.length;
-  const approvedAmount = approvedItems.reduce((sum, item) => sum + getAmount(item), 0);
+    return months;
+  })();
 
-  const grossApprovedTotal = disbursements.reduce((sum, item) => sum + Number(item?.original_amount || item?.net_amount || 0), 0);
-  const automatedDeductionsTotal = disbursements.reduce((sum, item) => sum + Number(item?.deduction_amount || item?.deduction || 0), 0);
-  const netPaidOutTotal = disbursements.reduce((sum, item) => sum + Number(item?.net_amount || 0), 0);
-  const totalFundBalance = Math.max(grossApprovedTotal - netPaidOutTotal, 0);
+  const donorsBreakdown = [
+    { name: 'Active Donors', value: activeDonors, color: '#355C9A' },
+    { name: 'Other Alumni', value: nonDonorAlumni, color: '#8A1F3A' },
+  ].filter((item) => item.value > 0);
 
-  const activeDonors = Number(donations?.donorCount || 0);
-  const totalAlumni = users.filter((entry) => String(entry?.role || '').toLowerCase() === 'alumni').length;
+  const totalDonorValue = donorsBreakdown.reduce((sum, item) => sum + item.value, 0);
 
-  const applicationTrend = monthlyPipeline.map((item) => ({
-    month: item.month,
-    applications: item.count,
-  }));
+  const recentActivities = notifications
+    .map((notification, idx) => {
+      const item = notification as any;
+      const actor = item.actor ?? item.user ?? item.createdBy ?? item.created_by ?? item.sender ?? 'System';
+      const action = item.action ?? item.type ?? item.category ?? 'Notification';
+      const target =
+        item.target ??
+        item.message ??
+        item.title ??
+        item.body ??
+        item.content ??
+        item.text ??
+        item.description ??
+        '';
+      const createdAt = item.createdAt ?? item.created_at ?? item.updatedAt ?? item.updated_at;
 
-  const pieData = statusBreakdown.length
-    ? statusBreakdown.slice(0, 5).map((entry) => ({ name: entry.name, value: entry.value }))
-    : [{ name: 'no-data', value: 1 }];
+      return {
+        id: item.id ?? item._id ?? idx,
+        type: 'notification',
+        user: String(actor || 'System'),
+        action: String(action || 'Notification'),
+        target: String(target || ''),
+        time: createdAt ? new Date(createdAt).toLocaleString() : 'just now',
+      };
+    })
+    .filter((activity) => activity.user || activity.action || activity.target)
+    .slice(0, 6);
 
-  const applicationTableRows = [...loans, ...supports]
-    .slice(0, 6)
-    .map((item, index) => ({
-      id: item?.id || item?._id || String(index),
-      applicant: item?.name || item?.applicant_name || item?.studentName || item?.student_uid || 'Applicant',
-      type: item?.loanType ? 'Loan' : item?.supportType ? 'Support' : item?.category || 'Request',
-      amount: getAmount(item),
-    }));
+  // src/components/AlumniDashboard.tsx
 
-  const awaitingRows = [...loans, ...supports]
-    .filter((item) => String(item?.status || '').toLowerCase() === 'pending')
-    .slice(0, 6)
-    .map((item, index) => ({
-      id: item?.id || item?._id || String(index),
-      type: item?.loanType ? 'Loan' : item?.supportType ? 'Support' : item?.category || 'Request',
-      applicant: item?.name || item?.applicant_name || item?.studentName || item?.student_uid || 'Applicant',
-      date: toDate(item),
-    }));
+  useEffect(() => {
+    let cancelled = false;
+    const ac = new AbortController();
+    const token = localStorage.getItem('token') || '';
+    const headers = { Authorization: `Bearer ${token}` };
 
-  const recentComments = notifications.slice(0, 6).map((item, index) => ({
-    id: item?.id || item?._id || String(index),
-    applicant: item?.actor || item?.user?.name || 'System',
-    type: item?.target || 'Workflow',
-    decision: item?.action || 'updated',
-  }));
+    async function loadAll(silent = false) {
+      if (!silent) setLoading(true);
+      try {
+        const [loansRes, supportRes, notifsRes, meRes, donationsRes, disburseRes, usersRes] = await Promise.all([
+          fetch(`${API_BASE}/loans`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/support`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/notifications/mine`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/auth/me`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/donations/all-stats`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/disburse`, { headers, signal: ac.signal, cache: 'no-store' }),
+          fetch(`${API_BASE}/auth/users`, { headers, signal: ac.signal, cache: 'no-store' }),
+        ]);
 
-  const welcomeName = user?.name?.split?.(' ')[0] || user?.full_name?.split?.(' ')[0] || 'Team';
+        const loansJson = loansRes.ok ? await loansRes.json() : [];
+        const supportJson = supportRes.ok ? await supportRes.json() : [];
+        const notifsJson = notifsRes.ok ? await notifsRes.json() : [];
+        const meJson = meRes.ok ? await meRes.json() : null;
+        const donationsJson = donationsRes.ok ? await donationsRes.json() : {};
+        const disburseJson = disburseRes.ok ? await disburseRes.json() : [];
+        const usersJson = usersRes.ok ? await usersRes.json() : [];
+
+        if (cancelled) return;
+        setLoans(Array.isArray(loansJson) ? loansJson : []);
+        setSupportRequests(Array.isArray(supportJson) ? supportJson : []);
+        setNotifications(Array.isArray(notifsJson) ? notifsJson : []);
+        setMe(meJson?.user || null);
+        setDonationStats(donationsJson || {});
+        setDisbursements(Array.isArray(disburseJson) ? disburseJson : []);
+        if (Array.isArray(usersJson)) {
+          setTotalAlumni(usersJson.filter((u: any) => u?.role === 'alumni').length);
+        } else {
+          setTotalAlumni(0);
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          console.error('Dashboard fetch error', err);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadAll();
+
+    const intervalId = window.setInterval(() => {
+      loadAll(true);
+    }, 60000);
+
+    const handleFocus = () => loadAll(true);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadAll(true);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      cancelled = true;
+      ac.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white p-4 lg:p-6">
-      <div className="mb-6 rounded-xl bg-[#1a3563] text-white p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-semibold">Welcome back, {welcomeName}!</h2>
-            <p className="text-white/80 mt-2 text-sm lg:text-base">Here is what is happening with the Alumni Fund</p>
+    <div className="min-h-screen bg-background">
+      {/* Blue Header Section */}
+      <div className="bg-[#0b2a4a] text-white p-6 rounded-b-3xl shadow-lg mb-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <UcuBadgeLogo className="h-9 w-9" imageClassName="object-contain p-0.5" />
+            <div>
+              <h2 className="text-2xl font-semibold">Welcome back, {me?.name?.split?.(' ')[0] ?? user?.name?.split?.(' ')[0] ?? 'Guest'}!</h2>
+              <p className="text-sm opacity-80 mt-1">Here's what's happening with the Alumni Fund</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="border-0 text-white rounded-lg overflow-hidden shadow-md" style={{ background: 'linear-gradient(135deg, #2f5288 0%, #355C9A 100%)' }}>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center"><FileText size={20} /></div><span className="text-sm font-medium">Pending Applications</span></div>
-            <p className="text-3xl lg:text-4xl font-bold">{loading ? '...' : pendingApplications}</p>
-            <Button variant="ghost" size="sm" className="p-0 h-auto mt-3 text-xs text-white/90 hover:text-white" onClick={() => onNavigate('applications')}>Review Now →</Button>
+      {/* Main Content */}
+      <div className="p-4 lg:p-6 space-y-6 pb-20 lg:pb-6 max-w-6xl mx-auto">
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <DollarSign size={20} className="text-white" />
+              </div>
+            </div>
+            <p className="text-xs text-white/80">Total Fund Balance</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">
+              {loading ? 'Updating...' : formatCompactUGX(totalFundBalance)}
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="border-0 text-white rounded-lg overflow-hidden shadow-md" style={{ background: 'linear-gradient(135deg, #742033 0%, #8A1F3A 100%)' }}>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center"><AlertCircle size={20} /></div><span className="text-sm font-medium">Pending Fund Requests</span></div>
-            <p className="text-3xl lg:text-4xl font-bold">{loading ? '...' : pendingFundRequests}</p>
-            <Button variant="ghost" size="sm" className="p-0 h-auto mt-3 text-xs text-white/90 hover:text-white" onClick={() => onNavigate('request-funds')}>Review Now →</Button>
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <AlertCircle size={20} className="text-white" />
+              </div>
+            </div>
+            <p className="text-xs text-white/80">Pending Applications</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">{loading ? '...' : pendingApplications}</p>
+            <Button
+              variant="link"
+              size="sm"
+              className="p-0 h-auto mt-2 text-xs text-white/90 hover:text-white"
+              onClick={() => onNavigate('applications')}
+            >
+              Review Now →
+            </Button>
           </CardContent>
         </Card>
 
-        <Card className="border-0 text-white rounded-lg overflow-hidden shadow-md" style={{ background: 'linear-gradient(135deg, #b1882a 0%, #C79A2B 100%)' }}>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center"><CheckCircle size={20} /></div><span className="text-sm font-medium">Reviewed This Month</span></div>
-            <p className="text-3xl lg:text-4xl font-bold">{loading ? '...' : reviewedThisMonth}</p>
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)' }}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <Users size={20} className="text-white" />
+              </div>
+            </div>
+            <p className="text-xs text-white/80">Total Alumni</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">{loading ? '...' : resolvedTotalAlumni.toLocaleString()}</p>
+            <p className="text-xs text-white/80 mt-2">{loading ? 'Updating...' : `${activeDonors.toLocaleString()} active donors`}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-0 text-white rounded-lg overflow-hidden shadow-md" style={{ background: 'linear-gradient(135deg, #356642 0%, #3F7A4A 100%)' }}>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center"><TrendingUp size={20} /></div><span className="text-sm font-medium">Total Approved</span></div>
-            <p className="text-3xl lg:text-4xl font-bold">{loading ? '...' : approvedCount}</p>
-            <p className="text-xs text-white/80 mt-2">{loading ? '...' : formatCompactUGX(approvedAmount)}</p>
+        <Card className="border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)' }}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-10 h-10 rounded-full bg-white/18 border border-white/35 flex items-center justify-center">
+                <TrendingUp size={20} className="text-white" />
+              </div>
+            </div>
+            <p className="text-xs text-white/80">Total Disbursed</p>
+            <p className="text-lg lg:text-xl mt-1 text-white">
+              {loading ? 'Updating...' : formatCompactUGX(totalDisbursed)}
+            </p>
+            <p className="text-xs text-white/80 mt-2">Net approved disbursements</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="border border-slate-200 rounded-lg shadow-sm"><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-2">Total Approved (Before Deductions)</p><p className="text-2xl font-bold text-[#0b2a4a]">{loading ? '...' : formatCompactUGX(grossApprovedTotal)}</p><p className="text-xs text-muted-foreground mt-2">Approved principal before automated deductions.</p></CardContent></Card>
-          <Card className="border border-slate-200 rounded-lg shadow-sm"><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-2">Automated Deductions</p><p className="text-2xl font-bold text-[#8A1F3A]">{loading ? '...' : formatCompactUGX(automatedDeductionsTotal)}</p><p className="text-xs text-muted-foreground mt-2">Total deducted before payout.</p></CardContent></Card>
-        </div>
-        <Card className="border border-slate-200 rounded-lg shadow-sm"><CardContent className="p-4"><p className="text-xs text-muted-foreground mb-2">Queue Value</p><p className="text-2xl font-bold text-[#0b2a4a]">{loading ? '...' : formatCompactUGX(totalFundBalance)}</p><p className="text-xs text-muted-foreground mt-2">Available queue value after deductions.</p></CardContent></Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card className="border border-slate-200 rounded-lg shadow-sm">
-          <CardHeader><CardTitle className="text-lg font-semibold">Application Trends</CardTitle></CardHeader>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card className="border-slate-200/80">
+          <CardHeader>
+            <CardTitle className="text-base lg:text-lg">Monthly Applications Received</CardTitle>
+            <CardDescription>Last 5 months</CardDescription>
+          </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={applicationTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={monthlyApplications}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(53, 92, 154, 0.14)" />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
                 <Tooltip />
-                <Line type="monotone" dataKey="applications" stroke="#355C9A" strokeWidth={2} dot={{ fill: '#355C9A', r: 5 }} activeDot={{ r: 7 }} />
-              </LineChart>
+                <Bar dataKey="applications" fill="#355C9A" radius={[8, 8, 0, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200 rounded-lg shadow-sm">
-          <CardHeader><CardTitle className="text-lg font-semibold">Queue Value Distribution</CardTitle></CardHeader>
+        <Card className="border-slate-200/80">
+          <CardHeader>
+            <CardTitle className="text-base lg:text-lg">Donor Coverage</CardTitle>
+            <CardDescription>Active donors vs total alumni</CardDescription>
+          </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6">
-              <ResponsiveContainer width="45%" height={200}>
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={2} dataKey="value">
-                    {pieData.map((_, index) => (
-                      <Cell key={index} fill={['#3b82f6', '#f97316', '#ef4444', '#22c55e', '#8b5cf6'][index % 5]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex-1 space-y-3">
-                {pieData.map((item, index) => (
-                  <div key={`${item.name}-${index}`} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ['#3b82f6', '#f97316', '#ef4444', '#22c55e', '#8b5cf6'][index % 5] }} />
-                    <span className="text-sm capitalize">{item.name}</span>
-                  </div>
-                ))}
-                <div className="pt-2 text-xs text-muted-foreground">Active donors: {activeDonors} • Alumni: {totalAlumni}</div>
+            {donorsBreakdown.length ? (
+              <div className="flex items-center gap-4">
+                <ResponsiveContainer width="50%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={donorsBreakdown}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {donorsBreakdown.map((entry, index) => (
+                        <Cell key={`donor-cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex-1 space-y-2">
+                  {donorsBreakdown.map((item) => {
+                    const share = totalDonorValue > 0 ? Math.round((item.value / totalDonorValue) * 100) : 0;
+                    return (
+                      <div key={item.name} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }} />
+                          <span>{item.name}</span>
+                        </div>
+                        <span className="text-muted-foreground">{item.value.toLocaleString()} ({share}%)</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">No alumni/donor data yet.</div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="border border-slate-200 rounded-lg shadow-sm">
-          <CardHeader className="flex items-center justify-between pb-3"><CardTitle className="text-lg font-semibold">Application Trends</CardTitle><Button variant="ghost" size="sm" className="text-primary text-sm">View All →</Button></CardHeader>
-          <CardContent>
-            <table className="w-full text-sm">
-              <thead className="border-b border-slate-200"><tr className="text-muted-foreground"><th className="text-left py-2 px-2">Applicant</th><th className="text-left py-2 px-2">Type</th><th className="text-left py-2 px-2">Requested Amount</th></tr></thead>
-              <tbody>
-                {applicationTableRows.map((row) => (
-                  <tr key={row.id} className="border-b border-slate-200 hover:bg-slate-50"><td className="py-3 px-2">{row.applicant}</td><td className="py-3 px-2">{row.type}</td><td className="py-3 px-2">{formatCompactUGX(row.amount)}</td></tr>
-                ))}
-                {!applicationTableRows.length && <tr><td className="py-3 px-2 text-muted-foreground" colSpan={3}>No applications available.</td></tr>}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 rounded-lg shadow-sm">
-          <CardHeader className="flex items-center justify-between pb-3"><CardTitle className="text-lg font-semibold">Requests Awaiting Review</CardTitle><Button variant="ghost" size="sm" className="text-primary text-sm">All →</Button></CardHeader>
-          <CardContent>
-            <table className="w-full text-sm">
-              <thead className="border-b border-slate-200"><tr className="text-muted-foreground"><th className="text-left py-2 px-2">Type</th><th className="text-left py-2 px-2">Applicant</th><th className="text-left py-2 px-2">Date</th></tr></thead>
-              <tbody>
-                {awaitingRows.map((row) => (
-                  <tr key={row.id} className="border-b border-slate-200 hover:bg-slate-50"><td className="py-3 px-2">{row.type}</td><td className="py-3 px-2">{row.applicant}</td><td className="py-3 px-2">{row.date ? row.date.toLocaleDateString() : '—'}</td></tr>
-                ))}
-                {!awaitingRows.length && <tr><td className="py-3 px-2 text-muted-foreground" colSpan={3}>No pending requests.</td></tr>}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="border border-slate-200 rounded-lg shadow-sm mt-4">
-        <CardHeader className="flex items-center justify-between pb-3"><CardTitle className="text-lg font-semibold">Recent Comments</CardTitle><Button variant="ghost" size="sm" className="text-primary text-sm">View All →</Button></CardHeader>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base lg:text-lg">Quick Actions</CardTitle>
+        </CardHeader>
         <CardContent>
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-200"><tr className="text-muted-foreground"><th className="text-left py-2 px-2">Applicant Name</th><th className="text-left py-2 px-2">Type</th><th className="text-left py-2 px-2">Decision</th></tr></thead>
-            <tbody>
-              {recentComments.map((row) => (
-                <tr key={row.id} className="border-b border-slate-200 hover:bg-slate-50"><td className="py-3 px-2">{row.applicant}</td><td className="py-3 px-2">{row.type}</td><td className="py-3 px-2"><span className="px-2 py-1 bg-slate-100 text-slate-800 rounded text-xs font-medium capitalize">{row.decision}</span></td></tr>
-              ))}
-              {!recentComments.length && <tr><td className="py-3 px-2 text-muted-foreground" colSpan={3}>No recent comments.</td></tr>}
-            </tbody>
-          </table>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <Button onClick={() => onNavigate('applications')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+              <FileText size={24} />
+              <span className="text-xs">Review Applications</span>
+            </Button>
+            <Button onClick={() => onNavigate('import')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
+              <Users size={24} />
+              <span className="text-xs">Import Data</span>
+            </Button>
+            <Button onClick={() => onNavigate('broadcast')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)' }}>
+              <TrendingUp size={24} />
+              <span className="text-xs">Send Broadcast</span>
+            </Button>
+            <Button onClick={() => onNavigate('reports')} variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 text-white border-white/20 hover:opacity-95" style={{ background: 'linear-gradient(145deg, #356642 0%, #3F7A4A 100%)' }}>
+              <DollarSign size={24} />
+              <span className="text-xs">Generate Report</span>
+            </Button>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base lg:text-lg">Recent Activity</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => onNavigate('footprints')}>
+              View All
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {loading ? (
+            <div>Loading recent activity...</div>
+          ) : recentActivities.length ? (
+            recentActivities.map((activity) => (
+              <div key={activity.id} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  <Clock size={16} className="text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm">
+                    <span className="font-medium">{activity.user}</span> {activity.action}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{activity.target}</p>
+                  <p className="text-xs text-muted-foreground/80 mt-1">{activity.time}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-sm text-muted-foreground">No recent activity</div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Financial Totals */}
+      <Card className="border-slate-200/80">
+        <CardHeader>
+          <CardTitle className="text-base lg:text-lg">Financial Totals</CardTitle>
+          <CardDescription>Current totals from the database</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="p-3 rounded-xl border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #2f5288 0%, #355C9A 100%)' }}>
+              <p className="text-xs text-white/80">Total Revenue</p>
+              <p className="text-lg mt-1 text-white">
+                {loading ? '...' : formatCompactUGX(totalRaised)}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #742033 0%, #8A1F3A 100%)' }}>
+              <p className="text-xs text-white/80">Total Expenses</p>
+              <p className="text-lg mt-1 text-white">
+                {loading ? '...' : formatCompactUGX(totalDisbursed)}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl border border-white/20 text-white" style={{ background: 'linear-gradient(145deg, #b1882a 0%, #C79A2B 100%)' }}>
+              <p className="text-xs text-white/80">Available Balance</p>
+              <p className="text-lg mt-1 text-white">
+                {loading ? '...' : formatCompactUGX(totalFundBalance)}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      </div>
     </div>
   );
 }
