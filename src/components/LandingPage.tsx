@@ -214,7 +214,7 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                 A modern alumni platform that brings UCU graduates together to donate, mentor, and stay close to the UCU community.
               </p>
               <div className="flex flex-wrap items-center gap-3">
-                <Button onClick={onGetStarted} className="bg-[#b57f2c] hover:bg-[#9f6f25] border border-[#8b611d] shadow-[0_8px_18px_rgba(159,111,37,0.35)] text-white px-8 py-3 text-base font-semibold rounded-xl">
+                <Button onClick={onGetStarted} className="bg-[#bc8b37] hover:bg-[#a9792d] text-white px-8 py-3 text-base font-semibold rounded-xl">
                   Get Started
                 </Button>
                 <Button onClick={onLogin} variant="outline" className="border-[#d9dff0] bg-[#f6f8ff] text-[#2f3e67] hover:bg-[#eef3ff] px-8 py-3 rounded-xl">
@@ -226,9 +226,9 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
             <div className="relative">
               <div className="mx-auto w-full max-w-[620px] max-h-[420px] rounded-3xl overflow-hidden border border-[#d6ddf0] bg-[#eef2ff] aspect-[16/10] shadow-lg">
                 <img
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-wU4bc4HI0fIkuHntFUcmwepKq0P4Fo.png"
+                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=80"
                   alt="Alumni community"
-                  className="w-full h-full object-cover object-center"
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>
@@ -283,9 +283,6 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12">
             <div>
               <h2 className="text-3xl font-serif font-bold mb-8" style={{ color: '#25345c' }}>Funding Campaigns</h2>
-              <div className="mb-4 inline-flex items-center rounded-full border border-[#d9dff0] bg-white px-4 py-1.5 text-sm font-medium" style={{ color: '#355fa8' }}>
-                {activeCampaigns} Active Campaigns
-              </div>
 
               <div className="rounded-xl p-6 text-white mb-8 flex items-center justify-between" style={{ background: 'linear-gradient(90deg, #203768 0%, #8f3f59 52%, #b48434 100%)' }}>
                 <div className="flex items-center gap-3">
@@ -302,13 +299,13 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
               </div>
 
               <div className="relative mb-8">
-                <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search funding campaigns, events or news..."
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  className="w-full pl-14 pr-4 py-3 rounded-lg border border-[#d9dff0] bg-white text-[#25345c] placeholder-[#8a95b0] focus:outline-none focus:ring-2 focus:ring-[#bc8b37]"
+                  className="w-full pl-11 pr-4 py-3 rounded-lg border border-[#d9dff0] bg-white text-[#25345c] placeholder-[#8a95b0] focus:outline-none focus:ring-2 focus:ring-[#bc8b37]"
                 />
               </div>
 
@@ -317,9 +314,9 @@ export default function LandingPage({ onGetStarted, onLogin }: LandingPageProps)
                   const percent = campaign.goal > 0 ? Math.min(100, Math.round((campaign.raised / campaign.goal) * 100)) : 0;
                   return (
                   <div key={campaign.id} className="bg-white rounded-lg p-6 border border-[#d9dff0] shadow-sm">
-                    <div className="flex items-center justify-between gap-4 mb-3">
-                      <h4 className="font-semibold flex-1" style={{ color: '#25345c' }}>{campaign.name}</h4>
-                      <Button className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-6 min-w-[108px] shrink-0" onClick={() => openDonateModal(campaign.name)}>Donate</Button>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold" style={{ color: '#25345c' }}>{campaign.name}</h4>
+                      <Button className="bg-[#355fa8] hover:bg-[#2d4f8a] text-white px-6 min-w-[108px]" onClick={() => openDonateModal(campaign.name)}>Donate</Button>
                     </div>
                     <div className="flex items-center justify-between text-sm mb-2" style={{ color: '#657393' }}>
                       <span>{formatUgx(campaign.raised)}</span>
