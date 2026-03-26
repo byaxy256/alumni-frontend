@@ -85,88 +85,57 @@ export const AlumniOfficeApp = ({
   return (
     <div className="min-h-screen bg-[#d7d8e1] p-2 lg:p-6 text-foreground">
       <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[18px] border border-[#c3c8d7] bg-[#eef0f6] shadow-[0_20px_40px_rgba(13,28,60,0.12)]">
-        <div className="hidden lg:grid lg:grid-cols-[240px_1fr] min-h-[820px]">
-          <aside className="bg-gradient-to-b from-[#17305f] via-[#173564] to-[#1b325e] text-white flex flex-col">
-            <div className="h-[78px] border-b border-white/12 flex items-center px-4 gap-3">
-              <UcuBadgeLogo className="w-9 h-9" />
-              <p className="text-[25px] leading-none text-white/95">{headerTitle}</p>
-            </div>
-
-            <div className="px-4 py-4 border-b border-white/12">
-              <p className="text-sm text-white/90">Welcome back, {user?.name?.split(' ')[0] || 'Ronald'}!</p>
-              <p className="text-xs text-white/70">Role: General Secretary</p>
-            </div>
-
-            <nav className="px-3 py-3 space-y-1 flex-1">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = currentScreen === item.screen;
-                return (
-                  <button
-                    key={item.key}
-                    onClick={() => setCurrentScreen(item.screen)}
-                    className={`w-full text-left px-3 py-2 rounded-xl transition flex items-center gap-3 ${
-                      isActive ? 'bg-[#10274e] text-white shadow-inner' : 'text-white/86 hover:bg-white/10'
-                    }`}
-                  >
-                    <span className="w-5 h-5 rounded border border-white/45 inline-flex items-center justify-center">
-                      <Icon size={12} />
-                    </span>
-                    <span className="text-sm">{item.label}</span>
-                  </button>
-                );
-              })}
-
-              <div className="pt-3 mt-2 border-t border-white/12 space-y-1">
-                {utilityItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => setCurrentScreen(item.screen)}
-                      className="w-full text-left px-3 py-2 rounded-xl transition flex items-center gap-3 text-white/80 hover:bg-white/10"
-                    >
-                      <Icon size={15} />
-                      <span className="text-sm">{item.label}</span>
-                    </button>
-                  );
-                })}
+        <div className="hidden lg:flex lg:flex-col min-h-[820px]">
+          <header className="bg-gradient-to-r from-[#1a3562] to-[#1f3f72] text-white border-b border-[#152d55]">
+            <div className="h-[78px] px-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <UcuBadgeLogo className="w-9 h-9" />
+                <div>
+                  <p className="text-[24px] leading-none text-white/95">{headerTitle}</p>
+                  <p className="text-xs text-white/75 mt-1">Welcome back, {user?.name?.split(' ')[0] || 'Ronald'}!</p>
+                </div>
               </div>
-            </nav>
-
-            <div className="p-3 border-t border-white/12">
-              <button
-                onClick={onLogout}
-                className="w-full text-left px-3 py-2 rounded-xl text-white/85 hover:bg-white/10 flex items-center gap-3"
-              >
-                <LogOut size={16} />
-                <span className="text-sm">Logout</span>
-              </button>
-            </div>
-          </aside>
-
-          <section className="flex flex-col min-w-0">
-            <header className="h-[78px] bg-gradient-to-r from-[#1a3562] to-[#1f3f72] text-white flex items-center justify-between px-6 border-b border-[#152d55]">
-              <div />
               <div className="flex items-center gap-5">
-                <button 
-                  className="hover:text-white/85 transition"
-                  title="Notifications"
-                  aria-label="Notifications"
-                >
+                <button className="hover:text-white/85 transition" title="Notifications" aria-label="Notifications">
                   <Bell size={16} />
                 </button>
                 <button className="flex items-center gap-2 text-sm">
                   <span>{user?.name?.split(' ')[0] || 'Ronald'}</span>
                   <ChevronDown size={14} />
                 </button>
+                <button
+                  onClick={onLogout}
+                  className="px-3 py-1.5 rounded-lg text-sm bg-white/10 hover:bg-white/20 transition flex items-center gap-2"
+                >
+                  <LogOut size={14} />
+                  Logout
+                </button>
               </div>
-            </header>
+            </div>
 
-            <main className="flex-1 overflow-y-auto">
-              {renderScreen()}
-            </main>
-          </section>
+            <div className="px-4 py-3 border-t border-white/10">
+              <div className="flex flex-wrap items-center gap-2">
+                {[...navigationItems, ...utilityItems].map((item) => {
+                  const Icon = item.icon;
+                  const isActive = currentScreen === item.screen;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => setCurrentScreen(item.screen)}
+                      className={`px-3 py-2 rounded-lg transition flex items-center gap-2 text-sm ${
+                        isActive ? 'bg-[#10274e] text-white shadow-inner' : 'text-white/90 hover:bg-white/10'
+                      }`}
+                    >
+                      <Icon size={14} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-y-auto">{renderScreen()}</main>
         </div>
 
         <div className="lg:hidden min-h-screen bg-[#eef0f6]">

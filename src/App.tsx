@@ -9,6 +9,7 @@ import GuestDonate from './components/GuestDonate';
 import { StudentApp } from './components/StudentApp';
 import { AlumniApp } from './components/AlumniApp';
 import { AdminApp } from './components/AdminApp';
+import { AlumniOfficeApp } from './components/AlumniOfficeApp';
 import { OfficeRoleApp } from './components/OfficeRoleApp';
 import { Toaster } from './components/ui/sonner';
 // import { GraduationCap } from 'lucide-react';
@@ -459,10 +460,12 @@ export default function App() {
     
     if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /></>;
     if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /></>;
+    if (user.role === 'administrator') {
+      return <><AlumniOfficeApp user={user} onLogout={handleLogout} headerTitle="Administrator Dashboard" /><Toaster /></>;
+    }
     if (
       [
         'alumni_office',
-        'administrator',
         'general_secretary',
         'finance',
         'president',
