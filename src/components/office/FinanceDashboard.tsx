@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { AlertCircle, DollarSign } from 'lucide-react';
+import { TrendingDown, TrendingUp, AlertCircle, DollarSign } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { UcuBadgeLogo } from '../UcuBadgeLogo';
 import { API_BASE } from '../../api';
 

@@ -56,18 +56,16 @@ export function useOfficeRealtimeData(): OfficeRealtimeData {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const fetchOptions: RequestInit = token
-          ? { headers: { Authorization: `Bearer ${token}` } }
-          : {};
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const [loansRes, supportsRes, disburseRes, usersRes, notificationsRes, donationsRes] =
           await Promise.all([
-            fetch(`${API_BASE}/loans`, fetchOptions),
-            fetch(`${API_BASE}/support`, fetchOptions),
-            fetch(`${API_BASE}/disburse`, fetchOptions),
-            fetch(`${API_BASE}/users`, fetchOptions),
-            fetch(`${API_BASE}/notifications?limit=50`, fetchOptions),
-            fetch(`${API_BASE}/donations/stats`, fetchOptions),
+            fetch(`${API_BASE}/loans`, { headers }),
+            fetch(`${API_BASE}/support`, { headers }),
+            fetch(`${API_BASE}/disburse`, { headers }),
+            fetch(`${API_BASE}/users`, { headers }),
+            fetch(`${API_BASE}/notifications?limit=50`, { headers }),
+            fetch(`${API_BASE}/donations/stats`, { headers }),
           ]);
 
         const loansData = loansRes.ok ? await loansRes.json() : [];

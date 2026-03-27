@@ -460,11 +460,12 @@ export default function App() {
     
     if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /></>;
     if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /></>;
-    if (user.role === 'administrator' || user.role === 'alumni_office') {
+    if (user.role === 'administrator') {
       return <><AlumniOfficeApp user={user} onLogout={handleLogout} headerTitle="Administrator Dashboard" /><Toaster /></>;
     }
     if (
       [
+        'alumni_office',
         'general_secretary',
         'finance',
         'president',
