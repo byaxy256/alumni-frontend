@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Mail, Phone, User, Calendar } from 'lucide-react';
+import { Mail, Phone, User, Calendar, Activity, Wifi } from 'lucide-react';
 import { toast } from 'sonner';
 import { API_BASE, apiCall } from '../../api';
 import { Input } from '../ui/input';
@@ -14,14 +14,26 @@ interface PendingUser {
   email: string;
   phone?: string;
   role?: string;
+  last_login?: string;
+  updated_at?: string;
   meta?: {
     staff_id?: string;
     approved?: boolean;
     suspended?: boolean;
     office_role?: string;
     staff_role?: string;
+    last_seen?: string;
   };
   created_at: string;
+}
+
+interface AuditLogItem {
+  _id?: string;
+  action?: string;
+  details?: string;
+  timestamp?: string;
+  user_uid?: string;
+  user_email?: string;
 }
 
 export default function AlumniOfficeApproval() {
@@ -40,6 +52,8 @@ export default function AlumniOfficeApproval() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [recentActivity, setRecentActivity] = useState<AuditLogItem[]>([]);
   const [createForm, setCreateForm] = useState({
     fullName: '',
     email: '',
@@ -52,6 +66,7 @@ export default function AlumniOfficeApproval() {
 
   useEffect(() => {
     loadAllAlumniOffice();
+    loadRecentActivity();
   }, []);
 
   const loadAllAlumniOffice = async () => {
@@ -66,6 +81,20 @@ export default function AlumniOfficeApproval() {
       toast.error('Failed to load accounts');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRecentActivity = async () => {
+    try {
+      setActivityLoading(true);
+      const token = localStorage.getItem('token');
+      const logs = await apiCall('/admin/audit-logs?limit=12', 'GET', undefined, token || undefined);
+      setRecentActivity(Array.isArray(logs) ? logs : []);
+    } catch (err) {
+      console.error('Failed to load activity logs:', err);
+      setRecentActivity([]);
+    } finally {
+      setActivityLoading(false);
     }
   };
 
@@ -204,6 +233,41 @@ export default function AlumniOfficeApproval() {
     });
   };
 
+  const resolveLastSeen = (user: PendingUser): string | null => {
+    return user.last_login || user.meta?.last_seen || user.updated_at || null;
+  };
+
+  const formatRelativeTime = (isoDate?: string | null) => {
+    if (!isoDate) return '—';
+    const dt = new Date(isoDate);
+    if (Number.isNaN(dt.getTime())) return '—';
+    const diffMs = Date.now() - dt.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
+  const onlineUsers = allUsers.filter((user) => {
+    if (user.meta?.suspended) return false;
+    const lastSeen = resolveLastSeen(user);
+    if (!lastSeen) return false;
+    const time = new Date(lastSeen).getTime();
+    if (!Number.isFinite(time)) return false;
+    return Date.now() - time <= 15 * 60 * 1000;
+  });
+
+  const activeTodayCount = allUsers.filter((user) => {
+    const lastSeen = resolveLastSeen(user);
+    if (!lastSeen) return false;
+    const time = new Date(lastSeen).getTime();
+    if (!Number.isFinite(time)) return false;
+    return Date.now() - time <= 24 * 60 * 60 * 1000;
+  }).length;
+
   if (loading) {
     return (
       <div className="p-4 lg:p-8">
@@ -297,6 +361,75 @@ export default function AlumniOfficeApproval() {
             <Button onClick={handleCreateAccount} disabled={creating}>
               {creating ? 'Creating...' : 'Create Account'}
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wifi className="w-5 h-5" />
+            Online Sessions & Activity
+          </CardTitle>
+          <CardDescription>Track who is currently online and recent admin/system activity.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="rounded-lg border p-3 bg-green-50">
+              <p className="text-xs text-muted-foreground">Online Now</p>
+              <p className="text-2xl font-semibold text-green-700">{onlineUsers.length}</p>
+            </div>
+            <div className="rounded-lg border p-3 bg-blue-50">
+              <p className="text-xs text-muted-foreground">Active in 24h</p>
+              <p className="text-2xl font-semibold text-blue-700">{activeTodayCount}</p>
+            </div>
+            <div className="rounded-lg border p-3 bg-slate-50">
+              <p className="text-xs text-muted-foreground">Recent Activity Entries</p>
+              <p className="text-2xl font-semibold text-slate-700">{recentActivity.length}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="rounded-lg border">
+              <div className="px-3 py-2 border-b text-sm font-medium">Current Online Sessions</div>
+              <div className="max-h-56 overflow-y-auto divide-y">
+                {onlineUsers.length === 0 ? (
+                  <p className="p-3 text-sm text-muted-foreground">No active sessions right now.</p>
+                ) : (
+                  onlineUsers.map((u) => (
+                    <div key={u.uid} className="p-3 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium">{u.full_name}</p>
+                        <p className="text-xs text-muted-foreground">{(u.meta?.staff_role || u.meta?.office_role || u.role || '').replace(/_/g, ' ')}</p>
+                      </div>
+                      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">Online</Badge>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border">
+              <div className="px-3 py-2 border-b text-sm font-medium flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Recent Activity
+              </div>
+              <div className="max-h-56 overflow-y-auto divide-y">
+                {activityLoading ? (
+                  <p className="p-3 text-sm text-muted-foreground">Loading activity...</p>
+                ) : recentActivity.length === 0 ? (
+                  <p className="p-3 text-sm text-muted-foreground">No recent activity found.</p>
+                ) : (
+                  recentActivity.map((log, idx) => (
+                    <div key={log._id || `${log.user_uid || 'log'}-${idx}`} className="p-3">
+                      <p className="text-sm font-medium">{log.action || 'Activity'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{log.details || log.user_email || 'No details'}</p>
+                      <p className="text-[11px] text-muted-foreground mt-1">{formatRelativeTime(log.timestamp)}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
