@@ -104,7 +104,7 @@ function DonutChart() {
   );
 }
 
-export default function Dashboard() {
+export function ProjectsManagerDashboard() {
   const [active, setActive] = useState("Dashboard");
 
   return (
@@ -432,3 +432,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default ProjectsManagerDashboard;

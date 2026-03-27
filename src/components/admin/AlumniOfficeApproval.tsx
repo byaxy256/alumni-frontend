@@ -25,7 +25,17 @@ interface PendingUser {
 }
 
 export default function AlumniOfficeApproval() {
-  const officeRoles = ['administrator', 'general_secretary', 'finance', 'president', 'publicity', 'secretary_academics', 'alumni_office'];
+  const officeRoles = [
+    'administrator',
+    'general_secretary',
+    'finance',
+    'president',
+    'vice_president',
+    'publicity',
+    'secretary_academics',
+    'projects_manager',
+    'alumni_office',
+  ];
   const [allUsers, setAllUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -223,7 +233,7 @@ export default function AlumniOfficeApproval() {
           <CardDescription>These are real accounts created by admin. Staff do not register from the public signup page.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>1. Create the account here and assign one of the six office roles.</p>
+          <p>1. Create the account here and assign one of the office roles.</p>
           <p>2. Give the staff member their email or phone plus the temporary password you set.</p>
           <p>3. They use the normal sign in page.</p>
           <p>4. On first login, the system asks for the admin secret, then forces them to set a new permanent password.</p>
@@ -270,8 +280,10 @@ export default function AlumniOfficeApproval() {
               <option value="general_secretary">General Secretary</option>
               <option value="finance">Finance</option>
               <option value="president">President</option>
+              <option value="vice_president">Vice President</option>
               <option value="publicity">Publicity</option>
               <option value="secretary_academics">Secretary Academics</option>
+              <option value="projects_manager">Projects Manager</option>
             </select>
           </div>
           <div className="space-y-2">
