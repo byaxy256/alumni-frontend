@@ -198,8 +198,10 @@ export default function ApplicationsQueue() {
           };
         });
 
-        setApplications(normalizedQueue.sort((a, b) => new Date(String(b.raw.created_at)).getTime() - new Date(String(a.raw.created_at)).getTime()));
-        return;
+        if (normalizedQueue.length > 0 || role !== 'administrator') {
+          setApplications(normalizedQueue.sort((a, b) => new Date(String(b.raw.created_at)).getTime() - new Date(String(a.raw.created_at)).getTime()));
+          return;
+        }
       }
 
       const [loansRes, supportRes] = await Promise.all([

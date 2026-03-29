@@ -12,6 +12,7 @@ import ManageContent from './alumni_office_staff/ManageContent';
 import type { User } from '../App';
 import { Button } from './ui/button';
 import { LogOut, Menu, Home, FileText, Upload, Mail, FolderOpen, ShoppingBag, BarChart3, Settings2Icon, DollarSign } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,10 +21,13 @@ import {
 } from './ui/dropdown-menu';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 import { AlumniFundRequest } from './AlumniFundRequest';
+import { SecretaryAcademicsPanel } from './office/SecretaryAcademicsPanel';
 
 type AlumniScreen = 'dashboard' | 'applications' | 'import' | 'broadcast' | 'projects' | 'merch' | 'footprints' | 'reports' | 'manage-content' | 'fund-request';
 
 export const AlumniOfficeApp = ({ user, onLogout, headerTitle = 'Alumni Circle Office Staff' }: { user: User; onLogout: () => void; headerTitle?: string }) => {
+    const showMentorshipInApplications = user.role === 'administrator';
+
   const [currentScreen, setCurrentScreen] = useState<AlumniScreen>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -45,7 +49,25 @@ export const AlumniOfficeApp = ({ user, onLogout, headerTitle = 'Alumni Circle O
       case 'dashboard':
         return <AlumniDashboard user={user} onNavigate={(screen) => setCurrentScreen(screen as AlumniScreen)} />;
       case 'applications':
-        return <ApplicationsQueue />;
+        if (!showMentorshipInApplications) {
+          return <ApplicationsQueue />;
+        }
+        return (
+          <div className="p-4 lg:p-8 space-y-4">
+            <Tabs defaultValue="student" className="space-y-4">
+              <TabsList className="grid w-full max-w-xl grid-cols-2">
+                <TabsTrigger value="student">Student Applications</TabsTrigger>
+                <TabsTrigger value="mentorship">Mentorship Applications</TabsTrigger>
+              </TabsList>
+              <TabsContent value="student">
+                <ApplicationsQueue />
+              </TabsContent>
+              <TabsContent value="mentorship">
+                <SecretaryAcademicsPanel defaultTab="mentorship" />
+              </TabsContent>
+            </Tabs>
+          </div>
+        );
       case 'fund-request':
         return <AlumniFundRequest user={user} />;
       case 'import':
