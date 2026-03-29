@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { DollarSign, Users, FileText, TrendingUp, AlertCircle, Clock } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Label } from 'recharts';
 import type { User } from '../../App';
 import { API_BASE } from '../../api';
 import { UcuBadgeLogo } from '../UcuBadgeLogo';
@@ -42,6 +42,8 @@ type DonationStats = {
   totalRaised?: number;
   donorCount?: number;
   donationCount?: number;
+  totalAlumni?: number;
+  alumniCount?: number;
   byCause?: Record<string, number>;
 };
 
@@ -75,6 +77,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   const activeDonors = Number(donationStats.donorCount || 0);
   const resolvedTotalAlumni = Math.max(totalAlumni, activeDonors);
   const nonDonorAlumni = Math.max(resolvedTotalAlumni - activeDonors, 0);
+  const hasDonorCoverageData = resolvedTotalAlumni > 0 || activeDonors > 0;
 
   const formatCompactUGX = (value: number) => {
     if (value >= 1000000000) return `UGX ${(value / 1000000000).toFixed(1)}B`;
@@ -110,7 +113,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
   const donorsBreakdown = [
     { name: 'Active Donors', value: activeDonors, color: '#355C9A' },
     { name: 'Other Alumni', value: nonDonorAlumni, color: '#8A1F3A' },
-  ].filter((item) => item.value > 0);
+  ];
 
   const totalDonorValue = donorsBreakdown.reduce((sum, item) => sum + item.value, 0);
 
@@ -181,7 +184,10 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
         if (Array.isArray(usersJson)) {
           setTotalAlumni(usersJson.filter((u: any) => u?.role === 'alumni').length);
         } else {
-          setTotalAlumni(0);
+          const statsAlumniCount = Number(
+            donationsJson?.totalAlumni ?? donationsJson?.alumniCount ?? donationsJson?.total_alumni ?? 0
+          );
+          setTotalAlumni(Number.isFinite(statsAlumniCount) ? statsAlumniCount : 0);
         }
       } catch (err: any) {
         if (!cancelled) {
@@ -326,7 +332,7 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
             <CardDescription>Active donors vs total alumni</CardDescription>
           </CardHeader>
           <CardContent>
-            {donorsBreakdown.length ? (
+            {hasDonorCoverageData ? (
               <div className="flex items-center gap-4">
                 <ResponsiveContainer width="50%" height={200}>
                   <PieChart>
@@ -342,6 +348,23 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
                       {donorsBreakdown.map((entry, index) => (
                         <Cell key={`donor-cell-${index}`} fill={entry.color} />
                       ))}
+                      <Label
+                        position="center"
+                        content={({ viewBox }) => {
+                          if (!viewBox) return null;
+                          const { cx, cy } = viewBox as { cx: number; cy: number };
+                          return (
+                            <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+                              <tspan x={cx} dy="-0.4em" className="fill-foreground text-sm font-semibold">
+                                {activeDonors.toLocaleString()} / {resolvedTotalAlumni.toLocaleString()}
+                              </tspan>
+                              <tspan x={cx} dy="1.4em" className="fill-muted-foreground text-[11px]">
+                                active / total
+                              </tspan>
+                            </text>
+                          );
+                        }}
+                      />
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
@@ -358,6 +381,9 @@ export default function AlumniDashboard({ user, onNavigate }: AlumniDashboardPro
                       </div>
                     );
                   })}
+                  <div className="pt-1 text-xs text-muted-foreground">
+                    Total Alumni: {resolvedTotalAlumni.toLocaleString()}
+                  </div>
                 </div>
               </div>
             ) : (
