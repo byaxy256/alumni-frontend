@@ -1,17 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { CheckCircle, AlertCircle, Users, BookOpen, Award, Clock } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { CheckCircle, AlertCircle, Users, Award, Clock } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { UcuBadgeLogo } from '../UcuBadgeLogo';
 
 export function SecretaryAcademicsDashboard() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 500);
-  }, []);
-
   // Academic verification data
   const verificationData = [
     { semester: '2024-Easter', verified: 245, pending: 18, rejected: 5 },

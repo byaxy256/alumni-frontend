@@ -30,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { UcuBadgeLogo } from './UcuBadgeLogo';
 import type { User } from '../App';
 import { OfficeOverview } from './office/OfficeOverview';
@@ -137,8 +138,7 @@ function getNavigation(role: OfficeRole): OfficeNavItem[] {
     case 'administrator':
       return [
         { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Operational overview and KPIs.' },
-        { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Process loan and support applications.' },
-        { id: 'mentorship', label: 'Mentorship Reviews', shortLabel: 'Mentor', icon: Users, description: 'Review alumni mentor applications and submit to academics.' },
+        { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Review student and mentorship applications in one place.' },
         { id: 'request-funds', label: 'Request Funds', shortLabel: 'Funds', icon: Wallet, description: 'Manage first-stage workflow requests.' },
         { id: 'import', label: 'Import Data', shortLabel: 'Import', icon: Upload, description: 'Import student, alumni, and office records.' },
         { id: 'broadcast', label: 'Broadcast', shortLabel: 'Comms', icon: Mail, description: 'Send communication campaigns and notices.' },
@@ -189,10 +189,9 @@ function getNavigation(role: OfficeRole): OfficeNavItem[] {
     case 'secretary_academics':
       return [
         { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Academic operations summary and queues.' },
+        { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Review student and mentorship applications in one place.' },
         { id: 'academic-verification', label: 'Academic Verification', shortLabel: 'Verify', icon: BookOpenCheck, description: 'Verify documents for benefit eligibility.' },
-        { id: 'student-benefit-reviews', label: 'Student Benefit Reviews', shortLabel: 'Benefits', icon: FileCheck2, description: 'Review benefit-related academic cases.' },
         { id: 'transcript', label: 'Transcript Program', shortLabel: 'Transcript', icon: GraduationCap, description: 'Manage transcript holder records and decisions.' },
-        { id: 'mentorship', label: 'Mentorship', shortLabel: 'Mentor', icon: Users, description: 'Review mentorship applications and progress.' },
         { id: 'reports', label: 'Reports', shortLabel: 'Reports', icon: BarChart3, description: 'See verification and mentorship trends.' },
         { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'Academic queue alerts and updates.' },
       ];
@@ -206,6 +205,35 @@ function getNavigation(role: OfficeRole): OfficeNavItem[] {
         { id: 'notifications', label: 'Notifications', shortLabel: 'Alerts', icon: Bell, description: 'Receive project and milestone alerts.' },
       ];
   }
+}
+
+function roleHasMentorshipInApplications(role: OfficeRole): boolean {
+  return role === 'administrator' || role === 'secretary_academics';
+}
+
+function ApplicationsWorkspace({ role }: { role: OfficeRole }) {
+  const canViewMentorship = roleHasMentorshipInApplications(role);
+
+  if (!canViewMentorship) {
+    return <ApplicationsQueue />;
+  }
+
+  return (
+    <div className="p-4 lg:p-8 space-y-4">
+      <Tabs defaultValue="student" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2 max-w-xl">
+          <TabsTrigger value="student">Student Applications</TabsTrigger>
+          <TabsTrigger value="mentorship">Mentorship Applications</TabsTrigger>
+        </TabsList>
+        <TabsContent value="student">
+          <ApplicationsQueue />
+        </TabsContent>
+        <TabsContent value="mentorship">
+          <SecretaryAcademicsPanel defaultTab="mentorship" />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }
 
 export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
@@ -283,7 +311,7 @@ export function OfficeRoleApp({ user, onLogout }: OfficeRoleAppProps) {
         return <SecretaryAcademicsPanel defaultTab="mentorship" />;
       case 'applications':
       case 'student-benefit-reviews':
-        return <ApplicationsQueue />;
+        return <ApplicationsWorkspace role={role} />;
       case 'import':
         return <ImportAssistant />;
       case 'projects':

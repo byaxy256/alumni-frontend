@@ -34,6 +34,40 @@ export function AlumniShop({ title = 'Alumni Shop' }: AlumniShopProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'mtn' | 'airtel' | 'bank'>('mtn');
+
+  const cartStorageKey = (() => {
+    if (typeof window === 'undefined') return 'alumni_shop_cart_guest';
+    try {
+      const rawUser = localStorage.getItem('user');
+      const parsed = rawUser ? JSON.parse(rawUser) : null;
+      const uid = parsed?.uid || 'guest';
+      return `alumni_shop_cart_${uid}`;
+    } catch {
+      return 'alumni_shop_cart_guest';
+    }
+  })();
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(cartStorageKey);
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        setCart(parsed);
+      }
+    } catch (error) {
+      console.error('Failed to restore cart from storage', error);
+    }
+  }, [cartStorageKey]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(cartStorageKey, JSON.stringify(cart));
+    } catch (error) {
+      console.error('Failed to persist cart', error);
+    }
+  }, [cart, cartStorageKey]);
 
   useEffect(() => {
     const load = async () => {
@@ -106,11 +140,16 @@ export function AlumniShop({ title = 'Alumni Shop' }: AlumniShopProps) {
       // For now, create order without payment - user can pay later via mobile money
       await apiCall('/merch/orders', 'POST', {
         items: cart,
-        payment_method: 'pending',
+        payment_method: paymentMethod,
         delivery_address: 'TBD',
       });
-      toast.success('Order created! Payment details will be sent to your email.');
+      if (paymentMethod === 'bank') {
+        toast.success('Order created! You selected Bank transfer. Please follow bank payment instructions.');
+      } else {
+        toast.success(`Order created! You selected ${paymentMethod.toUpperCase()} Mobile Money.`);
+      }
       setCart([]);
+      localStorage.removeItem(cartStorageKey);
       setShowCart(false);
     } catch (err: any) {
       toast.error(err?.message || 'Failed to create order');
@@ -196,6 +235,20 @@ export function AlumniShop({ title = 'Alumni Shop' }: AlumniShopProps) {
               </div>
 
               <Card className="p-6 border-t-2">
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-foreground">Payment Method</label>
+                  <select
+                    title="Payment Method"
+                    aria-label="Payment Method"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'mtn' | 'airtel' | 'bank')}
+                  >
+                    <option value="mtn">MTN Mobile Money</option>
+                    <option value="airtel">Airtel Money</option>
+                    <option value="bank">Bank Transfer</option>
+                  </select>
+                </div>
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-lg font-semibold">Order Total:</span>
                   <span className="text-2xl font-bold text-primary">UGX {cartTotal.toLocaleString()}</span>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Settings, Users, CreditCard, Shield, LogOut, Home, Menu, UserCheck, BarChart3, DollarSign, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import AdminDashboard from './admin/AdminDashboard';
@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 
-export const AdminApp = ({ user, onLogout }: { user: User; onLogout: () => void }) => {
+export const AdminApp = ({ onLogout }: { user: User; onLogout: () => void }) => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'reports' | 'config' | 'users' | 'disbursements' | 'audit' | 'office-accounts' | 'fund-requests' | 'orders'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

@@ -1,17 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { CheckCircle, AlertCircle, Zap, Calendar, TrendingUp, Users } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { CheckCircle, AlertCircle, Zap, Calendar, Users } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { UcuBadgeLogo } from '../UcuBadgeLogo';
 
 export function ProjectsManagerDashboard() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 500);
-  }, []);
-
   // Project health data
   const projectHealth = [
     { month: 'Jan', active: 8, onTrack: 7, atRisk: 1, completed: 2 },
