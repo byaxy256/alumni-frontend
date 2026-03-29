@@ -157,10 +157,8 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         }),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        let err: any = {};
-        try { err = text ? JSON.parse(text) : {}; } catch { err = {}; }
-        throw new Error(err.error || err.message || text || `Enrollment failed (HTTP ${res.status})`);
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Enrollment failed');
       }
       toast.success('You are now enrolled in SACCO');
       setShowEnrollForm(false);
@@ -201,23 +199,12 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         }),
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || json.message || `Contribution failed (HTTP ${res.status})`);
+      if (!res.ok) throw new Error(json.error || 'Contribution failed');
 
       if (contributeMethod === 'bank') {
         toast.success('Use the bank details below to complete your payment. Quote reference: ' + (json.transaction_ref || ''));
         setShowContributeForm(false);
         fetchSacco();
-        return;
-      }
-
-      // BACKWARD COMPAT: older backend used to return transaction_id + need_pin directly.
-      if (json.need_pin && json.transaction_id) {
-        setPendingTxId(String(json.transaction_id));
-        setPendingPayAmount(amount);
-        setPendingPayPhone(msisdn);
-        setPendingPayProvider('mtn');
-        setShowContributeForm(false);
-        toast.info('Enter your PIN to complete the payment');
         return;
       }
 
@@ -237,13 +224,7 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         }),
       });
       const initJson = await initRes.json().catch(() => ({}));
-      if (!initRes.ok) {
-        const errMsg = String(initJson.error || initJson.message || 'Failed to initiate payment');
-        if (errMsg.includes('loanId, supportRequestId, or eventId')) {
-          throw new Error('Backend is still using old payment validation. Please redeploy backend with SACCO payment support.');
-        }
-        throw new Error(errMsg);
-      }
+      if (!initRes.ok) throw new Error(initJson.error || 'Failed to initiate payment');
       if (!initJson.transaction_id) throw new Error('Missing transaction id');
 
       setPendingTxId(initJson.transaction_id);

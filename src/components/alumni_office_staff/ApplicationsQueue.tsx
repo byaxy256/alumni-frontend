@@ -79,11 +79,46 @@ function getCurrentRole() {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     const role = parsed?.role;
-    if (role === 'alumni_office') return 'administrator';
+    const officeRole = parsed?.meta?.office_role;
+    if (role === 'alumni_office') return officeRole || 'administrator';
     return role || null;
   } catch {
     return null;
   }
+}
+
+const WORKFLOW_ROLES = new Set([
+  'administrator',
+  'general_secretary',
+  'secretary_academics',
+  'finance',
+  'president',
+  'vice_president',
+  'admin',
+]);
+
+function mapWorkflowStatus(item: OfficeWorkflowApplication): Application['status'] {
+  const overall = String(item.overall_status || '').toLowerCase();
+  if (overall === 'rejected') return 'rejected';
+  if (overall === 'completed' || overall === 'disbursed') return 'approved';
+  if (overall === 'under_review' || overall === 'ready_for_disbursement') return 'under_review';
+  return 'pending';
+}
+
+function nextStageLabel(stage?: string): string {
+  const stageMap: Record<string, string> = {
+    administrator: 'General Secretary',
+    general_secretary: 'Secretary Academics',
+    secretary_academics: 'Finance',
+    finance_review: 'President',
+    executive_review: 'Finance Disbursement',
+    finance_disbursement: 'Completed',
+  };
+  return stageMap[String(stage || '')] || 'Next Stage';
+}
+
+function isWorkflowApplication(app: Application): boolean {
+  return Boolean(app.raw?.current_stage);
 }
 
 function StatusBadge({ status }: { status: Application['status'] }) {
@@ -109,6 +144,7 @@ export default function ApplicationsQueue() {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showRequestInfoDialog, setShowRequestInfoDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [approvalComment, setApprovalComment] = useState('');
   const [infoRequestMessage, setInfoRequestMessage] = useState('');
   const [selectedApplications, setSelectedApplications] = useState<Array<string | number>>([]);
   const [documentViewer, setDocumentViewer] = useState<{ url: string; name: string; mimetype?: string } | null>(null);
@@ -120,10 +156,11 @@ export default function ApplicationsQueue() {
       const headers = { Authorization: `Bearer ${token}` };
       const role = getCurrentRole();
 
-      if (role === 'general_secretary') {
-        const queueRes = await fetch(`${API_BASE}/office/fund-workflow`, { headers });
+      if (role && WORKFLOW_ROLES.has(role)) {
+        const queueSuffix = role === 'finance' ? '?queue=review' : '';
+        const queueRes = await fetch(`${API_BASE}/office/fund-workflow${queueSuffix}`, { headers });
         if (!queueRes.ok) {
-          throw new Error('Failed to fetch general secretary applications queue');
+          throw new Error('Failed to fetch office applications queue');
         }
 
         const queueData: OfficeWorkflowApplication[] = await queueRes.json();
@@ -151,7 +188,7 @@ export default function ApplicationsQueue() {
             documentsRequired: 2,
             amount: Number(item.requested_amount || 0),
             purpose: item.source?.reason || payload.reason || payload.purpose || 'N/A',
-            status: 'pending',
+            status: mapWorkflowStatus(item),
             submittedDate: new Date(submittedAt).toLocaleDateString(),
             raw: {
               ...item,
@@ -241,6 +278,34 @@ export default function ApplicationsQueue() {
   const updateApplicationStatus = async (app: Application, newStatus: 'approved' | 'rejected', reason?: string) => {
     try {
       const token = localStorage.getItem('token') || '';
+
+      if (isWorkflowApplication(app)) {
+        const decision = newStatus === 'approved' ? 'approve' : 'reject';
+        const endpoint = `${API_BASE}/office/fund-workflow/${app.id}/decision`;
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            decision,
+            comment: reason || '',
+            approvedAmount: app.amount,
+          }),
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload?.error || 'Failed to move application in workflow');
+        }
+
+        toast.success(
+          newStatus === 'approved'
+            ? `Application forwarded to ${nextStageLabel(app.raw?.current_stage)}.`
+            : `Application ${app.applicationId} has been rejected.`
+        );
+        await fetchApplications();
+        return;
+      }
+
       const isLoan = app.type === 'loan';
       const endpoint = isLoan
         ? `${API_BASE}/loans/${app.id}/status`
@@ -269,9 +334,10 @@ export default function ApplicationsQueue() {
 
   const confirmApproval = () => {
     if (!selectedApplication) return;
-    updateApplicationStatus(selectedApplication, 'approved');
+    updateApplicationStatus(selectedApplication, 'approved', approvalComment);
     setShowApproveDialog(false);
     setSelectedApplication(null);
+    setApprovalComment('');
   };
 
   const handleReject = (application: Application) => {
@@ -417,7 +483,7 @@ export default function ApplicationsQueue() {
                          <Eye size={16} className="mr-2" /> View Details
                        </Button>
                        <Button size="sm" onClick={() => handleApprove(application)} style={{ backgroundColor: 'var(--accent)' }}>
-                         <Check size={16} className="mr-2" /> Approve
+                         <Check size={16} className="mr-2" /> {isWorkflowApplication(application) ? `Forward to ${nextStageLabel(application.raw?.current_stage)}` : 'Approve'}
                        </Button>
                        <Button size="sm" variant="outline" onClick={() => handleReject(application)}>
                          <X size={16} className="mr-2" /> Reject
@@ -520,7 +586,7 @@ export default function ApplicationsQueue() {
               </div>
               <div className="flex flex-wrap gap-2 pt-2 border-t">
                 <Button size="sm" onClick={() => { setShowApproveDialog(true); setIsDetailsDialogOpen(false); setSelectedApplication(selectedApplication); }} style={{ backgroundColor: 'var(--accent)' }}>
-                  <Check size={16} className="mr-2" /> Approve
+                  <Check size={16} className="mr-2" /> {isWorkflowApplication(selectedApplication) ? `Forward to ${nextStageLabel(selectedApplication.raw?.current_stage)}` : 'Approve'}
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => { setShowRejectDialog(true); setIsDetailsDialogOpen(false); setSelectedApplication(selectedApplication); }}>
                   <X size={16} className="mr-2" /> Reject
@@ -540,12 +606,22 @@ export default function ApplicationsQueue() {
               <AlertDialogHeader>
                   <AlertDialogTitle>Approve Application</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to approve application {selectedApplication.applicationId} for <strong>UGX {selectedApplication.amount.toLocaleString()}</strong>?
+                    {isWorkflowApplication(selectedApplication)
+                      ? <>This will move <strong>{selectedApplication.applicationId}</strong> to <strong>{nextStageLabel(selectedApplication.raw?.current_stage)}</strong>.</>
+                      : <>Are you sure you want to approve application {selectedApplication.applicationId} for <strong>UGX {selectedApplication.amount.toLocaleString()}</strong>?</>}
                   </AlertDialogDescription>
               </AlertDialogHeader>
+              <Textarea
+                placeholder="Add a review comment (recommended)..."
+                value={approvalComment}
+                onChange={(e) => setApprovalComment(e.target.value)}
+                rows={3}
+              />
               <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={confirmApproval} style={{ backgroundColor: 'var(--accent)' }}>Approve</AlertDialogAction>
+                  <AlertDialogAction onClick={confirmApproval} style={{ backgroundColor: 'var(--accent)' }}>
+                    {isWorkflowApplication(selectedApplication) ? 'Forward Application' : 'Approve'}
+                  </AlertDialogAction>
               </AlertDialogFooter>
           </AlertDialogContent>
         )}

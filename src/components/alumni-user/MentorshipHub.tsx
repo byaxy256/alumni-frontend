@@ -54,7 +54,7 @@ interface MentorRequest {
 
 
 interface Message {
-  id: string | number;
+  id: number;
   sender_id: string;
   message_text: string;
   created_at: string;
@@ -66,7 +66,7 @@ interface Message {
     type: string;
     size: number;
   };
-  reply_to?: string | number;
+  reply_to?: number;
   is_edited?: boolean;
 }
 
@@ -151,7 +151,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
         mentorApplication: {
           ...mentorApplication,
           submittedAt: new Date().toISOString(),
-          status: 'pending',
+          status: 'pending_admin_review',
         },
       };
 
@@ -497,70 +497,27 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
     const file = event.target.files?.[0];
     if (!file || !selectedStudent) return;
 
-    try {
-      const token = localStorage.getItem('token') || '';
-      const formData = new FormData();
-      formData.append('file', file, file.name);
+    // Mock file upload - in real implementation, upload to server
+    const attachment = {
+      url: URL.createObjectURL(file),
+      name: file.name,
+      type: file.type,
+      size: file.size
+    };
 
-      const uploadRes = await fetch(`${API_BASE}/upload`, {
-        method: 'POST',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: formData,
-      });
+    const newMessage: Message = {
+      id: Date.now(),
+      sender_id: user.uid,
+      message_text: file.type.startsWith('image/') ? '📷 Image' : '📎 File',
+      created_at: new Date().toISOString(),
+      status: 'sent',
+      type: file.type.startsWith('image/') ? 'image' : 'file',
+      attachment
+    };
 
-      const uploadData = await uploadRes.json().catch(() => ({} as any));
-      if (!uploadRes.ok || !uploadData?.url) {
-        throw new Error(uploadData?.error || 'Failed to upload attachment');
-      }
-
-      const isImage = file.type.startsWith('image/');
-      const messageText = isImage ? '📷 Image' : `📎 ${file.name}`;
-
-      const sendRes = await fetch(`${API_BASE}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          recipientUid: selectedStudent,
-          message: messageText,
-          type: isImage ? 'image' : 'file',
-          attachment: {
-            url: uploadData.url,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-          },
-        }),
-      });
-
-      const responseData = await sendRes.json().catch(() => ({} as any));
-      if (!sendRes.ok) {
-        throw new Error(responseData?.error || 'Failed to send attachment');
-      }
-
-      setMessages(prev => {
-        const updated = [...prev, responseData as Message];
-        lastMessageCountRef.current = updated.length;
-        return updated;
-      });
-
-      setMentees(prev => prev.map(mentee =>
-        (mentee.uid || mentee.id) === selectedStudent
-          ? { ...mentee, lastMessage: messageText }
-          : mentee
-      ));
-
-      toast.success('Attachment sent successfully!');
-      setShowAttachments(false);
-      event.target.value = '';
-    } catch (error: any) {
-      console.error('Error uploading attachment:', error);
-      toast.error(error?.message || 'Failed to send attachment');
-    }
+    setMessages(prev => [...prev, newMessage]);
+    toast.success('File attached successfully!');
+    setShowAttachments(false);
   };
 
   const handleVoiceRecord = () => {
@@ -661,13 +618,13 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
               <Card className="mb-4">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Apply to Become a Mentor</CardTitle>
-                  <CardDescription>Submit your profile for Alumni Office review.</CardDescription>
+                  <CardDescription>Submit your profile for Administrator review.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {hasMentorApplication ? (
                     <div className="space-y-3">
                       <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                        Application submitted on {new Date(mentorApplicationStatus.submittedAt).toLocaleDateString()} • Status: {mentorApplicationStatus.status || 'pending'}
+                        Application submitted on {new Date(mentorApplicationStatus.submittedAt).toLocaleDateString()} • Status: {(mentorApplicationStatus.status || 'pending_admin_review').replace(/_/g, ' ')}
                       </div>
 
                       <div className="rounded-lg border border-border p-3 text-sm space-y-2">
@@ -698,7 +655,7 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
                       </div>
 
                       <p className="text-xs text-muted-foreground">
-                        Your application is under review by the Alumni Office. You’ll be notified once it’s approved.
+                        Your application is under review by the Administrator, then it will be sent to Secretary Academics for final approval.
                       </p>
                     </div>
                   ) : (

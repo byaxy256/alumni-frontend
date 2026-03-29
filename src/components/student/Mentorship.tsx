@@ -267,60 +267,27 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
     const file = event.target.files?.[0];
     if (!file || !activeChatMentor) return;
 
-    try {
-      const token = localStorage.getItem('token') || '';
-      const formData = new FormData();
-      formData.append('file', file, file.name);
+    // Mock file upload - in real implementation, upload to server
+    const attachment = {
+      url: URL.createObjectURL(file),
+      name: file.name,
+      type: file.type,
+      size: file.size
+    };
 
-      const uploadRes = await fetch(`${API_BASE}/upload`, {
-        method: 'POST',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: formData,
-      });
+    const newMsg: Message = {
+      id: String(Date.now()),
+      sender_id: user.uid,
+      message_text: file.type.startsWith('image/') ? '📷 Image' : '📎 File',
+      created_at: new Date().toISOString(),
+      status: 'sent',
+      type: file.type.startsWith('image/') ? 'image' : 'file',
+      attachment
+    };
 
-      const uploadData = await uploadRes.json().catch(() => ({} as any));
-      if (!uploadRes.ok || !uploadData?.url) {
-        throw new Error(uploadData?.error || 'Failed to upload attachment');
-      }
-
-      const isImage = file.type.startsWith('image/');
-      const messageText = isImage ? '📷 Image' : `📎 ${file.name}`;
-
-      const sendRes = await fetch(`${API_BASE}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          recipientUid: activeChatMentor.uid,
-          message: messageText,
-          type: isImage ? 'image' : 'file',
-          attachment: {
-            url: uploadData.url,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-          },
-        }),
-      });
-
-      const sentMessage = await sendRes.json().catch(() => ({} as any));
-      if (!sendRes.ok) {
-        throw new Error(sentMessage?.error || 'Failed to send attachment');
-      }
-
-      setMessages(prev => [...prev, sentMessage]);
-      toast.success('Attachment sent successfully!');
-      setShowAttachments(false);
-      event.target.value = '';
-      scrollToBottom();
-    } catch (err: any) {
-      console.error('Attachment upload error:', err);
-      toast.error(err?.message || 'Failed to send attachment');
-    }
+    setMessages(prev => [...prev, newMsg]);
+    toast.success('File attached successfully!');
+    setShowAttachments(false);
   };
 
   const handleVoiceRecord = () => {
@@ -364,27 +331,6 @@ export function Mentorship({ user, onBack }: { user: User; onBack: () => void; }
                   return (
                     <div key={msg.id} className={`flex items-end gap-2 ${isMe ? 'justify-end' : ''}`}>
                       <div className={`max-w-xs lg:max-w-md px-3 py-2 rounded-2xl ${isMe ? 'chat-bubble-out rounded-br-none' : 'chat-bubble-in rounded-bl-none text-card-foreground'}`}>
-                        {msg.attachment ? (
-                          <div className="mb-2">
-                            {msg.type === 'image' ? (
-                              <img
-                                src={msg.attachment.url}
-                                alt={msg.attachment.name}
-                                className="max-w-full h-auto rounded-lg cursor-pointer"
-                                onClick={() => window.open(msg.attachment?.url, '_blank', 'noopener,noreferrer')}
-                              />
-                            ) : (
-                              <a
-                                href={msg.attachment.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="underline text-sm break-all"
-                              >
-                                {msg.attachment.name}
-                              </a>
-                            )}
-                          </div>
-                        ) : null}
                         <div className="flex items-end gap-2">
                           <span className="text-sm leading-snug break-words">{msg.message_text}</span>
                           <span className="chat-bubble-meta self-end">{time}</span>

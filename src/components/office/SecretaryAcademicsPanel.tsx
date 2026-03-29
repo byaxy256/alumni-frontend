@@ -39,6 +39,7 @@ type TranscriptItem = {
 
 type MentorshipItem = {
   id: string;
+  application_type?: 'alumni_mentor' | 'student_mentorship' | string;
   student_name: string;
   mentor_name: string;
   field: string;
@@ -46,6 +47,26 @@ type MentorshipItem = {
   mentorship_comment?: string;
   requested_at?: string;
 };
+
+type OfficeMentorshipActorRole = 'administrator' | 'secretary_academics' | 'admin' | 'unknown';
+type MentorshipDecision = 'approved' | 'rejected' | 'in_review' | 'submitted_to_academics';
+
+function resolveOfficeRole(): OfficeMentorshipActorRole {
+  try {
+    const userRaw = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    if (!userRaw) return 'unknown';
+    const parsed = JSON.parse(userRaw);
+    const role = String(parsed?.role || '').trim();
+    const officeRole = String(parsed?.meta?.office_role || '').trim();
+    const effectiveRole = role === 'alumni_office' && officeRole ? officeRole : role;
+    if (effectiveRole === 'administrator') return 'administrator';
+    if (effectiveRole === 'secretary_academics') return 'secretary_academics';
+    if (effectiveRole === 'admin') return 'admin';
+    return 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
 
 function attachmentUrl(attachment: any) {
   const root = API_BASE.replace(/\/api\/?$/, '');
@@ -61,6 +82,7 @@ interface SecretaryAcademicsPanelProps {
 
 export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAcademicsPanelProps) {
   const [loading, setLoading] = useState(true);
+  const [officeRole, setOfficeRole] = useState<OfficeMentorshipActorRole>('unknown');
   const [academicItems, setAcademicItems] = useState<AcademicItem[]>([]);
   const [transcriptItems, setTranscriptItems] = useState<TranscriptItem[]>([]);
   const [mentorshipItems, setMentorshipItems] = useState<MentorshipItem[]>([]);
@@ -68,7 +90,8 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
   const [selectedTranscript, setSelectedTranscript] = useState<TranscriptItem | null>(null);
   const [selectedMentorship, setSelectedMentorship] = useState<MentorshipItem | null>(null);
   const [comment, setComment] = useState('');
-  const [decision, setDecision] = useState<'approve' | 'reject' | 'in_review'>('approve');
+  const [academicDecision, setAcademicDecision] = useState<'approve' | 'reject'>('approve');
+  const [mentorshipDecision, setMentorshipDecision] = useState<MentorshipDecision>('in_review');
   const [transcriptStatus, setTranscriptStatus] = useState('in_progress');
   const [transcriptStudentUid, setTranscriptStudentUid] = useState('');
   const [transcriptStudentName, setTranscriptStudentName] = useState('');
@@ -99,6 +122,7 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
   }
 
   useEffect(() => {
+    setOfficeRole(resolveOfficeRole());
     void loadAll();
   }, []);
 
@@ -107,7 +131,7 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
     try {
       setSubmitting(true);
       await apiCall(`/office/academic-verification/${selectedAcademic.id}`, 'POST', {
-        decision,
+        decision: academicDecision,
         comment,
       });
       toast.success('Academic verification updated.');
@@ -174,9 +198,17 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
     if (!selectedMentorship) return;
     try {
       setSubmitting(true);
+
+      if (officeRole === 'administrator' && selectedMentorship.application_type !== 'alumni_mentor') {
+        toast.error('Administrator can only review alumni mentor applications in this queue.');
+        setSubmitting(false);
+        return;
+      }
+
       await apiCall(`/office/mentorship-applications/${selectedMentorship.id}`, 'PATCH', {
-        status: decision,
+        status: mentorshipDecision,
         comment,
+        applicationType: selectedMentorship.application_type,
       });
       toast.success('Mentorship application updated.');
       setShowMentorshipDialog(false);
@@ -320,9 +352,15 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
                       <h3 className="text-lg font-semibold">{item.student_name}</h3>
                       <Badge>{item.mentorship_application_status}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Requested mentor: {item.mentor_name} · Field: {item.field || 'General'}
-                    </p>
+                    {item.application_type === 'alumni_mentor' ? (
+                      <p className="text-sm text-muted-foreground">
+                        Alumni mentor onboarding · Field: {item.field || 'General'}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Requested mentor: {item.mentor_name} · Field: {item.field || 'General'}
+                      </p>
+                    )}
                     <p className="text-sm text-muted-foreground">
                       {item.requested_at ? new Date(item.requested_at).toLocaleString() : 'Request time unavailable'}
                     </p>
@@ -334,7 +372,11 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
                     variant="outline"
                     onClick={() => {
                       setSelectedMentorship(item);
-                      setDecision(item.mentorship_application_status === 'in_review' ? 'in_review' : 'approve');
+                      if (officeRole === 'administrator') {
+                        setMentorshipDecision(item.mentorship_application_status === 'in_review' ? 'in_review' : 'submitted_to_academics');
+                      } else {
+                        setMentorshipDecision(item.mentorship_application_status === 'in_review' ? 'in_review' : 'approved');
+                      }
                       setComment(item.mentorship_comment || '');
                       setShowMentorshipDialog(true);
                     }}
@@ -362,10 +404,10 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex gap-2">
-              <Button variant={decision === 'approve' ? 'default' : 'outline'} onClick={() => setDecision('approve')}>
+              <Button variant={academicDecision === 'approve' ? 'default' : 'outline'} onClick={() => setAcademicDecision('approve')}>
                 Approve
               </Button>
-              <Button variant={decision === 'reject' ? 'destructive' : 'outline'} onClick={() => setDecision('reject')}>
+              <Button variant={academicDecision === 'reject' ? 'destructive' : 'outline'} onClick={() => setAcademicDecision('reject')}>
                 Reject
               </Button>
             </div>
@@ -393,6 +435,8 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
             <div className="space-y-2">
               <Label>Status</Label>
               <select
+                title="Transcript status"
+                aria-label="Transcript status"
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={transcriptStatus}
                 onChange={(event) => setTranscriptStatus(event.target.value)}
@@ -426,13 +470,31 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
-              <Button variant={decision === 'approve' ? 'default' : 'outline'} onClick={() => setDecision('approve')}>
-                Approve
-              </Button>
-              <Button variant={decision === 'in_review' ? 'secondary' : 'outline'} onClick={() => setDecision('in_review')}>
+              {officeRole === 'administrator' ? (
+                <Button
+                  variant={mentorshipDecision === 'submitted_to_academics' ? 'default' : 'outline'}
+                  onClick={() => setMentorshipDecision('submitted_to_academics')}
+                >
+                  Submit to Secretary Academics
+                </Button>
+              ) : (
+                <Button
+                  variant={mentorshipDecision === 'approved' ? 'default' : 'outline'}
+                  onClick={() => setMentorshipDecision('approved')}
+                >
+                  Approve
+                </Button>
+              )}
+              <Button
+                variant={mentorshipDecision === 'in_review' ? 'secondary' : 'outline'}
+                onClick={() => setMentorshipDecision('in_review')}
+              >
                 Mark In Review
               </Button>
-              <Button variant={decision === 'reject' ? 'destructive' : 'outline'} onClick={() => setDecision('reject')}>
+              <Button
+                variant={mentorshipDecision === 'rejected' ? 'destructive' : 'outline'}
+                onClick={() => setMentorshipDecision('rejected')}
+              >
                 Reject
               </Button>
             </div>

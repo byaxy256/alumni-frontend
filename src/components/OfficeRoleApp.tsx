@@ -138,6 +138,7 @@ function getNavigation(role: OfficeRole): OfficeNavItem[] {
       return [
         { id: 'dashboard', label: 'Dashboard', shortLabel: 'Home', icon: Home, description: 'Operational overview and KPIs.' },
         { id: 'applications', label: 'Applications', shortLabel: 'Apps', icon: FileText, description: 'Process loan and support applications.' },
+        { id: 'mentorship', label: 'Mentorship Reviews', shortLabel: 'Mentor', icon: Users, description: 'Review alumni mentor applications and submit to academics.' },
         { id: 'request-funds', label: 'Request Funds', shortLabel: 'Funds', icon: Wallet, description: 'Manage first-stage workflow requests.' },
         { id: 'import', label: 'Import Data', shortLabel: 'Import', icon: Upload, description: 'Import student, alumni, and office records.' },
         { id: 'broadcast', label: 'Broadcast', shortLabel: 'Comms', icon: Mail, description: 'Send communication campaigns and notices.' },
