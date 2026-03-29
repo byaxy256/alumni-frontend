@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { CheckCircle, AlertCircle, Users, Award } from 'lucide-react';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { UcuBadgeLogo } from '../UcuBadgeLogo';
 import { useOfficeRealtimeData } from './useOfficeRealtimeData';
 
