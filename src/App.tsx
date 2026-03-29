@@ -457,10 +457,11 @@ export default function App() {
 
   if (user) {
     console.log('User logged in with role:', user.role, 'Full user:', user);
+    const officeRole = String(user?.meta?.office_role || '').trim();
     
     if (user.role === 'student') return <><StudentApp user={user} onLogout={handleLogout} /><Toaster /></>;
     if (user.role === 'alumni') return <><AlumniApp user={user} onLogout={handleLogout} /><Toaster /></>;
-    if (user.role === 'administrator') {
+    if (user.role === 'administrator' || (user.role === 'alumni_office' && (!officeRole || officeRole === 'administrator'))) {
       return <><AlumniOfficeApp user={user} onLogout={handleLogout} headerTitle="Administrator Dashboard" /><Toaster /></>;
     }
     if (
