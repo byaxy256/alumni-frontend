@@ -419,10 +419,10 @@ export default function ApplicationsQueue() {
                     <Input placeholder="Search by name, ID, type (loan/support)..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
                 </div>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-full lg:w-[180px] bg-black text-white border-white/15">
+                  <SelectTrigger className="w-full lg:w-[180px] bg-white text-black border-gray-300">
                         <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
-                    <SelectContent className="bg-black text-white border-white/15">
+                  <SelectContent className="bg-white text-black border-gray-300">
                         <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="under_review">Under Review</SelectItem>
@@ -485,7 +485,7 @@ export default function ApplicationsQueue() {
                          <Eye size={16} className="mr-2" /> View Details
                        </Button>
                        <Button size="sm" onClick={() => handleApprove(application)} style={{ backgroundColor: 'var(--accent)' }}>
-                         <Check size={16} className="mr-2" /> {isWorkflowApplication(application) ? `Forward to ${nextStageLabel(application.raw?.current_stage)}` : 'Approve'}
+                         <Check size={16} className="mr-2" /> Approve
                        </Button>
                        <Button size="sm" variant="outline" onClick={() => handleReject(application)}>
                          <X size={16} className="mr-2" /> Reject
@@ -588,7 +588,7 @@ export default function ApplicationsQueue() {
               </div>
               <div className="flex flex-wrap gap-2 pt-2 border-t">
                 <Button size="sm" onClick={() => { setShowApproveDialog(true); setIsDetailsDialogOpen(false); setSelectedApplication(selectedApplication); }} style={{ backgroundColor: 'var(--accent)' }}>
-                  <Check size={16} className="mr-2" /> {isWorkflowApplication(selectedApplication) ? `Forward to ${nextStageLabel(selectedApplication.raw?.current_stage)}` : 'Approve'}
+                  <Check size={16} className="mr-2" /> Approve
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => { setShowRejectDialog(true); setIsDetailsDialogOpen(false); setSelectedApplication(selectedApplication); }}>
                   <X size={16} className="mr-2" /> Reject
@@ -622,7 +622,7 @@ export default function ApplicationsQueue() {
               <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={confirmApproval} style={{ backgroundColor: 'var(--accent)' }}>
-                    {isWorkflowApplication(selectedApplication) ? 'Forward Application' : 'Approve'}
+                    Approve
                   </AlertDialogAction>
               </AlertDialogFooter>
           </AlertDialogContent>

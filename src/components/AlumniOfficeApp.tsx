@@ -63,7 +63,7 @@ export const AlumniOfficeApp = ({ user, onLogout, headerTitle = 'Alumni Circle O
                 <ApplicationsQueue />
               </TabsContent>
               <TabsContent value="mentorship">
-                <SecretaryAcademicsPanel defaultTab="mentorship" />
+                <SecretaryAcademicsPanel defaultTab="mentorship" mentorshipOnly />
               </TabsContent>
             </Tabs>
           </div>
@@ -168,8 +168,8 @@ export const AlumniOfficeApp = ({ user, onLogout, headerTitle = 'Alumni Circle O
                     size="sm"
                     className={
                       isActive
-                        ? 'rounded-full bg-[#0b2a4a] text-white shadow-sm hover:bg-[#0b2a4a]/90'
-                        : 'rounded-full text-white/90 hover:bg-black/10 hover:text-white'
+                        ? 'rounded-md bg-[#0b2a4a] text-white shadow-sm hover:bg-[#0b2a4a]/90'
+                        : 'rounded-md text-white/90 hover:bg-black/10 hover:text-white'
                     }
                     onClick={() => setCurrentScreen(item.id as AlumniScreen)}
                   >
@@ -200,7 +200,7 @@ export const AlumniOfficeApp = ({ user, onLogout, headerTitle = 'Alumni Circle O
               <button
                 key={item.id}
                 onClick={() => setCurrentScreen(item.id as AlumniScreen)}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-full transition ${
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-md transition ${
                   isActive ? 'bg-[#0b2a4a] text-white shadow-sm' : 'text-white/85 hover:bg-black/10'
                 }`}
               >

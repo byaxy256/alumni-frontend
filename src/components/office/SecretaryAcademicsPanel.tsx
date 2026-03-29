@@ -78,9 +78,10 @@ function attachmentUrl(attachment: any) {
 
 interface SecretaryAcademicsPanelProps {
   defaultTab?: 'academic' | 'transcript' | 'mentorship';
+  mentorshipOnly?: boolean;
 }
 
-export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAcademicsPanelProps) {
+export function SecretaryAcademicsPanel({ defaultTab = 'academic', mentorshipOnly = false }: SecretaryAcademicsPanelProps) {
   const [loading, setLoading] = useState(true);
   const [officeRole, setOfficeRole] = useState<OfficeMentorshipActorRole>('unknown');
   const [academicItems, setAcademicItems] = useState<AcademicItem[]>([]);
@@ -102,17 +103,29 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
   const [showMentorshipDialog, setShowMentorshipDialog] = useState(false);
   const [showCreateTranscript, setShowCreateTranscript] = useState(false);
 
-  async function loadAll() {
+  async function loadAll(resolvedRole: OfficeMentorshipActorRole) {
     try {
       setLoading(true);
-      const [academic, transcript, mentorship] = await Promise.all([
-        apiCall('/office/academic-verification', 'GET'),
-        apiCall('/office/transcript-program', 'GET'),
+      const shouldLoadAcademic = !mentorshipOnly && (resolvedRole === 'secretary_academics' || resolvedRole === 'admin');
+      const shouldLoadTranscript = !mentorshipOnly && (resolvedRole === 'secretary_academics' || resolvedRole === 'admin');
+
+      const [academicResult, transcriptResult, mentorshipResult] = await Promise.allSettled([
+        shouldLoadAcademic ? apiCall('/office/academic-verification', 'GET') : Promise.resolve([]),
+        shouldLoadTranscript ? apiCall('/office/transcript-program', 'GET') : Promise.resolve([]),
         apiCall('/office/mentorship-applications', 'GET'),
       ]);
+
+      const academic = academicResult.status === 'fulfilled' ? academicResult.value : [];
+      const transcript = transcriptResult.status === 'fulfilled' ? transcriptResult.value : [];
+      const mentorship = mentorshipResult.status === 'fulfilled' ? mentorshipResult.value : [];
+
       setAcademicItems(Array.isArray(academic) ? academic : []);
       setTranscriptItems(Array.isArray(transcript) ? transcript : []);
       setMentorshipItems(Array.isArray(mentorship) ? mentorship : []);
+
+      if (mentorshipResult.status === 'rejected') {
+        throw mentorshipResult.reason;
+      }
     } catch (error: any) {
       console.error('Failed to load secretary academics queues:', error);
       toast.error(error?.message || 'Failed to load secretary academics dashboard');
@@ -122,9 +135,10 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
   }
 
   useEffect(() => {
-    setOfficeRole(resolveOfficeRole());
-    void loadAll();
-  }, []);
+    const resolved = resolveOfficeRole();
+    setOfficeRole(resolved);
+    void loadAll(resolved);
+  }, [mentorshipOnly]);
 
   async function submitAcademicReview() {
     if (!selectedAcademic) return;
@@ -138,7 +152,7 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
       setShowAcademicDialog(false);
       setSelectedAcademic(null);
       setComment('');
-      await loadAll();
+      await loadAll(officeRole);
     } catch (error: any) {
       toast.error(error?.message || 'Failed to update academic verification');
     } finally {
@@ -158,7 +172,7 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
       setShowTranscriptDialog(false);
       setSelectedTranscript(null);
       setComment('');
-      await loadAll();
+      await loadAll(officeRole);
     } catch (error: any) {
       toast.error(error?.message || 'Failed to update transcript record');
     } finally {
@@ -186,7 +200,7 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
       setTranscriptStudentUid('');
       setTranscriptStudentName('');
       setTranscriptProgram('');
-      await loadAll();
+      await loadAll(officeRole);
     } catch (error: any) {
       toast.error(error?.message || 'Failed to create transcript case');
     } finally {
@@ -214,7 +228,7 @@ export function SecretaryAcademicsPanel({ defaultTab = 'academic' }: SecretaryAc
       setShowMentorshipDialog(false);
       setSelectedMentorship(null);
       setComment('');
-      await loadAll();
+      await loadAll(officeRole);
     } catch (error: any) {
       toast.error(error?.message || 'Failed to update mentorship application');
     } finally {
