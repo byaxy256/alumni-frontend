@@ -108,9 +108,9 @@ function mapWorkflowStatus(item: OfficeWorkflowApplication): Application['status
 function nextStageLabel(stage?: string): string {
   const stageMap: Record<string, string> = {
     administrator: 'General Secretary',
-    general_secretary: 'Secretary Academics',
+    general_secretary: 'Finance',
     secretary_academics: 'Finance',
-    finance_review: 'President',
+    finance_review: 'President / Vice President',
     executive_review: 'Finance Disbursement',
     finance_disbursement: 'Completed',
   };
