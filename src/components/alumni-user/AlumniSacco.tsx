@@ -237,7 +237,13 @@ export function AlumniSacco({ user, onBack }: { user: User; onBack: () => void }
         }),
       });
       const initJson = await initRes.json().catch(() => ({}));
-      if (!initRes.ok) throw new Error(initJson.error || 'Failed to initiate payment');
+      if (!initRes.ok) {
+        const errMsg = String(initJson.error || initJson.message || 'Failed to initiate payment');
+        if (errMsg.includes('loanId, supportRequestId, or eventId')) {
+          throw new Error('Backend is still using old payment validation. Please redeploy backend with SACCO payment support.');
+        }
+        throw new Error(errMsg);
+      }
       if (!initJson.transaction_id) throw new Error('Missing transaction id');
 
       setPendingTxId(initJson.transaction_id);
