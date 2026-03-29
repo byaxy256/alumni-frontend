@@ -54,7 +54,7 @@ interface MentorRequest {
 
 
 interface Message {
-  id: number;
+  id: string | number;
   sender_id: string;
   message_text: string;
   created_at: string;
@@ -66,7 +66,7 @@ interface Message {
     type: string;
     size: number;
   };
-  reply_to?: number;
+  reply_to?: string | number;
   is_edited?: boolean;
 }
 
@@ -497,27 +497,70 @@ export function MentorshipHub({ user, onBack }: MentorshipHubProps) {
     const file = event.target.files?.[0];
     if (!file || !selectedStudent) return;
 
-    // Mock file upload - in real implementation, upload to server
-    const attachment = {
-      url: URL.createObjectURL(file),
-      name: file.name,
-      type: file.type,
-      size: file.size
-    };
+    try {
+      const token = localStorage.getItem('token') || '';
+      const formData = new FormData();
+      formData.append('file', file, file.name);
 
-    const newMessage: Message = {
-      id: Date.now(),
-      sender_id: user.uid,
-      message_text: file.type.startsWith('image/') ? '📷 Image' : '📎 File',
-      created_at: new Date().toISOString(),
-      status: 'sent',
-      type: file.type.startsWith('image/') ? 'image' : 'file',
-      attachment
-    };
+      const uploadRes = await fetch(`${API_BASE}/upload`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
 
-    setMessages(prev => [...prev, newMessage]);
-    toast.success('File attached successfully!');
-    setShowAttachments(false);
+      const uploadData = await uploadRes.json().catch(() => ({} as any));
+      if (!uploadRes.ok || !uploadData?.url) {
+        throw new Error(uploadData?.error || 'Failed to upload attachment');
+      }
+
+      const isImage = file.type.startsWith('image/');
+      const messageText = isImage ? '📷 Image' : `📎 ${file.name}`;
+
+      const sendRes = await fetch(`${API_BASE}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          recipientUid: selectedStudent,
+          message: messageText,
+          type: isImage ? 'image' : 'file',
+          attachment: {
+            url: uploadData.url,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+          },
+        }),
+      });
+
+      const responseData = await sendRes.json().catch(() => ({} as any));
+      if (!sendRes.ok) {
+        throw new Error(responseData?.error || 'Failed to send attachment');
+      }
+
+      setMessages(prev => {
+        const updated = [...prev, responseData as Message];
+        lastMessageCountRef.current = updated.length;
+        return updated;
+      });
+
+      setMentees(prev => prev.map(mentee =>
+        (mentee.uid || mentee.id) === selectedStudent
+          ? { ...mentee, lastMessage: messageText }
+          : mentee
+      ));
+
+      toast.success('Attachment sent successfully!');
+      setShowAttachments(false);
+      event.target.value = '';
+    } catch (error: any) {
+      console.error('Error uploading attachment:', error);
+      toast.error(error?.message || 'Failed to send attachment');
+    }
   };
 
   const handleVoiceRecord = () => {
